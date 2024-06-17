@@ -2,5 +2,5 @@
 export default defineNuxtConfig({
   devtools: { enabled: true },
 
-  srcDir: '/web'
+  srcDir: 'web/'
 });

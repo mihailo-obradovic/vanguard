@@ -20,5 +20,6 @@ Optional modules:
 For both branches:
 - Implement basic UI for existing pages
 - Create several commonly used components
+- Add error.vue page
 
 - Optimize back-end (existing code, possible new functionalities, extensions, etc.)

@@ -1,22 +1,26 @@
 {
-    "name": "laravel-nuxt-base",
-    "private": true,
-    "type": "module",
-    "scripts": {
-        "build": "nuxt build",
-        "dev": "nuxt dev",
-        "generate": "nuxt generate",
-        "preview": "nuxt preview",
-        "postinstall": "nuxt prepare"
-    },
-    "dependencies": {
-        "@pinia/nuxt": "^0.5.1",
-        "nuxt": "^3.12.2",
-        "pinia": "^2.1.7",
-        "vue": "^3.4.29",
-        "vue-router": "^4.3.3"
-    },
-    "devDependencies": {
-        "prettier": "^3.3.2"
-    }
+  "name": "laravel-nuxt-base",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "format": "prettier --single-quote true --trailing-comma none --html-whitespace-sensitivity none . --write ."
+  },
+  "dependencies": {
+    "@nuxt/eslint": "^0.3.13",
+    "@pinia/nuxt": "^0.5.1",
+    "nuxt": "^3.12.2",
+    "pinia": "^2.1.7",
+    "vue": "^3.4.29",
+    "vue-router": "^4.3.3"
+  },
+  "devDependencies": {
+    "prettier": "^3.3.2"
+  }
 }

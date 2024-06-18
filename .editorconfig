@@ -17,7 +17,7 @@ indent_size = 2
 [docker-compose.yml]
 indent_size = 4
 
-[*.{vue,ts,tsx,js,jsx,json}]
+[*.{vue,ts,tsx,js,jsx,cjs,mjs,json}]
 indent_style = space
 indent_size = 2
 trim_trailing_whitespace = true

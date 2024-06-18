@@ -4,6 +4,8 @@ export default defineNuxtConfig({
 
   srcDir: 'web/',
 
+  ssr: false,
+
   modules: ['@pinia/nuxt', '@nuxt/eslint', 'dayjs-nuxt', 'nuxt-lodash'],
 
   lodash: {

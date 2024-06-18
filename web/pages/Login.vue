@@ -20,17 +20,14 @@ const form = ref({
   password: 'gmaz'
 });
 
+const auth = useAuthStore();
+
 async function handleLogin() {
-  await useApiFetch('/sanctum/csrf-cookie');
+  const { error } = await auth.logIn(form.value);
 
-  await useApiFetch('/login', {
-    method: 'POST',
-    body: form.value
-  });
-
-  const { data } = await useApiFetch('/api/user');
-
-  console.log(data);
+  if (error.value) {
+    console.log(error);
+  }
 }
 </script>
 

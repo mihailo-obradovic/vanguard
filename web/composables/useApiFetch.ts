@@ -12,6 +12,13 @@ export function useApiFetch<T>(
     headers['X-XSRF-TOKEN'] = token.value as string;
   }
 
+  if (import.meta.server) {
+    headers = {
+      ...headers,
+      ...useRequestHeaders(['referer', 'cookie'])
+    };
+  }
+
   // TODO: Replace with a dynamic base URL variable
   return useFetch('http://localhost:8000' + path, {
     credentials: 'include',

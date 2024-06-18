@@ -6,8 +6,16 @@ export default withNuxt({
     quotes: ['error', 'single'],
     semi: ['error', 'always'],
     'vue/component-name-in-template-casing': ['warn', 'PascalCase'],
-    'vue/singleline-html-element-content-newline': 'off',
-    'vue/multi-word-component-names': 'off',
+    'vue/html-self-closing': [
+      'warn',
+      {
+        html: {
+          void: 'always',
+          normal: 'always',
+          component: 'always'
+        }
+      }
+    ],
     'vue/max-attributes-per-line': [
       'warn',
       {
@@ -18,7 +26,10 @@ export default withNuxt({
           max: 1
         }
       }
-    ]
+    ],
+    'vue/multi-word-component-names': 'off',
+    'vue/singleline-html-element-content-newline': 'off',
+    '@typescript-eslint/no-explicit-any': 'off'
   }
 
   // TODO: Check if needed

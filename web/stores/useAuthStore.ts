@@ -27,7 +27,7 @@ export const useAuthStore = defineStore('auth', () => {
     const { data, error } = await useApiFetch('/api/user');
 
     if (error.value) {
-      console.log(error);
+      // console.log(error);
 
       return;
     }

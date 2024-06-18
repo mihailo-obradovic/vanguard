@@ -2,25 +2,25 @@
   <form @submit.prevent="handleRegister">
     <label for="name">
       Name
-      <input id="name" type="text" v-model="form.name" />
+      <input id="name" v-model="form.name" type="text" />
     </label>
 
     <label for="email">
       Email
-      <input id="email" type="email" v-model="form.email" />
+      <input id="email" v-model="form.email" type="email" />
     </label>
 
     <label for="password">
       Password
-      <input id="password" type="password" v-model="form.password" />
+      <input id="password" v-model="form.password" type="password" />
     </label>
 
     <label for="password_confirmation">
       Password confirmation
       <input
         id="password_confirmation"
-        type="password"
         v-model="form.password_confirmation"
+        type="password"
       />
     </label>
 

@@ -4,5 +4,10 @@ export default defineNuxtConfig({
 
   srcDir: 'web/',
 
-  modules: ['@pinia/nuxt', '@nuxt/eslint', "dayjs-nuxt", "nuxt-lodash"]
+  modules: ['@pinia/nuxt', '@nuxt/eslint', 'dayjs-nuxt', 'nuxt-lodash'],
+
+  lodash: {
+    prefix: '_',
+    upperAfterPrefix: false
+  }
 });

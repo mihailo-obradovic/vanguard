@@ -28,6 +28,8 @@ export const useAuthStore = defineStore('auth', () => {
 
     if (error.value) {
       console.log(error);
+
+      return;
     }
 
     user.value = data.value as User;

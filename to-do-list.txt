@@ -1,0 +1,25 @@
+Add modules:
+- Nuxt Image
+- i18n
+- Vue Use
+- Test Utils
+- Icon
+- Dayjs
+- Lodash
+
+Optional modules:
+- Auto Animate
+- Fonts
+- Vuetify
+- Ngrok
+
+- Implement validation with Zod
+
+- Split a branch for Vuetify
+- Split a branch for NuxtUI
+
+For both branches:
+- Implement basic UI for existing pages
+- Create several commonly used components
+
+- Optimize back-end (existing code, possible new functionalities, extensions, etc.)

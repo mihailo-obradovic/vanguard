@@ -4,5 +4,5 @@ export default defineNuxtConfig({
 
   srcDir: 'web/',
 
-  modules: ['@pinia/nuxt', '@nuxt/eslint', "dayjs-nuxt"]
+  modules: ['@pinia/nuxt', '@nuxt/eslint', "dayjs-nuxt", "nuxt-lodash"]
 });

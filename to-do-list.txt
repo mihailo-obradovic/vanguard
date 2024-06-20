@@ -1,13 +1,12 @@
 Add modules:
-- Nuxt Image
-- i18n
 - Test Utils
-- Icon
 
 Optional modules:
 - Auto Animate
 - Fonts
 - Ngrok
+- Zod i18n
+- Icon
 
 - Implement validation with Zod
 

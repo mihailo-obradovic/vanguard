@@ -9,6 +9,7 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     '@nuxt/image',
     '@nuxt/test-utils/module',
+    '@nuxt/ui',
     '@nuxtjs/i18n',
     '@pinia/nuxt',
     '@vueuse/nuxt',

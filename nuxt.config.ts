@@ -20,5 +20,13 @@ export default defineNuxtConfig({
   lodash: {
     prefix: '_',
     upperAfterPrefix: false
+  },
+
+  colorMode: {
+    preference: 'light'
+  },
+
+  ui: {
+    icons: ['mdi']
   }
 });

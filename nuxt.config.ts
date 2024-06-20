@@ -6,7 +6,13 @@ export default defineNuxtConfig({
 
   ssr: false,
 
-  modules: ['@pinia/nuxt', '@nuxt/eslint', 'dayjs-nuxt', 'nuxt-lodash'],
+  modules: [
+    '@nuxt/eslint',
+    '@pinia/nuxt',
+    '@vueuse/nuxt',
+    'dayjs-nuxt',
+    'nuxt-lodash'
+  ],
 
   lodash: {
     prefix: '_',

@@ -1,15 +1,12 @@
 Add modules:
 - Nuxt Image
 - i18n
-- Vue Use
 - Test Utils
 - Icon
-- Lodash
 
 Optional modules:
 - Auto Animate
 - Fonts
-- Vuetify
 - Ngrok
 
 - Implement validation with Zod

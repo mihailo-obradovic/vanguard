@@ -1,30 +1,10 @@
 <template>
+  <!-- <pre>{{ auth.user }}</pre> -->
+
   <div>
+    <UHorizontalNavigation :links="links" />
+
     <button v-if="auth.isLoggedIn" @click="handleLogout">Logout</button>
-
-    <pre>{{ auth.user }}</pre>
-
-    <ul>
-      <li>
-        <NuxtLink to="/home">Home</NuxtLink>
-      </li>
-
-      <li>
-        <NuxtLink to="/register">Register</NuxtLink>
-      </li>
-
-      <li>
-        <NuxtLink to="/login">Login</NuxtLink>
-      </li>
-
-      <li>
-        <NuxtLink to="/auth-only">Auth Only</NuxtLink>
-      </li>
-
-      <li>
-        <NuxtLink to="/guest-only">Guest Only</NuxtLink>
-      </li>
-    </ul>
 
     <slot />
   </div>
@@ -36,4 +16,28 @@ const auth = useAuthStore();
 async function handleLogout() {
   await auth.logOut();
 }
+
+const links = [
+  {
+    label: 'Home',
+    to: '/home',
+    icon: 'i-mdi-home'
+  },
+  {
+    label: 'Register',
+    to: '/register'
+  },
+  {
+    label: 'Login',
+    to: '/login'
+  },
+  {
+    label: 'Auth Only',
+    to: '/auth-only'
+  },
+  {
+    label: 'Guest Only',
+    to: '/guest-only'
+  }
+];
 </script>

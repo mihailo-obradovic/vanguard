@@ -1,18 +1,13 @@
-Optional modules:
-- Auto Animate
-- Fonts
-- Ngrok
-- Zod i18n
-- Icon
-
-- Implement validation with Zod
-
-- Split a branch for Vuetify
-- Split a branch for NuxtUI
-
-For both branches:
-- Implement basic UI for existing pages
-- Create several commonly used components
-- Add error.vue page
-
 - Optimize back-end (existing code, possible new functionalities, extensions, etc.)
+
+- Add error.vue page
+- Implement validation with Zod (maybe with Nuxt Precognition?)
+- Middleware front-back coordination
+- Docker image
+
+- Nuxt UI fork
+- Vuetify fork
+
+For both forks:
+- Implement registration/log in/log out/home page
+- Create a few commonly used components

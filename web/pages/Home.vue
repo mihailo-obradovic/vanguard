@@ -1,9 +1,23 @@
 <template>
-  <UCard :ui="ui">ASD</UCard>
+  <UContainer>
+    <UTable />
+  </UContainer>
 </template>
 
 <script setup lang="ts">
 const ui = /* ui */ {
-  background: 'bg-red-700 dark:bg-slate-900'
+  //
 };
+
+onMounted(() => {
+  loadUsers();
+});
+
+function loadUsers() {
+  fetch('/users')
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data);
+    });
+}
 </script>

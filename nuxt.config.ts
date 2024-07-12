@@ -28,5 +28,11 @@ export default defineNuxtConfig({
 
   ui: {
     icons: ['mdi']
+  },
+
+  runtimeConfig: {
+    public: {
+      baseURL: 'localhost:8000/'
+    }
   }
 });

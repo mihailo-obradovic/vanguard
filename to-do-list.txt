@@ -6,5 +6,6 @@
 - Write a few basic tests
 - Docker image
 
-- Nuxt UI branch
-- Vuetify branch
+- Home Page
+- Registration and login forms
+- CardDialog component

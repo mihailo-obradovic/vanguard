@@ -9,3 +9,4 @@
 - Home Page
 - Registration and login forms
 - CardDialog component
+- Make theme switching work

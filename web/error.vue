@@ -1,6 +1,8 @@
 <template>
   <div>
-    Placeholder
+    <UContainer>
+      {{ error }}
+    </UContainer>
   </div>
 </template>
 

@@ -6,8 +6,4 @@
 const ui = /* ui */ {
   background: 'bg-red-700 dark:bg-slate-900'
 };
-
-const appConfig = useAppConfig();
-
-console.log(appConfig);
 </script>

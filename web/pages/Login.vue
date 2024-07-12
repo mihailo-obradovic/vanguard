@@ -15,6 +15,10 @@
 </template>
 
 <script lang="ts" setup>
+definePageMeta({
+  middleware: ['guest']
+});
+
 const form = ref({
   email: 'test@example.com',
   password: 'gmaz'
@@ -28,6 +32,8 @@ async function handleLogin() {
   if (error.value) {
     console.log(error);
   }
+
+  navigateTo('/home');
 }
 </script>
 

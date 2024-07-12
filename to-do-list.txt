@@ -3,11 +3,8 @@
 - Add error.vue page
 - Implement validation with Zod (maybe with Nuxt Precognition?)
 - Middleware front-back coordination
+- Write a few basic tests
 - Docker image
 
-- Nuxt UI fork
-- Vuetify fork
-
-For both forks:
-- Implement registration/log in/log out/home page
-- Create a few commonly used components
+- Nuxt UI branch
+- Vuetify branch

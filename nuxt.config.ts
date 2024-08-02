@@ -1,9 +1,13 @@
+import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify';
+
 export default defineNuxtConfig({
   devtools: { enabled: true },
 
   srcDir: 'web/',
 
   ssr: false,
+
+  build: { transpile: ['vuetify'] },
 
   hooks: {
     'pages:extend'(pages) {
@@ -24,6 +28,14 @@ export default defineNuxtConfig({
     }
   },
 
+  vite: {
+    vue: {
+      template: {
+        transformAssetUrls
+      }
+    }
+  },
+
   modules: [
     '@nuxt/eslint',
     '@nuxt/image',
@@ -32,7 +44,14 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     '@vueuse/nuxt',
     'dayjs-nuxt',
-    'nuxt-lodash'
+    'nuxt-lodash',
+
+    // TODO: Check if this can be moved to hooks
+    (_options, nuxt) => {
+      nuxt.hooks.hook('vite:extendConfig', (config) => {
+        config.plugins?.push(vuetify({ autoImport: true }));
+      });
+    }
   ],
 
   lodash: {

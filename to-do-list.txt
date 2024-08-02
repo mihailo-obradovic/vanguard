@@ -1,10 +1,21 @@
+------------------------------------------------------------------------------------
+----------------------------------- TOP PRIORITY -----------------------------------
+------------------------------------------------------------------------------------
 - Optimize back-end (existing code, possible new functionalities, extensions, etc.)
-
-- Add error.vue page
+- Check middleware compatibility between FE and BE
+- Login/Register/Logout
+- Profile page
+- Users list
+- User roles: regular, admin
+------------------------------------------------------------------------------------
+------------------------------------- BRANCHES -------------------------------------
+------------------------------------------------------------------------------------
+- Vuetify
+- Shadcn-vue
+------------------------------------------------------------------------------------
+-------------------------------------- LATER ---------------------------------------
+------------------------------------------------------------------------------------
 - Implement validation with Zod (maybe with Nuxt Precognition?)
-- Middleware front-back coordination
-- Write a few basic tests
-- Docker image
-
-- Nuxt UI branch
-- Vuetify branch
+- Write tests
+- Create a Docker image
+------------------------------------------------------------------------------------

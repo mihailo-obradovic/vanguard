@@ -6,7 +6,7 @@
 
     <ul>
       <li>
-        <NuxtLink to="/home">Home</NuxtLink>
+        <NuxtLink to="/">Home</NuxtLink>
       </li>
 
       <li>

@@ -5,6 +5,17 @@ export default defineNuxtConfig({
 
   ssr: false,
 
+  hooks: {
+    'pages:extend'(pages) {
+      pages.push({
+        name: 'Home',
+        path: '/',
+        alias: '/home',
+        file: '@/pages/Home.vue'
+      });
+    }
+  },
+
   modules: [
     '@nuxt/eslint',
     '@nuxt/image',

@@ -33,7 +33,7 @@ async function handleLogin() {
     console.log(error);
   }
 
-  navigateTo('/home');
+  navigateTo('/');
 }
 </script>
 

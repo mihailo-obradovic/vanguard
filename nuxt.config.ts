@@ -30,5 +30,7 @@ export default defineNuxtConfig({
   lodash: {
     prefix: '_',
     upperAfterPrefix: false
-  }
+  },
+
+  css: ['@/assets/styles/main.scss']
 });

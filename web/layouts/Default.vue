@@ -15,7 +15,11 @@
 
       <v-spacer />
 
-      <div class="d-flex pa-2 ga-2">
+      <div class="d-flex align-center pa-2 ga-2">
+        <v-btn icon @click="toggleTheme">
+          <v-icon>{{ themeIcon }}</v-icon>
+        </v-btn>
+
         <template v-if="auth.isLoggedIn">
           <v-btn prepend-icon="mdi-account" to="/profile">Profile</v-btn>
 
@@ -30,7 +34,7 @@
       </div>
     </v-app-bar>
 
-    <v-navigation-drawer v-model="drawer" color="primary">
+    <v-navigation-drawer v-model="drawer" color="secondary">
       <v-list>
         <v-list-item
           v-for="(item, index) in drawerItems"
@@ -51,6 +55,8 @@
 </template>
 
 <script lang="ts" setup>
+import { useTheme } from 'vuetify';
+
 const auth = useAuthStore();
 
 async function handleLogout() {
@@ -59,12 +65,24 @@ async function handleLogout() {
 
 const drawer = ref(true);
 
-function toggleDrawer() {
-  drawer.value = !drawer.value;
-}
-
 const drawerItems = [
   { title: 'Auth Only', to: '/auth-only', icon: 'mdi-lock' },
   { title: 'Guest Only', to: '/guest-only', icon: 'mdi-lock-outline' }
 ];
+
+function toggleDrawer() {
+  drawer.value = !drawer.value;
+}
+
+const theme = useTheme();
+
+const isDark = computed(() => theme.global.current.value.dark);
+
+const themeIcon = computed(() =>
+  isDark.value ? 'mdi-white-balance-sunny' : 'mdi-moon-waxing-crescent'
+);
+
+function toggleTheme() {
+  theme.global.name.value = isDark.value ? 'light' : 'dark';
+}
 </script>

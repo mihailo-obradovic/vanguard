@@ -2,6 +2,11 @@ body {
     font-family: sans-serif;
 }
 
+::selection {
+    color: rgb(var(--v-theme-secondary));
+    background-color: rgb(var(--v-theme-highlight));
+}
+
 .user-select-none {
     user-select: none;
 }

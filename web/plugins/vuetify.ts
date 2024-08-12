@@ -21,8 +21,8 @@ const options = {
           success: '#50fa7b',
           background: '#282a36',
           foreground: '#f8f8f2',
-          comment: '#6272a4', // TODO: Rename to something more fitting
-          yellow: '#f1fa8c' // TODO: Rename to something more fitting
+          link: '#6272a4',
+          highlight: '#f1fa8c'
         }
       },
 
@@ -39,8 +39,8 @@ const options = {
           success: '#50fa7b',
           background: '#f8f8f2',
           foreground: '#282a36',
-          comment: '#6272a4', // TODO: Rename to something more fitting
-          yellow: '#f1fa8c' // TODO: Rename to something more fitting
+          link: '#6272a4',
+          highlight: '#f1fa8c'
         }
       }
     }

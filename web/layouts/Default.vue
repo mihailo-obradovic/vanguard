@@ -97,6 +97,16 @@ const isDark = computed(() => theme.global.current.value.dark);
 function toggleTheme() {
   theme.global.name.value = isDark.value ? 'light' : 'dark';
 }
+
+const themeSetting = useCookie('theme');
+
+watch(isDark, (value) => {
+  themeSetting.value = value ? 'dark' : 'light';
+});
+
+onMounted(() => {
+  theme.global.name.value = themeSetting.value || 'light';
+});
 </script>
 
 <style scoped lang="scss">

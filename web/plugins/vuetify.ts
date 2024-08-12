@@ -5,7 +5,7 @@ import { createVuetify } from 'vuetify';
 
 const options = {
   theme: {
-    defaultTheme: 'dark',
+    defaultTheme: 'light',
 
     themes: {
       dark: {

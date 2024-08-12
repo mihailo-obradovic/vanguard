@@ -31,9 +31,13 @@
         </template>
 
         <template v-else>
-          <v-btn prepend-icon="mdi-login" to="/login">Log In</v-btn>
+          <v-btn prepend-icon="mdi-login" @click="loginDialog = true">
+            Log In
+          </v-btn>
 
-          <v-btn prepend-icon="mdi-account-plus" to="/register">Register</v-btn>
+          <v-btn prepend-icon="mdi-account-plus" @click="registerDialog = true">
+            Register
+          </v-btn>
         </template>
       </div>
     </v-app-bar>
@@ -56,10 +60,16 @@
       </v-container>
     </v-main>
   </v-layout>
+
+  <LoginDialog v-model="loginDialog" @confirm="handleLogin" />
+
+  <RegisterDialog v-model="registerDialog" @confirm="handleRegister" />
 </template>
 
 <script lang="ts" setup>
 import { useTheme } from 'vuetify';
+import LoginDialog from '~/components/user-dialogs/LoginDialog.vue';
+import RegisterDialog from '~/components/user-dialogs/RegisterDialog.vue';
 
 const auth = useAuthStore();
 
@@ -79,6 +89,9 @@ function toggleDrawer() {
 }
 
 const { isDark, toggleTheme } = useThemeSwitching();
+
+const { loginDialog, registerDialog, handleLogin, handleRegister } =
+  useUserDialogs();
 
 function useThemeSwitching() {
   const theme = useTheme();
@@ -100,5 +113,36 @@ function useThemeSwitching() {
   });
 
   return { isDark, toggleTheme };
+}
+
+function useUserDialogs() {
+  const loginDialog = ref(false);
+  const registerDialog = ref(false);
+
+  const { logIn, register } = useAuthStore();
+
+  async function handleLogin(form: any) {
+    const { error } = await logIn(form);
+
+    if (error.value) {
+      console.log(error);
+    }
+
+    navigateTo('/');
+  }
+
+  async function handleRegister(form: any) {
+    const { error } = await register(form);
+
+    if (error.value) {
+      console.log(error);
+
+      return;
+    }
+
+    navigateTo('/home');
+  }
+
+  return { loginDialog, registerDialog, handleLogin, handleRegister };
 }
 </script>

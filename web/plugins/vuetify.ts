@@ -8,24 +8,6 @@ const options = {
     defaultTheme: 'light',
 
     themes: {
-      dark: {
-        isDark: true,
-
-        colors: {
-          primary: '#bd93f9',
-          secondary: '#44475a',
-          accent: '#ff79c6',
-          error: '#ff5555',
-          warning: '#ffb86c',
-          info: '#8be9fd',
-          success: '#50fa7b',
-          background: '#282a36',
-          foreground: '#f8f8f2',
-          link: '#6272a4',
-          highlight: '#f1fa8c'
-        }
-      },
-
       light: {
         isDark: false,
 
@@ -39,6 +21,24 @@ const options = {
           success: '#50fa7b',
           background: '#f8f8f2',
           foreground: '#282a36',
+          link: '#6272a4',
+          highlight: '#f1fa8c'
+        }
+      },
+
+      dark: {
+        isDark: true,
+
+        colors: {
+          primary: '#bd93f9',
+          secondary: '#44475a',
+          accent: '#ff79c6',
+          error: '#ff5555',
+          warning: '#ffb86c',
+          info: '#8be9fd',
+          success: '#50fa7b',
+          background: '#282a36',
+          foreground: '#f8f8f2',
           link: '#6272a4',
           highlight: '#f1fa8c'
         }

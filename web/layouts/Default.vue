@@ -16,25 +16,13 @@
       <v-spacer />
 
       <div class="d-flex align-center pa-2 ga-2">
-        <v-switch
-          :model-value="isDark"
-          color="background"
-          hide-details
-          inset
-          @change="toggleTheme"
-        >
-          <template #track-true>
-            <div class="pe-1">
-              <v-icon size="24">mdi-moon-waxing-crescent</v-icon>
-            </div>
-          </template>
-
-          <template #track-false>
-            <div class="ps-1">
-              <v-icon size="24">mdi-white-balance-sunny</v-icon>
-            </div>
-          </template>
-        </v-switch>
+        <v-btn icon @click="toggleTheme">
+          <v-icon>
+            {{
+              isDark ? 'mdi-white-balance-sunny' : 'mdi-moon-waxing-crescent'
+            }}
+          </v-icon>
+        </v-btn>
 
         <template v-if="auth.isLoggedIn">
           <v-btn prepend-icon="mdi-account" to="/profile">Profile</v-btn>
@@ -90,32 +78,27 @@ function toggleDrawer() {
   drawer.value = !drawer.value;
 }
 
-const theme = useTheme();
+const { isDark, toggleTheme } = useThemeSwitching();
 
-const isDark = computed(() => theme.global.current.value.dark);
+function useThemeSwitching() {
+  const theme = useTheme();
 
-function toggleTheme() {
-  theme.global.name.value = isDark.value ? 'light' : 'dark';
+  const isDark = computed(() => theme.global.current.value.dark);
+
+  function toggleTheme() {
+    theme.global.name.value = isDark.value ? 'light' : 'dark';
+  }
+
+  const themeSetting = useCookie('theme');
+
+  watch(isDark, (value) => {
+    themeSetting.value = value ? 'dark' : 'light';
+  });
+
+  onMounted(() => {
+    theme.global.name.value = themeSetting.value || 'light';
+  });
+
+  return { isDark, toggleTheme };
 }
-
-const themeSetting = useCookie('theme');
-
-watch(isDark, (value) => {
-  themeSetting.value = value ? 'dark' : 'light';
-});
-
-onMounted(() => {
-  theme.global.name.value = themeSetting.value || 'light';
-});
 </script>
-
-<style scoped lang="scss">
-:deep(.v-switch__thumb) {
-  height: 18px !important;
-  width: 18px !important;
-  transform: scale(1) !important;
-}
-
-:deep(.v-switch__track-true, .v-switch__track-false) {
-}
-</style>

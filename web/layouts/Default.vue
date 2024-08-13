@@ -75,8 +75,10 @@
 <script lang="ts" setup>
 import { useTheme } from 'vuetify';
 
-import LoginDialog from '~/components/users/LoginDialog.vue';
-import RegisterDialog from '~/components/users/RegisterDialog.vue';
+import LoginDialog from '@/components/users/LoginDialog.vue';
+import RegisterDialog from '@/components/users/RegisterDialog.vue';
+
+import type { LoginForm, RegistrationForm } from '@/types/auth';
 
 const { isLoggedIn } = storeToRefs(useAuthStore());
 const { logOut } = useAuthStore();
@@ -135,7 +137,7 @@ function useUserDialogs() {
 
   const { logIn, register } = useAuthStore();
 
-  async function handleLogin(form: any) {
+  async function handleLogin(form: LoginForm) {
     $startLoading();
 
     const { error } = await logIn(form);
@@ -153,7 +155,7 @@ function useUserDialogs() {
     navigateTo('/');
   }
 
-  async function handleRegister(form: any) {
+  async function handleRegister(form: RegistrationForm) {
     $startLoading();
 
     const { error } = await register(form);

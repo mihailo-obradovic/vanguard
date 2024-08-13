@@ -1,22 +1,5 @@
 import { defineStore } from 'pinia';
-
-type User = {
-  id: number;
-  name: string;
-  email: string;
-};
-
-type RegistrationInfo = {
-  name: string;
-  email: string;
-  password: string;
-  password_confirmation: string;
-};
-
-type Credentials = {
-  email: string;
-  password: string;
-};
+import type { User, RegistrationForm, LoginForm } from '@/types/auth';
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null);
@@ -35,12 +18,12 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = data.value as User;
   }
 
-  async function register(info: RegistrationInfo) {
+  async function register(credentials: RegistrationForm) {
     await useApiFetch('/sanctum/csrf-cookie');
 
     const register = await useApiFetch('/register', {
       method: 'POST',
-      body: info
+      body: credentials
     });
 
     await fetchUser();
@@ -48,7 +31,7 @@ export const useAuthStore = defineStore('auth', () => {
     return register;
   }
 
-  async function logIn(credentials: Credentials) {
+  async function logIn(credentials: LoginForm) {
     await useApiFetch('/sanctum/csrf-cookie');
 
     const login = await useApiFetch('/login', {

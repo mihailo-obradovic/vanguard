@@ -9,19 +9,19 @@
 
 <script setup>
 defineProps({
+  type: {
+    type: String, // 'div' | 'v-sheet' | something else
+    default: 'div'
+  },
+
   column: {
     type: Boolean,
     default: false
   },
 
   gap: {
-    type: String,
-    default: '2'
-  },
-
-  type: {
-    type: String,
-    default: 'div' // 'div' | 'v-sheet'
+    type: String, // Vuetify measurement unit
+    default: '4'
   }
 });
 </script>

@@ -24,10 +24,16 @@
           </v-icon>
         </v-btn>
 
-        <template v-if="auth.isLoggedIn">
+        <template v-if="isLoggedIn">
           <v-btn prepend-icon="mdi-account" to="/profile">Profile</v-btn>
 
-          <v-btn prepend-icon="mdi-logout" @click="handleLogout">Log Out</v-btn>
+          <v-btn
+            :loading="isLoading"
+            prepend-icon="mdi-logout"
+            @click="handleLogout"
+          >
+            Log Out
+          </v-btn>
         </template>
 
         <template v-else>
@@ -72,10 +78,17 @@ import { useTheme } from 'vuetify';
 import LoginDialog from '~/components/users/LoginDialog.vue';
 import RegisterDialog from '~/components/users/RegisterDialog.vue';
 
-const auth = useAuthStore();
+const { isLoggedIn } = storeToRefs(useAuthStore());
+const { logOut } = useAuthStore();
+const { isLoading } = storeToRefs(useLoading());
+const { $startLoading, $stopLoading } = useLoading();
 
 async function handleLogout() {
-  await auth.logOut();
+  $startLoading();
+
+  await logOut();
+
+  $stopLoading();
 }
 
 const drawer = ref(true);
@@ -123,10 +136,16 @@ function useUserDialogs() {
   const { logIn, register } = useAuthStore();
 
   async function handleLogin(form: any) {
+    $startLoading();
+
     const { error } = await logIn(form);
+
+    $stopLoading();
 
     if (error.value) {
       console.log(error);
+
+      return;
     }
 
     loginDialog.value = false;
@@ -135,7 +154,11 @@ function useUserDialogs() {
   }
 
   async function handleRegister(form: any) {
+    $startLoading();
+
     const { error } = await register(form);
+
+    $stopLoading();
 
     if (error.value) {
       console.log(error);

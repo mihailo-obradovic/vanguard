@@ -21,6 +21,7 @@
             <v-col>
               <v-btn
                 :disabled="confirmDisabled"
+                :loading="isLoading"
                 block
                 color="primary"
                 variant="flat"
@@ -65,6 +66,8 @@ const dialog = defineModel({
 });
 
 const emit = defineEmits(['cancel', 'confirm']);
+
+const { isLoading } = storeToRefs(useLoading());
 </script>
 
 <style scoped>

@@ -1,18 +1,18 @@
 <template>
   <v-dialog v-model="dialog" :width="width">
     <v-card color="background">
-      <v-card-title class="pa-2 pb-1">
+      <v-card-title class="pa-4 pb-2">
         <slot name="title">{{ title }}</slot>
       </v-card-title>
 
-      <v-card-text :class="['px-2', 'py-1', { scrollable: scrollable }]">
+      <v-card-text :class="['px-4', 'py-2', { scrollable: scrollable }]">
         <slot name="default" />
       </v-card-text>
 
-      <v-card-actions class="pa-2 pt-1">
+      <v-card-actions class="pa-4 pt-2">
         <slot name="actions">
-          <v-row no-gutters class="d-flex">
-            <v-col class="pe-1">
+          <v-row no-gutters class="d-flex ga-4">
+            <v-col>
               <v-btn
                 block
                 color="primary"
@@ -23,7 +23,7 @@
               </v-btn>
             </v-col>
 
-            <v-col class="ps-1">
+            <v-col>
               <v-btn
                 :disabled="confirmDisabled"
                 block

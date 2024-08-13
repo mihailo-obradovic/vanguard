@@ -68,8 +68,8 @@
 
 <script lang="ts" setup>
 import { useTheme } from 'vuetify';
-import LoginDialog from '~/components/user-dialogs/LoginDialog.vue';
-import RegisterDialog from '~/components/user-dialogs/RegisterDialog.vue';
+import LoginDialog from '~/components/users/LoginDialog.vue';
+import RegisterDialog from '~/components/users/RegisterDialog.vue';
 
 const auth = useAuthStore();
 

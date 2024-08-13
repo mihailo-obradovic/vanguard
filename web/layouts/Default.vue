@@ -59,15 +59,16 @@
         <slot />
       </v-container>
     </v-main>
+
+    <LoginDialog v-model="loginDialog" @confirm="handleLogin" />
+
+    <RegisterDialog v-model="registerDialog" @confirm="handleRegister" />
   </v-layout>
-
-  <LoginDialog v-model="loginDialog" @confirm="handleLogin" />
-
-  <RegisterDialog v-model="registerDialog" @confirm="handleRegister" />
 </template>
 
 <script lang="ts" setup>
 import { useTheme } from 'vuetify';
+
 import LoginDialog from '~/components/users/LoginDialog.vue';
 import RegisterDialog from '~/components/users/RegisterDialog.vue';
 
@@ -128,6 +129,8 @@ function useUserDialogs() {
       console.log(error);
     }
 
+    loginDialog.value = false;
+
     navigateTo('/');
   }
 
@@ -139,6 +142,8 @@ function useUserDialogs() {
 
       return;
     }
+
+    registerDialog.value = false;
 
     navigateTo('/home');
   }

@@ -13,12 +13,7 @@
         <slot name="actions">
           <v-row no-gutters class="d-flex ga-4">
             <v-col>
-              <v-btn
-                block
-                color="primary"
-                variant="outlined"
-                @click="emit('cancel')"
-              >
+              <v-btn block variant="outlined" @click="emit('cancel')">
                 Cancel
               </v-btn>
             </v-col>

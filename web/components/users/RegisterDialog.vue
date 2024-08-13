@@ -18,7 +18,7 @@
     />
 
     <v-text-field
-      v-model="form.passwordConfirmation"
+      v-model="form.password_confirmation"
       label="Confirm Password"
       type="password"
       required
@@ -38,17 +38,17 @@ const form = ref({
   name: '',
   email: '',
   password: '',
-  passwordConfirmation: ''
+  password_confirmation: ''
 });
 
 const isFormValid = computed(() => {
   const isFormFilled =
     !!form.value.email &&
     !!form.value.password &&
-    !!form.value.passwordConfirmation;
+    !!form.value.password_confirmation;
 
   const doPasswordsMatch =
-    form.value.password === form.value.passwordConfirmation;
+    form.value.password === form.value.password_confirmation;
 
   return isFormFilled && doPasswordsMatch;
 });

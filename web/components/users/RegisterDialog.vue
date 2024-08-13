@@ -27,8 +27,6 @@
 </template>
 
 <script setup>
-import CardDialog from '~/components/shared/CardDialog.vue';
-
 const emit = defineEmits(['confirm']);
 
 const dialog = defineModel({

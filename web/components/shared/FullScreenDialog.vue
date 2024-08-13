@@ -29,8 +29,6 @@
 </template>
 
 <script setup>
-import GapContainer from '~/components/shared/GapContainer.vue';
-
 defineProps({
   title: {
     type: String,

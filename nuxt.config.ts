@@ -59,5 +59,9 @@ export default defineNuxtConfig({
     upperAfterPrefix: false
   },
 
-  css: ['@/assets/styles/main.scss']
+  css: ['@/assets/styles/main.scss'],
+
+  components: {
+    dirs: ['@/components/shared']
+  }
 });

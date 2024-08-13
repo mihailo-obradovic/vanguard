@@ -25,6 +25,10 @@ export default defineNuxtConfig({
         alias: '/home',
         file: '@/pages/Home.vue'
       });
+    },
+
+    'vite:extendConfig'(config) {
+      config.plugins?.push(vuetify({ autoImport: true }));
     }
   },
 
@@ -44,14 +48,7 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     '@vueuse/nuxt',
     'dayjs-nuxt',
-    'nuxt-lodash',
-
-    // TODO: Check if this can be moved to hooks
-    (_options, nuxt) => {
-      nuxt.hooks.hook('vite:extendConfig', (config) => {
-        config.plugins?.push(vuetify({ autoImport: true }));
-      });
-    }
+    'nuxt-lodash'
   ],
 
   lodash: {

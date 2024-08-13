@@ -6,6 +6,8 @@
     @cancel="handleCancel"
     @confirm="handleConfirm"
   >
+    <v-text-field v-model="form.name" label="Name" required />
+
     <v-text-field v-model="form.email" label="Email" type="email" required />
 
     <v-text-field
@@ -35,6 +37,7 @@ const dialog = defineModel({
 });
 
 const form = ref({
+  name: '',
   email: '',
   password: '',
   passwordConfirmation: ''

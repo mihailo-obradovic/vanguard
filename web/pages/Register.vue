@@ -42,14 +42,8 @@ const form = ref({
 
 const auth = useAuthStore();
 
-async function handleRegister() {
-  const { error } = await auth.register(form.value);
-
-  if (error.value) {
-    console.log(error);
-
-    return;
-  }
+function handleRegister() {
+  auth.register(form.value);
 
   navigateTo('/home');
 }

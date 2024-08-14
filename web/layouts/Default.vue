@@ -137,7 +137,7 @@ function useUserDialogs() {
 
   const { logIn, register } = useAuthStore();
 
-  async function handleLogin(form: LoginForm) {
+  function handleLogin(form: LoginForm) {
     $startLoading();
 
     logIn(form)
@@ -151,7 +151,7 @@ function useUserDialogs() {
       });
   }
 
-  async function handleRegister(form: RegistrationForm) {
+  function handleRegister(form: RegistrationForm) {
     $startLoading();
 
     register(form)

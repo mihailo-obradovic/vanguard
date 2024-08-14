@@ -6,56 +6,54 @@ export const useAuthStore = defineStore('auth', () => {
 
   const isLoggedIn = computed(() => !!user.value);
 
-  function fetchUser() {
-    return fetcher('/api/user')
-      .then((data) => {
-        user.value = data as User;
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+  async function fetchUser() {
+    try {
+      const data = await fetcher('/api/user');
+
+      user.value = data as User;
+    } catch (error) {
+      console.log(error);
+    }
   }
 
-  function register(credentials: RegistrationForm) {
-    return fetcher('/sanctum/csrf-cookie')
-      .then(() => {
-        return fetcher('/register', {
-          method: 'POST',
-          body: credentials
-        });
-      })
-      .then(() => {
-        return fetchUser();
-      })
-      .catch((error) => {
-        console.log(error);
+  async function register(credentials: RegistrationForm) {
+    try {
+      await fetcher('/sanctum/csrf-cookie');
+
+      await fetcher('/register', {
+        method: 'POST',
+        body: credentials
       });
+
+      await fetchUser();
+    } catch (error) {
+      console.log(error);
+    }
   }
 
-  function logIn(credentials: LoginForm) {
-    return fetcher('/sanctum/csrf-cookie')
-      .then(() => {
-        return fetcher('/login', {
-          method: 'POST',
-          body: credentials
-        });
-      })
-      .then(() => {
-        return fetchUser();
-      })
-      .catch((error) => {
-        console.log(error);
+  async function logIn(credentials: LoginForm) {
+    try {
+      await fetcher('/sanctum/csrf-cookie');
+
+      await fetcher('/login', {
+        method: 'POST',
+        body: credentials
       });
+
+      await fetchUser();
+    } catch (error) {
+      console.log(error);
+    }
   }
 
-  function logOut() {
-    return fetcher('/logout', { method: 'POST' })
-      .then(() => {
-        user.value = null;
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+  async function logOut() {
+    try {
+      await fetcher('/logout', { method: 'POST' });
+
+      user.value = null;
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   return { user, register, logIn, isLoggedIn, fetchUser, logOut };

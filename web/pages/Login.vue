@@ -26,14 +26,8 @@ const form = ref({
 
 const auth = useAuthStore();
 
-async function handleLogin() {
-  const { error } = await auth.logIn(form.value);
-
-  if (error.value) {
-    console.log(error);
-  }
-
-  navigateTo('/');
+function handleLogin() {
+  auth.logIn(form.value);
 }
 </script>
 

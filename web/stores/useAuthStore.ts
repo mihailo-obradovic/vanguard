@@ -6,50 +6,56 @@ export const useAuthStore = defineStore('auth', () => {
 
   const isLoggedIn = computed(() => !!user.value);
 
-  async function fetchUser() {
-    const { data, error } = await useApiFetch('/api/user');
-
-    if (error.value) {
-      // console.log(error);
-
-      return;
-    }
-
-    user.value = data.value as User;
+  function fetchUser() {
+    return fetcher('/api/user')
+      .then((data) => {
+        user.value = data as User;
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }
 
-  async function register(credentials: RegistrationForm) {
-    await useApiFetch('/sanctum/csrf-cookie');
-
-    const register = await useApiFetch('/register', {
-      method: 'POST',
-      body: credentials
-    });
-
-    await fetchUser();
-
-    return register;
+  function register(credentials: RegistrationForm) {
+    return fetcher('/sanctum/csrf-cookie')
+      .then(() => {
+        return fetcher('/register', {
+          method: 'POST',
+          body: credentials
+        });
+      })
+      .then(() => {
+        return fetchUser();
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }
 
-  async function logIn(credentials: LoginForm) {
-    await useApiFetch('/sanctum/csrf-cookie');
-
-    const login = await useApiFetch('/login', {
-      method: 'POST',
-      body: credentials
-    });
-
-    await fetchUser();
-
-    return login;
+  function logIn(credentials: LoginForm) {
+    return fetcher('/sanctum/csrf-cookie')
+      .then(() => {
+        return fetcher('/login', {
+          method: 'POST',
+          body: credentials
+        });
+      })
+      .then(() => {
+        return fetchUser();
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }
 
-  async function logOut() {
-    await useApiFetch('/logout', { method: 'POST' });
-
-    user.value = null;
-
-    navigateTo('/login');
+  function logOut() {
+    return fetcher('/logout', { method: 'POST' })
+      .then(() => {
+        user.value = null;
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }
 
   return { user, register, logIn, isLoggedIn, fetchUser, logOut };

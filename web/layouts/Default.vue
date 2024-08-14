@@ -88,9 +88,9 @@ const { $startLoading, $stopLoading } = useLoading();
 async function handleLogout() {
   $startLoading();
 
-  await logOut();
-
-  $stopLoading();
+  logOut().finally(() => {
+    $stopLoading();
+  });
 }
 
 const drawer = ref(true);
@@ -140,37 +140,29 @@ function useUserDialogs() {
   async function handleLogin(form: LoginForm) {
     $startLoading();
 
-    const { error } = await logIn(form);
+    logIn(form)
+      .then(() => {
+        loginDialog.value = false;
 
-    $stopLoading();
-
-    if (error.value) {
-      console.log(error);
-
-      return;
-    }
-
-    loginDialog.value = false;
-
-    navigateTo('/');
+        navigateTo('/');
+      })
+      .finally(() => {
+        $stopLoading();
+      });
   }
 
   async function handleRegister(form: RegistrationForm) {
     $startLoading();
 
-    const { error } = await register(form);
+    register(form)
+      .then(() => {
+        registerDialog.value = false;
 
-    $stopLoading();
-
-    if (error.value) {
-      console.log(error);
-
-      return;
-    }
-
-    registerDialog.value = false;
-
-    navigateTo('/home');
+        navigateTo('/');
+      })
+      .finally(() => {
+        $stopLoading();
+      });
   }
 
   return { loginDialog, registerDialog, handleLogin, handleRegister };

@@ -19,8 +19,9 @@ export function useApiFetch<T>(
     };
   }
 
-  // TODO: Replace with a dynamic base URL variable
-  return useFetch('http://localhost:8000' + path, {
+  const { apiBaseUrl } = useRuntimeConfig().public;
+
+  return useFetch(apiBaseUrl + path, {
     credentials: 'include',
     watch: false,
     ...options,

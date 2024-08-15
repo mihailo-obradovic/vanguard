@@ -78,7 +78,7 @@ import { useTheme } from 'vuetify';
 import LoginDialog from '@/components/users/LoginDialog.vue';
 import RegisterDialog from '@/components/users/RegisterDialog.vue';
 
-import useAuthService from '~/services/useAuthService';
+import useAuthService from '@/services/useAuthService';
 
 import type { LoginForm, RegistrationForm } from '@/types/auth';
 

@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts" setup>
-import useAuthService from '~/services/useAuthService';
+import useAuthService from '@/services/useAuthService';
 
 definePageMeta({
   middleware: ['guest']

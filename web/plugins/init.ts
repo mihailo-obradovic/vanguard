@@ -1,9 +1,11 @@
-import { useAuthStore } from '~/stores/useAuthStore';
+import useUserService from '@/services/useUserService';
 
 export default defineNuxtPlugin(async (_nuxtApp) => {
-  const auth = useAuthStore();
+  const { isLoggedIn } = storeToRefs(useAuthStore());
 
-  if (auth.isLoggedIn) {
-    await auth.fetchUser();
+  const { fetchCurrentUser } = useUserService();
+
+  if (isLoggedIn.value) {
+    await fetchCurrentUser();
   }
 });

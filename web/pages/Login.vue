@@ -15,19 +15,21 @@
 </template>
 
 <script lang="ts" setup>
+import useAuthService from '~/services/useAuthService';
+
 definePageMeta({
   middleware: ['guest']
 });
+
+const { logIn } = useAuthService();
 
 const form = ref({
   email: 'test@example.com',
   password: 'gmaz'
 });
 
-const auth = useAuthStore();
-
 function handleLogin() {
-  auth.logIn(form.value);
+  logIn(form.value).catch(console.error);
 }
 </script>
 

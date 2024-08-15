@@ -3,7 +3,6 @@
 ------------------------------------------------------------------------------------
 - Optimize back-end (existing code, possible new functionalities, extensions, etc.)
 - Check middleware compatibility between FE and BE
-- Refactor fetch methods
 ------------------------------------------------------------------------------------
 - Profile page
 - Users list
@@ -23,4 +22,10 @@
 - Write tests
 - User roles: regular, admin
 - Create a Docker image
+------------------------------------------------------------------------------------
+------------------------------------- QUESTIONS ------------------------------------
+------------------------------------------------------------------------------------
+- Should auth service be incorporated into auth store?
+- Should the user not be automatically logged in after registering?
+- When should the XSRF token be used and when should it not be?
 ------------------------------------------------------------------------------------

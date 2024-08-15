@@ -78,19 +78,21 @@ import { useTheme } from 'vuetify';
 import LoginDialog from '@/components/users/LoginDialog.vue';
 import RegisterDialog from '@/components/users/RegisterDialog.vue';
 
+import useAuthService from '~/services/useAuthService';
+
 import type { LoginForm, RegistrationForm } from '@/types/auth';
 
 const { isLoggedIn } = storeToRefs(useAuthStore());
-const { logOut } = useAuthStore();
 const { isLoading } = storeToRefs(useLoadingStore());
+
 const { $startLoading, $stopLoading } = useLoadingStore();
+
+const { logOut } = useAuthService();
 
 async function handleLogout() {
   $startLoading();
 
-  logOut().finally(() => {
-    $stopLoading();
-  });
+  logOut().catch(console.error).finally($stopLoading);
 }
 
 const drawer = ref(true);
@@ -135,7 +137,7 @@ function useUserDialogs() {
   const loginDialog = ref(false);
   const registerDialog = ref(false);
 
-  const { logIn, register } = useAuthStore();
+  const { logIn, register } = useAuthService();
 
   function handleLogin(form: LoginForm) {
     $startLoading();
@@ -146,9 +148,8 @@ function useUserDialogs() {
 
         navigateTo('/');
       })
-      .finally(() => {
-        $stopLoading();
-      });
+      .catch(console.error)
+      .finally($stopLoading);
   }
 
   function handleRegister(form: RegistrationForm) {
@@ -160,9 +161,8 @@ function useUserDialogs() {
 
         navigateTo('/');
       })
-      .finally(() => {
-        $stopLoading();
-      });
+      .catch(console.error)
+      .finally($stopLoading);
   }
 
   return { loginDialog, registerDialog, handleLogin, handleRegister };

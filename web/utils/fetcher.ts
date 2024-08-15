@@ -8,6 +8,7 @@ export function fetcher(path: string, params: any = {}) {
     String(params?.method).toUpperCase()
   );
 
+  // TODO: Check when to send the XSRF token
   if (!params?.method || altersServerState) {
     const token = useCookie('XSRF-TOKEN');
 

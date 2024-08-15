@@ -29,6 +29,8 @@
 </template>
 
 <script lang="ts" setup>
+import useAuthService from '~/services/useAuthService';
+
 definePageMeta({
   middleware: ['guest']
 });
@@ -40,11 +42,9 @@ const form = ref({
   password_confirmation: ''
 });
 
-const auth = useAuthStore();
+const { register } = useAuthService();
 
 function handleRegister() {
-  auth.register(form.value);
-
-  navigateTo('/home');
+  register(form.value).catch(console.error);
 }
 </script>

@@ -7,76 +7,57 @@ export default function useAuthService() {
 
   const { accessToken, user } = storeToRefs(useAuthStore());
 
-  function register(credentials: RegistrationForm) {
-    return new Promise<void>((resolve, reject) => {
-      fetcher('/register', {
+  async function register(credentials: RegistrationForm) {
+    try {
+      const response: any = await fetcher('/register', {
         method: 'POST',
         body: credentials
-      })
-        .then((response: any) => {
-          accessToken.value = response.access_token;
+      });
 
-          fetchCurrentUser()
-            .then((response: any) => {
-              user.value = response;
+      accessToken.value = response.access_token;
 
-              resolve();
-            })
-            .catch((error) => {
-              reject(error);
-            });
-        })
-        .catch((error) => {
-          reject(error);
-        });
-    });
+      const userResponse: any = await fetchCurrentUser();
+
+      user.value = userResponse;
+
+      return Promise.resolve();
+    } catch (error) {
+      return Promise.reject(error);
+    }
   }
 
-  function logIn(credentials: LoginForm) {
-    return new Promise<void>((resolve, reject) => {
-      fetcher('/sanctum/csrf-cookie')
-        .then(() => {
-          fetcher('/login', {
-            method: 'POST',
-            body: credentials
-          })
-            .then((response: any) => {
-              accessToken.value = response.access_token;
+  async function logIn(credentials: LoginForm) {
+    try {
+      await fetcher('/sanctum/csrf-cookie');
 
-              fetchCurrentUser()
-                .then((response: any) => {
-                  user.value = response;
+      const response: any = await fetcher('/login', {
+        method: 'POST',
+        body: credentials
+      });
 
-                  resolve();
-                })
-                .catch((error) => {
-                  reject(error);
-                });
-            })
-            .catch((error) => {
-              reject(error);
-            });
-        })
-        .catch((error) => {
-          reject(error);
-        });
-    });
+      accessToken.value = response.access_token;
+
+      const userResponse: any = await fetchCurrentUser();
+
+      user.value = userResponse;
+
+      return Promise.resolve();
+    } catch (error) {
+      return Promise.reject(error);
+    }
   }
 
-  function logOut() {
-    return new Promise<void>((resolve, reject) => {
-      fetcher('/logout', { method: 'POST' })
-        .then(() => {
-          accessToken.value = null;
+  async function logOut() {
+    try {
+      await fetcher('/logout', { method: 'POST' });
 
-          user.value = null;
+      accessToken.value = null;
+      user.value = null;
 
-          resolve();
-        })
-        .catch((error) => {
-          reject(error);
-        });
-    });
+      return Promise.resolve();
+    } catch (error) {
+      return Promise.reject(error);
+    }
   }
 
   function resetPassword() {

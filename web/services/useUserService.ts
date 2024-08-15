@@ -1,14 +1,12 @@
 export default function useUserService() {
-  function fetchCurrentUser() {
-    return new Promise<void>((resolve, reject) => {
-      fetcher('/api/user')
-        .then((response: any) => {
-          resolve(response);
-        })
-        .catch((error) => {
-          reject(error);
-        });
-    });
+  async function fetchCurrentUser() {
+    try {
+      const response = await fetcher('/api/user');
+
+      return Promise.resolve(response);
+    } catch (error) {
+      return Promise.reject(error);
+    }
   }
 
   function updateCurrentUser() {

@@ -67,7 +67,7 @@ const dialog = defineModel({
 
 const emit = defineEmits(['cancel', 'confirm']);
 
-const { isLoading } = storeToRefs(useLoading());
+const { isLoading } = storeToRefs(useLoadingStore());
 </script>
 
 <style scoped>

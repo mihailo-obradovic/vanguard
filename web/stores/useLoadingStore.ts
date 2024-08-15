@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 
-export const useLoading = defineStore('loading', () => {
+export const useLoadingStore = defineStore('loading', () => {
   const isLoading = ref<boolean>(false);
 
   function $startLoading() {

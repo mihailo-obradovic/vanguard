@@ -82,8 +82,8 @@ import type { LoginForm, RegistrationForm } from '@/types/auth';
 
 const { isLoggedIn } = storeToRefs(useAuthStore());
 const { logOut } = useAuthStore();
-const { isLoading } = storeToRefs(useLoading());
-const { $startLoading, $stopLoading } = useLoading();
+const { isLoading } = storeToRefs(useLoadingStore());
+const { $startLoading, $stopLoading } = useLoadingStore();
 
 async function handleLogout() {
   $startLoading();

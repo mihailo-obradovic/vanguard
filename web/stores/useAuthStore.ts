@@ -1,10 +1,13 @@
 import { defineStore } from 'pinia';
+
 import type { User, RegistrationForm, LoginForm } from '@/types/auth';
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null);
 
-  const isLoggedIn = computed(() => !!user.value);
+  const accessToken = useCookie('accessToken');
+
+  const isLoggedIn = computed(() => !!accessToken.value);
 
   async function fetchUser() {
     try {
@@ -20,10 +23,12 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       await fetcher('/sanctum/csrf-cookie');
 
-      await fetcher('/register', {
+      const response = (await fetcher('/register', {
         method: 'POST',
         body: credentials
-      });
+      })) as any;
+
+      accessToken.value = response.access_token;
 
       await fetchUser();
     } catch (error) {
@@ -35,10 +40,12 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       await fetcher('/sanctum/csrf-cookie');
 
-      await fetcher('/login', {
+      const response = (await fetcher('/login', {
         method: 'POST',
         body: credentials
-      });
+      })) as any;
+
+      accessToken.value = response.access_token;
 
       await fetchUser();
     } catch (error) {
@@ -49,6 +56,8 @@ export const useAuthStore = defineStore('auth', () => {
   async function logOut() {
     try {
       await fetcher('/logout', { method: 'POST' });
+
+      accessToken.value = null;
 
       user.value = null;
     } catch (error) {

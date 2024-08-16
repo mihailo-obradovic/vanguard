@@ -53,11 +53,11 @@ const isFormValid = computed(() => {
   return isFormFilled && doPasswordsMatch;
 });
 
-const handleCancel = () => {
+function handleCancel() {
   dialog.value = false;
-};
+}
 
-const handleConfirm = () => {
+function handleConfirm() {
   emit('confirm', form.value);
-};
+}
 </script>

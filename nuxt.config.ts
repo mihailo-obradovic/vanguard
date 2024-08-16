@@ -25,12 +25,19 @@ export default defineNuxtConfig({
         }
       });
 
-      pages.push({
-        name: 'Home',
-        path: '/',
-        alias: '/home',
-        file: '@/pages/Home.vue'
-      });
+      pages.push(
+        {
+          name: 'Home',
+          path: '/',
+          alias: '/home',
+          file: '@/pages/Home.vue'
+        },
+        {
+          name: 'Password Reset',
+          path: '/password-reset/:token',
+          file: '@/pages/PasswordReset.vue'
+        }
+      );
     },
 
     'vite:extendConfig'(config) {

@@ -1,6 +1,10 @@
 import useUserService from '@/services/useUserService';
 
-import type { RegistrationForm, LoginForm } from '@/types/auth';
+import type {
+  RegistrationForm,
+  LoginForm,
+  PasswordResetForm
+} from '@/types/auth';
 
 export default function useAuthService() {
   const { fetchCurrentUser } = useUserService();
@@ -73,5 +77,18 @@ export default function useAuthService() {
     }
   }
 
-  return { register, logIn, logOut, forgotPassword };
+  async function resetPassword(form: PasswordResetForm) {
+    try {
+      await fetcher('/reset-password', {
+        method: 'POST',
+        body: form
+      });
+
+      return Promise.resolve();
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  return { register, logIn, logOut, forgotPassword, resetPassword };
 }

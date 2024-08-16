@@ -15,3 +15,9 @@ export type LoginForm = {
   email: string;
   password: string;
 };
+
+export type PasswordResetForm = {
+  token: string;
+  email: string;
+  password: string;
+};

@@ -1,7 +1,7 @@
 <template>
-  <div class="layout">
+  <v-layout class="layout">
     <slot />
-  </div>
+  </v-layout>
 </template>
 
 <style lang="scss" scoped>
@@ -11,6 +11,6 @@
   align-items: center;
   height: 100%;
   width: 100%;
-  background: rgb(var(--v-theme-background));
+  background: rgb(var(--v-theme-secondary));
 }
 </style>

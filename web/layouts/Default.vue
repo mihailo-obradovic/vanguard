@@ -1,5 +1,5 @@
 <template>
-  <v-layout>
+  <v-layout class="layout">
     <v-app-bar color="primary" class="px-2">
       <template #prepend>
         <v-app-bar-nav-icon @click="toggleDrawer" />
@@ -205,3 +205,14 @@ function useUserDialogs() {
   };
 }
 </script>
+
+<style lang="scss" scoped>
+.layout {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  background: rgb(var(--v-theme-background));
+}
+</style>

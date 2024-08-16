@@ -66,6 +66,8 @@
       </v-container>
     </v-main>
 
+    <RegisterDialog v-model="registerDialog" @confirm="handleRegister" />
+
     <LoginDialog
       v-model="loginDialog"
       @confirm="handleLogin"
@@ -76,17 +78,15 @@
       v-model="forgotPasswordDialog"
       @confirm="handleForgotPassword"
     />
-
-    <RegisterDialog v-model="registerDialog" @confirm="handleRegister" />
   </v-layout>
 </template>
 
 <script lang="ts" setup>
 import { useTheme } from 'vuetify';
 
+import RegisterDialog from '@/components/users/RegisterDialog.vue';
 import LoginDialog from '@/components/users/LoginDialog.vue';
 import ForgotPasswordDialog from '~/components/users/ForgotPasswordDialog.vue';
-import RegisterDialog from '@/components/users/RegisterDialog.vue';
 
 import useAuthService from '@/services/useAuthService';
 
@@ -107,10 +107,7 @@ async function handleLogout() {
 
 const drawer = ref(true);
 
-const drawerItems = [
-  { title: 'Auth Only', to: '/auth-only', icon: 'mdi-lock' },
-  { title: 'Guest Only', to: '/guest-only', icon: 'mdi-lock-outline' }
-];
+const drawerItems = [{ title: 'Profile', to: '/profile', icon: 'mdi-account' }];
 
 function toggleDrawer() {
   drawer.value = !drawer.value;
@@ -119,12 +116,12 @@ function toggleDrawer() {
 const { isDark, toggleTheme } = useThemeSwitching();
 
 const {
+  registerDialog,
   loginDialog,
   forgotPasswordDialog,
-  registerDialog,
+  handleRegister,
   handleLogin,
-  handleForgotPassword,
-  handleRegister
+  handleForgotPassword
 } = useUserDialogs();
 
 function useThemeSwitching() {
@@ -150,11 +147,24 @@ function useThemeSwitching() {
 }
 
 function useUserDialogs() {
+  const registerDialog = ref(false);
   const loginDialog = ref(false);
   const forgotPasswordDialog = ref(false);
-  const registerDialog = ref(false);
 
-  const { logIn, forgotPassword, register } = useAuthService();
+  const { register, logIn, forgotPassword } = useAuthService();
+
+  function handleRegister(form: RegistrationForm) {
+    $startLoading();
+
+    register(form)
+      .then(() => {
+        registerDialog.value = false;
+
+        navigateTo('/');
+      })
+      .catch(console.error)
+      .finally($stopLoading);
+  }
 
   function handleLogin(form: LoginForm) {
     $startLoading();
@@ -180,26 +190,13 @@ function useUserDialogs() {
       .finally($stopLoading);
   }
 
-  function handleRegister(form: RegistrationForm) {
-    $startLoading();
-
-    register(form)
-      .then(() => {
-        registerDialog.value = false;
-
-        navigateTo('/');
-      })
-      .catch(console.error)
-      .finally($stopLoading);
-  }
-
   return {
+    registerDialog,
     loginDialog,
     forgotPasswordDialog,
-    registerDialog,
+    handleRegister,
     handleLogin,
-    handleForgotPassword,
-    handleRegister
+    handleForgotPassword
   };
 }
 </script>

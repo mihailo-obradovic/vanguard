@@ -77,6 +77,7 @@ onMounted(() => {
 
 const isFormValid = computed(() => {
   const isFormFilled = Object.values(form.value).every(Boolean);
+
   const doPasswordsMatch =
     form.value.password === form.value.password_confirmation;
 

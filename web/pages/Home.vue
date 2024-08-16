@@ -1,9 +1,5 @@
-<script lang="ts" setup>
-const auth = useAuthStore();
-</script>
-
 <template>
-  <pre>{{ auth.user }}</pre>
+  <pre>Hello, world!</pre>
 </template>
 
-<style scoped lang="scss"></style>
+<script lang="ts" setup></script>

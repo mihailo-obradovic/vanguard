@@ -1,5 +1,5 @@
 <template>
-  <div class="w-100 h-100 d-flex justify-center align-center">
+  <div class="w-100 h-100 d-flex justify-center align-center py-4">
     <v-progress-circular :indeterminate="isLoading" color="primary" />
   </div>
 </template>

@@ -15,7 +15,7 @@
 - Toast
 - Replace all or most of "any" types
 - Seed data
-- Global loading
+- Global loading/separate different loadings
 - Implement validation with Zod (maybe with Nuxt Precognition?)
 - Write tests
 - User roles: regular, admin

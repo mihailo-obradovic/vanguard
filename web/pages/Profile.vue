@@ -1,11 +1,36 @@
 <template>
-  <pre>{{ auth.user }}</pre>
+  <LoadingSpinner v-if="isLoading" v-model="isLoading" />
+
+  <UserCard v-else :user="user" />
 </template>
 
 <script lang="ts" setup>
-const auth = useAuthStore();
+import UserCard from '@/components/users/UserCard.vue';
+
+import useUserService from '@/services/useUserService';
 
 definePageMeta({
   middleware: ['auth']
+});
+
+const { isLoading } = storeToRefs(useLoadingStore());
+const { user: authUser } = storeToRefs(useAuthStore());
+
+const { $startLoading, $stopLoading } = useLoadingStore();
+
+const { fetchCurrentUser } = useUserService();
+
+const user = ref(authUser.value);
+
+onMounted(async () => {
+  if (!user.value) {
+    $startLoading();
+
+    fetchCurrentUser()
+      .then((response: any) => {
+        user.value = response;
+      })
+      .finally($stopLoading);
+  }
 });
 </script>

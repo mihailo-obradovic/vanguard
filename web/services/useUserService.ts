@@ -13,10 +13,6 @@ export default function useUserService() {
     //
   }
 
-  function changePassword() {
-    //
-  }
-
   function fetchUsers() {
     //
   }
@@ -36,7 +32,6 @@ export default function useUserService() {
   return {
     fetchCurrentUser,
     updateCurrentUser,
-    changePassword,
     fetchUsers,
     fetchUser,
     updateUser,

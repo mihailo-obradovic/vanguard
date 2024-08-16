@@ -69,12 +69,12 @@
     <LoginDialog
       v-model="loginDialog"
       @confirm="handleLogin"
-      @forgot-password-click="passwordResetDialog = true"
+      @forgot-password-click="forgotPasswordDialog = true"
     />
 
-    <PasswordResetDialog
-      v-model="passwordResetDialog"
-      @confirm="handlePasswordReset"
+    <ForgotPasswordDialog
+      v-model="forgotPasswordDialog"
+      @confirm="handleForgotPassword"
     />
 
     <RegisterDialog v-model="registerDialog" @confirm="handleRegister" />
@@ -85,7 +85,7 @@
 import { useTheme } from 'vuetify';
 
 import LoginDialog from '@/components/users/LoginDialog.vue';
-import PasswordResetDialog from '@/components/users/PasswordResetDialog.vue';
+import ForgotPasswordDialog from '~/components/users/ForgotPasswordDialog.vue';
 import RegisterDialog from '@/components/users/RegisterDialog.vue';
 
 import useAuthService from '@/services/useAuthService';
@@ -120,10 +120,10 @@ const { isDark, toggleTheme } = useThemeSwitching();
 
 const {
   loginDialog,
-  passwordResetDialog,
+  forgotPasswordDialog,
   registerDialog,
   handleLogin,
-  handlePasswordReset,
+  handleForgotPassword,
   handleRegister
 } = useUserDialogs();
 
@@ -151,10 +151,10 @@ function useThemeSwitching() {
 
 function useUserDialogs() {
   const loginDialog = ref(false);
-  const passwordResetDialog = ref(false);
+  const forgotPasswordDialog = ref(false);
   const registerDialog = ref(false);
 
-  const { logIn, resetPassword, register } = useAuthService();
+  const { logIn, forgotPassword, register } = useAuthService();
 
   function handleLogin(form: LoginForm) {
     $startLoading();
@@ -169,12 +169,12 @@ function useUserDialogs() {
       .finally($stopLoading);
   }
 
-  function handlePasswordReset(form: { email: string }) {
+  function handleForgotPassword(form: { email: string }) {
     $startLoading();
 
-    resetPassword(form)
+    forgotPassword(form)
       .then(() => {
-        passwordResetDialog.value = false;
+        forgotPasswordDialog.value = false;
 
         loginDialog.value = true;
       })
@@ -197,10 +197,10 @@ function useUserDialogs() {
 
   return {
     loginDialog,
-    passwordResetDialog,
+    forgotPasswordDialog,
     registerDialog,
     handleLogin,
-    handlePasswordReset,
+    handleForgotPassword,
     handleRegister
   };
 }

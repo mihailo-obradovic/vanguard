@@ -60,7 +60,7 @@ export default function useAuthService() {
     }
   }
 
-  async function resetPassword(form: { email: string }) {
+  async function forgotPassword(form: { email: string }) {
     try {
       await fetcher('/forgot-password', {
         method: 'POST',
@@ -73,5 +73,5 @@ export default function useAuthService() {
     }
   }
 
-  return { register, logIn, logOut, resetPassword };
+  return { register, logIn, logOut, forgotPassword };
 }

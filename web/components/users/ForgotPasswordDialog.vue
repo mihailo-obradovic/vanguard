@@ -7,8 +7,7 @@
     @confirm="handleConfirm"
   >
     <p class="mb-4 text-body-2">
-      A new password will be sent to your email. You can change it later through
-      the profile page.
+      A link to resetting your password will be sent to your email.
     </p>
 
     <v-text-field v-model="form.email" label="Email" type="email" required />

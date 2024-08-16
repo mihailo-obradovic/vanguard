@@ -1,18 +1,16 @@
 <template>
-  <v-layout class="w-100 h-100">
-    <v-main class="w-100 h-100">
-      <v-container
-        fluid
-        class="w-100 h-100 d-flex flex-column justify-center align-center"
-      >
-        <slot />
-      </v-container>
-    </v-main>
-  </v-layout>
+  <div class="layout">
+    <slot />
+  </div>
 </template>
 
 <style lang="scss" scoped>
-html {
+.layout {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   height: 100%;
+  width: 100%;
+  background: rgb(var(--v-theme-background));
 }
 </style>

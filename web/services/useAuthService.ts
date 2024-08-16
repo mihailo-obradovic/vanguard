@@ -60,8 +60,17 @@ export default function useAuthService() {
     }
   }
 
-  function resetPassword() {
-    //
+  async function resetPassword(form: { email: string }) {
+    try {
+      await fetcher('/forgot-password', {
+        method: 'POST',
+        body: form
+      });
+
+      return Promise.resolve();
+    } catch (error) {
+      return Promise.reject(error);
+    }
   }
 
   return { register, logIn, logOut, resetPassword };

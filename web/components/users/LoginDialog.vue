@@ -14,11 +14,21 @@
       type="password"
       required
     />
+
+    <v-btn
+      class="text-transform-none"
+      color="link"
+      size="small"
+      variant="text"
+      @click="handleForgotPasswordClick"
+    >
+      Forgot password?
+    </v-btn>
   </CardDialog>
 </template>
 
 <script setup>
-const emit = defineEmits(['confirm']);
+const emit = defineEmits(['confirm', 'forgot-password-click']);
 
 const dialog = defineModel({
   type: Boolean,
@@ -34,11 +44,17 @@ const isFormValid = computed(() => {
   return !!form.value.email && !!form.value.password;
 });
 
-const handleCancel = () => {
+function handleCancel() {
   dialog.value = false;
-};
+}
 
-const handleConfirm = () => {
+function handleConfirm() {
   emit('confirm', form.value);
-};
+}
+
+function handleForgotPasswordClick() {
+  dialog.value = false;
+
+  emit('forgot-password-click');
+}
 </script>

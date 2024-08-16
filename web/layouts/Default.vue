@@ -66,7 +66,16 @@
       </v-container>
     </v-main>
 
-    <LoginDialog v-model="loginDialog" @confirm="handleLogin" />
+    <LoginDialog
+      v-model="loginDialog"
+      @confirm="handleLogin"
+      @forgot-password-click="passwordResetDialog = true"
+    />
+
+    <PasswordResetDialog
+      v-model="passwordResetDialog"
+      @confirm="handlePasswordReset"
+    />
 
     <RegisterDialog v-model="registerDialog" @confirm="handleRegister" />
   </v-layout>
@@ -76,6 +85,7 @@
 import { useTheme } from 'vuetify';
 
 import LoginDialog from '@/components/users/LoginDialog.vue';
+import PasswordResetDialog from '@/components/users/PasswordResetDialog.vue';
 import RegisterDialog from '@/components/users/RegisterDialog.vue';
 
 import useAuthService from '@/services/useAuthService';
@@ -108,8 +118,14 @@ function toggleDrawer() {
 
 const { isDark, toggleTheme } = useThemeSwitching();
 
-const { loginDialog, registerDialog, handleLogin, handleRegister } =
-  useUserDialogs();
+const {
+  loginDialog,
+  passwordResetDialog,
+  registerDialog,
+  handleLogin,
+  handlePasswordReset,
+  handleRegister
+} = useUserDialogs();
 
 function useThemeSwitching() {
   const theme = useTheme();
@@ -135,9 +151,10 @@ function useThemeSwitching() {
 
 function useUserDialogs() {
   const loginDialog = ref(false);
+  const passwordResetDialog = ref(false);
   const registerDialog = ref(false);
 
-  const { logIn, register } = useAuthService();
+  const { logIn, resetPassword, register } = useAuthService();
 
   function handleLogin(form: LoginForm) {
     $startLoading();
@@ -147,6 +164,19 @@ function useUserDialogs() {
         loginDialog.value = false;
 
         navigateTo('/');
+      })
+      .catch(console.error)
+      .finally($stopLoading);
+  }
+
+  function handlePasswordReset(form: { email: string }) {
+    $startLoading();
+
+    resetPassword(form)
+      .then(() => {
+        passwordResetDialog.value = false;
+
+        loginDialog.value = true;
       })
       .catch(console.error)
       .finally($stopLoading);
@@ -165,6 +195,13 @@ function useUserDialogs() {
       .finally($stopLoading);
   }
 
-  return { loginDialog, registerDialog, handleLogin, handleRegister };
+  return {
+    loginDialog,
+    passwordResetDialog,
+    registerDialog,
+    handleLogin,
+    handlePasswordReset,
+    handleRegister
+  };
 }
 </script>

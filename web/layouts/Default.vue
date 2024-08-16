@@ -175,8 +175,6 @@ function useUserDialogs() {
     forgotPassword(form)
       .then(() => {
         forgotPasswordDialog.value = false;
-
-        loginDialog.value = true;
       })
       .catch(console.error)
       .finally($stopLoading);
@@ -208,9 +206,6 @@ function useUserDialogs() {
 
 <style lang="scss" scoped>
 .layout {
-  display: flex;
-  justify-content: center;
-  align-items: center;
   height: 100%;
   width: 100%;
   background: rgb(var(--v-theme-background));

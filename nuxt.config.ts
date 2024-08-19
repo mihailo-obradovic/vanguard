@@ -38,10 +38,6 @@ export default defineNuxtConfig({
           file: '@/pages/PasswordReset.vue'
         }
       );
-    },
-
-    'vite:extendConfig'(config) {
-      config.plugins?.push(vuetify({ autoImport: true }));
     }
   },
 
@@ -50,7 +46,9 @@ export default defineNuxtConfig({
       template: {
         transformAssetUrls
       }
-    }
+    },
+
+    plugins: [vuetify({ autoImport: true })]
   },
 
   modules: [

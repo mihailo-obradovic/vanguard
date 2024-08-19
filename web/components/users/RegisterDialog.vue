@@ -34,12 +34,14 @@ const dialog = defineModel({
   required: true
 });
 
-const form = ref({
+const initialForm = {
   name: '',
   email: '',
   password: '',
   password_confirmation: ''
-});
+};
+
+const form = ref(Object.assign({}, initialForm));
 
 const isFormValid = computed(() => {
   const isFormFilled =
@@ -60,4 +62,10 @@ function handleCancel() {
 function handleConfirm() {
   emit('confirm', form.value);
 }
+
+watch(dialog, (value) => {
+  if (!value) {
+    form.value = Object.assign({}, initialForm);
+  }
+});
 </script>

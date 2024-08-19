@@ -22,9 +22,11 @@ const dialog = defineModel({
   required: true
 });
 
-const form = ref({
+const initialForm = {
   email: ''
-});
+};
+
+const form = ref(Object.assign({}, initialForm));
 
 const isFormValid = computed(() => {
   return !!form.value.email;
@@ -37,4 +39,10 @@ function handleCancel() {
 function handleConfirm() {
   emit('confirm', form.value);
 }
+
+watch(dialog, (value) => {
+  if (!value) {
+    form.value = Object.assign({}, initialForm);
+  }
+});
 </script>

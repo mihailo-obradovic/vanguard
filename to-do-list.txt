@@ -27,4 +27,5 @@
 - Should auth service be incorporated into auth store?
 - Should the user not be automatically logged in after registering?
 - When should the XSRF token be used and when should it not be?
+- Can we reset card dialog's form data using scoped slots?
 ------------------------------------------------------------------------------------

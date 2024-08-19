@@ -35,10 +35,12 @@ const dialog = defineModel({
   required: true
 });
 
-const form = ref({
+const initialForm = {
   email: '',
   password: ''
-});
+};
+
+const form = ref(Object.assign({}, initialForm));
 
 const isFormValid = computed(() => {
   return !!form.value.email && !!form.value.password;
@@ -57,4 +59,10 @@ function handleForgotPasswordClick() {
 
   emit('forgot-password-click');
 }
+
+watch(dialog, (value) => {
+  if (!value) {
+    form.value = Object.assign({}, initialForm);
+  }
+});
 </script>

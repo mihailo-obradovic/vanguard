@@ -1,6 +1,6 @@
 <template>
   <component
-    :is="type"
+    :is="dynamicComponent"
     :class="['d-flex', `ga-${gap}`, { 'flex-column': column }]"
   >
     <slot />
@@ -8,9 +8,11 @@
 </template>
 
 <script setup>
-defineProps({
+import { VSheet, VCard } from 'vuetify/lib/components';
+
+const props = defineProps({
   type: {
-    type: String, // 'div' | 'v-sheet' | something else
+    type: String, // HTML element or Vuetify component. Vuetify components need to be manually imported below.
     default: 'div'
   },
 
@@ -22,6 +24,17 @@ defineProps({
   gap: {
     type: String, // Vuetify measurement unit
     default: '4'
+  }
+});
+
+const dynamicComponent = computed(() => {
+  switch (props.type) {
+    case 'VSheet':
+      return VSheet;
+    case 'VCard':
+      return VCard;
+    default:
+      return props.type;
   }
 });
 </script>

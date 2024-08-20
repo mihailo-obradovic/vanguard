@@ -65,7 +65,7 @@ function handleConfirm() {
 
 watch(dialog, (value) => {
   if (!value) {
-    form.value = Object.assign({}, initialForm);
+    Object.assign(form.value, initialForm);
   }
 });
 </script>

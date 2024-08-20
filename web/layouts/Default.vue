@@ -102,7 +102,12 @@ const { logOut } = useAuthService();
 async function handleLogout() {
   $startLoading();
 
-  logOut().catch(console.error).finally($stopLoading);
+  logOut()
+    .then(() => {
+      navigateTo('/');
+    })
+    .catch(console.error)
+    .finally($stopLoading);
 }
 
 const drawer = ref(true);

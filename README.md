@@ -2,7 +2,7 @@
 
 This is a starter template meant to be used for small monorepo projects, although the front-end part can also serve as an independent template.
 
-In its base, this is a Laravel project set up in an API-only variant using Laravel Breeze. The front-end portion was created using Nuxt. All non-config front-end files are located inside the web directory, making it easy to separate the front-end from the back-end.
+In its base, this is a Laravel project set up in an API-only variant using Laravel Breeze. The front-end portion was created using Nuxt. All non-config front-end files are located inside the web directory, making it easy to separate the front-end from the back-end. Since this is a general purpose template, server side rendering capabilities for Nuxt are turned off by default.
 
 The project was built with [pnpm](https://pnpm.io/) as the primary package manager choice, but it can also work with other options.
 

@@ -2,9 +2,10 @@
 ----------------------------------- TOP PRIORITY -----------------------------------
 ------------------------------------------------------------------------------------
 - Check middleware compatibility between FE and BE
-- Profile page
 - Users list
-- Middleware
+- Update master with all the common settings
+- Write ReadMe
+- Record YouTube video
 ------------------------------------------------------------------------------------
 ------------------------------------- BRANCHES -------------------------------------
 ------------------------------------------------------------------------------------
@@ -13,18 +14,21 @@
 -------------------------------------- LATER ---------------------------------------
 ------------------------------------------------------------------------------------
 - Toast
-- Replace all or most of "any" types
+- Create a Docker image
 - Seed data
 - Global loading/separate different loadings
 - Implement validation with Zod (maybe with Nuxt Precognition?)
-- Write tests
-- User roles: regular, admin
-- Create a Docker image
+- Write FE tests
+- Write BE tests
 - Exclude pnpm-lock.yaml from formatting
+- Replace all or most of "any" types
+- Implement password changing from the profile page
+- User roles: regular, admin
 ------------------------------------------------------------------------------------
 ------------------------------------- QUESTIONS ------------------------------------
 ------------------------------------------------------------------------------------
 - Should auth service be incorporated into auth store?
+- Should fetchUser and fetchCurrentUser remain separate?
 - Should the user not be automatically logged in after registering?
 - When should the XSRF token be used and when should it not be?
 - Can we reset card dialog's form data using scoped slots?

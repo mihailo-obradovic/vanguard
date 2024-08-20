@@ -11,8 +11,14 @@ export default function useUserService() {
     }
   }
 
-  function fetchUsers() {
-    //
+  async function fetchUsers() {
+    try {
+      const response = await fetcher('/users');
+
+      return Promise.resolve(response);
+    } catch (error) {
+      return Promise.reject(error);
+    }
   }
 
   function fetchUser() {

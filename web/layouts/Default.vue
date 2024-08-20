@@ -112,7 +112,10 @@ async function handleLogout() {
 
 const drawer = ref(true);
 
-const drawerItems = [{ title: 'Profile', to: '/profile', icon: 'mdi-account' }];
+const drawerItems = [
+  { title: 'Profile', to: '/profile', icon: 'mdi-account' },
+  { title: 'Users', to: '/users', icon: 'mdi-account-multiple' }
+];
 
 function toggleDrawer() {
   drawer.value = !drawer.value;

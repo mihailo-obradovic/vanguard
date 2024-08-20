@@ -2,35 +2,63 @@
   <v-row no-gutters>
     <v-col cols="12" md="6">
       <GapContainer type="VSheet" class="pa-4 rounded-lg" column elevation="1">
-        <GapContainer>
-          <GapContainer column class="w-100">
-            <v-text-field
-              v-model="form.name"
-              label="Name"
-              variant="outlined"
-              :readonly="!editMode"
-            />
+        <GapContainer class="justify-space-between mb-2">
+          <h2>Profile</h2>
 
-            <v-text-field
-              v-model="form.email"
-              label="Email"
-              variant="outlined"
-              :readonly="!editMode"
-            />
+          <GapContainer>
+            <v-btn
+              v-if="editMode"
+              class="rounded"
+              icon
+              variant="flat"
+              color="error"
+              size="small"
+              @click="resetForm"
+            >
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
+
+            <v-btn
+              v-if="!editMode"
+              class="rounded"
+              icon
+              variant="flat"
+              color="primary"
+              size="small"
+              @click="editMode = true"
+            >
+              <v-icon>mdi-pencil</v-icon>
+            </v-btn>
+
+            <v-btn
+              v-else
+              class="rounded"
+              icon
+              variant="flat"
+              color="success"
+              size="small"
+              :loading="isLoading"
+              @click="handleSubmit"
+            >
+              <v-icon>mdi-check</v-icon>
+            </v-btn>
           </GapContainer>
+        </GapContainer>
 
-          <v-btn
-            class="rounded"
-            icon
-            variant="flat"
-            color="primary"
-            height="56"
-            @click="editMode = !editMode"
-          >
-            <v-icon>
-              {{ editMode ? 'mdi-close' : 'mdi-pencil' }}
-            </v-icon>
-          </v-btn>
+        <GapContainer column class="w-100">
+          <v-text-field
+            v-model="form.name"
+            label="Name"
+            variant="outlined"
+            :readonly="!editMode"
+          />
+
+          <v-text-field
+            v-model="form.email"
+            label="Email"
+            variant="outlined"
+            :readonly="!editMode"
+          />
         </GapContainer>
       </GapContainer>
     </v-col>
@@ -45,6 +73,10 @@ const props = defineProps({
   }
 });
 
+const emit = defineEmits(['update']);
+
+const { isLoading } = storeToRefs(useLoadingStore());
+
 const editMode = ref(false);
 
 const initialForm = {
@@ -53,4 +85,16 @@ const initialForm = {
 };
 
 const form = ref(Object.assign({}, initialForm));
+
+function resetForm() {
+  editMode.value = false;
+
+  Object.assign(form.value, initialForm);
+}
+
+function handleSubmit() {
+  emit('update', form.value);
+}
+
+defineExpose({ resetForm });
 </script>

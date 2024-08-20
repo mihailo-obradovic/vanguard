@@ -1,3 +1,5 @@
+import type { User } from '@/types/auth';
+
 export default function useUserService() {
   async function fetchCurrentUser() {
     try {
@@ -9,10 +11,6 @@ export default function useUserService() {
     }
   }
 
-  function updateCurrentUser() {
-    //
-  }
-
   function fetchUsers() {
     //
   }
@@ -21,8 +19,17 @@ export default function useUserService() {
     //
   }
 
-  function updateUser() {
-    //
+  async function updateUser(id: number, form: User) {
+    try {
+      const response = await fetcher(`/users/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(form)
+      });
+
+      return Promise.resolve(response);
+    } catch (error) {
+      return Promise.reject(error);
+    }
   }
 
   function deleteUser() {
@@ -31,7 +38,6 @@ export default function useUserService() {
 
   return {
     fetchCurrentUser,
-    updateCurrentUser,
     fetchUsers,
     fetchUser,
     updateUser,

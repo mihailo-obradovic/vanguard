@@ -1,7 +1,7 @@
 <template>
   <LoadingSpinner v-if="isLoading" v-model="isLoading" />
 
-  <UserCard v-else :user="user" />
+  <UserCard v-else ref="userCard" :user="user" @update="handleUpdate" />
 </template>
 
 <script lang="ts" setup>
@@ -18,9 +18,11 @@ const { user: authUser } = storeToRefs(useAuthStore());
 
 const { $startLoading, $stopLoading } = useLoadingStore();
 
-const { fetchCurrentUser } = useUserService();
+const { fetchCurrentUser, updateUser } = useUserService();
 
 const user = ref(authUser.value);
+
+const userCard = ref(null);
 
 onMounted(async () => {
   if (!user.value) {
@@ -33,4 +35,16 @@ onMounted(async () => {
       .finally($stopLoading);
   }
 });
+
+function handleUpdate(form: any) {
+  $startLoading();
+
+  updateUser(user.value.id, form)
+    .then((response: any) => {
+      user.value = authUser.value = response;
+
+      userCard.value?.resetForm();
+    })
+    .finally($stopLoading);
+}
 </script>

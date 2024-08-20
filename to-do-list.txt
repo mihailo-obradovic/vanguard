@@ -2,10 +2,12 @@
 ----------------------------------- TOP PRIORITY -----------------------------------
 ------------------------------------------------------------------------------------
 - Check middleware compatibility between FE and BE
-- Users list
+- User roles: regular, admin
+- Implement users update/delete functionalities with edit and confirmation modals
 - Update master with all the common settings
 - Write ReadMe
 - Record YouTube video
+- Update to Laravel 11
 ------------------------------------------------------------------------------------
 ------------------------------------- BRANCHES -------------------------------------
 ------------------------------------------------------------------------------------
@@ -23,13 +25,12 @@
 - Exclude pnpm-lock.yaml from formatting
 - Replace all or most of "any" types
 - Implement password changing from the profile page
-- User roles: regular, admin
 ------------------------------------------------------------------------------------
 ------------------------------------- QUESTIONS ------------------------------------
 ------------------------------------------------------------------------------------
 - Should auth service be incorporated into auth store?
 - Should fetchUser and fetchCurrentUser remain separate?
-- Should the user not be automatically logged in after registering?
+- Should the user NOT be automatically logged in after registering?
 - When should the XSRF token be used and when should it not be?
 - Can we reset card dialog's form data using scoped slots?
 ------------------------------------------------------------------------------------

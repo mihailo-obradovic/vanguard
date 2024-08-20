@@ -9,6 +9,10 @@ import UsersTable from '~/components/users/UsersTable.vue';
 
 import useUserService from '~/services/useUserService';
 
+definePageMeta({
+  middleware: ['auth']
+});
+
 const { isLoading } = storeToRefs(useLoadingStore());
 const { $startLoading, $stopLoading } = useLoadingStore();
 

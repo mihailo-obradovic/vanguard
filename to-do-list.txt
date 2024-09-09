@@ -7,10 +7,12 @@
 - Update master with all the common settings
 - Record YouTube video
 - Update to Laravel 11
+- Switch to new Vue Dev Tools (if not redundant)
 ------------------------------------------------------------------------------------
 ------------------------------------- BRANCHES -------------------------------------
 ------------------------------------------------------------------------------------
 - Shadcn-vue
+- Quasar
 ------------------------------------------------------------------------------------
 -------------------------------------- LATER ---------------------------------------
 ------------------------------------------------------------------------------------
@@ -21,6 +23,7 @@
 - Implement validation with Zod (maybe with Nuxt Precognition?)
 - Write FE tests
 - Write BE tests
+- Update ESLint to v9
 - Exclude pnpm-lock.yaml from formatting
 - Replace all or most of "any" types
 - Implement password changing from the profile page
@@ -33,4 +36,5 @@
 - Should the user NOT be automatically logged in after registering?
 - When should the XSRF token be used and when should it not be?
 - Can we reset card dialog's form data using scoped slots?
+- Check if its better to use Nuxt Laravel Sanctum
 ------------------------------------------------------------------------------------

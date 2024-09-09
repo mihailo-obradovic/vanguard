@@ -41,6 +41,7 @@ So far, the only prepared branch in addition to master is the [Vuetify](https://
 -   **[NuxtJS Docs](https://nuxt.com/docs/getting-started/introduction)**
 -   **[Vite Docs](https://vitejs.dev/guide/)**
 -   **[Pinia Docs](https://pinia.vuejs.org/introduction.html)**
+-   **[Vitest Docs](https://vitest.dev/guide/)**
 -   **[pnpm Docs](https://pnpm.io/motivation)**
 -   **[TypeScript Docs](https://www.typescriptlang.org/docs/)**
 

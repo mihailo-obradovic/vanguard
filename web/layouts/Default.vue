@@ -19,7 +19,7 @@
         <v-btn icon @click="toggleTheme">
           <v-icon>
             {{
-              isDark ? 'mdi-white-balance-sunny' : 'mdi-moon-waxing-crescent'
+              isDark ? 'mdi-moon-waxing-crescent' : 'mdi-white-balance-sunny'
             }}
           </v-icon>
         </v-btn>

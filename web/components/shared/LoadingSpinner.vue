@@ -1,6 +1,10 @@
 <template>
-  <div class="w-100 h-100 d-flex justify-center align-center py-4">
-    <v-progress-circular :indeterminate="isLoading" color="primary" />
+  <div class="spinner-wrapper">
+    <v-progress-circular
+      :indeterminate="isLoading"
+      color="primary"
+      class="z-index-top"
+    />
   </div>
 </template>
 
@@ -10,3 +14,14 @@ const isLoading = defineModel({
   required: true
 });
 </script>
+
+<style scoped lang="scss">
+.spinner-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  width: 100%;
+  height: calc(100vh); // TODO: Update with a dynamic value
+}
+</style>

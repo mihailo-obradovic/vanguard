@@ -7,7 +7,7 @@
     @confirm="handleConfirm"
   >
     <p class="mb-4 text-body-2">
-      A link to resetting your password will be sent to your email.
+      A link for resetting your password will be sent to your email.
     </p>
 
     <v-text-field v-model="form.email" label="Email" type="email" required />
@@ -42,7 +42,7 @@ function handleConfirm() {
 
 watch(dialog, (value) => {
   if (!value) {
-    Object.assign(form.value, initialForm);
+    form.value = Object.assign({}, initialForm);
   }
 });
 </script>

@@ -22,6 +22,4 @@ useHead({
 
   link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }]
 });
-
-// TODO: Time of last activity tracker
 </script>

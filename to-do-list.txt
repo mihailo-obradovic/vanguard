@@ -12,6 +12,9 @@ Back-end tasks:
 
 Front-end tasks:
 - Toast
+- Use errors store
+- Implement enter press
+- Extract CardForm
 - Cookies usage consent
 - Implement users update/delete functionalities with edit and confirmation modals
 - Update master with all the common settings

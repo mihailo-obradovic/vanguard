@@ -1,8 +1,13 @@
 ------------------------------------------------------------------------------------
 ----------------------------------- TOP PRIORITY -----------------------------------
 ------------------------------------------------------------------------------------
-- Check middleware compatibility between FE and BE
+Back-end tasks:
 - User roles: regular, admin
+- Standardize error structure
+- Implement better security
+
+Front-end tasks:
+- Toast
 - Implement users update/delete functionalities with edit and confirmation modals
 - Update master with all the common settings
 - Record YouTube video
@@ -16,14 +21,11 @@
 ------------------------------------------------------------------------------------
 -------------------------------------- LATER ---------------------------------------
 ------------------------------------------------------------------------------------
-- Toast
 - Create a Docker image
 - Seed data
-- Global loading/separate different loadings
 - Implement validation with Zod (maybe with Nuxt Precognition?)
 - Write FE tests
 - Write BE tests
-- Update ESLint to v9
 - Exclude pnpm-lock.yaml from formatting
 - Replace all or most of "any" types
 - Implement password changing from the profile page
@@ -31,10 +33,7 @@
 ------------------------------------------------------------------------------------
 ------------------------------------- QUESTIONS ------------------------------------
 ------------------------------------------------------------------------------------
-- Should auth service be incorporated into auth store?
 - Should fetchUser and fetchCurrentUser remain separate?
-- Should the user NOT be automatically logged in after registering?
-- When should the XSRF token be used and when should it not be?
 - Can we reset card dialog's form data using scoped slots?
 - Check if its better to use Nuxt Laravel Sanctum
 ------------------------------------------------------------------------------------

@@ -159,7 +159,7 @@ function useUserDialogs() {
   const loginDialog = ref(false);
   const forgotPasswordDialog = ref(false);
 
-  const { register, logIn, forgotPassword } = useAuthService();
+  const { register, logIn, generatePasswordResetEmail } = useAuthService();
 
   function handleRegister(form: RegistrationForm) {
     $startLoading();
@@ -190,7 +190,7 @@ function useUserDialogs() {
   function handleForgotPassword(form: { email: string }) {
     $startLoading();
 
-    forgotPassword(form)
+    generatePasswordResetEmail(form)
       .then(() => {
         forgotPasswordDialog.value = false;
       })

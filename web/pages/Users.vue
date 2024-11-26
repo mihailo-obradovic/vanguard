@@ -1,5 +1,9 @@
 <template>
-  <LoadingSpinner v-if="isLoading" v-model="isLoading" />
+  <LoadingSpinner
+    v-if="isLoading['users']"
+    v-model="isLoading['users']"
+    fill-height
+  />
 
   <UsersTable v-else :users="users" />
 </template>
@@ -21,13 +25,13 @@ const { fetchUsers } = useUserService();
 const users = ref([]);
 
 function loadUsers() {
-  $startLoading();
+  $startLoading('users');
 
   fetchUsers()
     .then((response) => {
       users.value = response;
     })
-    .finally($stopLoading);
+    .finally(() => $stopLoading('users'));
 }
 
 onMounted(() => {

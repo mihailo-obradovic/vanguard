@@ -21,7 +21,7 @@
             <v-col>
               <v-btn
                 :disabled="confirmDisabled"
-                :loading="isLoading"
+                :loading="isLoading['dialog']"
                 block
                 color="primary"
                 variant="flat"

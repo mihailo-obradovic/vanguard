@@ -3,15 +3,29 @@
     <v-progress-circular
       :indeterminate="isLoading"
       color="primary"
-      class="z-index-top"
+      :class="classList"
     />
   </div>
 </template>
 
 <script setup>
+const props = defineProps({
+  fillHeight: {
+    type: Boolean,
+    default: false
+  }
+});
+
 const isLoading = defineModel({
   type: Boolean,
   required: true
+});
+
+const classList = computed(() => {
+  return {
+    'z-index-top': true,
+    'fill-height': props.fillHeight
+  };
 });
 </script>
 
@@ -22,6 +36,9 @@ const isLoading = defineModel({
   align-items: center;
   padding: 1rem;
   width: 100%;
+}
+
+.fill-height {
   height: calc(100vh); // TODO: Update with a dynamic value
 }
 </style>

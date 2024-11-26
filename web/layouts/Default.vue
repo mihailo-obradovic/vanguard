@@ -28,7 +28,7 @@
           <v-btn prepend-icon="mdi-account" to="/profile">Profile</v-btn>
 
           <v-btn
-            :loading="isLoading"
+            :loading="isLoading['logout']"
             prepend-icon="mdi-logout"
             @click="handleLogout"
           >
@@ -100,14 +100,14 @@ const { $startLoading, $stopLoading } = useLoadingStore();
 const { logOut } = useAuthService();
 
 async function handleLogout() {
-  $startLoading();
+  $startLoading('logout');
 
   logOut()
     .then(() => {
       navigateTo('/');
     })
     .catch(console.error)
-    .finally($stopLoading);
+    .finally(() => $stopLoading('logout'));
 }
 
 const drawer = ref(true);
@@ -162,7 +162,7 @@ function useUserDialogs() {
   const { register, logIn, generatePasswordResetEmail } = useAuthService();
 
   function handleRegister(form: RegistrationForm) {
-    $startLoading();
+    $startLoading('dialog');
 
     register(form)
       .then(() => {
@@ -171,11 +171,11 @@ function useUserDialogs() {
         navigateTo('/');
       })
       .catch(console.error)
-      .finally($stopLoading);
+      .finally(() => $stopLoading('dialog'));
   }
 
   function handleLogin(form: LoginForm) {
-    $startLoading();
+    $startLoading('dialog');
 
     logIn(form)
       .then(() => {
@@ -184,18 +184,18 @@ function useUserDialogs() {
         navigateTo('/');
       })
       .catch(console.error)
-      .finally($stopLoading);
+      .finally(() => $stopLoading('dialog'));
   }
 
   function handleForgotPassword(form: { email: string }) {
-    $startLoading();
+    $startLoading('dialog');
 
     generatePasswordResetEmail(form)
       .then(() => {
         forgotPasswordDialog.value = false;
       })
       .catch(console.error)
-      .finally($stopLoading);
+      .finally(() => $stopLoading('dialog'));
   }
 
   return {

@@ -1,5 +1,9 @@
 <template>
-  <LoadingSpinner v-if="isLoading" v-model="isLoading" />
+  <LoadingSpinner
+    v-if="isLoading"
+    v-model="isLoading['current-user']"
+    fill-height
+  />
 
   <UserCard v-else ref="userCard" :user="user" @update="handleUpdate" />
 </template>
@@ -26,18 +30,18 @@ const userCard = ref(null);
 
 onMounted(async () => {
   if (!user.value) {
-    $startLoading();
+    $startLoading('current-user');
 
     fetchCurrentUser()
       .then((response: any) => {
         user.value = response;
       })
-      .finally($stopLoading);
+      .finally(() => $stopLoading('current-user'));
   }
 });
 
 function handleUpdate(form: any) {
-  $startLoading();
+  $startLoading('dialog');
 
   updateUser(user.value.id, form)
     .then((response: any) => {
@@ -45,6 +49,6 @@ function handleUpdate(form: any) {
 
       userCard.value?.resetForm();
     })
-    .finally($stopLoading);
+    .finally(() => $stopLoading('dialog'));
 }
 </script>

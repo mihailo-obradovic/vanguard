@@ -8,6 +8,8 @@ export const useAuthStore = defineStore('auth', () => {
   // TODO: Move to in-memory?
   const accessToken = useCookie('accessToken');
 
+  // TODO: Add refresh token?
+
   // TODO: Define and use refresh token?
   const isLoggedIn = computed(() => !!accessToken.value);
 

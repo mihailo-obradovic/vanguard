@@ -37,7 +37,7 @@
               variant="flat"
               color="success"
               size="small"
-              :loading="isLoading"
+              :loading="isLoading['dialog']"
               @click="handleSubmit"
             >
               <v-icon>mdi-check</v-icon>

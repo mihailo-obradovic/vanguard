@@ -32,7 +32,7 @@
           <v-col>
             <v-btn
               :disabled="!isFormValid"
-              :loading="isLoading"
+              :loading="isLoading['dialog']"
               block
               color="primary"
               variant="flat"
@@ -89,15 +89,15 @@ function handleCancel() {
 }
 
 function handleConfirm() {
-  $startLoading();
+  $startLoading('dialog');
 
   resetPassword(form.value)
     .then(() => {
-      $stopLoading();
+      $stopLoading('dialog');
 
       navigateTo('/');
     })
     .catch(console.error)
-    .finally($stopLoading);
+    .finally(() => $stopLoading('dialog'));
 }
 </script>

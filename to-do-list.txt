@@ -4,10 +4,18 @@
 Back-end tasks:
 - User roles: regular, admin
 - Standardize error structure
-- Implement better security
+- Standardize endpoint prefixes
+- Implement better security:
+  - CSRF for non-auth methods
+  - Token check for password reset
+  - Access and refresh tokens for all other requests
 
 Front-end tasks:
 - Toast
+- Use errors store
+- Implement enter press
+- Extract CardForm
+- Cookies usage consent
 - Implement users update/delete functionalities with edit and confirmation modals
 - Update master with all the common settings
 - Record YouTube video

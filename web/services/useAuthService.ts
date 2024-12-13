@@ -11,6 +11,8 @@ export default function useAuthService() {
 
   const { accessToken, user } = storeToRefs(useAuthStore());
 
+  // getCsrfToken
+
   async function register(credentials: RegistrationForm) {
     try {
       const response: any = await fetcher('/register', {
@@ -51,6 +53,8 @@ export default function useAuthService() {
     }
   }
 
+  // refreshTokens
+
   async function logOut() {
     try {
       await fetcher('/logout', { method: 'POST' });
@@ -64,7 +68,7 @@ export default function useAuthService() {
     }
   }
 
-  async function forgotPassword(form: { email: string }) {
+  async function generatePasswordResetEmail(form: { email: string }) {
     try {
       await fetcher('/forgot-password', {
         method: 'POST',
@@ -76,6 +80,8 @@ export default function useAuthService() {
       return Promise.reject(error);
     }
   }
+
+  // checkResetToken
 
   async function resetPassword(form: PasswordResetForm) {
     try {
@@ -90,5 +96,5 @@ export default function useAuthService() {
     }
   }
 
-  return { register, logIn, logOut, forgotPassword, resetPassword };
+  return { register, logIn, logOut, generatePasswordResetEmail, resetPassword };
 }

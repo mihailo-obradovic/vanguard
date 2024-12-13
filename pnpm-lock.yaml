@@ -47,6 +47,9 @@ importers:
       vue-router:
         specifier: ^4.4.3
         version: 4.4.3(vue@3.5.3(typescript@5.4.5))
+      vue-toastification:
+        specifier: 2.0.0-rc.5
+        version: 2.0.0-rc.5(vue@3.5.3(typescript@5.4.5))
     devDependencies:
       '@nuxt/eslint':
         specifier: ^0.3.13
@@ -2270,6 +2273,7 @@ packages:
   eslint@8.57.0:
     resolution: {integrity: sha512-dZ6+mexnaTIbSBZWgou51U6OmzIhYM2VcNdtiTtI7qPNZm35Akpr0f6vtw3w1Kmn5PYo+tZVfh13WrhpS6oLqQ==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
 
   espree@10.1.0:
@@ -4441,6 +4445,11 @@ packages:
     peerDependencies:
       vue: ^3.2.0
 
+  vue-toastification@2.0.0-rc.5:
+    resolution: {integrity: sha512-q73e5jy6gucEO/U+P48hqX+/qyXDozAGmaGgLFm5tXX4wJBcVsnGp4e/iJqlm9xzHETYOilUuwOUje2Qg1JdwA==}
+    peerDependencies:
+      vue: ^3.0.2
+
   vue@3.5.3:
     resolution: {integrity: sha512-xvRbd0HpuLovYbOHXRHlSBsSvmUJbo0pzbkKTApWnQGf3/cu5Z39mQeA5cZdLRVIoNf3zI6MSoOgHUT5i2jO+Q==}
     peerDependencies:
@@ -6231,7 +6240,7 @@ snapshots:
       js-beautify: 1.15.1
       vue-component-type-helpers: 2.1.6
 
-  '@vuetify/loader-shared@2.0.3(vue@3.5.3(typescript@5.4.5))(vuetify@3.7.1(typescript@5.4.5)(vite-plugin-vuetify@2.0.4)(vue@3.5.3(typescript@5.4.5)))':
+  '@vuetify/loader-shared@2.0.3(vue@3.5.3(typescript@5.4.5))(vuetify@3.7.1)':
     dependencies:
       upath: 2.0.1
       vue: 3.5.3(typescript@5.4.5)
@@ -9464,7 +9473,7 @@ snapshots:
 
   vite-plugin-vuetify@2.0.4(vite@5.4.3(@types/node@22.5.4)(sass@1.78.0)(terser@5.31.6))(vue@3.5.3(typescript@5.4.5))(vuetify@3.7.1):
     dependencies:
-      '@vuetify/loader-shared': 2.0.3(vue@3.5.3(typescript@5.4.5))(vuetify@3.7.1(typescript@5.4.5)(vite-plugin-vuetify@2.0.4)(vue@3.5.3(typescript@5.4.5)))
+      '@vuetify/loader-shared': 2.0.3(vue@3.5.3(typescript@5.4.5))(vuetify@3.7.1)
       debug: 4.3.7
       upath: 2.0.1
       vite: 5.4.3(@types/node@22.5.4)(sass@1.78.0)(terser@5.31.6)
@@ -9601,6 +9610,10 @@ snapshots:
   vue-router@4.4.3(vue@3.5.3(typescript@5.4.5)):
     dependencies:
       '@vue/devtools-api': 6.6.3
+      vue: 3.5.3(typescript@5.4.5)
+
+  vue-toastification@2.0.0-rc.5(vue@3.5.3(typescript@5.4.5)):
+    dependencies:
       vue: 3.5.3(typescript@5.4.5)
 
   vue@3.5.3(typescript@5.4.5):

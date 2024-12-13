@@ -1,15 +1,19 @@
 import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify';
 
 export default defineNuxtConfig({
-  devtools: { enabled: true },
+  devtools: { enabled: ['local', 'development'].includes(process.env.APP_ENV) },
 
   srcDir: 'web/',
 
   ssr: false,
 
   runtimeConfig: {
+    app: {
+      environment: process.env.APP_ENV // Can be overriden with NUXT_APP_APP_ENV
+    },
+
     public: {
-      apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE
+      apiBaseUrl: ''
     }
   },
 

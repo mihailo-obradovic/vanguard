@@ -1,9 +1,19 @@
 export default defineNuxtConfig({
-  devtools: { enabled: true },
+  devtools: { enabled: ['local', 'development'].includes(process.env.APP_ENV) },
 
   srcDir: 'web/',
 
   ssr: false,
+
+  runtimeConfig: {
+    app: {
+      environment: process.env.APP_ENV // Can be overriden with NUXT_APP_APP_ENV
+    },
+
+    public: {
+      apiBaseUrl: ''
+    }
+  },
 
   hooks: {
     'pages:extend'(pages) {
@@ -40,5 +50,11 @@ export default defineNuxtConfig({
     upperAfterPrefix: false
   },
 
-  css: ['@/assets/styles/main.scss']
+  css: ['@/assets/styles/main.scss'],
+
+  components: {
+    dirs: ['@/components/shared']
+  },
+
+  compatibilityDate: '2024-12-17'
 });

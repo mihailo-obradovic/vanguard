@@ -31,12 +31,4 @@ export default withNuxt({
     'vue/singleline-html-element-content-newline': 'off',
     '@typescript-eslint/no-explicit-any': 'off'
   }
-
-  // TODO: Check if needed
-  // globals: {
-  //   process: 'readonly',
-  //   require: 'readonly',
-  //   module: 'readonly',
-  //   route: 'readonly'
-  // }
 });

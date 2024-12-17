@@ -1,8 +1,8 @@
 <template>
   <div>
-    <button v-if="auth.isLoggedIn" @click="handleLogout">Logout</button>
+    <button v-if="isLoggedIn" @click="handleLogout">Logout</button>
 
-    <pre>{{ auth.user }}</pre>
+    <pre>{{ user }}</pre>
 
     <ul>
       <li>
@@ -31,9 +31,22 @@
 </template>
 
 <script lang="ts" setup>
-const auth = useAuthStore();
+const { fetchUser, logOut } = useAuthStore();
+const { isLoggedIn, user } = storeToRefs(useAuthStore());
+
+async function loadEssentialData() {
+  if (!isLoggedIn.value) {
+    navigateTo('/login');
+
+    return;
+  }
+
+  await fetchUser();
+}
 
 async function handleLogout() {
-  await auth.logOut();
+  await logOut();
 }
+
+await loadEssentialData();
 </script>

@@ -12,6 +12,7 @@ Back-end tasks:
   - Access and refresh tokens for all other requests
 
 Front-end tasks:
+- Refactor fetcher
 - Profile page
 - Use errors store
 - Implement enter press

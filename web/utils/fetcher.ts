@@ -4,6 +4,8 @@ export function fetcher<T>(
   path: string | (() => string),
   options: UseFetchOptions<T> = {}
 ) {
+  const { apiBaseUrl } = useRuntimeConfig().public;
+
   let headers: any = {};
 
   const token = useCookie('XSRF-TOKEN');
@@ -20,7 +22,7 @@ export function fetcher<T>(
   }
 
   // TODO: Replace with a dynamic base URL variable
-  return useFetch('http://localhost:8000' + path, {
+  return useFetch(apiBaseUrl + path, {
     credentials: 'include',
     watch: false,
     ...options,

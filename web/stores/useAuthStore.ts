@@ -24,7 +24,6 @@ export const useAuthStore = defineStore('auth', () => {
   const isLoggedIn = computed(() => !!user.value);
 
   async function fetchUser() {
-    console.log('gnaz');
     const { data, error } = await fetcher('/api/user');
 
     if (error.value) {

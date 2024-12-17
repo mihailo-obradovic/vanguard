@@ -2,6 +2,7 @@
 ----------------------------------- TOP PRIORITY -----------------------------------
 ------------------------------------------------------------------------------------
 Back-end tasks:
+- Fix home in route service provider
 - User roles: regular, admin
 - Standardize error structure
 - Standardize endpoint prefixes

@@ -34,7 +34,6 @@ Front-end tasks:
 - Write BE tests
 - Create a Docker image
 - Seed data
-- Exclude pnpm-lock.yaml from formatting
 - Replace all or most of "any" types
 - Implement password changing from the profile page
 - Update to latest ESLint

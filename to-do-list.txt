@@ -1,21 +1,47 @@
 ------------------------------------------------------------------------------------
 ----------------------------------- TOP PRIORITY -----------------------------------
 ------------------------------------------------------------------------------------
-- Optimize back-end (existing code, possible new functionalities, extensions, etc.)
-- Check middleware compatibility between FE and BE
-- Login/Register/Logout
-- Profile page
-- Users list
+Back-end tasks:
 - User roles: regular, admin
+- Standardize error structure
+- Standardize endpoint prefixes
+- Implement better security:
+  - CSRF for non-auth methods
+  - Token check for password reset
+  - Access and refresh tokens for all other requests
+
+Front-end tasks:
+- Profile page
+- Use errors store
+- Implement enter press
+- Extract CardForm
+- Cookies usage consent
+- Implement users update/delete functionalities with edit and confirmation modals
+- Update master with all the common settings
+- Record YouTube video
+- Update to Laravel 11
+- Switch to new Vue Dev Tools (if not redundant)
 ------------------------------------------------------------------------------------
 ------------------------------------- BRANCHES -------------------------------------
 ------------------------------------------------------------------------------------
 - Vuetify
-- Shadcn-vue
+- ShadCN-Vue
 ------------------------------------------------------------------------------------
 -------------------------------------- LATER ---------------------------------------
 ------------------------------------------------------------------------------------
 - Implement validation with Zod (maybe with Nuxt Precognition?)
-- Write tests
+- Write FE tests
+- Write BE tests
 - Create a Docker image
+- Seed data
+- Exclude pnpm-lock.yaml from formatting
+- Replace all or most of "any" types
+- Implement password changing from the profile page
+- Update to latest ESLint
+------------------------------------------------------------------------------------
+------------------------------------- QUESTIONS ------------------------------------
+------------------------------------------------------------------------------------
+- Should fetchUser and fetchCurrentUser remain separate?
+- Can we reset card dialog's form data using scoped slots?
+- Check if its better to use Nuxt Laravel Sanctum
 ------------------------------------------------------------------------------------

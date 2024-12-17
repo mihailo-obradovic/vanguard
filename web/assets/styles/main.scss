@@ -1,3 +1,27 @@
+html,
+body,
+#__nuxt {
+    height: 100%;
+    width: 100%;
+    overflow-y: hidden !important;
+}
+
 body {
     font-family: sans-serif;
+}
+
+.user-select-none {
+    user-select: none;
+}
+
+.text-transform-none {
+    text-transform: none;
+}
+
+.z-index-top {
+    z-index: 1000;
+}
+
+.br-2 {
+    border-radius: 8px;
 }

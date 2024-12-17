@@ -1,7 +1,9 @@
 <template>
-  <div>
-    Placeholder
-  </div>
+  <NuxtLoadingIndicator />
+
+  <NuxtLayout>
+    {{ error }}
+  </NuxtLayout>
 </template>
 
 <script setup lang="ts">

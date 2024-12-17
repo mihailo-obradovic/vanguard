@@ -1,6 +1,6 @@
 import type { UseFetchOptions } from 'nuxt/app';
 
-export function useApiFetch<T>(
+export function fetcher<T>(
   path: string | (() => string),
   options: UseFetchOptions<T> = {}
 ) {

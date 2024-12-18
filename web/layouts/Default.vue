@@ -89,17 +89,15 @@ import LoginDialog from '@/components/users/LoginDialog.vue';
 import ForgotPasswordDialog from '~/components/users/ForgotPasswordDialog.vue';
 
 import useAuthService from '@/services/useAuthService';
-import useUserService from '@/services/useUserService';
 
 import type { Credentials, RegistrationForm } from '@/types/auth';
 
-const { user, isLoggedIn } = storeToRefs(useAuthStore());
+const { isLoggedIn } = storeToRefs(useAuthStore());
 const { isLoading } = storeToRefs(useLoadingStore());
 
 const { $startLoading, $stopLoading } = useLoadingStore();
 
-const { logOut } = useAuthService();
-const { fetchCurrentUser } = useUserService();
+const { logOut, fetchCurrentUser } = useAuthService();
 
 async function handleLogout() {
   $startLoading('logout');
@@ -211,15 +209,15 @@ function useUserDialogs() {
 }
 
 async function loadEssentialData() {
-  const response: any = await fetchCurrentUser();
-
-  user.value = response;
-
   if (!isLoggedIn.value) {
     navigateTo('/');
 
+    loginDialog.value = true;
+
     return;
   }
+
+  await fetchCurrentUser();
 }
 
 await loadEssentialData();

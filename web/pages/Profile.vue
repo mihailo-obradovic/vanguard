@@ -11,6 +11,7 @@
 <script lang="ts" setup>
 import UserCard from '@/components/users/UserCard.vue';
 
+import useAuthService from '@/services/useAuthService';
 import useUserService from '@/services/useUserService';
 
 definePageMeta({
@@ -22,7 +23,8 @@ const { user: authUser } = storeToRefs(useAuthStore());
 
 const { $startLoading, $stopLoading } = useLoadingStore();
 
-const { fetchCurrentUser, updateUser } = useUserService();
+const { fetchCurrentUser } = useAuthService();
+const { updateUser } = useUserService();
 
 const user = ref(authUser.value);
 

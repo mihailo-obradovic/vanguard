@@ -1,23 +1,17 @@
-export type User = {
-  id: number;
-  name: string;
-  email: string;
-};
-
-export type RegistrationForm = {
-  name: string;
+export type Credentials = {
   email: string;
   password: string;
+};
+
+export type User = Credentials & {
+  id: number;
+};
+
+export type RegistrationForm = Credentials & {
+  name: string;
   password_confirmation: string;
 };
 
-export type LoginForm = {
-  email: string;
-  password: string;
-};
-
-export type PasswordResetForm = {
+export type PasswordResetForm = Credentials & {
   token: string;
-  email: string;
-  password: string;
 };

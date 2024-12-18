@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 
-import type { User } from '@/types/types';
+import type { User } from '@/types/auth';
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null);

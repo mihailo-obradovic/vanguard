@@ -2,7 +2,7 @@ import useUserService from '@/services/useUserService';
 
 import type {
   RegistrationForm,
-  LoginForm,
+  Credentials,
   PasswordResetForm
 } from '@/types/auth';
 
@@ -32,7 +32,7 @@ export default function useAuthService() {
     }
   }
 
-  async function logIn(credentials: LoginForm) {
+  async function logIn(credentials: Credentials) {
     try {
       await fetcher('/sanctum/csrf-cookie');
 

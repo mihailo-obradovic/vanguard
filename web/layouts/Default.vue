@@ -91,7 +91,7 @@ import ForgotPasswordDialog from '~/components/users/ForgotPasswordDialog.vue';
 import useAuthService from '@/services/useAuthService';
 import useUserService from '@/services/useUserService';
 
-import type { LoginForm, RegistrationForm } from '@/types/auth';
+import type { Credentials, RegistrationForm } from '@/types/auth';
 
 const { user, isLoggedIn } = storeToRefs(useAuthStore());
 const { isLoading } = storeToRefs(useLoadingStore());
@@ -176,7 +176,7 @@ function useUserDialogs() {
       .finally(() => $stopLoading('dialog'));
   }
 
-  function handleLogin(form: LoginForm) {
+  function handleLogin(form: Credentials) {
     $startLoading('dialog');
 
     logIn(form)

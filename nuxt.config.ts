@@ -77,5 +77,5 @@ export default defineNuxtConfig({
     dirs: ['@/components/shared']
   },
 
-  compatibilityDate: '2024-11-19'
+  compatibilityDate: '2024-12-17'
 });

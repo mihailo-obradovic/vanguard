@@ -7,9 +7,7 @@ const toast = useToast();
 export function $toast(
   message: string,
   type: ToastType = 'success',
-  options: any = {
-    timeout: false
-  }
+  options: any = {}
 ) {
   toast(message, {
     type: TYPE[type.toUpperCase() as keyof typeof TYPE],

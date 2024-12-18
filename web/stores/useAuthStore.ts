@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 
-import type { User } from '@/types/auth';
+import type { User } from '@/types/types';
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null);
@@ -11,7 +11,7 @@ export const useAuthStore = defineStore('auth', () => {
   // TODO: Add refresh token?
 
   // TODO: Define and use refresh token?
-  const isLoggedIn = computed(() => !!accessToken.value);
+  const isLoggedIn = computed(() => !!user.value);
 
   return { user, accessToken, isLoggedIn };
 });

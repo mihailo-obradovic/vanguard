@@ -34,7 +34,7 @@ onMounted(async () => {
 
     fetchCurrentUser()
       .then((response: any) => {
-        user.value = response;
+        authUser.value = response;
       })
       .finally(() => $stopLoading('current-user'));
   }

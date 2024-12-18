@@ -1,0 +1,12 @@
+pnpm-lock.yaml
+
+# TODO: Check if needed
+# **/app/*
+# **/bootstrap/*
+# **/config/*
+# **/database/*
+# **/public/*
+# **/resources/*
+# **/routes/*
+# **/storage/*
+# **/tests/*

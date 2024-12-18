@@ -15,6 +15,8 @@
 </template>
 
 <script lang="ts" setup>
+import useAuthService from '@/services/useAuthService';
+
 definePageMeta({
   middleware: ['guest']
 });
@@ -24,10 +26,10 @@ const form = ref({
   password: 'gmaz'
 });
 
-const auth = useAuthStore();
+const { logIn } = useAuthService();
 
 async function handleLogin() {
-  const { error } = await auth.logIn(form.value);
+  const { error } = await logIn(form.value);
 
   if (error.value) {
     console.log(error);

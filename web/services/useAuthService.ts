@@ -1,5 +1,3 @@
-import useUserService from '@/services/useUserService';
-
 import type {
   RegistrationForm,
   Credentials,
@@ -7,8 +5,6 @@ import type {
 } from '@/types/auth';
 
 export default function useAuthService() {
-  const { fetchCurrentUser } = useUserService();
-
   const { accessToken, user } = storeToRefs(useAuthStore());
 
   // getCsrfToken
@@ -55,6 +51,18 @@ export default function useAuthService() {
 
   // refreshTokens
 
+  async function fetchCurrentUser() {
+    try {
+      const response: any = await fetcher('/api/user');
+
+      user.value = response;
+
+      return Promise.resolve(response);
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
   async function logOut() {
     try {
       await fetcher('/logout', { method: 'POST' });
@@ -96,5 +104,12 @@ export default function useAuthService() {
     }
   }
 
-  return { register, logIn, logOut, generatePasswordResetEmail, resetPassword };
+  return {
+    register,
+    logIn,
+    fetchCurrentUser,
+    logOut,
+    generatePasswordResetEmail,
+    resetPassword
+  };
 }

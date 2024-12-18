@@ -11,7 +11,7 @@ export const useAuthStore = defineStore('auth', () => {
   // TODO: Add refresh token?
 
   // TODO: Define and use refresh token?
-  const isLoggedIn = computed(() => !!user.value);
+  const isLoggedIn = computed(() => !!accessToken.value);
 
   return { user, accessToken, isLoggedIn };
 });

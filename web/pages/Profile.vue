@@ -1,6 +1,6 @@
 <template>
   <LoadingSpinner
-    v-if="isLoading"
+    v-if="isLoading['current-user']"
     v-model="isLoading['current-user']"
     fill-height
   />

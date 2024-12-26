@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\RegisteredUserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,5 +17,10 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return ['Laravel' => app()->version()];
 });
+
+Route::get('/users', [RegisteredUserController::class, 'index']);
+Route::get('/users/{id}', [RegisteredUserController::class, 'show']);
+Route::put('/users/{id}', [RegisteredUserController::class, 'update']);
+Route::delete('/users/{id}', [RegisteredUserController::class, 'destroy']);
 
 require __DIR__.'/auth.php';

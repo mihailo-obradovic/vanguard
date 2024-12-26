@@ -1,16 +1,14 @@
 <template>
-  <div>
-    <NuxtLoadingIndicator />
+  <NuxtLoadingIndicator />
 
-    <NuxtLayout>
-      <NuxtPage />
-    </NuxtLayout>
+  <NuxtLayout>
+    <NuxtPage />
+  </NuxtLayout>
 
-    <!-- TODO: Cookie consent banner -->
-  </div>
+  <!-- TODO: Cookie consent banner -->
 </template>
 
-<script setup lang="ts">
+<script setup>
 useHead({
   title: 'Laravel Nuxt Template',
 

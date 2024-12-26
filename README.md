@@ -1,142 +1,97 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+## About this template
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+This is a starter template meant to be used for small monorepo projects, although the front-end part can also serve as an independent template.
 
-## About Laravel
+In its base, this is a Laravel project set up in an API-only variant using Laravel Breeze. The front-end portion was created using Nuxt. All non-config front-end files are located inside the web directory, making it easy to separate the front-end from the back-end. Since this is a general purpose template, server side rendering capabilities for Nuxt are turned off by default.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+The project was built with [pnpm](https://pnpm.io/) as the primary package manager choice, but it can also work with other options.
 
--   [Simple, fast routing engine](https://laravel.com/docs/routing).
--   [Powerful dependency injection container](https://laravel.com/docs/container).
--   Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
--   Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
--   Database agnostic [schema migrations](https://laravel.com/docs/migrations).
--   [Robust background job processing](https://laravel.com/docs/queues).
--   [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+The `master` branch is CSS/component-framework-agnostic. It's meant to serve as a base for other branches, but it can also be used as a standalone template.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+An opinionated [Prettier](https://prettier.io/) + [ESLint](https://eslint.org/) setup is included.
 
-## Learning Laravel
+Page components can be defined inside `~/web/pages` and support PascalCase naming in addition to built-in kebab-case. An empty home page was defined and can be accessed at `/` or `/home`. In addition to that, users can navigate to profile, users and password reset pages. Components relating to these pages are defined in separate directories under `~/web/components` and by default they still need to be explicitly imported. Supplementary components are located in the `~/web/components/shared` directory, and these are auto-imported by Nuxt when needed.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Two middleware functions are included: `auth` and `guest`.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+An initialization plugin was created. For now, its only functionality is loading the user auth object.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Services are defined in the `~/web/services` directory. They are meant to be used for API calls and other data-related operations.
 
-## Laravel Sponsors
+Stores are defined in the `~/web/stores` directory. They are meant to be used for storing data that needs to be shared between components. For now, two stores are included: `auth` and `loading`. The former handles all authentication processes, while the latter is used to manage loading states of components.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+The project uses TypeScript by default but it's not mandatory. While it is recommended to keep config files in TypeScript, it's not necessary (or even strictly preferred) to write components in TypeScript.
 
-### Premium Partners
+To extend the styling capabilities, `sass` was added as a dependency. A `main.scss` file containing some basic global styles was created and set up.
 
--   **[Vehikl](https://vehikl.com/)**
--   **[Tighten Co.](https://tighten.co)**
--   **[WebReinvent](https://webreinvent.com/)**
--   **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
--   **[64 Robots](https://64robots.com)**
--   **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
--   **[Cyber-Duck](https://cyber-duck.co.uk)**
--   **[DevSquad](https://devsquad.com/hire-laravel-developers)**
--   **[Jump24](https://jump24.co.uk)**
--   **[Redberry](https://redberry.international/laravel/)**
--   **[Active Logic](https://activelogic.com)**
--   **[byte5](https://byte5.de)**
--   **[OP.GG](https://op.gg)**
+To facilitate setups of various useful libraries, Nuxt modules were installed. The list includes: ESLint, Image, Test Utils, i18n, Pinia, VueUse, DayJS and Lodash. All lodash functions use Nuxt's auto import capabilities and can be used immediately with the `_` prefix.
+
+A huge benefit of using Nuxt is that all of these settings can be accessed through the `nuxt.config.js` file without having to look for anything else.
+
+## Branches
+
+So far, the only prepared branch in addition to master is the [Vuetify](https://vuetifyjs.com) variant. It covers all the baseline functionalities present on `master` with interfaces built using ready Vuetify components. Some customization and commonly used components are included.
+
+## Useful Links
+
+-   **[Codeus](https://codeus.me)**
+
+-   **[Laravel Docs](https://laravel.com/docs/11.x)**
+-   **[Vue.js Docs](https://vuejs.org/guide/introduction.html)**
+-   **[NuxtJS Docs](https://nuxt.com/docs/getting-started/introduction)**
+-   **[Vite Docs](https://vitejs.dev/guide/)**
+-   **[Pinia Docs](https://pinia.vuejs.org/introduction.html)**
+-   **[Vitest Docs](https://vitest.dev/guide/)**
+-   **[pnpm Docs](https://pnpm.io/motivation)**
+-   **[TypeScript Docs](https://www.typescriptlang.org/docs/)**
+
+-   **[Prettier Docs](https://prettier.io/docs/en/)**
+-   **[ESLint Docs](https://eslint.org/docs/latest/)**
+-   **[ESLint Vue Docs](https://eslint.vuejs.org/user-guide/)**
+
+-   **[Vuetify Docs](https://vuetifyjs.com/en/introduction/why-vuetify/#feature-guides)**
 
 ## Contributing
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Explore available branches that are dedicated to specific CSS/component frameworks or create new ones using `master` as a base. Avoid committing directly existing branches unless they're in an early phase or you are the sole contributor.
 
-## Code of Conduct
+## Usage permissions
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-
-# Nuxt 3 Minimal Starter
-
-Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+This template is meant to be used internally by employees of Codeus, clients and friends. Please don't share it outside those circles.
 
 ## Setup
 
-Make sure to install the dependencies:
+### Back-end
 
 ```bash
-# npm
-npm install
+# install dependencies
+composer install
 
-# pnpm
-pnpm install
+# create a copy of the .env file
+cp .env.example .env
 
-# yarn
-yarn install
+# run migrations
+php artisan migrate
 
-# bun
-bun install
+# generate an app key
+php artisan key:generate
+
+# start dev server on `http://localhost:8000`
+php artisan serve
 ```
 
-## Development Server
-
-Start the development server on `http://localhost:3000`:
+### Front-end
 
 ```bash
-# npm
-npm run dev
+# install dependencies
+pnpm i
 
-# pnpm
+# start dev server on `http://localhost:3000`
 pnpm run dev
 
-# yarn
-yarn dev
-
-# bun
-bun run dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
+# build for production
 pnpm run build
 
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
+# locally preview production build
 pnpm run preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
 ```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.

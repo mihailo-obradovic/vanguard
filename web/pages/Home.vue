@@ -2,4 +2,4 @@
   <pre>Hello, world!</pre>
 </template>
 
-<script lang="ts" setup></script>
+<script setup></script>

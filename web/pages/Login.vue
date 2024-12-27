@@ -28,14 +28,14 @@ const form = ref({
 
 const { logIn } = useAuthService();
 
-async function handleLogin() {
-  const { error } = await logIn(form.value);
-
-  if (error.value) {
-    console.log(error);
-  }
-
-  navigateTo('/home');
+function handleLogin() {
+  logIn(form.value)
+    .then(() => {
+      navigateTo('/home');
+    })
+    .catch((error) => {
+      $toast(error, 'error');
+    });
 }
 </script>
 

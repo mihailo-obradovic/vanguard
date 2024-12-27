@@ -28,10 +28,12 @@
   </form>
 </template>
 
-<script lang="ts" setup>
+<script setup>
 definePageMeta({
   middleware: ['guest']
 });
+
+const { register } = useAuthStore();
 
 const form = ref({
   name: '',
@@ -40,17 +42,13 @@ const form = ref({
   password_confirmation: ''
 });
 
-const auth = useAuthStore();
-
-async function handleRegister() {
-  const { error } = await auth.register(form.value);
-
-  if (error.value) {
-    console.log(error);
-
-    return;
-  }
-
-  navigateTo('/home');
+function handleRegister() {
+  register(form.value)
+    .then(() => {
+      navigateTo('/home');
+    })
+    .catch((error) => {
+      $toast(error, 'error');
+    });
 }
 </script>

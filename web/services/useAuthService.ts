@@ -1,53 +1,115 @@
-import type { User, RegistrationInfo, Credentials } from '@/types/types';
+import type {
+  RegistrationForm,
+  Credentials,
+  PasswordResetForm
+} from '@/types/auth';
 
 export default function useAuthService() {
-  const { user } = storeToRefs(useAuthStore());
+  const { accessToken, user } = storeToRefs(useAuthStore());
 
-  async function fetchUser() {
-    const { data, error } = await fetcher('/api/user');
+  // getCsrfToken
 
-    if (error.value) {
-      // console.log(error);
+  async function register(credentials: RegistrationForm) {
+    try {
+      const response: any = await fetcher('/register', {
+        method: 'POST',
+        body: credentials
+      });
 
-      return;
+      accessToken.value = response.access_token;
+
+      const userResponse: any = await fetchCurrentUser();
+
+      user.value = userResponse;
+
+      return Promise.resolve();
+    } catch (error) {
+      return Promise.reject(error);
     }
-
-    user.value = data.value as User;
-  }
-
-  async function register(info: RegistrationInfo) {
-    await fetcher('/sanctum/csrf-cookie');
-
-    const register = await fetcher('/register', {
-      method: 'POST',
-      body: info
-    });
-
-    await fetchUser();
-
-    return register;
   }
 
   async function logIn(credentials: Credentials) {
-    await fetcher('/sanctum/csrf-cookie');
+    try {
+      await fetcher('/sanctum/csrf-cookie');
 
-    const login = await fetcher('/login', {
-      method: 'POST',
-      body: credentials
-    });
+      const response: any = await fetcher('/login', {
+        method: 'POST',
+        body: credentials
+      });
 
-    await fetchUser();
+      accessToken.value = response.access_token;
 
-    return login;
+      const userResponse: any = await fetchCurrentUser();
+
+      user.value = userResponse;
+
+      return Promise.resolve();
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  // refreshTokens
+
+  async function fetchCurrentUser() {
+    try {
+      const response: any = await fetcher('/api/user');
+
+      user.value = response;
+
+      return Promise.resolve(response);
+    } catch (error) {
+      return Promise.reject(error);
+    }
   }
 
   async function logOut() {
-    await fetcher('/logout', { method: 'POST' });
+    try {
+      await fetcher('/logout', { method: 'POST' });
 
-    user.value = null;
+      accessToken.value = null;
+      user.value = null;
 
-    navigateTo('/login');
+      return Promise.resolve();
+    } catch (error) {
+      return Promise.reject(error);
+    }
   }
 
-  return { register, logIn, fetchUser, logOut };
+  async function generatePasswordResetEmail(form: { email: string }) {
+    try {
+      await fetcher('/forgot-password', {
+        method: 'POST',
+        body: form
+      });
+
+      return Promise.resolve();
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  // checkResetToken
+
+  async function resetPassword(form: PasswordResetForm) {
+    try {
+      await fetcher('/reset-password', {
+        method: 'POST',
+        body: form
+      });
+
+      return Promise.resolve();
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  return {
+    register,
+    logIn,
+    fetchCurrentUser,
+    logOut,
+    generatePasswordResetEmail,
+    resetPassword
+  };
 }

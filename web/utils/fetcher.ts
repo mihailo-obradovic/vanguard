@@ -1,34 +1,47 @@
-import type { UseFetchOptions } from 'nuxt/app';
-
-export function fetcher<T>(
-  path: string | (() => string),
-  options: UseFetchOptions<T> = {}
-) {
+export function fetcher(path: string, params: any = {}) {
   const { apiBaseUrl } = useRuntimeConfig().public;
 
-  let headers: any = {};
+  const headers: any = {};
+  const options: any = { ...params };
 
-  const token = useCookie('XSRF-TOKEN');
+  const isAlteringServerState = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(
+    String(params?.method).toUpperCase()
+  );
 
-  if (token.value) {
-    headers['X-XSRF-TOKEN'] = token.value as string;
+  // TODO: Check when to send the XSRF token
+  if (!params?.method || isAlteringServerState) {
+    const token = useCookie('XSRF-TOKEN');
+
+    // if (!token) {
+    //   return handleError()
+    // }
+
+    headers['X-XSRF-TOKEN'] = token.value;
+    options.credentials = 'include';
   }
 
-  if (import.meta.server) {
-    headers = {
-      ...headers,
-      ...useRequestHeaders(['referer', 'cookie'])
-    };
-  }
+  options.headers = {
+    ...params.headers,
+    ...headers
+  };
 
-  // TODO: Replace with a dynamic base URL variable
-  return useFetch(apiBaseUrl + path, {
-    credentials: 'include',
-    watch: false,
-    ...options,
-    headers: {
-      ...headers,
-      ...options?.headers
-    }
-  });
+  return $fetch(apiBaseUrl + path, options);
 }
+
+// Idea: Use a CSRF token for guest methods
+// Idea: Use an access token for user methods
+// Idea: Use a refresh token for refreshing the access token
+// const routeRequiresAccessToken...
+// const routeRequiresRefreshToken...
+// if (routeRequiresAccessToken) {
+//   if (!accessToken){
+//     handleError()...
+//   }
+//   headers['Authorization'] = `Bearer ${accessToken}`
+// } else if (routeRequiresCsrfToken) {
+//   if (!csrfToken){
+//     handleError()...
+//   }
+//   headers['X-CSRF-TOKEN'] = csrfToken
+//   options.credentials = 'include'
+// }

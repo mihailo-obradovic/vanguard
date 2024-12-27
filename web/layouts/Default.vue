@@ -35,7 +35,7 @@ import useAuthService from '@/services/useAuthService';
 
 const { isLoggedIn, user } = storeToRefs(useAuthStore());
 
-const { fetchUser, logOut } = useAuthService();
+const { fetchCurrentUser, logOut } = useAuthService();
 
 async function loadEssentialData() {
   if (!isLoggedIn.value) {
@@ -44,7 +44,7 @@ async function loadEssentialData() {
     return;
   }
 
-  await fetchUser();
+  await fetchCurrentUser();
 }
 
 async function handleLogout() {

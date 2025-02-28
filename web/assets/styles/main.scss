@@ -11,8 +11,8 @@ body {
 }
 
 ::selection {
-    color: rgb(var(--v-theme-secondary));
-    background-color: rgb(var(--v-theme-highlight));
+    color: white;
+    background-color: red;
 }
 
 .user-select-none {

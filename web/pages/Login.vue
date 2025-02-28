@@ -22,8 +22,8 @@ definePageMeta({
 });
 
 const form = ref({
-  email: 'test@example.com',
-  password: 'gmaz'
+  email: 'mihailo.obradovic@codeus.me',
+  password: 'gmaz1234'
 });
 
 const { logIn } = useAuthService();

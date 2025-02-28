@@ -29,8 +29,6 @@
 </template>
 
 <script setup>
-import useAuthService from '~/services/useAuthService';
-
 definePageMeta({
   middleware: ['guest']
 });

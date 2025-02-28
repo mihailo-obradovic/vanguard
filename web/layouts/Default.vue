@@ -31,8 +31,6 @@
 </template>
 
 <script lang="ts" setup>
-import useAuthService from '@/services/useAuthService';
-
 const { isLoggedIn, user } = storeToRefs(useAuthStore());
 
 const { fetchCurrentUser, logOut } = useAuthService();

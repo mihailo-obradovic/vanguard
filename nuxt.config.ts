@@ -56,5 +56,9 @@ export default defineNuxtConfig({
     dirs: ['@/components/shared']
   },
 
-  compatibilityDate: '2024-12-17'
+  imports: {
+    dirs: ['services']
+  },
+
+  compatibilityDate: '2025-03-01'
 });

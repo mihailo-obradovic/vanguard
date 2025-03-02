@@ -38,9 +38,6 @@ importers:
       pinia:
         specifier: ^2.3.1
         version: 2.3.1(typescript@5.7.3)(vue@3.5.13(typescript@5.7.3))
-      typescript:
-        specifier: ^5.7.3
-        version: 5.7.3
       vue:
         specifier: ^3.5.13
         version: 3.5.13(typescript@5.7.3)
@@ -75,6 +72,9 @@ importers:
       sass-loader:
         specifier: ^16.0.5
         version: 16.0.5(sass@1.85.1)
+      typescript:
+        specifier: ^5.7.3
+        version: 5.7.3
       vitest:
         specifier: ^1.6.1
         version: 1.6.1(@types/node@22.13.5)(happy-dom@14.12.3)(sass@1.85.1)(terser@5.39.0)

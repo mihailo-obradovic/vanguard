@@ -41,14 +41,8 @@ export default defineNuxtConfig({
     '@nuxtjs/i18n',
     '@pinia/nuxt',
     '@vueuse/nuxt',
-    'dayjs-nuxt',
-    'nuxt-lodash'
+    'dayjs-nuxt'
   ],
-
-  lodash: {
-    prefix: '_',
-    upperAfterPrefix: false
-  },
 
   css: ['@/assets/styles/main.scss'],
 

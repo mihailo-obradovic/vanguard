@@ -62,14 +62,8 @@ export default defineNuxtConfig({
     '@nuxtjs/i18n',
     '@pinia/nuxt',
     '@vueuse/nuxt',
-    'dayjs-nuxt',
-    'nuxt-lodash'
+    'dayjs-nuxt'
   ],
-
-  lodash: {
-    prefix: '_',
-    upperAfterPrefix: false
-  },
 
   css: ['@/assets/styles/main.scss'],
 
@@ -77,5 +71,9 @@ export default defineNuxtConfig({
     dirs: ['@/components/shared']
   },
 
-  compatibilityDate: '2024-12-17'
+  imports: {
+    dirs: ['services']
+  },
+
+  compatibilityDate: '2025-03-01'
 });

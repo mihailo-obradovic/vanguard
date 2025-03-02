@@ -88,8 +88,6 @@ import RegisterDialog from '@/components/users/RegisterDialog.vue';
 import LoginDialog from '@/components/users/LoginDialog.vue';
 import ForgotPasswordDialog from '~/components/users/ForgotPasswordDialog.vue';
 
-import useAuthService from '@/services/useAuthService';
-
 import type { Credentials, RegistrationForm } from '@/types/auth';
 
 const { isLoggedIn } = storeToRefs(useAuthStore());

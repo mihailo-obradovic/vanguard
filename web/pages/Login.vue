@@ -20,7 +20,7 @@ definePageMeta({
 });
 
 const form = ref({
-  email: 'mihailo.obradovic@codeus.me',
+  email: 'test@example.com',
   password: 'gmaz1234'
 });
 

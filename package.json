@@ -14,6 +14,7 @@
     "format": "prettier --single-quote true --trailing-comma none --html-whitespace-sensitivity ignore . --write ."
   },
   "dependencies": {
+    "@nuxt/fonts": "0.11.4",
     "@nuxt/image": "^1.9.0",
     "@nuxtjs/i18n": "^8.5.6",
     "@pinia/nuxt": "^0.5.5",
@@ -40,5 +41,6 @@
     "sass-loader": "^16.0.5",
     "typescript": "^5.7.3",
     "vitest": "^1.6.1"
-  }
+  },
+  "packageManager": "pnpm@10.7.0+sha512.6b865ad4b62a1d9842b61d674a393903b871d9244954f652b8842c2b553c72176b278f64c463e52d40fff8aba385c235c8c9ecf5cc7de4fd78b8bb6d49633ab6"
 }

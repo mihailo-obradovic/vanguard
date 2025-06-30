@@ -5,21 +5,21 @@
 This document outlines the preferred structure and style for Vue components in our projects. It is designed to ensure consistency, readability, and maintainability across the codebase. The following sections describe how to organize and write different parts of a Vue component.
 We follow modern standards based on Vue 3 and Nuxt 3, with support for auto-imports of composables, stores, shared components, and utility modules. These conventions are designed to work well with IDE autocompletion, static analysis, and team collaboration.
 
-> Note: This guide assumes flexibility in the choice of UI libraries. Vuetify-related suggestions apply only if Vuetify is used in the project.
+> Note: This guide assumes flexibility in the choice of UI libraries. The focus is on general best practices and any specific conventions for libraries like NuxtUI, Shadcn, Vuetify and others will be documented separately.
 
 ## Template Structure
 
 - Leave an empty line between neighboring HTML tags of the same hierarchy level.
-- If Vuetify is used, prefer Vuetify helper classes before writing custom CSS.
-- Use **PascalCase** for custom components. If Vuetify is used, follow **kebab-case** for its components..
+- When applying classes, prefer utility classes if available (e.g., Tailwind, Vuetify) over custom CSS.
+- Use **PascalCase** for custom components and **kebab-case** for library components.
 - Avoid deep `v-if/v-else` nesting. Prefer `v-show`, `v-slot`, or `v-for` with pre-filtered data.
 - Break down complex templates into smaller, logical subcomponents or use slots.
 
 ## Script Structure
 
-- Always use `<script setup lang="ts">` for consistency and TypeScript support.
+- Always use `<script setup>` for consistency and TypeScript support.
 - Use the `@/` alias for imports; avoid `~/`.
-- Assume auto-imports for project-level modules and shared components. Explicitly import only external packages or anything not in `@components/shared`.
+- Assume auto-imports for project-level modules, stores, utils and shared components. Explicitly import only external packages or components not in `@components/shared`.
 
 > Note: Section order is optimized for clarity, separation of concerns, and AI/autocomplete compatibility.
 
@@ -31,17 +31,17 @@ We follow modern standards based on Vue 3 and Nuxt 3, with support for auto-impo
 
 ### 2. Component Imports
 
-- Use PascalCase for naming.
-- Group similar components together.
+- Import components based on their usage in the template; core components that are higher up in the hierarchy should be imported first; components that are completely separate such as dialogs should be imported last.
+- Always use absolute paths.
 
 ### 3. Service Imports
 
-- Utility and API modules from `@/services`, `@/utils`.
+- Group API imports coming from `@/api`, '`@/api/queries`, `@/services` or similar together.
 
 ### 4. Type Imports
 
 - Use explicit `import type` for types from `@/types`, third-party packages, or local files.
-- Group type imports separately from runtime imports.
+- When importing enums, use `import type` if we're only using the type. If the value(s) are also used, use a regular import.
 
 ---
 
@@ -52,15 +52,15 @@ We follow modern standards based on Vue 3 and Nuxt 3, with support for auto-impo
 
 ### 6. `defineProps`, `defineModel`, `defineEmits`
 
-- Define the public API of the component.
 - Recommended order: `defineProps`, then `defineModel`, then `defineEmits`.
+- Use `const something = ...` only if the values need to be used in the script logic.
+- Always define prop types explicitly, even if they are optional.
 
 ---
 
 ### 7. Built-in composables
 
 - Destructure built-in Vue composables like `useRoute`, `useRouter`, `useAttrs`, `useSlots`.
-- Place them right after defineProps / defineEmits.
 - Keep related composables grouped together.
 
 ### 8. External composables
@@ -72,101 +72,76 @@ We follow modern standards based on Vue 3 and Nuxt 3, with support for auto-impo
 
 - For Pinia stores, always use `ref()` syntax for state, getters, and actions.
 - Always use `ref()`-style access where applicable.
+- When importing stores, prefer using `storeToRefs()` over defining a local wrapper property of the store.
 
 ### 10. Service destructuring
 
-- Functions extracted from utility/service modules.
+- Regularly destructure methods that make API calls.
 
-### 11. Local composables
+### 11. Project composables
 
-- Composables defined in `@/composables` used only in this component.
+- Destructure properties/methods from composables defined in `@/composables`.
+
+### 12. Component composables
+
+- Destructure properties/methods from composables defined in the same file, at the bottom of the script section.
 
 ---
 
-### 12. Template refs
+### 13. Template refs
 
-- `ref()` variables linked to DOM or component instances.
+- `ref()` variables linked to DOM or component instances. Use the `useTemplateRef` composable for better type inference.
 
-### 13. Computed properties
+### 14. Status indicators
 
-- Group related `computed()` values together.
+- Computed properties or refs that indicate statuses of component-wide significance. Other computed properties that are more specific to a feature should be grouped with that feature's logic.
 
-### 14. Functions
+### 15. Functions
 
-- Define all functions using the `function` keyword (not arrow functions).
+- Methods of component-wide significance such as those that load data should be defined here. Other functions that are more specific to a feature should be grouped with that feature's logic.
 - Group by type (e.g., event handlers, async operations, helpers).
 
-### 15. Watchers
+### 16. Watchers
 
-- `watch`, `watchEffect`, `watchPostEffect`.
-- Recommended order: basic `watch` → special `watchEffect` → `watchPostEffect`.
+- Watchers that monitor states of component-wide significance should be defined here. Other watchers that are more specific to a feature should be grouped with that feature's logic.
 
-### 16. Lifecycle hooks
+### 17. Lifecycle hooks
 
 - `onBeforeMount`, `onMounted`, `onUnmounted`, etc.
 - Order them in the same order the lifecycle progresses.
 
-### 17. Immediate executions
+### 18. Immediate executions
 
 - Code that needs to run immediately on setup (previously in `created()`).
 - Only use if it doesn’t belong in a lifecycle hook or computed/watcher.
 
-### 18. `defineExpose`
+### 19. `defineExpose`
 
-- At the very end, if needed to expose methods or data to the parent.
+- Properties or methods that need to be exposed to the parent.
 
---- 
+### 20. Local composable definitions
 
-### TypeScript Usage
-
-- Use `<script lang="ts">` when component logic benefits from typing.
-- Prefer explicit types for props, emits, and function signatures.
+- Composables that wrap a feature's logic together and are only used in this component.
 
 ---
 
 ## Style Structure
 
-- Use `<style scoped>` when necessary.
+- Use `<style scoped>` by default.
 - Only write custom CSS if built-in utility or framework classes (e.g., Vuetify, Tailwind) don't suffice.
-- Always place the `<style>` block at the bottom of the file.
 
 ---
-
 
 ## General Guidelines
 
 - **Add empty lines between major blocks**: imports, props, composables, refs, functions, etc.
 - **Prefer `if + return` over `if/else`**, especially at the end of a block.
 - **Avoid deeply nested logic or large `if/else` blocks** — use early returns and guard clauses.
-- **Group similar logic together**, e.g., all watchers in one place.
-- **Always use `function` syntax**, not arrow functions, for methods.
-- **File section order**: `<template>` → `<script setup>` → `<style>`.
+- **Group similar logic together**, e.g., refs/computed/watchers relating to one feature in one place.
+- **Always use `function` syntax**, not arrow functions, for defining component methods. Arrow syntax is preferrable for inline functions or callbacks.
+- **File section order**: `<template>` → `<script>` → `<style>`.
 - **Use `@/` instead of `~/` for imports**.
-- **Assume auto-imports are enabled** for composables, stores, utils, and shared components.
-- **Remove unused functions, imports, hooks**.
+- **Assume auto-imports are enabled** for composables, stores, utils, and shared components located in `@/components/shared`.
+- **Don't keep unused code unless instructed by a nearby comment**.
 - **Keep async logic in hooks, `watch`, or `computed` — not top-level.**
 - Use `pnpm` for package management across the project.
-
-
----
-
-<!-- definePageMeta
-defineProps
-defineModel
-defineEmits
---------------------
-built-in composable destructuring
-composable destructuring
-store destructuring
-service destructuring
-inner composable destructuring
---------------------
-template refs
-refs/computed properties
-functions
-watchers
-inner composables
-onBeforeMount/onMounted
-onBeforeUnmount/onUnmounted
-Immediate executions (what used to be created())
-defineExpose -->

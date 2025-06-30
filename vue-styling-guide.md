@@ -11,9 +11,25 @@ We follow modern standards based on Vue 3 and Nuxt 3, with support for auto-impo
 
 - Leave an empty line between neighboring HTML tags of the same hierarchy level.
 - When applying classes, prefer utility classes if available (e.g., Tailwind, Vuetify) over custom CSS.
+- Use multi-word names for created components.
 - Use **PascalCase** for custom components and **kebab-case** for library components.
 - Avoid deep `v-if/v-else` nesting. Prefer `v-show`, `v-slot`, or `v-for` with pre-filtered data.
 - Break down complex templates into smaller, logical subcomponents or use slots.
+- Use the v-bind same name shorthand where applicable:
+```
+<template>
+  <!-- ✓ GOOD -->
+  <div :foo />
+  <div v-bind:foo />
+
+  <div :foo="bar" />
+  <div v-bind:foo="bar" />
+
+  <!-- ✗ BAD -->
+  <div :foo="foo" />
+  <div v-bind:foo="foo" />
+</template>
+```
 
 ## Script Structure
 
@@ -36,7 +52,7 @@ We follow modern standards based on Vue 3 and Nuxt 3, with support for auto-impo
 
 ### 3. Service Imports
 
-- Group API imports coming from `@/api`, '`@/api/queries`, `@/services` or similar together.
+- Group API imports coming from `@/api`, `@/api/queries`, `@/services` or similar together.
 
 ### 4. Type Imports
 

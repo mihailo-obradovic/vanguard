@@ -1,3 +1,7 @@
+---
+applyTo: '**'
+---
+
 # Vue Styling Guide
 
 ## Intro
@@ -16,6 +20,7 @@ We follow modern standards based on Vue 3 and Nuxt 3, with support for auto-impo
 - Avoid deep `v-if/v-else` nesting. Prefer `v-show`, `v-slot`, or `v-for` with pre-filtered data.
 - Break down complex templates into smaller, logical subcomponents or use slots.
 - Use the v-bind same name shorthand where applicable:
+
 ```
 <template>
   <!-- ✓ GOOD -->

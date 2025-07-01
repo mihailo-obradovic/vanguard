@@ -35,7 +35,7 @@ We follow modern standards based on Vue 3 and Nuxt 3, with support for auto-impo
 
 - Always use `<script setup>` for consistency and TypeScript support.
 - Use the `@/` alias for imports; avoid `~/`.
-- Assume auto-imports for project-level modules, stores, utils and shared components. Explicitly import only external packages or components not in `@components/shared`.
+- Assume auto-imports for project-level modules, stores, utils and shared components. Explicitly import only external packages or components not in `@/components/shared`.
 
 > Note: Section order is optimized for clarity, separation of concerns, and AI/autocomplete compatibility.
 
@@ -160,4 +160,4 @@ We follow modern standards based on Vue 3 and Nuxt 3, with support for auto-impo
 - **Assume auto-imports are enabled** for composables, stores, utils, and shared components located in `@/components/shared`.
 - **Don't keep unused code unless instructed by a nearby comment**.
 - **Keep async logic in hooks, `watch`, or `computed` — not top-level.**
-- Use `pnpm` for package management across the project.
+- **Use `pnpm` for package management across the project.**

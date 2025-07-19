@@ -4,112 +4,79 @@ import type {
   PasswordResetForm
 } from '@/types/auth';
 
-export default function useAuthService() {
+// TODO: Move store imports out of the service
+
+export async function register(credentials: RegistrationForm) {
   const { accessToken, user } = storeToRefs(useAuthStore());
 
-  // getCsrfToken
+  const response: any = await fetcher('/register', {
+    method: 'POST',
+    body: credentials
+  });
 
-  async function register(credentials: RegistrationForm) {
-    try {
-      const response: any = await fetcher('/register', {
-        method: 'POST',
-        body: credentials
-      });
+  accessToken.value = response.access_token;
 
-      accessToken.value = response.access_token;
+  const userResponse: any = await fetchCurrentUser();
 
-      const userResponse: any = await fetchCurrentUser();
+  user.value = userResponse;
 
-      user.value = userResponse;
+  return Promise.resolve();
+}
 
-      return Promise.resolve();
-    } catch (error) {
-      return Promise.reject(error);
-    }
-  }
+export async function logIn(credentials: Credentials) {
+  const { accessToken, user } = storeToRefs(useAuthStore());
 
-  async function logIn(credentials: Credentials) {
-    try {
-      await fetcher('/sanctum/csrf-cookie');
+  await fetcher('/sanctum/csrf-cookie');
 
-      const response: any = await fetcher('/login', {
-        method: 'POST',
-        body: credentials
-      });
+  const response: any = await fetcher('/login', {
+    method: 'POST',
+    body: credentials
+  });
 
-      accessToken.value = response.access_token;
+  accessToken.value = response.access_token;
 
-      const userResponse: any = await fetchCurrentUser();
+  const userResponse: any = await fetchCurrentUser();
 
-      user.value = userResponse;
+  user.value = userResponse;
 
-      return Promise.resolve();
-    } catch (error) {
-      return Promise.reject(error);
-    }
-  }
+  return Promise.resolve();
+}
 
-  // refreshTokens
+export async function fetchCurrentUser() {
+  const { user } = storeToRefs(useAuthStore());
 
-  async function fetchCurrentUser() {
-    try {
-      const response: any = await fetcher('/api/user');
+  const response: any = await fetcher('/api/user');
 
-      user.value = response;
+  user.value = response;
 
-      return Promise.resolve(response);
-    } catch (error) {
-      return Promise.reject(error);
-    }
-  }
+  return Promise.resolve(response);
+}
 
-  async function logOut() {
-    try {
-      await fetcher('/logout', { method: 'POST' });
+export async function logOut() {
+  const { accessToken, user } = storeToRefs(useAuthStore());
 
-      accessToken.value = null;
-      user.value = null;
+  await fetcher('/logout', { method: 'POST' });
 
-      return Promise.resolve();
-    } catch (error) {
-      return Promise.reject(error);
-    }
-  }
+  accessToken.value = null;
+  user.value = null;
 
-  async function generatePasswordResetEmail(form: { email: string }) {
-    try {
-      await fetcher('/forgot-password', {
-        method: 'POST',
-        body: form
-      });
+  return Promise.resolve();
+}
 
-      return Promise.resolve();
-    } catch (error) {
-      return Promise.reject(error);
-    }
-  }
+export async function generatePasswordResetEmail(form: { email: string }) {
+  await fetcher('/forgot-password', {
+    method: 'POST',
+    body: form
+  });
 
-  // checkResetToken
+  return Promise.resolve();
+}
 
-  async function resetPassword(form: PasswordResetForm) {
-    try {
-      await fetcher('/reset-password', {
-        method: 'POST',
-        body: form
-      });
+export async function resetPassword(form: PasswordResetForm) {
+  await fetcher('/reset-password', {
+    method: 'POST',
+    body: form
+  });
 
-      return Promise.resolve();
-    } catch (error) {
-      return Promise.reject(error);
-    }
-  }
-
-  return {
-    register,
-    logIn,
-    fetchCurrentUser,
-    logOut,
-    generatePasswordResetEmail,
-    resetPassword
-  };
+  return Promise.resolve();
 }

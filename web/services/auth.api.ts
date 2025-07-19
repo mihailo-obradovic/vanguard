@@ -7,7 +7,8 @@ import type {
 // TODO: Move store imports out of the service
 
 export async function register(credentials: RegistrationForm) {
-  const { accessToken, user } = storeToRefs(useAuthStore());
+  const { accessToken } = storeToRefs(useAuthStore());
+  const { setUser } = useAuthStore();
 
   const response: any = await fetcher('/register', {
     method: 'POST',
@@ -18,13 +19,14 @@ export async function register(credentials: RegistrationForm) {
 
   const userResponse: any = await fetchCurrentUser();
 
-  user.value = userResponse;
+  setUser(userResponse);
 
   return Promise.resolve();
 }
 
 export async function logIn(credentials: Credentials) {
-  const { accessToken, user } = storeToRefs(useAuthStore());
+  const { accessToken } = storeToRefs(useAuthStore());
+  const { setUser } = useAuthStore();
 
   await fetcher('/sanctum/csrf-cookie');
 
@@ -37,28 +39,27 @@ export async function logIn(credentials: Credentials) {
 
   const userResponse: any = await fetchCurrentUser();
 
-  user.value = userResponse;
+  setUser(userResponse);
 
   return Promise.resolve();
 }
 
 export async function fetchCurrentUser() {
-  const { user } = storeToRefs(useAuthStore());
+  const { setUser } = useAuthStore();
 
   const response: any = await fetcher('/api/user');
 
-  user.value = response;
+  setUser(response);
 
   return Promise.resolve(response);
 }
 
 export async function logOut() {
-  const { accessToken, user } = storeToRefs(useAuthStore());
+  const { resetUser } = useAuthStore();
 
   await fetcher('/logout', { method: 'POST' });
 
-  accessToken.value = null;
-  user.value = null;
+  resetUser();
 
   return Promise.resolve();
 }

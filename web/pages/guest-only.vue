@@ -2,8 +2,4 @@
   <div>Page: foo</div>
 </template>
 
-<script lang="ts" setup>
-definePageMeta({
-  middleware: ['guest']
-});
-</script>
+<script lang="ts" setup></script>

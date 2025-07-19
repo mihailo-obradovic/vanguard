@@ -31,10 +31,6 @@
 <script setup>
 import { register } from '@/services/auth.api';
 
-definePageMeta({
-  middleware: ['guest']
-});
-
 const form = ref({
   name: '',
   email: '',

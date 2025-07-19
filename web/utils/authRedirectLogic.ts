@@ -12,10 +12,20 @@ export function determineAuthRedirect(
 
   const pathWithoutQuery = path.split('?')[0];
 
-  const guestOnlyPages = ['/login', '/register'];
+  if (pathWithoutQuery === '/') {
+    return {
+      shouldRedirect: true,
+      redirectTo: '/home',
+      reason: 'root_page_alias'
+    };
+  }
+
+  const guestOnlyPages = ['/login', '/register', '/guest-only'];
+  const sharedPages = ['/home'];
   const isGuestOnlyPage = guestOnlyPages.includes(pathWithoutQuery);
   const isProtectedPage =
-    !guestOnlyPages.includes(pathWithoutQuery) && pathWithoutQuery !== '/';
+    !guestOnlyPages.includes(pathWithoutQuery) &&
+    !sharedPages.includes(pathWithoutQuery);
 
   // * Redirect unauthenticated users away from protected pages
   if (!isLoggedIn.value && isProtectedPage) {

@@ -12,7 +12,7 @@
 import '@total-typescript/ts-reset';
 
 useHead({
-  title: 'Laravel Nuxt Template',
+  title: 'Vanguard',
 
   meta: [
     { charset: 'utf-8' },

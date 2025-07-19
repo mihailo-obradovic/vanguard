@@ -34,7 +34,6 @@ export default defineNuxtConfig({
     '@nuxt/fonts',
     '@nuxt/image',
     '@nuxt/test-utils/module',
-    '@nuxtjs/i18n',
     '@pinia/nuxt',
     '@vueuse/nuxt',
     'dayjs-nuxt'

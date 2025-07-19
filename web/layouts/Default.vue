@@ -10,7 +10,7 @@
       </template>
 
       <v-app-bar-title class="user-select-none">
-        Laravel Nuxt Template
+        Vanguard
       </v-app-bar-title>
 
       <v-spacer />

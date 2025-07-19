@@ -15,6 +15,8 @@
 </template>
 
 <script lang="ts" setup>
+import { logIn } from '@/services/auth.api';
+
 definePageMeta({
   middleware: ['guest']
 });
@@ -23,8 +25,6 @@ const form = ref({
   email: 'test@example.com',
   password: 'gmaz1234'
 });
-
-const { logIn } = useAuthService();
 
 function handleLogin() {
   logIn(form.value)

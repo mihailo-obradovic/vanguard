@@ -31,9 +31,9 @@
 </template>
 
 <script lang="ts" setup>
-const { isLoggedIn, user } = storeToRefs(useAuthStore());
+import { fetchCurrentUser, logOut } from '@/services/auth.api';
 
-const { fetchCurrentUser, logOut } = useAuthService();
+const { isLoggedIn, user } = storeToRefs(useAuthStore());
 
 async function loadEssentialData() {
   if (!isLoggedIn.value) {

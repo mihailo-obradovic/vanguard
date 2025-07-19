@@ -7,26 +7,22 @@ import type {
 // TODO: Move store imports out of the service
 
 export async function register(credentials: RegistrationForm) {
-  const { accessToken } = storeToRefs(useAuthStore());
-  const { setUser } = useAuthStore();
+  const { setUser, setAccessToken } = useAuthStore();
 
   const response: any = await fetcher('/register', {
     method: 'POST',
     body: credentials
   });
 
-  accessToken.value = response.access_token;
+  setAccessToken(response.access_token);
 
   const userResponse: any = await fetchCurrentUser();
 
   setUser(userResponse);
-
-  return Promise.resolve();
 }
 
 export async function logIn(credentials: Credentials) {
-  const { accessToken } = storeToRefs(useAuthStore());
-  const { setUser } = useAuthStore();
+  const { setUser, setAccessToken } = useAuthStore();
 
   await fetcher('/sanctum/csrf-cookie');
 
@@ -35,13 +31,11 @@ export async function logIn(credentials: Credentials) {
     body: credentials
   });
 
-  accessToken.value = response.access_token;
+  setAccessToken(response.access_token);
 
   const userResponse: any = await fetchCurrentUser();
 
   setUser(userResponse);
-
-  return Promise.resolve();
 }
 
 export async function fetchCurrentUser() {
@@ -51,7 +45,7 @@ export async function fetchCurrentUser() {
 
   setUser(response);
 
-  return Promise.resolve(response);
+  return response;
 }
 
 export async function logOut() {
@@ -60,8 +54,6 @@ export async function logOut() {
   await fetcher('/logout', { method: 'POST' });
 
   resetUser();
-
-  return Promise.resolve();
 }
 
 export async function generatePasswordResetEmail(form: { email: string }) {
@@ -69,8 +61,6 @@ export async function generatePasswordResetEmail(form: { email: string }) {
     method: 'POST',
     body: form
   });
-
-  return Promise.resolve();
 }
 
 export async function resetPassword(form: PasswordResetForm) {
@@ -78,6 +68,4 @@ export async function resetPassword(form: PasswordResetForm) {
     method: 'POST',
     body: form
   });
-
-  return Promise.resolve();
 }

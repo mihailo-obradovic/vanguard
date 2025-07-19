@@ -15,25 +15,6 @@ export default defineNuxtConfig({
     }
   },
 
-  hooks: {
-    'pages:extend'(pages) {
-      pages.forEach((page) => {
-        if (page.name) {
-          page.path = page.path
-            .replace(/([a-z])([A-Z])/g, '$1-$2')
-            .toLowerCase();
-        }
-      });
-
-      pages.push({
-        name: 'Home',
-        path: '/',
-        alias: '/home',
-        file: '@/pages/Home.vue'
-      });
-    }
-  },
-
   modules: [
     '@nuxt/eslint',
     '@nuxt/fonts',

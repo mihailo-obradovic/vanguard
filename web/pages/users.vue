@@ -9,18 +9,12 @@
 </template>
 
 <script setup>
-import UsersTable from '~/components/users/UsersTable.vue';
+import UsersTable from '@/components/users/UsersTable.vue';
 
-import useUserService from '~/services/useUserService';
-
-definePageMeta({
-  middleware: ['auth']
-});
+import { fetchUsers } from '@/services/user.api';
 
 const { isLoading } = storeToRefs(useLoadingStore());
 const { $startLoading, $stopLoading } = useLoadingStore();
-
-const { fetchUsers } = useUserService();
 
 const users = ref([]);
 

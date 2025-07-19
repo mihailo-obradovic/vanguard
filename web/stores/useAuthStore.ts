@@ -6,7 +6,6 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null);
 
   const accessToken = useCookie('accessToken', {
-    httpOnly: true,
     secure: true,
     sameSite: 'lax'
   });

@@ -36,8 +36,8 @@ const dialog = defineModel({
 });
 
 const initialForm = {
-  email: '',
-  password: ''
+  email: 'test@example.com',
+  password: 'gmaz1234'
 };
 
 const form = ref(Object.assign({}, initialForm));

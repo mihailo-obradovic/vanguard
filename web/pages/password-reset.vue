@@ -48,10 +48,9 @@
 </template>
 
 <script setup>
-import useAuthService from '@/services/useAuthService';
+import { resetPassword } from '@/services/auth.api';
 
 definePageMeta({
-  middleware: ['guest'],
   layout: 'empty'
 });
 
@@ -59,8 +58,6 @@ const route = useRoute();
 
 const { isLoading } = storeToRefs(useLoadingStore());
 const { $startLoading, $stopLoading } = useLoadingStore();
-
-const { resetPassword } = useAuthService();
 
 const form = ref({
   token: '',

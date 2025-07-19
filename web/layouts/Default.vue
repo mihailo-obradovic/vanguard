@@ -86,7 +86,14 @@ import { useTheme } from 'vuetify';
 
 import RegisterDialog from '@/components/users/RegisterDialog.vue';
 import LoginDialog from '@/components/users/LoginDialog.vue';
-import ForgotPasswordDialog from '~/components/users/ForgotPasswordDialog.vue';
+import ForgotPasswordDialog from '@/components/users/ForgotPasswordDialog.vue';
+
+import {
+  register,
+  logIn,
+  generatePasswordResetEmail,
+  logOut
+} from '@/services/auth.api';
 
 import type { Credentials, RegistrationForm } from '@/types/auth';
 
@@ -94,8 +101,6 @@ const { isLoggedIn } = storeToRefs(useAuthStore());
 const { isLoading } = storeToRefs(useLoadingStore());
 
 const { $startLoading, $stopLoading } = useLoadingStore();
-
-const { logOut, fetchCurrentUser } = useAuthService();
 
 async function handleLogout() {
   $startLoading('logout');
@@ -157,16 +162,12 @@ function useUserDialogs() {
   const loginDialog = ref(false);
   const forgotPasswordDialog = ref(false);
 
-  const { register, logIn, generatePasswordResetEmail } = useAuthService();
-
   function handleRegister(form: RegistrationForm) {
     $startLoading('dialog');
 
     register(form)
       .then(() => {
         registerDialog.value = false;
-
-        navigateTo('/');
       })
       .catch(console.error)
       .finally(() => $stopLoading('dialog'));
@@ -178,8 +179,6 @@ function useUserDialogs() {
     logIn(form)
       .then(() => {
         loginDialog.value = false;
-
-        navigateTo('/');
       })
       .catch(console.error)
       .finally(() => $stopLoading('dialog'));
@@ -205,20 +204,6 @@ function useUserDialogs() {
     handleForgotPassword
   };
 }
-
-async function loadEssentialData() {
-  if (!isLoggedIn.value) {
-    navigateTo('/');
-
-    loginDialog.value = true;
-
-    return;
-  }
-
-  await fetchCurrentUser();
-}
-
-await loadEssentialData();
 </script>
 
 <style lang="scss" scoped>

@@ -19,32 +19,6 @@ export default defineNuxtConfig({
 
   build: { transpile: ['vuetify'] },
 
-  hooks: {
-    'pages:extend'(pages) {
-      pages.forEach((page) => {
-        if (page.name) {
-          page.path = page.path
-            .replace(/([a-z])([A-Z])/g, '$1-$2')
-            .toLowerCase();
-        }
-      });
-
-      pages.push(
-        {
-          name: 'Home',
-          path: '/',
-          alias: '/home',
-          file: '@/pages/Home.vue'
-        },
-        {
-          name: 'Password Reset',
-          path: '/password-reset/:token',
-          file: '@/pages/PasswordReset.vue'
-        }
-      );
-    }
-  },
-
   vite: {
     vue: {
       template: {
@@ -57,6 +31,7 @@ export default defineNuxtConfig({
 
   modules: [
     '@nuxt/eslint',
+    '@nuxt/fonts',
     '@nuxt/image',
     '@nuxt/test-utils/module',
     '@nuxtjs/i18n',

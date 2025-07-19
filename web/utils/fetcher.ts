@@ -1,6 +1,8 @@
 export function fetcher(path: string, params: any = {}) {
   const { apiBaseUrl } = useRuntimeConfig().public;
 
+  const { accessToken } = storeToRefs(useAuthStore());
+
   const headers: any = {};
   const options: any = { ...params };
 
@@ -18,6 +20,10 @@ export function fetcher(path: string, params: any = {}) {
 
     headers['X-XSRF-TOKEN'] = token.value;
     options.credentials = 'include';
+  }
+
+  if (accessToken.value) {
+    headers['Authorization'] = `Bearer ${accessToken.value}`;
   }
 
   options.headers = {

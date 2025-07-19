@@ -1,7 +1,10 @@
 {
-  "name": "laravel-nuxt-template",
+  "name": "vanguard",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
@@ -14,6 +17,10 @@
     "format": "prettier --single-quote true --trailing-comma none --html-whitespace-sensitivity ignore . --write ."
   },
   "dependencies": {
+    "@pinia/nuxt": "^0.5.5",
+    "@nuxtjs/i18n": "^8.5.6",
+    "@nuxt/image": "^1.9.0",
+    "@nuxt/fonts": "0.11.4",
     "@mdi/font": "^7.4.47",
     "@nuxt/image": "^1.8.0",
     "@nuxtjs/i18n": "^8.5.2",
@@ -22,6 +29,11 @@
     "@vueuse/nuxt": "^10.11.1",
     "dayjs": "^1.11.13",
     "dayjs-nuxt": "^2.1.11",
+    "lodash-es": "^4.17.21",
+    "nuxt": "^3.15.4",
+    "pinia": "^2.3.1",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0",
     "nuxt": "^3.13.1",
     "lodash": "^4.17.21",
     "pinia": "^2.1.7",
@@ -31,10 +43,16 @@
   },
   "devDependencies": {
     "@nuxt/eslint": "^0.3.13",
+    "@nuxt/test-utils": "^3.17.0",
+    "@total-typescript/ts-reset": "^0.6.1",
+    "@types/lodash-es": "^4.17.12",
     "@nuxt/test-utils": "^3.14.1",
     "@types/lodash": "^4.17.16",
     "@vue/test-utils": "^2.4.6",
     "typescript": "^5.7.3",
+    "vitest": "^1.6.1"
+  },
+  "packageManager": "pnpm@10.13.1"
     "vitest": "^1.6.0",
     "vuetify": "^3.7.1",
     "vite-plugin-vuetify": "^2.0.4",

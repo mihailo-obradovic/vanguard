@@ -9,6 +9,8 @@
 </template>
 
 <script setup>
+import '@total-typescript/ts-reset';
+
 useHead({
   title: 'Laravel Nuxt Template',
 

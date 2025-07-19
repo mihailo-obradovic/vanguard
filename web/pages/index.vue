@@ -3,5 +3,9 @@
 </template>
 
 <script setup lang="ts">
-await navigateTo('/home');
+const route = useRoute();
+
+if (route.path !== '/home') {
+  await navigateTo('/home');
+}
 </script>

@@ -31,8 +31,8 @@ function handleLogin() {
     .then(() => {
       navigateTo('/home');
     })
-    .catch((error) => {
-      $toast(error, 'error');
+    .catch((error: Error) => {
+      $toast(error.message, 'error');
     });
 }
 </script>

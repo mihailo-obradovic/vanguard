@@ -40,14 +40,14 @@
     "@types/lodash": "^4.17.16",
     "@types/lodash-es": "^4.17.12",
     "@vue/test-utils": "^2.4.6",
-    "typescript": "^5.8.3",
-    "sass-loader": "^16.0.5",
-    "sass": "^1.89.2",
-    "prettier": "^3.6.2",
     "happy-dom": "^14.12.3",
-    "vitest": "^1.6.1"
-    "vuetify": "^3.7.1",
+    "prettier": "^3.6.2",
+    "sass": "^1.89.2",
+    "sass-loader": "^16.0.5",
+    "typescript": "^5.8.3",
     "vite-plugin-vuetify": "^2.0.4",
+    "vitest": "^1.6.1",
+    "vuetify": "^3.7.1"
   },
   "packageManager": "pnpm@10.13.1"
 }

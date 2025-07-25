@@ -8,7 +8,7 @@
 </template>
 
 <script setup>
-import { VSheet, VCard } from 'vuetify/lib/components';
+import { VSheet, VCard } from 'vuetify/components';
 
 const props = defineProps({
   type: {

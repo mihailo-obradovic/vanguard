@@ -6,7 +6,7 @@
 
     <ul>
       <li>
-        <NuxtLink to="/">Home</NuxtLink>
+        <NuxtLink to="/home">Home</NuxtLink>
       </li>
 
       <li>
@@ -33,21 +33,7 @@
 <script lang="ts" setup>
 const { isLoggedIn, user } = storeToRefs(useAuthStore());
 
-const { fetchCurrentUser, logOut } = useAuthService();
-
-async function loadEssentialData() {
-  if (!isLoggedIn.value) {
-    navigateTo('/login');
-
-    return;
-  }
-
-  await fetchCurrentUser();
-}
-
 async function handleLogout() {
   await logOut();
 }
-
-await loadEssentialData();
 </script>

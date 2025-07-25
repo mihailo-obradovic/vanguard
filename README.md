@@ -71,7 +71,7 @@ composer install
 cp .env.example .env
 
 # run migrations
-php artisan migrate
+php artisan migrate --seed
 
 # generate an app key
 php artisan key:generate

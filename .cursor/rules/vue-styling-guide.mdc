@@ -3,6 +3,7 @@ description:
 globs:
 alwaysApply: true
 ---
+
 # Vue Styling Guide
 
 ## Intro
@@ -39,23 +40,27 @@ We follow modern standards based on Vue 3 and Nuxt 3, with support for auto-impo
 - Import components based on their usage in the template; core components that are higher up in the hierarchy should be imported first; components that are completely separate such as dialogs should be imported last.
 - Always use absolute paths.
 
-### 3. Service Imports
+### 3. Static asset imports
+
+- Import static assets from `@/assets/constants` or `@/assets/images`.
+
+### 4. Service Imports
 
 - Group API imports coming from `@/api`, '`@/api/queries`, `@/services` or similar together.
 
-### 4. Type Imports
+### 5. Type Imports
 
 - Use explicit `import type` for types from `@/types`, third-party packages, or local files.
 - When importing enums, use `import type` if we're only using the type. If the value(s) are also used, use a regular import.
 
 ---
 
-### 5. `definePageMeta`
+### 6. `definePageMeta`
 
 - Nuxt-specific function for route metadata.
 - Place immediately after imports.
 
-### 6. `defineProps`, `defineModel`, `defineEmits`
+### 7. `defineProps`, `defineModel`, `defineEmits`
 
 - Recommended order: `defineProps`, then `defineModel`, then `defineEmits`.
 - Use `const something = ...` only if the values need to be used in the script logic.
@@ -63,68 +68,70 @@ We follow modern standards based on Vue 3 and Nuxt 3, with support for auto-impo
 
 ---
 
-### 7. Built-in composables
+### 8. Template and other refs needed for composable inputs
 
-- Destructure built-in Vue composables like `useRoute`, `useRouter`, `useAttrs`, `useSlots`.
+- `ref()` variables linked to DOM or component instances. Use the `useTemplateRef` composable for better type inference.
+- Any other refs required as input arguments to use built-in, external, store, service, project or component composables. In case any of these require data coming from the below sections, move them below but only as much as needed.
+
+### 9. Built-in composables
+
+- Destructure built-in Vue composables like `useRoute`, `useRouter`, `useAttrs`, `useSlots`, `resolveComponent`, etc.
 - Keep related composables grouped together.
 
-### 8. External composables
+### 10. External composables
 
 - Composables from packages like `@vueuse/core`, `pinia`, etc.
 - Group by package if there are multiple.
 
-### 9. Store usage
+### 11. Store usage
 
 - For Pinia stores, always use `ref()` syntax for state, getters, and actions.
 - Always use `ref()`-style access where applicable.
-- When importing stores, prefer using `storeToRefs()` over defining a local wrapper property of the store.
+- When importing stores, prefer destructuring over defining a local wrapper property of the store.
+- Import reactive variables first using `storeToRefs()`, then everything else.
 
-### 10. Service destructuring
+### 12. Service destructuring
 
 - Regularly destructure methods that make API calls.
 
-### 11. Project composables
+### 13. Project composables
 
 - Destructure properties/methods from composables defined in `@/composables`.
 
-### 12. Component composables
+### 14. Component composables
 
 - Destructure properties/methods from composables defined in the same file, at the bottom of the script section.
 
 ---
 
-### 13. Template refs
-
-- `ref()` variables linked to DOM or component instances. Use the `useTemplateRef` composable for better type inference.
-
-### 14. Status indicators
+### 15. Status indicators
 
 - Computed properties or refs that indicate statuses of component-wide significance. Other computed properties that are more specific to a feature should be grouped with that feature's logic.
 
-### 15. Functions
+### 16. Functions
 
 - Methods of component-wide significance such as those that load data should be defined here. Other functions that are more specific to a feature should be grouped with that feature's logic.
 - Group by type (e.g., event handlers, async operations, helpers).
 
-### 16. Watchers
+### 17. Watchers
 
 - Watchers that monitor states of component-wide significance should be defined here. Other watchers that are more specific to a feature should be grouped with that feature's logic.
 
-### 17. Lifecycle hooks
+### 18. Lifecycle hooks
 
 - `onBeforeMount`, `onMounted`, `onUnmounted`, etc.
 - Order them in the same order the lifecycle progresses.
 
-### 18. Immediate executions
+### 19. Immediate executions
 
 - Code that needs to run immediately on setup (previously in `created()`).
 - Only use if it doesn’t belong in a lifecycle hook or computed/watcher.
 
-### 19. `defineExpose`
+### 20. `defineExpose`
 
 - Properties or methods that need to be exposed to the parent.
 
-### 20. Local composable definitions
+### 21. Local composable definitions
 
 - Composables that wrap a feature's logic together and are only used in this component.
 

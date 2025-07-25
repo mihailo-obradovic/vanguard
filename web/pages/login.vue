@@ -15,24 +15,20 @@
 </template>
 
 <script lang="ts" setup>
-definePageMeta({
-  middleware: ['guest']
-});
+import { logIn } from '@/services/auth.api';
 
 const form = ref({
   email: 'test@example.com',
   password: 'gmaz1234'
 });
 
-const { logIn } = useAuthService();
-
 function handleLogin() {
   logIn(form.value)
     .then(() => {
       navigateTo('/home');
     })
-    .catch((error) => {
-      $toast(error, 'error');
+    .catch((error: Error) => {
+      $toast(error.message, 'error');
     });
 }
 </script>

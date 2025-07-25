@@ -29,11 +29,7 @@
 </template>
 
 <script setup>
-definePageMeta({
-  middleware: ['guest']
-});
-
-const { register } = useAuthService();
+import { register } from '@/services/auth.api';
 
 const form = ref({
   name: '',

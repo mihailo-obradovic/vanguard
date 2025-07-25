@@ -26,7 +26,12 @@ export default defineNuxtConfig({
       }
     },
 
+    // @ts-expect-error
     plugins: [vuetify({ autoImport: true })]
+  },
+
+  unhead: {
+    legacy: true
   },
 
   modules: [
@@ -49,5 +54,5 @@ export default defineNuxtConfig({
     dirs: ['services']
   },
 
-  compatibilityDate: '2025-03-01'
+  compatibilityDate: '2025-07-25'
 });

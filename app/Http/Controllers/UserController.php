@@ -71,7 +71,7 @@ class UserController extends Controller
 
         return response()->json([
             'message' => 'User updated successfully',
-            'data' => $user->only(['id', 'name', 'email', 'role', 'updated_at'])
+            'data' => $user->only(['id', 'name', 'email', 'role', 'email_verified_at', 'created_at', 'updated_at'])
         ]);
     }
 

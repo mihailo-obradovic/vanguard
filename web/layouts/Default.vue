@@ -112,7 +112,7 @@ async function handleLogout() {
 }
 
 .main-content {
-  padding: 8px 16px;
+  padding: 16px;
   max-width: 1200px;
   margin: 0 auto;
 }

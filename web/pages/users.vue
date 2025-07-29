@@ -1,105 +1,136 @@
 <template>
-  <div>
-    <h1>Users</h1>
+  <div class="users-container">
+    <div class="users-header">
+      <h1 class="users-title">Users Management</h1>
 
-    <div class="actions-bar">
-      <button class="create-btn" @click="openCreateForm">
-        Create New User
-      </button>
+      <div class="actions-bar">
+        <button class="create-btn" @click="openCreateForm">
+          Create New User
+        </button>
+      </div>
     </div>
 
-    <div v-if="isLoading">Loading users...</div>
+    <div v-if="isLoading" class="loading-state">
+      <p>Loading users...</p>
+    </div>
 
-    <div v-else-if="error" class="error">Error loading users: {{ error }}</div>
+    <div v-else-if="error" class="error-state">
+      <p>Error loading users: {{ error }}</p>
+    </div>
 
-    <div v-else>
-      <p>Total users: {{ users.length }}</p>
+    <div v-else class="users-content">
+      <div class="users-stats">
+        <p>
+          Total users:
+          <span class="stats-number">{{ users.length }}</span>
+        </p>
+      </div>
 
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Email Verified</th>
-            <th>Created At</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
+      <div class="table-container">
+        <table class="users-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Email Verified</th>
+              <th>Created At</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
 
-        <tbody>
-          <tr v-for="user in users" :key="user.id">
-            <td>{{ user.id }}</td>
-            <td>{{ user.name }}</td>
-            <td>{{ user.email }}</td>
-            <td>{{ user.role }}</td>
-            <td>{{ user.email_verified_at ? 'Yes' : 'No' }}</td>
-            <td>{{ formatDate(user.created_at) }}</td>
-            <td>
-              <button
-                class="edit-btn"
-                :disabled="isDeletingUser === user.id"
-                @click="openEditForm(user)"
-              >
-                Edit
-              </button>
-              <button
-                :disabled="isDeletingUser === user.id"
-                class="delete-btn"
-                @click="confirmDelete(user)"
-              >
-                {{ isDeletingUser === user.id ? 'Deleting...' : 'Delete' }}
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+          <tbody>
+            <tr v-for="user in users" :key="user.id" class="user-row">
+              <td>{{ user.id }}</td>
+              <td class="user-name">{{ user.name }}</td>
+              <td class="user-email">{{ user.email }}</td>
+              <td>
+                <span class="role-badge" :class="user.role">
+                  {{ user.role }}
+                </span>
+              </td>
+              <td>
+                <span
+                  class="verification-badge"
+                  :class="{ verified: user.email_verified_at }"
+                >
+                  {{ user.email_verified_at ? 'Yes' : 'No' }}
+                </span>
+              </td>
+              <td class="created-date">{{ formatDate(user.created_at) }}</td>
+              <td class="actions-cell">
+                <button
+                  class="edit-btn"
+                  :disabled="isDeletingUser === user.id"
+                  @click="openEditForm(user)"
+                >
+                  Edit
+                </button>
+                <button
+                  class="delete-btn"
+                  :disabled="isDeletingUser === user.id"
+                  @click="confirmDelete(user)"
+                >
+                  {{ isDeletingUser === user.id ? 'Deleting...' : 'Delete' }}
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <!-- Create/Edit User Form -->
     <div v-if="showUserForm" class="modal-overlay" @click="closeUserForm">
       <div class="modal form-modal" @click.stop>
-        <h3>{{ isEditMode ? 'Edit User' : 'Create New User' }}</h3>
+        <div class="modal-header">
+          <h3 class="modal-title">
+            {{ isEditMode ? 'Edit User' : 'Create New User' }}
+          </h3>
+        </div>
 
-        <form @submit.prevent="handleSubmitUser">
+        <form class="user-form" @submit.prevent="handleSubmitUser">
           <div class="form-group">
-            <label for="name">Name</label>
+            <label for="name" class="form-label">Name</label>
             <input
               id="name"
               v-model="userForm.name"
               type="text"
+              class="form-input"
               required
               :disabled="isSubmittingUser"
             />
           </div>
 
           <div class="form-group">
-            <label for="email">Email</label>
+            <label for="email" class="form-label">Email</label>
             <input
               id="email"
               v-model="userForm.email"
               type="email"
+              class="form-input"
               required
               :disabled="isSubmittingUser"
             />
           </div>
 
           <div class="form-group">
-            <label for="password">
+            <label for="password" class="form-label">
               Password {{ isEditMode ? '(leave empty to keep current)' : '' }}
             </label>
             <input
               id="password"
               v-model="userForm.password"
               type="password"
+              class="form-input"
               :required="!isEditMode"
               :disabled="isSubmittingUser"
             />
           </div>
 
           <div class="form-group">
-            <label for="password_confirmation">
+            <label for="password_confirmation" class="form-label">
               Password Confirmation
               {{ isEditMode ? '(required if changing password)' : '' }}
             </label>
@@ -107,16 +138,18 @@
               id="password_confirmation"
               v-model="userForm.password_confirmation"
               type="password"
+              class="form-input"
               :required="!isEditMode || !!userForm.password"
               :disabled="isSubmittingUser"
             />
           </div>
 
           <div class="form-group">
-            <label for="role">Role</label>
+            <label for="role" class="form-label">Role</label>
             <select
               id="role"
               v-model="userForm.role"
+              class="form-select"
               required
               :disabled="isSubmittingUser"
             >
@@ -154,15 +187,24 @@
 
     <!-- Confirmation Dialog -->
     <div v-if="userToDelete" class="modal-overlay" @click="cancelDelete">
-      <div class="modal" @click.stop>
-        <h3>Confirm Delete</h3>
-        <p>Are you sure you want to delete user "{{ userToDelete.name }}"?</p>
-        <p>This action cannot be undone.</p>
+      <div class="modal confirm-modal" @click.stop>
+        <div class="modal-header">
+          <h3 class="modal-title danger">Confirm Delete</h3>
+        </div>
+
+        <div class="modal-content">
+          <p>
+            Are you sure you want to delete user
+            <strong>"{{ userToDelete.name }}"</strong>
+            ?
+          </p>
+          <p class="warning-text">This action cannot be undone.</p>
+        </div>
 
         <div class="modal-actions">
           <button class="cancel-btn" @click="cancelDelete">Cancel</button>
           <button class="confirm-delete-btn" @click="handleDelete">
-            Delete
+            Delete User
           </button>
         </div>
       </div>
@@ -359,86 +401,205 @@ onMounted(() => {
 });
 </script>
 
-<style scoped lang="scss">
+<style scoped>
+.users-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.users-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.users-title {
+  color: rgb(0, 102, 255);
+  margin: 0;
+  font-size: 32px;
+  font-weight: 600;
+}
+
 .actions-bar {
-  margin-bottom: 1rem;
+  display: flex;
+  gap: 16px;
 }
 
 .create-btn {
-  background-color: #28a745;
+  background-color: rgb(0, 102, 255);
   color: white;
   border: none;
   padding: 8px 16px;
-  border-radius: 4px;
+  border-radius: 8px;
+  font-weight: 500;
   cursor: pointer;
-
-  &:hover {
-    background-color: #218838;
-  }
+  transition: background-color 0.25s ease;
+  font-size: 14px;
 }
 
-.error {
-  color: red;
-  padding: 1rem;
-  background: #fee;
-  border: 1px solid #fcc;
-  border-radius: 4px;
-  margin-bottom: 1rem;
+.create-btn:hover {
+  background-color: rgba(0, 102, 255, 0.9);
 }
 
-table {
+.loading-state,
+.error-state {
+  text-align: center;
+  padding: 32px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.error-state {
+  color: #dc3545;
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+}
+
+.users-stats {
+  margin-bottom: 16px;
+}
+
+.users-stats p {
+  color: #495057;
+  margin: 0;
+  font-size: 16px;
+}
+
+.stats-number {
+  font-weight: 600;
+  color: rgb(0, 102, 255);
+}
+
+.table-container {
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.users-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 1rem;
 }
 
-th,
-td {
-  border: 1px solid #ddd;
-  padding: 8px;
+.users-table th {
+  background-color: rgb(0, 102, 255);
+  color: white;
+  padding: 12px 16px;
   text-align: left;
+  font-weight: 600;
+  font-size: 14px;
 }
 
-th {
-  background-color: #f5f5f5;
-  font-weight: bold;
+.users-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e9ecef;
+  font-size: 14px;
+}
+
+.user-row:hover {
+  background-color: #f8f9fa;
+}
+
+.user-name {
+  font-weight: 500;
+  color: #495057;
+}
+
+.user-email {
+  color: #6c757d;
+}
+
+.role-badge {
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.role-badge.admin {
+  background-color: #dc3545;
+  color: white;
+}
+
+.role-badge.user {
+  background-color: #28a745;
+  color: white;
+}
+
+.verification-badge {
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.verification-badge.verified {
+  background-color: #28a745;
+  color: white;
+}
+
+.verification-badge:not(.verified) {
+  background-color: #ffc107;
+  color: #000;
+}
+
+.created-date {
+  color: #6c757d;
+  font-size: 13px;
+}
+
+.actions-cell {
+  display: flex;
+  gap: 8px;
 }
 
 .edit-btn {
-  background-color: #007bff;
+  background-color: rgb(0, 102, 255);
   color: white;
   border: none;
-  padding: 4px 8px;
-  border-radius: 4px;
+  padding: 6px 12px;
+  border-radius: 8px;
   cursor: pointer;
-  margin-right: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  transition: background-color 0.25s ease;
+}
 
-  &:hover:not(:disabled) {
-    background-color: #0056b3;
-  }
+.edit-btn:hover:not(:disabled) {
+  background-color: rgba(0, 102, 255, 0.9);
+}
 
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
+.edit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .delete-btn {
   background-color: #dc3545;
   color: white;
   border: none;
-  padding: 4px 8px;
-  border-radius: 4px;
+  padding: 6px 12px;
+  border-radius: 8px;
   cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: background-color 0.25s ease;
+}
 
-  &:hover:not(:disabled) {
-    background-color: #c82333;
-  }
+.delete-btn:hover:not(:disabled) {
+  background-color: #c82333;
+}
 
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
+.delete-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .modal-overlay {
@@ -452,59 +613,101 @@ th {
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  padding: 16px;
 }
 
 .modal {
   background: white;
-  padding: 2rem;
   border-radius: 8px;
+  width: 100%;
   max-width: 400px;
-  width: 90%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .form-modal {
   max-width: 500px;
 }
 
-.modal h3 {
-  margin-top: 0;
+.modal-header {
+  padding: 24px 24px 0 24px;
+}
+
+.modal-title {
+  margin: 0;
+  color: rgb(0, 102, 255);
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.modal-title.danger {
   color: #dc3545;
 }
 
+.modal-content {
+  padding: 16px 24px;
+}
+
+.modal-content p {
+  margin: 0 0 8px 0;
+  color: #495057;
+}
+
+.warning-text {
+  color: #dc3545;
+  font-size: 14px;
+  font-style: italic;
+}
+
+.user-form {
+  padding: 16px 24px 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 .form-group {
-  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
 
-  label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: bold;
-  }
+.form-label {
+  color: #495057;
+  font-weight: 500;
+  font-size: 14px;
+}
 
-  input,
-  select {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 16px;
+.form-input,
+.form-select {
+  padding: 8px 16px;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: all 0.25s ease;
+  background-color: white;
+}
 
-    &:focus {
-      outline: none;
-      border-color: #007bff;
-    }
+.form-input:focus,
+.form-select:focus {
+  outline: none;
+  border-color: rgb(0, 102, 255);
+  box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+}
 
-    &:disabled {
-      background-color: #f8f9fa;
-      cursor: not-allowed;
-    }
-  }
+.form-input:disabled,
+.form-select:disabled {
+  background-color: #f8f9fa;
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 
 .modal-actions {
   display: flex;
-  gap: 1rem;
-  margin-top: 1.5rem;
+  gap: 16px;
   justify-content: flex-end;
+  padding: 24px;
+  border-top: 1px solid #e9ecef;
+  margin-top: 16px;
 }
 
 .cancel-btn {
@@ -512,12 +715,34 @@ th {
   color: white;
   border: none;
   padding: 8px 16px;
-  border-radius: 4px;
+  border-radius: 8px;
+  font-weight: 500;
   cursor: pointer;
+  transition: background-color 0.25s ease;
+}
 
-  &:hover {
-    background-color: #5a6268;
-  }
+.cancel-btn:hover {
+  background-color: #5a6268;
+}
+
+.submit-btn {
+  background-color: rgb(0, 102, 255);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background-color: rgba(0, 102, 255, 0.9);
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .confirm-delete-btn {
@@ -525,29 +750,13 @@ th {
   color: white;
   border: none;
   padding: 8px 16px;
-  border-radius: 4px;
+  border-radius: 8px;
+  font-weight: 500;
   cursor: pointer;
-
-  &:hover {
-    background-color: #c82333;
-  }
+  transition: background-color 0.25s ease;
 }
 
-.submit-btn {
-  background-color: #28a745;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-
-  &:hover:not(:disabled) {
-    background-color: #218838;
-  }
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
+.confirm-delete-btn:hover {
+  background-color: #c82333;
 }
 </style>

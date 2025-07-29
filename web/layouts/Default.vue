@@ -9,7 +9,9 @@
 
         <div class="nav-auth">
           <template v-if="isLoggedIn">
-            <span class="user-name">{{ user?.name }}</span>
+            <NuxtLink to="/profile" class="user-name-link">
+              {{ user?.name }}
+            </NuxtLink>
             <button class="logout-btn" @click="handleLogout">Logout</button>
           </template>
           <template v-else>
@@ -73,11 +75,19 @@ async function handleLogout() {
   gap: 16px;
 }
 
-.user-name {
+.user-name-link {
+  text-decoration: none;
   color: rgb(0, 102, 255);
   background-color: #e9ecef;
   padding: 8px 16px;
   border-radius: 8px;
+  transition: all 0.25s ease;
+  font-weight: 500;
+}
+
+.user-name-link:hover {
+  color: white;
+  background-color: #c82333;
 }
 
 .logout-btn {

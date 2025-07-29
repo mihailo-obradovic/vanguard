@@ -17,6 +17,10 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = u;
   }
 
+  function updateUserInStore(u: User) {
+    user.value = u;
+  }
+
   function setAccessToken(token: string) {
     accessToken.value = token;
   }
@@ -31,6 +35,7 @@ export const useAuthStore = defineStore('auth', () => {
     accessToken: readonly(accessToken),
     isLoggedIn,
     setUser,
+    updateUserInStore,
     resetUser,
     setAccessToken
   };

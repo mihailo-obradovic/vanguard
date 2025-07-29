@@ -13,4 +13,6 @@ export type CreateUserForm = {
   role?: 'user' | 'admin';
 };
 
-export type UpdateUserForm = Partial<CreateUserForm>;
+export type UpdateUserForm = Partial<CreateUserForm> & {
+  current_password?: string;
+};

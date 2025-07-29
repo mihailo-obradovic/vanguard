@@ -9,6 +9,7 @@ export type CreateUserForm = {
   name: string;
   email: string;
   password: string;
+  password_confirmation: string;
   role?: 'user' | 'admin';
 };
 

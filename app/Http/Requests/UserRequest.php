@@ -42,7 +42,7 @@ class UserRequest extends FormRequest
                 'confirmed',
                 Rules\Password::defaults()
             ],
-            'role' => ['sometimes', 'in:user,admin'],
+            'role' => ['sometimes', 'in:' . User::USER_ROLE . ',' . User::ADMIN_ROLE],
         ];
     }
 }

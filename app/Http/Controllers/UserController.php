@@ -16,7 +16,7 @@ class UserController extends Controller
     public function index(): JsonResponse
     {
         $users = User::select('id', 'name', 'email', 'role', 'email_verified_at', 'created_at', 'updated_at')
-            ->orderBy('created_at', 'desc')
+            ->latest()
             ->get();
 
         return response()->json([

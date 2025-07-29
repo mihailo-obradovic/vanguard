@@ -1,12 +1,14 @@
-export interface RedirectDecision {
+import type { LocationQuery } from 'vue-router';
+
+export type RedirectDecision = {
   shouldRedirect: boolean;
   redirectTo?: string;
   reason?: string;
-}
+};
 
 export function determineAuthRedirect(
   path: string,
-  _query: Record<string, string> // * For compatibility with more complex logic
+  _query: LocationQuery // * For compatibility with more complex logic
 ): RedirectDecision {
   const { isLoggedIn } = storeToRefs(useAuthStore());
 

@@ -1,28 +1,28 @@
 <template>
   <div>
-    <button v-if="isLoggedIn" @click="handleLogout">Logout</button>
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="nav-links">
+          <NuxtLink to="/home" class="nav-link">Home</NuxtLink>
+          <NuxtLink to="/users" class="nav-link">Users</NuxtLink>
+        </div>
 
-    <pre>{{ user }}</pre>
+        <div class="nav-auth">
+          <template v-if="isLoggedIn">
+            <span class="user-name">{{ user?.name }}</span>
+            <button class="logout-btn" @click="handleLogout">Logout</button>
+          </template>
+          <template v-else>
+            <NuxtLink to="/login" class="auth-link">Login</NuxtLink>
+            <NuxtLink to="/register" class="auth-link">Register</NuxtLink>
+          </template>
+        </div>
+      </div>
+    </nav>
 
-    <ul>
-      <li>
-        <NuxtLink to="/home">Home</NuxtLink>
-      </li>
-
-      <li>
-        <NuxtLink to="/register">Register</NuxtLink>
-      </li>
-
-      <li>
-        <NuxtLink to="/login">Login</NuxtLink>
-      </li>
-
-      <li>
-        <NuxtLink to="/users">Users</NuxtLink>
-      </li>
-    </ul>
-
-    <slot />
+    <main class="main-content">
+      <slot />
+    </main>
   </div>
 </template>
 
@@ -33,3 +33,87 @@ async function handleLogout() {
   await logOut();
 }
 </script>
+
+<style scoped>
+.navbar {
+  background-color: rgb(0, 102, 255);
+  border-bottom: 1px solid #000000;
+  padding: 8px;
+}
+
+.nav-container {
+  padding: 0 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: all 0.25s ease;
+}
+
+.nav-link:hover {
+  color: rgb(0, 102, 255);
+  background-color: #e9ecef;
+}
+
+.nav-auth {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.user-name {
+  color: rgb(0, 102, 255);
+  background-color: #e9ecef;
+  padding: 8px 16px;
+  border-radius: 8px;
+}
+
+.logout-btn {
+  font-family: 'Lexend', sans-serif;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+  font-size: 16px;
+}
+
+.logout-btn:hover {
+  background-color: #c82333;
+}
+
+.auth-link {
+  text-decoration: none;
+  color: #ffffff;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border: 1px solid white;
+  border-radius: 0.375rem;
+  transition: all 0.2s ease;
+}
+
+.auth-link:hover {
+  background-color: white;
+  color: rgb(0, 102, 255);
+}
+
+.main-content {
+  padding: 8px 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+</style>

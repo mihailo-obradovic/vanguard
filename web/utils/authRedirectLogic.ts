@@ -6,7 +6,7 @@ export interface RedirectDecision {
 
 export function determineAuthRedirect(
   path: string,
-  _query: Record<string, any> // * For compatibility with more complex logic
+  _query: Record<string, string> // * For compatibility with more complex logic
 ): RedirectDecision {
   const { isLoggedIn } = storeToRefs(useAuthStore());
 

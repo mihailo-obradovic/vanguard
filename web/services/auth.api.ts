@@ -1,7 +1,9 @@
 import type {
   RegistrationForm,
   Credentials,
-  PasswordResetForm
+  PasswordResetForm,
+  User,
+  Token
 } from '@/types/auth';
 
 // TODO: Move store imports out of the service
@@ -9,14 +11,14 @@ import type {
 export async function register(credentials: RegistrationForm) {
   const { setUser, setAccessToken } = useAuthStore();
 
-  const response: any = await fetcher('/register', {
+  const response = await fetcher<Token>('/register', {
     method: 'POST',
     body: credentials
   });
 
   setAccessToken(response.access_token);
 
-  const userResponse: any = await fetchCurrentUser();
+  const userResponse = await fetchCurrentUser();
 
   setUser(userResponse);
 }
@@ -26,14 +28,14 @@ export async function logIn(credentials: Credentials) {
 
   await fetcher('/sanctum/csrf-cookie');
 
-  const response: any = await fetcher('/login', {
+  const response = await fetcher<Token>('/login', {
     method: 'POST',
     body: credentials
   });
 
   setAccessToken(response.access_token);
 
-  const userResponse: any = await fetchCurrentUser();
+  const userResponse = await fetchCurrentUser();
 
   setUser(userResponse);
 }
@@ -41,7 +43,7 @@ export async function logIn(credentials: Credentials) {
 export async function fetchCurrentUser() {
   const { setUser } = useAuthStore();
 
-  const response: any = await fetcher('/api/user');
+  const response = await fetcher<User>('/api/user');
 
   setUser(response);
 

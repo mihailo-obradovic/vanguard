@@ -18,11 +18,7 @@
       </li>
 
       <li>
-        <NuxtLink to="/auth-only">Auth Only</NuxtLink>
-      </li>
-
-      <li>
-        <NuxtLink to="/guest-only">Guest Only</NuxtLink>
+        <NuxtLink to="/users">Users</NuxtLink>
       </li>
     </ul>
 

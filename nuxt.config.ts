@@ -6,9 +6,7 @@ export default defineNuxtConfig({
   ssr: false,
 
   runtimeConfig: {
-    app: {
-      environment: process.env.APP_ENV // Can be overriden with NUXT_APP_APP_ENV
-    },
+    environment: process.env.APP_ENV,
 
     public: {
       apiBaseUrl: ''

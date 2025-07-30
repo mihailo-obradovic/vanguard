@@ -66,30 +66,26 @@
 </template>
 
 <script setup>
-const props = defineProps({
-  user: {
-    type: Object,
-    default: null
-  }
-});
-
 const emit = defineEmits(['update']);
 
 const { isLoading } = storeToRefs(useLoadingStore());
+const { user } = storeToRefs(useAuthStore());
 
 const editMode = ref(false);
 
-const initialForm = {
-  name: props.user.name,
-  email: props.user.email
-};
+const initialForm = computed(() => {
+  return {
+    name: user.value?.name || '',
+    email: user.value?.email || ''
+  };
+});
 
-const form = ref(Object.assign({}, initialForm));
+const form = ref(Object.assign({}, initialForm.value));
 
 function resetForm() {
   editMode.value = false;
 
-  Object.assign(form.value, initialForm);
+  Object.assign(form.value, initialForm.value);
 }
 
 function handleSubmit() {

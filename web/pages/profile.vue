@@ -5,7 +5,7 @@
     fill-height
   />
 
-  <UserCard v-else ref="userCard" :user @update="handleUpdate" />
+  <UserCard v-else ref="userCard" @update="handleUpdate" />
 </template>
 
 <script lang="ts" setup>

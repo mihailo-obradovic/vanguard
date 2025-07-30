@@ -1,24 +1,42 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
+  "baseBranches": ["master", "variant/vuetify"],
   "packageRules": [
     {
-      "description": "Front-end dependencies - JavaScript/Node.js packages",
+      "description": "Back-end dependencies - PHP/Composer packages",
+      "matchManagers": ["composer"],
+      "matchBaseBranches": ["master"],
+      "addLabels": ["back-end"],
+      "semanticCommitType": "Dependency",
+      "semanticCommitScope": "BE",
+      "assignees": ["Padzaa"]
+    },
+    {
+      "description": "Front-end dependencies - JavaScript/Node.js packages, general",
       "matchManagers": ["npm"],
-      "matchFileNames": ["package.json", "pnpm-lock.yaml"],
+      "matchBaseBranches": ["master"],
       "addLabels": ["front-end"],
-      "semanticCommitType": "Dependency ",
+      "semanticCommitType": "Dependency",
       "semanticCommitScope": "FE",
       "assignees": ["Jona222"]
     },
     {
-      "description": "Back-end dependencies - PHP/Composer packages",
-      "matchManagers": ["composer"],
-      "matchFileNames": ["composer.json", "composer.lock"],
-      "addLabels": ["back-end"],
-      "semanticCommitType": "Dependency ",
-      "semanticCommitScope": "BE",
-      "assignees": ["Padzaa"]
+      "description": "Front-end dependencies - JavaScript/Node.js packages, Vuetify",
+      "matchManagers": ["npm"],
+      "matchBaseBranches": ["variant/vuetify"],
+      "matchPackageNames": ["@mdi/font", "vite-plugin-vuetify", "vuetify"],
+      "addLabels": ["front-end", "vuetify"],
+      "semanticCommitType": "Dependency",
+      "semanticCommitScope": "FE - Vuetify",
+      "assignees": ["Jona222"]
+    },
+    {
+      "description": "Disable updates for general FE dependencies on the framework branches",
+      "matchManagers": ["npm"],
+      "matchBaseBranches": ["variant/vuetify"],
+      "excludePackageNames": ["@mdi/font", "vite-plugin-vuetify", "vuetify"],
+      "enabled": false
     }
   ],
   "ignorePaths": ["**/node_modules/**", "**/vendor/**"]

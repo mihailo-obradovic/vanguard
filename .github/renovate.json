@@ -33,7 +33,7 @@
     },
     {
       "description": "Disable updates for general FE dependencies on the framework branches",
-      "matchManagers": ["npm"],
+      "matchManagers": ["composer", "npm"],
       "matchBaseBranches": ["variant/vuetify"],
       "excludePackageNames": ["@mdi/font", "vite-plugin-vuetify", "vuetify"],
       "enabled": false

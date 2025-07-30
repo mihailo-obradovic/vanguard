@@ -247,6 +247,7 @@ async function loadUsers() {
     error.value = null;
 
     const response = await fetchUsers();
+
     users.value = response.data;
   } catch (err: any) {
     error.value = err.message || 'Failed to load users';

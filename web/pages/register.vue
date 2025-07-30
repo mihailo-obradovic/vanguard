@@ -63,7 +63,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { register } from '@/services/auth.api';
 
 const form = ref({
@@ -78,8 +78,8 @@ function handleRegister() {
     .then(() => {
       navigateTo('/home');
     })
-    .catch((error) => {
-      $toast(error, 'error');
+    .catch((error: Error) => {
+      $toast(error.message, 'error');
     });
 }
 </script>

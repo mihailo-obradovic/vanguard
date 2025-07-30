@@ -8,7 +8,8 @@
       "matchFileNames": ["package.json", "pnpm-lock.yaml"],
       "addLabels": ["front-end"],
       "semanticCommitType": "Dependency ",
-      "semanticCommitScope": "FE"
+      "semanticCommitScope": "FE",
+      "assignees": ["Jona222"]
     },
     {
       "description": "Back-end dependencies - PHP/Composer packages",
@@ -16,7 +17,8 @@
       "matchFileNames": ["composer.json", "composer.lock"],
       "addLabels": ["back-end"],
       "semanticCommitType": "Dependency ",
-      "semanticCommitScope": "BE"
+      "semanticCommitScope": "BE",
+      "assignees": ["Padzaa"]
     }
   ],
   "ignorePaths": ["**/node_modules/**", "**/vendor/**"]

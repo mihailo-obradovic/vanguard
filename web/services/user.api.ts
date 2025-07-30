@@ -6,7 +6,7 @@ import type {
 } from '@/types/user';
 
 export async function fetchUsers(): Promise<UsersResponse> {
-  const response = await fetcher<UsersResponse>('/users');
+  const response = await fetcher<UsersResponse>('/api/users');
 
   return response;
 }

@@ -8,7 +8,7 @@
   <!-- TODO: Cookie consent banner -->
 </template>
 
-<script setup>
+<script setup lang="ts">
 import '@total-typescript/ts-reset';
 
 useHead({

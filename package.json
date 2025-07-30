@@ -12,6 +12,7 @@
     "preview": "nuxt preview",
     "preinstall": "npx only-allow pnpm",
     "postinstall": "nuxt prepare",
+    "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "format": "prettier --single-quote true --trailing-comma none --html-whitespace-sensitivity ignore . --write ."

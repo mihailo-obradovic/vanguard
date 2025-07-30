@@ -17,7 +17,7 @@ We follow modern standards based on Vue 3 and Nuxt 3, with support for auto-impo
 
 ## Script Structure
 
-- Always use `<script setup>` for consistency and TypeScript support.
+- Always use `<script setup lang="ts">` for consistency and TypeScript support.
 - Use the `@/` alias for imports; avoid `~/`.
 - Assume auto-imports for project-level modules, stores, utils and shared components. Explicitly import only external packages or components not in `@/components/shared`.
 

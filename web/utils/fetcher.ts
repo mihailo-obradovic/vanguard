@@ -1,4 +1,4 @@
-export function fetcher(path: string, params: any = {}) {
+export function fetcher<T>(path: string, params: any = {}): Promise<T> {
   const { apiBaseUrl } = useRuntimeConfig().public;
 
   const { accessToken } = storeToRefs(useAuthStore());
@@ -31,7 +31,7 @@ export function fetcher(path: string, params: any = {}) {
     ...headers
   };
 
-  return $fetch(apiBaseUrl + path, options);
+  return $fetch<T>(apiBaseUrl + path, options);
 }
 
 // Idea: Use a CSRF token for guest methods

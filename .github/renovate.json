@@ -1,0 +1,25 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "packageRules": [
+    {
+      "description": "Front-end dependencies - JavaScript/Node.js packages",
+      "matchManagers": ["npm"],
+      "matchFileNames": ["package.json", "pnpm-lock.yaml"],
+      "addLabels": ["front-end"],
+      "semanticCommitType": "Dependency ",
+      "semanticCommitScope": "FE",
+      "assignees": ["Jona222"]
+    },
+    {
+      "description": "Back-end dependencies - PHP/Composer packages",
+      "matchManagers": ["composer"],
+      "matchFileNames": ["composer.json", "composer.lock"],
+      "addLabels": ["back-end"],
+      "semanticCommitType": "Dependency ",
+      "semanticCommitScope": "BE",
+      "assignees": ["Padzaa"]
+    }
+  ],
+  "ignorePaths": ["**/node_modules/**", "**/vendor/**"]
+}

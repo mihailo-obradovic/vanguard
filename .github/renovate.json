@@ -32,7 +32,7 @@
       "assignees": ["Jona222"]
     },
     {
-      "description": "Disable updates for general FE dependencies on the framework branches",
+      "description": "Disable updates for general back-end and front-end dependencies on the framework branches",
       "matchManagers": ["composer", "npm"],
       "matchBaseBranches": ["variant/vuetify"],
       "excludePackageNames": ["@mdi/font", "vite-plugin-vuetify", "vuetify"],

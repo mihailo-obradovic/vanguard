@@ -33,7 +33,7 @@
     "vue-toastification": "2.0.0-rc.5"
   },
   "devDependencies": {
-    "@nuxt/eslint": "^0.3.13",
+    "@nuxt/eslint": "^1.0.0",
     "@nuxt/test-utils": "^3.19.2",
     "@total-typescript/ts-reset": "^0.6.1",
     "@types/lodash-es": "^4.17.12",

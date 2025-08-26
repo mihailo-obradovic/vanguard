@@ -27,7 +27,7 @@
     "dayjs-nuxt": "^2.1.11",
     "lodash-es": "^4.17.21",
     "nuxt": "^4.0.1",
-    "pinia": "^2.3.1",
+    "pinia": "^3.0.0",
     "vue": "^3.5.18",
     "vue-router": "^4.5.1",
     "vue-toastification": "2.0.0-rc.5"

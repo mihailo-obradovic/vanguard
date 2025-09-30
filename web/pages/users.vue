@@ -18,14 +18,19 @@ const { $startLoading, $stopLoading } = useLoadingStore();
 
 const users = ref([]);
 
-function loadUsers() {
+async function loadUsers() {
   $startLoading('users');
 
-  fetchUsers()
-    .then((response) => {
-      users.value = response;
-    })
-    .finally(() => $stopLoading('users'));
+  try {
+    const response = await fetchUsers();
+
+    users.value = response.data;
+  } catch (error) {
+    error.value = err.message || 'Failed to load users';
+    $toast(error.value, 'error');
+  } finally {
+    $stopLoading('users');
+  }
 }
 
 onMounted(() => {

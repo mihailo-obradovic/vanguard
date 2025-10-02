@@ -1,3 +1,24 @@
+# OLD IMPLEMENTATION SPECIFICS
+- AuthenticatedSessionController
+- RegisteredSessionController
+- UserController
+- Kernel.php admin type
+- Ensure user is admin middleware
+- UserRequest.php
+- User.php roles
+- Migracija za user role
+- Dodati localhost:3001 u cors.php
+- DatabaseSeeder -> dummy user
+- api.php registracija middleware-a
+- web.php rute
+
+nazivi grana za github workflows
+
+# LOWER PRIORITY
+- gitignore
+- npmrc engine-strict=true?
+- prettier ignore if needed?
+
 # TO REMOVE, migrate everything to workflowy
 ------------------------------------------------------------------------------------
 ----------------------------------- TOP PRIORITY -----------------------------------

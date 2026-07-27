@@ -5,7 +5,7 @@
         <v-app-bar-nav-icon @click="toggleDrawer" />
 
         <v-btn icon to="/" class="ms-2">
-          <v-icon>mdi-home</v-icon>
+          <v-icon :icon="mdiHome" />
         </v-btn>
       </template>
 
@@ -17,19 +17,17 @@
 
       <div class="d-flex align-center pa-2 ga-2">
         <v-btn icon @click="toggleTheme">
-          <v-icon>
-            {{
-              isDark ? 'mdi-moon-waxing-crescent' : 'mdi-white-balance-sunny'
-            }}
-          </v-icon>
+          <v-icon
+            :icon="isDark ? mdiMoonWaxingCrescent : mdiWhiteBalanceSunny"
+          />
         </v-btn>
 
         <template v-if="isLoggedIn">
-          <v-btn prepend-icon="mdi-account" to="/profile">Profile</v-btn>
+          <v-btn :prepend-icon="mdiAccount" to="/profile">Profile</v-btn>
 
           <v-btn
             :loading="isLoading['logout']"
-            prepend-icon="mdi-logout"
+            :prepend-icon="mdiLogout"
             @click="handleLogout"
           >
             Log Out
@@ -37,11 +35,11 @@
         </template>
 
         <template v-else>
-          <v-btn prepend-icon="mdi-login" @click="loginDialog = true">
+          <v-btn :prepend-icon="mdiLogin" @click="loginDialog = true">
             Log In
           </v-btn>
 
-          <v-btn prepend-icon="mdi-account-plus" @click="registerDialog = true">
+          <v-btn :prepend-icon="mdiAccountPlus" @click="registerDialog = true">
             Register
           </v-btn>
         </template>
@@ -85,6 +83,16 @@
 
 <script lang="ts" setup>
 import { useTheme } from 'vuetify';
+import {
+  mdiAccount,
+  mdiAccountMultiple,
+  mdiAccountPlus,
+  mdiHome,
+  mdiLogin,
+  mdiLogout,
+  mdiMoonWaxingCrescent,
+  mdiWhiteBalanceSunny
+} from '@mdi/js';
 
 import RegisterDialog from '@/components/users/RegisterDialog.vue';
 import LoginDialog from '@/components/users/LoginDialog.vue';
@@ -118,8 +126,8 @@ async function handleLogout() {
 const drawer = ref(true);
 
 const drawerItems = [
-  { title: 'Profile', to: '/profile', icon: 'mdi-account' },
-  { title: 'Users', to: '/users', icon: 'mdi-account-multiple' }
+  { title: 'Profile', to: '/profile', icon: mdiAccount },
+  { title: 'Users', to: '/users', icon: mdiAccountMultiple }
 ];
 
 function toggleDrawer() {

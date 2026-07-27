@@ -18,7 +18,7 @@
     "format": "prettier --single-quote true --trailing-comma none --html-whitespace-sensitivity ignore . --write ."
   },
   "dependencies": {
-    "@mdi/font": "^7.4.47",
+    "@mdi/js": "^7.4.47",
     "@nuxt/fonts": "0.14.0",
     "@nuxt/image": "^2.0.0",
     "@pinia/nuxt": "^1.0.1",

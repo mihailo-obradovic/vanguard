@@ -4,7 +4,7 @@
       <v-toolbar flat color="primary" class="px-2">
         <v-toolbar-items>
           <v-btn icon @click="emit('cancel')">
-            <v-icon>mdi-close</v-icon>
+            <v-icon :icon="mdiClose" />
           </v-btn>
         </v-toolbar-items>
 
@@ -16,7 +16,7 @@
 
         <v-toolbar-items>
           <v-btn :disabled="confirmDisabled" icon @click="emit('confirm')">
-            <v-icon>mdi-content-save</v-icon>
+            <v-icon :icon="mdiContentSave" />
           </v-btn>
         </v-toolbar-items>
       </v-toolbar>
@@ -29,6 +29,8 @@
 </template>
 
 <script setup>
+import { mdiClose, mdiContentSave } from '@mdi/js';
+
 defineProps({
   title: {
     type: String,

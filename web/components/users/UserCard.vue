@@ -15,7 +15,7 @@
               size="small"
               @click="resetForm"
             >
-              <v-icon>mdi-close</v-icon>
+              <v-icon :icon="mdiClose" />
             </v-btn>
 
             <v-btn
@@ -27,7 +27,7 @@
               size="small"
               @click="editMode = true"
             >
-              <v-icon>mdi-pencil</v-icon>
+              <v-icon :icon="mdiPencil" />
             </v-btn>
 
             <v-btn
@@ -40,7 +40,7 @@
               :loading="isLoading['dialog']"
               @click="handleSubmit"
             >
-              <v-icon>mdi-check</v-icon>
+              <v-icon :icon="mdiCheck" />
             </v-btn>
           </GapContainer>
         </GapContainer>
@@ -66,6 +66,8 @@
 </template>
 
 <script setup>
+import { mdiCheck, mdiClose, mdiPencil } from '@mdi/js';
+
 const emit = defineEmits(['update']);
 
 const { isLoading } = storeToRefs(useLoadingStore());

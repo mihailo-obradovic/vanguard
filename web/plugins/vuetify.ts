@@ -1,7 +1,6 @@
-import '@mdi/font/css/materialdesignicons.css';
-
 import 'vuetify/styles';
 import { createVuetify } from 'vuetify';
+import { aliases, mdi } from 'vuetify/iconsets/mdi-svg';
 
 const baseColors = {
   primary: '#bd93f9',
@@ -16,6 +15,12 @@ const baseColors = {
 };
 
 const options = {
+  icons: {
+    defaultSet: 'mdi',
+    aliases,
+    sets: { mdi }
+  },
+
   theme: {
     defaultTheme: 'light',
 

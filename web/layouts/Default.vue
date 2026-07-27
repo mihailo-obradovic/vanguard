@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="layout">
     <nav class="navbar">
       <div class="nav-container">
         <div class="nav-links">
@@ -25,6 +25,8 @@
     <main class="main-content">
       <slot />
     </main>
+
+    <TheFooter />
   </div>
 </template>
 
@@ -125,5 +127,14 @@ async function handleLogout() {
   padding: 16px;
   max-width: 1200px;
   margin: 0 auto;
+  flex: 1;
+  overflow-y: auto;
+  width: 100%;
+}
+
+.layout {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 </style>

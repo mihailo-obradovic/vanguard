@@ -25,6 +25,7 @@
     "@vueuse/nuxt": "^14.3.0",
     "nuxt": "^4.5.1",
     "pinia": "^4.0.2",
+    "temporal-polyfill": "^1.0.1",
     "vue": "^3.5.40",
     "vue-toastification": "2.0.0-rc.5"
   },

@@ -9,8 +9,6 @@
 </template>
 
 <script setup lang="ts">
-import '@total-typescript/ts-reset';
-
 useHead({
   title: 'Vanguard',
 

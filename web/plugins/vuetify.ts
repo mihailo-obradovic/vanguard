@@ -21,7 +21,7 @@ const options = {
 
     themes: {
       light: {
-        isDark: false,
+        dark: false,
 
         colors: {
           background: '#f8f8f2',
@@ -31,7 +31,7 @@ const options = {
       },
 
       dark: {
-        isDark: true,
+        dark: true,
 
         colors: {
           background: '#282a36',

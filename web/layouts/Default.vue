@@ -66,6 +66,8 @@
       </v-container>
     </v-main>
 
+    <TheFooter />
+
     <RegisterDialog v-model="registerDialog" @confirm="handleRegister" />
 
     <LoginDialog

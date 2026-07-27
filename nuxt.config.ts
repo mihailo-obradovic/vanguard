@@ -24,7 +24,6 @@ export default defineNuxtConfig({
       }
     },
 
-    // @ts-expect-error
     plugins: [vuetify({ autoImport: true })]
   },
 
@@ -38,11 +37,10 @@ export default defineNuxtConfig({
     '@nuxt/image',
     '@nuxt/test-utils/module',
     '@pinia/nuxt',
-    '@vueuse/nuxt',
-    'dayjs-nuxt'
+    '@vueuse/nuxt'
   ],
 
-  css: ['@/assets/styles/main.scss'],
+  css: ['@/assets/styles/main.css'],
 
   components: {
     dirs: ['@/components/shared']

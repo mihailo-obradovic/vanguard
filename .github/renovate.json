@@ -10,7 +10,7 @@
       "addLabels": ["back-end"],
       "semanticCommitType": "Dependency",
       "semanticCommitScope": "BE",
-      "assignees": ["Padzaa"]
+      "assignees": ["mihailo-obradovic"]
     },
     {
       "description": "Front-end dependencies - JavaScript/Node.js packages, general",
@@ -19,7 +19,7 @@
       "addLabels": ["front-end"],
       "semanticCommitType": "Dependency",
       "semanticCommitScope": "FE",
-      "assignees": ["Jona222"]
+      "assignees": ["mihailo-obradovic"]
     },
     {
       "description": "Front-end dependencies - JavaScript/Node.js packages, Vuetify",
@@ -29,7 +29,7 @@
       "addLabels": ["front-end", "vuetify"],
       "semanticCommitType": "Dependency",
       "semanticCommitScope": "FE - Vuetify",
-      "assignees": ["Jona222"]
+      "assignees": ["mihailo-obradovic"]
     },
     {
       "description": "Disable updates for general back-end and front-end dependencies on the framework branches",

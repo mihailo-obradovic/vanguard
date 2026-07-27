@@ -36,7 +36,7 @@ export default defineNuxtConfig({
     '@vueuse/nuxt'
   ],
 
-  css: ['@/assets/styles/main.css'],
+  css: ['vuetify/styles', '@/assets/styles/main.css'],
 
   components: {
     dirs: ['@/components/shared']

@@ -28,25 +28,18 @@
   </v-dialog>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { mdiClose, mdiContentSave } from '@mdi/js';
 
-defineProps({
-  title: {
-    type: String,
-    required: true
-  },
+defineProps<{
+  title: string;
+  confirmDisabled?: boolean;
+}>();
 
-  confirmDisabled: {
-    type: Boolean,
-    default: false
-  }
-});
+const dialog = defineModel<boolean>({ required: true });
 
-const dialog = defineModel({
-  type: Boolean,
-  required: true
-});
-
-const emit = defineEmits(['cancel', 'confirm']);
+const emit = defineEmits<{
+  cancel: [];
+  confirm: [];
+}>();
 </script>

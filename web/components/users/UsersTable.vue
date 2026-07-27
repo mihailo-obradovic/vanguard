@@ -20,11 +20,10 @@
   </GapContainer>
 </template>
 
-<script setup>
-defineProps({
-  users: {
-    type: Array,
-    required: true
-  }
-});
+<script setup lang="ts">
+import type { User } from '@/types/auth';
+
+defineProps<{
+  users: User[];
+}>();
 </script>

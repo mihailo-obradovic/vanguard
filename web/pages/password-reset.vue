@@ -47,7 +47,7 @@
   </v-card>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { resetPassword } from '@/services/auth.api';
 
 definePageMeta({
@@ -67,9 +67,9 @@ const form = ref({
 });
 
 onMounted(() => {
-  form.value.token = route.params.token;
+  form.value.token = String(route.params.token);
 
-  form.value.email = route.query.email;
+  form.value.email = String(route.query.email ?? '');
 });
 
 const isFormValid = computed(() => {

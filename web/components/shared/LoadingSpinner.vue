@@ -8,18 +8,12 @@
   </div>
 </template>
 
-<script setup>
-const props = defineProps({
-  fillHeight: {
-    type: Boolean,
-    default: false
-  }
-});
+<script setup lang="ts">
+const props = defineProps<{
+  fillHeight?: boolean;
+}>();
 
-const isLoading = defineModel({
-  type: Boolean,
-  required: true
-});
+const isLoading = defineModel<boolean>({ required: true });
 
 const classList = computed(() => {
   return {

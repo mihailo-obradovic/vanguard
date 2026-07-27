@@ -65,10 +65,12 @@
   </v-row>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { mdiCheck, mdiClose, mdiPencil } from '@mdi/js';
 
-const emit = defineEmits(['update']);
+const emit = defineEmits<{
+  update: [form: { name: string; email: string }];
+}>();
 
 const { isLoading } = storeToRefs(useLoadingStore());
 const { user } = storeToRefs(useAuthStore());

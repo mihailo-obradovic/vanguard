@@ -37,35 +37,27 @@
   </v-dialog>
 </template>
 
-<script setup>
-defineProps({
-  title: {
-    type: String,
-    required: true
-  },
-
-  width: {
-    type: String,
-    default: '450px'
-  },
-
-  scrollable: {
-    type: Boolean,
-    default: false
-  },
-
-  confirmDisabled: {
-    type: Boolean,
-    default: false
+<script setup lang="ts">
+withDefaults(
+  defineProps<{
+    title: string;
+    width?: string;
+    scrollable?: boolean;
+    confirmDisabled?: boolean;
+  }>(),
+  {
+    width: '450px',
+    scrollable: false,
+    confirmDisabled: false
   }
-});
+);
 
-const dialog = defineModel({
-  type: Boolean,
-  required: true
-});
+const dialog = defineModel<boolean>({ required: true });
 
-const emit = defineEmits(['cancel', 'confirm']);
+const emit = defineEmits<{
+  cancel: [];
+  confirm: [];
+}>();
 
 const { isLoading } = storeToRefs(useLoadingStore());
 </script>

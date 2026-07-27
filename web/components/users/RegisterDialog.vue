@@ -26,13 +26,14 @@
   </CardDialog>
 </template>
 
-<script setup>
-const emit = defineEmits(['confirm']);
+<script setup lang="ts">
+import type { RegistrationForm } from '@/types/auth';
 
-const dialog = defineModel({
-  type: Boolean,
-  required: true
-});
+const emit = defineEmits<{
+  confirm: [form: RegistrationForm];
+}>();
+
+const dialog = defineModel<boolean>({ required: true });
 
 const initialForm = {
   name: '',

@@ -27,13 +27,15 @@
   </CardDialog>
 </template>
 
-<script setup>
-const emit = defineEmits(['confirm', 'forgot-password-click']);
+<script setup lang="ts">
+import type { Credentials } from '@/types/auth';
 
-const dialog = defineModel({
-  type: Boolean,
-  required: true
-});
+const emit = defineEmits<{
+  confirm: [form: Credentials];
+  'forgot-password-click': [];
+}>();
+
+const dialog = defineModel<boolean>({ required: true });
 
 const initialForm = {
   email: 'test@example.com',

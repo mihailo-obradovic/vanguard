@@ -8,15 +8,16 @@
   <UsersTable v-else :users="users" />
 </template>
 
-<script setup>
+<script setup lang="ts">
 import UsersTable from '@/components/users/UsersTable.vue';
 
+import type { User } from '@/types/auth';
 import { fetchUsers } from '@/services/user.api';
 
 const { isLoading } = storeToRefs(useLoadingStore());
 const { $startLoading, $stopLoading } = useLoadingStore();
 
-const users = ref([]);
+const users = ref<User[]>([]);
 
 async function loadUsers() {
   $startLoading('users');
@@ -25,9 +26,11 @@ async function loadUsers() {
     const response = await fetchUsers();
 
     users.value = response.data;
-  } catch (error) {
-    error.value = err.message || 'Failed to load users';
-    $toast(error.value, 'error');
+  } catch (error: unknown) {
+    const message =
+      error instanceof Error ? error.message : 'Failed to load users';
+
+    $toast(message, 'error');
   } finally {
     $stopLoading('users');
   }

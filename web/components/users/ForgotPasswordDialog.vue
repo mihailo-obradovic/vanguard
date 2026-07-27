@@ -14,13 +14,12 @@
   </CardDialog>
 </template>
 
-<script setup>
-const emit = defineEmits(['confirm']);
+<script setup lang="ts">
+const emit = defineEmits<{
+  confirm: [form: { email: string }];
+}>();
 
-const dialog = defineModel({
-  type: Boolean,
-  required: true
-});
+const dialog = defineModel<boolean>({ required: true });
 
 const initialForm = {
   email: ''

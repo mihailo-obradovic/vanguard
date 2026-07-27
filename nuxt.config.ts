@@ -27,10 +27,6 @@ export default defineNuxtConfig({
     plugins: [vuetify({ autoImport: true })]
   },
 
-  unhead: {
-    legacy: true
-  },
-
   modules: [
     '@nuxt/eslint',
     '@nuxt/fonts',

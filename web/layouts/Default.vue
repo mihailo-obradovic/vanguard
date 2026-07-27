@@ -143,7 +143,7 @@ function useThemeSwitching() {
   const isDark = computed(() => theme.global.current.value.dark);
 
   function toggleTheme() {
-    theme.global.name.value = isDark.value ? 'light' : 'dark';
+    theme.toggle();
   }
 
   const themeSetting = useCookie('theme');
@@ -153,7 +153,7 @@ function useThemeSwitching() {
   });
 
   onMounted(() => {
-    theme.global.name.value = themeSetting.value || 'light';
+    theme.change(themeSetting.value || 'light');
   });
 
   return { isDark, toggleTheme };

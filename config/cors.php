@@ -27,10 +27,13 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => [
-        env('FRONTEND_URL', 'http://localhost:3000'),
-        'http://localhost:3001',
-    ],
+    // Credentialed CORS: scope to the front-end origin from the environment and
+    // fail closed if it is unset. A secondary localhost origin is only allowed
+    // in local/testing to support running a second dev instance.
+    'allowed_origins' => array_values(array_filter([
+        env('FRONTEND_URL'),
+        env('APP_ENV') === 'local' || env('APP_ENV') === 'testing' ? 'http://localhost:3001' : null,
+    ])),
 
     'allowed_origins_patterns' => [],
 

@@ -56,6 +56,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Front-end URL
+    |--------------------------------------------------------------------------
+    |
+    | The base URL of the Nuxt single-page application. It is used to build
+    | links that must resolve to the front-end (e.g. password reset links).
+    |
+    */
+
+    'frontend_url' => env('FRONTEND_URL', 'http://localhost:3000'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Timezone
     |--------------------------------------------------------------------------
     |

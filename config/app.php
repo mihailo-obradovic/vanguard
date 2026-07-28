@@ -64,7 +64,7 @@ return [
     |
     */
 
-    'frontend_url' => env('FRONTEND_URL', 'http://localhost:3000'),
+    'frontend_url' => env('FRONTEND_URL', env('APP_ENV') === 'production' ? null : 'http://localhost:3000'),
 
     /*
     |--------------------------------------------------------------------------

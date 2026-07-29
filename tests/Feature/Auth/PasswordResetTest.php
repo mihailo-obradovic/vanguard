@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\User;
-use Illuminate\Auth\Notifications\ResetPassword;
+use App\Notifications\ResetPasswordNotification;
 use Illuminate\Support\Facades\Notification;
 
 test('a reset link can be requested', function () {
@@ -12,7 +12,7 @@ test('a reset link can be requested', function () {
     $this->postJson('/forgot-password', ['email' => $user->email])
         ->assertOk();
 
-    Notification::assertSentTo($user, ResetPassword::class);
+    Notification::assertSentTo($user, ResetPasswordNotification::class);
 });
 
 test('the password can be reset with a valid token', function () {
@@ -22,7 +22,7 @@ test('the password can be reset with a valid token', function () {
 
     $this->postJson('/forgot-password', ['email' => $user->email]);
 
-    Notification::assertSentTo($user, ResetPassword::class, function (ResetPassword $notification) use ($user) {
+    Notification::assertSentTo($user, ResetPasswordNotification::class, function (ResetPasswordNotification $notification) use ($user) {
         $this->postJson('/reset-password', [
             'token' => $notification->token,
             'email' => $user->email,

@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\User;
-use Illuminate\Auth\Notifications\VerifyEmail;
+use App\Notifications\VerifyEmailNotification;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\URL;
 
@@ -18,7 +18,7 @@ test('registration sends an email verification notification', function () {
     $user = User::where('email', 'verify@example.com')->firstOrFail();
 
     expect($user->hasVerifiedEmail())->toBeFalse();
-    Notification::assertSentTo($user, VerifyEmail::class);
+    Notification::assertSentTo($user, VerifyEmailNotification::class);
 });
 
 test('email is verified via the signed url and redirects to the front-end', function () {
@@ -61,7 +61,7 @@ test('a verification email can be resent', function () {
         ->assertOk()
         ->assertJsonPath('status', 'verification-link-sent');
 
-    Notification::assertSentTo($user, VerifyEmail::class);
+    Notification::assertSentTo($user, VerifyEmailNotification::class);
 });
 
 test('resending for an already verified user reports already-verified', function () {

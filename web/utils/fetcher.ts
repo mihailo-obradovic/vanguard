@@ -1,7 +1,7 @@
 export function fetcher<T>(path: string, params: any = {}): Promise<T> {
   const { apiBaseUrl } = useRuntimeConfig().public;
 
-  const headers: any = {};
+  const headers: any = { Accept: 'application/json' };
   const options: any = { ...params };
 
   const isAlteringServerState = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(

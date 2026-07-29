@@ -54,3 +54,9 @@ export async function resetPassword(form: PasswordResetForm) {
     body: form
   });
 }
+
+export async function resendEmailVerification() {
+  await fetcher('/email/verification-notification', {
+    method: 'POST'
+  });
+}

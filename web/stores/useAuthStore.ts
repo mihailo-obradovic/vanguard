@@ -7,6 +7,8 @@ export const useAuthStore = defineStore('auth', () => {
 
   const isLoggedIn = computed(() => !!user.value);
 
+  const isAdmin = computed(() => user.value?.role === 'admin');
+
   function setUser(u: User) {
     user.value = u;
   }
@@ -22,6 +24,7 @@ export const useAuthStore = defineStore('auth', () => {
   return {
     user: readonly(user),
     isLoggedIn,
+    isAdmin,
     setUser,
     updateUserInStore,
     resetUser

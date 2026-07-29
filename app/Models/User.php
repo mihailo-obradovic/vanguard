@@ -52,6 +52,24 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Assign a new email address, resetting verification if it actually changed.
+     *
+     * Returns true when the email changed, signalling the caller to re-send the
+     * verification notification after saving.
+     */
+    public function changeEmail(string $email): bool
+    {
+        if ($email === $this->email) {
+            return false;
+        }
+
+        $this->email = $email;
+        $this->email_verified_at = null;
+
+        return true;
+    }
+
+    /**
      * Send the email verification notification (queued).
      */
     public function sendEmailVerificationNotification(): void

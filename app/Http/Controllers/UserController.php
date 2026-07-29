@@ -60,13 +60,19 @@ class UserController extends Controller
     {
         $data = $request->validated();
 
-        $user->fill($request->safe()->only(['name', 'email', 'password']));
+        $emailChanged = array_key_exists('email', $data) && $user->changeEmail($data['email']);
+
+        $user->fill($request->safe()->only(['name', 'password']));
 
         if (array_key_exists('role', $data)) {
             $user->role = $data['role'];
         }
 
         $user->save();
+
+        if ($emailChanged) {
+            $user->sendEmailVerificationNotification();
+        }
 
         return UserResource::make($user);
     }

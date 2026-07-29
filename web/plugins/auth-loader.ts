@@ -1,18 +1,15 @@
 export default defineNuxtPlugin({
   async setup() {
-    const { isLoggedIn } = storeToRefs(useAuthStore());
     const { resetUser } = useAuthStore();
 
-    if (isLoggedIn.value) {
-      try {
-        await fetchCurrentUser();
-      } catch (error: unknown) {
-        const message =
-          error instanceof Error ? error.message : 'An error occurred';
-        $toast(message, 'error');
+    // Prime the CSRF cookie for the SPA session.
+    await fetcher('/sanctum/csrf-cookie');
 
-        resetUser();
-      }
+    // Rehydrate the authenticated user from the session cookie, if present.
+    try {
+      await fetchCurrentUser();
+    } catch {
+      resetUser();
     }
   }
 });

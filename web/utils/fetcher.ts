@@ -1,8 +1,6 @@
 export function fetcher<T>(path: string, params: any = {}): Promise<T> {
   const { apiBaseUrl } = useRuntimeConfig().public;
 
-  const { accessToken } = storeToRefs(useAuthStore());
-
   const headers: any = {};
   const options: any = { ...params };
 
@@ -10,20 +8,12 @@ export function fetcher<T>(path: string, params: any = {}): Promise<T> {
     String(params?.method).toUpperCase()
   );
 
-  // TODO: Check when to send the XSRF token
+  // Send the session cookie and CSRF token for stateful (SPA) requests.
   if (!params?.method || isAlteringServerState) {
     const token = useCookie('XSRF-TOKEN');
 
-    // if (!token) {
-    //   return handleError()
-    // }
-
     headers['X-XSRF-TOKEN'] = token.value;
     options.credentials = 'include';
-  }
-
-  if (accessToken.value) {
-    headers['Authorization'] = `Bearer ${accessToken.value}`;
   }
 
   options.headers = {
@@ -33,21 +23,3 @@ export function fetcher<T>(path: string, params: any = {}): Promise<T> {
 
   return $fetch<T>(apiBaseUrl + path, options);
 }
-
-// Idea: Use a CSRF token for guest methods
-// Idea: Use an access token for user methods
-// Idea: Use a refresh token for refreshing the access token
-// const routeRequiresAccessToken...
-// const routeRequiresRefreshToken...
-// if (routeRequiresAccessToken) {
-//   if (!accessToken){
-//     handleError()...
-//   }
-//   headers['Authorization'] = `Bearer ${accessToken}`
-// } else if (routeRequiresCsrfToken) {
-//   if (!csrfToken){
-//     handleError()...
-//   }
-//   headers['X-CSRF-TOKEN'] = csrfToken
-//   options.credentials = 'include'
-// }

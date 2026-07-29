@@ -2,34 +2,70 @@
 
 use App\Models\User;
 
-test('users can authenticate using the login screen', function () {
+test('users can authenticate', function () {
     $user = User::factory()->create();
 
-    $response = $this->post('/login', [
+    $response = $this->postJson('/login', [
         'email' => $user->email,
         'password' => 'password',
     ]);
 
-    $this->assertAuthenticated();
     $response->assertNoContent();
+    $this->assertAuthenticatedAs($user);
 });
 
-test('users can not authenticate with invalid password', function () {
+test('users cannot authenticate with an invalid password', function () {
     $user = User::factory()->create();
 
-    $this->post('/login', [
+    $this->postJson('/login', [
+        'email' => $user->email,
+        'password' => 'wrong-password',
+    ])->assertStatus(422)->assertJsonValidationErrors('email');
+
+    $this->assertGuest();
+});
+
+test('login is rate limited after five failed attempts', function () {
+    $user = User::factory()->create();
+
+    foreach (range(1, 5) as $ignored) {
+        $this->postJson('/login', [
+            'email' => $user->email,
+            'password' => 'wrong-password',
+        ])->assertStatus(422);
+    }
+
+    $response = $this->postJson('/login', [
         'email' => $user->email,
         'password' => 'wrong-password',
     ]);
 
-    $this->assertGuest();
+    $response->assertStatus(422);
+    expect($response->json('message'))->toContain('seconds');
+});
+
+test('authenticated users can fetch the current user', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->getJson('/api/user')
+        ->assertOk()
+        ->assertJsonPath('email', $user->email);
+});
+
+test('guests cannot fetch the current user', function () {
+    $this->getJson('/api/user')->assertUnauthorized();
+});
+
+test('unauthenticated api requests return 401 instead of redirecting to a login route', function () {
+    // A non-JSON request must not try to redirect to a (non-existent) login route.
+    $this->get('/api/user')->assertUnauthorized();
 });
 
 test('users can logout', function () {
     $user = User::factory()->create();
 
-    $response = $this->actingAs($user)->post('/logout');
+    $this->actingAs($user)->postJson('/logout')->assertNoContent();
 
     $this->assertGuest();
-    $response->assertNoContent();
 });

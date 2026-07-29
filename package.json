@@ -20,20 +20,20 @@
   "dependencies": {
     "@mdi/js": "^7.4.47",
     "@nuxt/fonts": "0.14.0",
-    "@nuxt/image": "^2.0.0",
+    "@nuxt/image": "^2.1.0",
     "@pinia/nuxt": "^1.0.1",
-    "@vueuse/core": "^14.3.0",
-    "@vueuse/nuxt": "^14.3.0",
+    "@vueuse/core": "^14.4.0",
+    "@vueuse/nuxt": "^14.4.0",
     "nuxt": "^4.5.1",
     "pinia": "^4.0.2",
-    "temporal-polyfill": "^1.0.1",
+    "temporal-polyfill": "^1.0.2",
     "vue": "^3.5.40",
     "vue-toastification": "2.0.0-rc.5",
     "vuetify": "^4.1.6"
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.16.0",
-    "@nuxt/test-utils": "^4.0.3",
+    "@nuxt/test-utils": "^4.1.0",
     "@total-typescript/ts-reset": "^0.6.1",
     "@vue/test-utils": "^2.4.11",
     "eslint": "^10.8.0",
@@ -45,5 +45,5 @@
     "vitest": "^4.1.10",
     "vue-tsc": "^3.3.8"
   },
-  "packageManager": "pnpm@10.15.1"
+  "packageManager": "pnpm@11.17.0"
 }

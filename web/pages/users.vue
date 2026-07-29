@@ -27,10 +27,7 @@ async function loadUsers() {
 
     users.value = response.data;
   } catch (error: unknown) {
-    const message =
-      error instanceof Error ? error.message : 'Failed to load users';
-
-    $toast(message, 'error');
+    $toast(getErrorMessage(error), 'error');
   } finally {
     $stopLoading('users');
   }

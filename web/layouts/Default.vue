@@ -107,7 +107,7 @@ import {
 
 import type { Credentials, RegistrationForm } from '@/types/auth';
 
-const { isLoggedIn } = storeToRefs(useAuthStore());
+const { isLoggedIn, isAdmin } = storeToRefs(useAuthStore());
 const { isLoading } = storeToRefs(useLoadingStore());
 
 const { $startLoading, $stopLoading } = useLoadingStore();
@@ -119,16 +119,20 @@ async function handleLogout() {
     .then(() => {
       navigateTo('/');
     })
-    .catch(console.error)
+    .catch((error: unknown) => {
+      $toast(getErrorMessage(error), 'error');
+    })
     .finally(() => $stopLoading('logout'));
 }
 
 const drawer = ref(true);
 
-const drawerItems = [
+const drawerItems = computed(() => [
   { title: 'Profile', to: '/profile', icon: mdiAccount },
-  { title: 'Users', to: '/users', icon: mdiAccountMultiple }
-];
+  ...(isAdmin.value
+    ? [{ title: 'Users', to: '/users', icon: mdiAccountMultiple }]
+    : [])
+]);
 
 function toggleDrawer() {
   drawer.value = !drawer.value;
@@ -179,7 +183,9 @@ function useUserDialogs() {
       .then(() => {
         registerDialog.value = false;
       })
-      .catch(console.error)
+      .catch((error: unknown) => {
+        $toast(getErrorMessage(error), 'error');
+      })
       .finally(() => $stopLoading('dialog'));
   }
 
@@ -190,7 +196,9 @@ function useUserDialogs() {
       .then(() => {
         loginDialog.value = false;
       })
-      .catch(console.error)
+      .catch((error: unknown) => {
+        $toast(getErrorMessage(error), 'error');
+      })
       .finally(() => $stopLoading('dialog'));
   }
 
@@ -201,7 +209,9 @@ function useUserDialogs() {
       .then(() => {
         forgotPasswordDialog.value = false;
       })
-      .catch(console.error)
+      .catch((error: unknown) => {
+        $toast(getErrorMessage(error), 'error');
+      })
       .finally(() => $stopLoading('dialog'));
   }
 

@@ -12,34 +12,34 @@ export async function fetchUsers(): Promise<UsersResponse> {
 }
 
 export async function fetchUser(id: number): Promise<User> {
-  const response = await fetcher<User>(`/users/${id}`);
+  const response = await fetcher<{ data: User }>(`/api/users/${id}`);
 
-  return response;
+  return response.data;
 }
 
 export async function createUser(userData: CreateUserForm): Promise<User> {
-  const response = await fetcher<User>('/users', {
+  const response = await fetcher<{ data: User }>('/api/users', {
     method: 'POST',
     body: userData
   });
 
-  return response;
+  return response.data;
 }
 
 export async function updateUser(
   id: number,
   userData: UpdateUserForm
 ): Promise<User> {
-  const response = await fetcher<User>(`/users/${id}`, {
+  const response = await fetcher<{ data: User }>(`/api/users/${id}`, {
     method: 'PUT',
     body: userData
   });
 
-  return response;
+  return response.data;
 }
 
 export async function deleteUser(id: number): Promise<void> {
-  await fetcher(`/users/${id}`, {
+  await fetcher(`/api/users/${id}`, {
     method: 'DELETE'
   });
 }

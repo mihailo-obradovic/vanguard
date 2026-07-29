@@ -2,42 +2,35 @@ import type {
   RegistrationForm,
   Credentials,
   PasswordResetForm,
-  User,
-  Token
+  User
 } from '@/types/auth';
-
-// TODO: Move store imports out of the service
+import type { ProfileForm } from '@/types/user';
 
 export async function register(credentials: RegistrationForm) {
-  const { setUser, setAccessToken } = useAuthStore();
-
-  const response = await fetcher<Token>('/register', {
+  await fetcher('/register', {
     method: 'POST',
     body: credentials
   });
 
-  setAccessToken(response.access_token);
-
-  const userResponse = await fetchCurrentUser();
-
-  setUser(userResponse);
+  await fetchCurrentUser();
 }
 
 export async function logIn(credentials: Credentials) {
-  const { setUser, setAccessToken } = useAuthStore();
-
-  await fetcher('/sanctum/csrf-cookie');
-
-  const response = await fetcher<Token>('/login', {
+  await fetcher('/login', {
     method: 'POST',
     body: credentials
   });
 
-  setAccessToken(response.access_token);
+  await fetchCurrentUser();
+}
 
-  const userResponse = await fetchCurrentUser();
+export async function updateProfile(form: ProfileForm): Promise<User> {
+  const response = await fetcher<{ data: User }>('/api/profile', {
+    method: 'PUT',
+    body: form
+  });
 
-  setUser(userResponse);
+  return response.data;
 }
 
 export async function fetchCurrentUser() {
@@ -69,5 +62,11 @@ export async function resetPassword(form: PasswordResetForm) {
   await fetcher('/reset-password', {
     method: 'POST',
     body: form
+  });
+}
+
+export async function resendEmailVerification() {
+  await fetcher('/email/verification-notification', {
+    method: 'POST'
   });
 }

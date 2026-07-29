@@ -59,6 +59,27 @@
             variant="outlined"
             :readonly="!editMode"
           />
+
+          <GapContainer class="align-center justify-space-between">
+            <v-chip
+              :color="user?.email_verified_at ? 'success' : 'warning'"
+              variant="flat"
+              size="small"
+            >
+              {{ user?.email_verified_at ? 'Email verified' : 'Email not verified' }}
+            </v-chip>
+
+            <v-btn
+              v-if="!user?.email_verified_at"
+              variant="text"
+              size="small"
+              color="primary"
+              :loading="isResending"
+              @click="resendVerification"
+            >
+              Resend email
+            </v-btn>
+          </GapContainer>
         </GapContainer>
       </GapContainer>
     </v-col>
@@ -68,6 +89,8 @@
 <script setup lang="ts">
 import { mdiCheck, mdiClose, mdiPencil } from '@mdi/js';
 
+import { resendEmailVerification } from '@/services/auth.api';
+
 const emit = defineEmits<{
   update: [form: { name: string; email: string }];
 }>();
@@ -76,6 +99,21 @@ const { isLoading } = storeToRefs(useLoadingStore());
 const { user } = storeToRefs(useAuthStore());
 
 const editMode = ref(false);
+const isResending = ref(false);
+
+async function resendVerification() {
+  try {
+    isResending.value = true;
+
+    await resendEmailVerification();
+
+    $toast('Verification email sent. Check your inbox.', 'success');
+  } catch (error: unknown) {
+    $toast(getErrorMessage(error), 'error');
+  } finally {
+    isResending.value = false;
+  }
+}
 
 const initialForm = computed(() => {
   return {

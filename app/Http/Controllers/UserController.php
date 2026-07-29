@@ -2,26 +2,27 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\Role;
 use App\Http\Requests\UserRequest;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
     /**
-     * Display a listing of all users.
+     * Display a listing of all users, newest first.
      */
-    public function index(): JsonResponse
+    public function index(): ResourceCollection
     {
-        $users = User::select('id', 'name', 'email', 'role', 'email_verified_at', 'created_at', 'updated_at')
-            ->latest()
-            ->get();
+        $users = User::latest()->get();
 
-        return response()->json([
-            'data' => $users,
-            'total' => $users->count()
+        return UserResource::collection($users)->additional([
+            'total' => $users->count(),
         ]);
     }
 
@@ -30,61 +31,61 @@ class UserController extends Controller
      */
     public function store(UserRequest $request): JsonResponse
     {
-        $validated = $request->validated();
+        $data = $request->validated();
 
-        $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'role' => $validated['role'] ?? User::USER_ROLE,
-        ]);
+        $user = new User;
+        $user->name = $data['name'];
+        $user->email = $data['email'];
+        $user->password = $data['password'];
+        $user->role = $data['role'] ?? Role::User;
+        $user->save();
 
-        return response()->json([
-            'message' => 'User created successfully',
-            'data' => $user->only(['id', 'name', 'email', 'role', 'created_at'])
-        ], 201);
+        return UserResource::make($user)
+            ->response()
+            ->setStatusCode(Response::HTTP_CREATED);
     }
 
     /**
      * Display the specified user.
      */
-    public function show(User $user): JsonResponse
+    public function show(User $user): JsonResource
     {
-        return response()->json([
-            'data' => $user->only(['id', 'name', 'email', 'role', 'email_verified_at', 'created_at', 'updated_at'])
-        ]);
+        return UserResource::make($user);
     }
 
     /**
      * Update the specified user.
      */
-    public function update(UserRequest $request, User $user): JsonResponse
+    public function update(UserRequest $request, User $user): JsonResource
     {
-        $validated = $request->validated();
+        $data = $request->validated();
 
-        // Hash password if provided
-        if (isset($validated['password'])) {
-            $validated['password'] = Hash::make($validated['password']);
+        $emailChanged = array_key_exists('email', $data) && $user->changeEmail($data['email']);
+
+        $user->fill($request->safe()->only(['name', 'password']));
+
+        if (array_key_exists('role', $data)) {
+            $user->role = $data['role'];
         }
 
-        $user->update($validated);
+        $user->save();
 
-        return response()->json([
-            'message' => 'User updated successfully',
-            'data' => $user->only(['id', 'name', 'email', 'role', 'email_verified_at', 'created_at', 'updated_at'])
-        ]);
+        if ($emailChanged) {
+            $user->sendEmailVerificationNotification();
+        }
+
+        return UserResource::make($user);
     }
 
     /**
      * Remove the specified user.
      */
-    public function destroy(User $user): JsonResponse|Response
+    public function destroy(Request $request, User $user): Response|JsonResponse
     {
-        // Prevent admin from deleting themselves
-        if ($user->id === auth()->id()) {
+        if ($user->is($request->user())) {
             return response()->json([
-                'message' => 'You cannot delete your own account'
-            ], 422);
+                'message' => 'You cannot delete your own account.',
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $user->delete();

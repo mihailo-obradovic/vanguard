@@ -94,7 +94,9 @@ function handleConfirm() {
 
       navigateTo('/');
     })
-    .catch(console.error)
+    .catch((error: unknown) => {
+      $toast(getErrorMessage(error), 'error');
+    })
     .finally(() => $stopLoading('dialog'));
 }
 </script>

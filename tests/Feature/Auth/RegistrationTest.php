@@ -1,13 +1,32 @@
 <?php
 
+use App\Enums\Role;
+use App\Models\User;
+
 test('new users can register', function () {
-    $response = $this->post('/register', [
+    $response = $this->postJson('/register', [
         'name' => 'Test User',
-        'email' => 'test@example.com',
+        'email' => 'newuser@example.com',
         'password' => 'password',
         'password_confirmation' => 'password',
     ]);
 
-    $this->assertAuthenticated();
     $response->assertNoContent();
+    $this->assertAuthenticated();
+
+    $this->assertDatabaseHas('users', [
+        'email' => 'newuser@example.com',
+        'role' => Role::User->value,
+    ]);
+});
+
+test('registration requires a unique email', function () {
+    User::factory()->create(['email' => 'taken@example.com']);
+
+    $this->postJson('/register', [
+        'name' => 'Test User',
+        'email' => 'taken@example.com',
+        'password' => 'password',
+        'password_confirmation' => 'password',
+    ])->assertStatus(422)->assertJsonValidationErrors('email');
 });

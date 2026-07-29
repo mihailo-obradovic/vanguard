@@ -31,13 +31,22 @@
 
             <div class="info-item">
               <label class="info-label">Email Verified</label>
-              <div class="info-value">
+              <div class="info-value verification-value">
                 <span
                   class="verification-badge"
                   :class="{ verified: user.email_verified_at }"
                 >
                   {{ user.email_verified_at ? 'Verified' : 'Not Verified' }}
                 </span>
+                <button
+                  v-if="!user.email_verified_at"
+                  type="button"
+                  class="resend-btn"
+                  :disabled="isResending"
+                  @click="resendVerification"
+                >
+                  {{ isResending ? 'Sending...' : 'Resend email' }}
+                </button>
               </div>
             </div>
 
@@ -162,11 +171,40 @@
 </template>
 
 <script setup lang="ts">
-import { updateUser } from '@/services/user.api';
-import type { UpdateUserForm } from '@/types/user';
+import {
+  fetchCurrentUser,
+  resendEmailVerification,
+  updateProfile
+} from '@/services/auth.api';
+import type { ProfileForm } from '@/types/user';
 
 const { user } = storeToRefs(useAuthStore());
 const { updateUserInStore } = useAuthStore();
+
+const route = useRoute();
+const router = useRouter();
+
+const isResending = ref(false);
+
+onMounted(async () => {
+  if (route.query.verified === '1') {
+    await fetchCurrentUser();
+    $toast('Your email has been verified.', 'success');
+    router.replace({ query: {} });
+  }
+});
+
+async function resendVerification() {
+  try {
+    isResending.value = true;
+    await resendEmailVerification();
+    $toast('Verification email sent. Check your inbox.', 'success');
+  } catch (err: any) {
+    $toast(err?.data?.message || 'Failed to send verification email', 'error');
+  } finally {
+    isResending.value = false;
+  }
+}
 
 // Edit form state
 const showEditForm = ref(false);
@@ -235,7 +273,7 @@ async function handleSubmitProfile() {
   try {
     isSubmittingProfile.value = true;
 
-    const updateData: UpdateUserForm = {
+    const updateData: ProfileForm = {
       name: profileForm.value.name,
       email: profileForm.value.email,
       current_password: profileForm.value.current_password
@@ -248,7 +286,7 @@ async function handleSubmitProfile() {
         profileForm.value.password_confirmation;
     }
 
-    const updatedUser = await updateUser(user.value.id, updateData);
+    const updatedUser = await updateProfile(updateData);
 
     // Update user in store
     updateUserInStore(updatedUser);
@@ -356,11 +394,40 @@ async function handleSubmitProfile() {
   color: white;
 }
 
+.verification-value {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .verification-badge {
   padding: 6px 12px;
   border-radius: 8px;
   font-size: 12px;
   font-weight: 600;
+}
+
+.resend-btn {
+  background-color: transparent;
+  color: rgb(0, 102, 255);
+  border: 1px solid rgb(0, 102, 255);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.resend-btn:hover:not(:disabled) {
+  background-color: rgb(0, 102, 255);
+  color: white;
+}
+
+.resend-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .verification-badge.verified {

@@ -4,7 +4,7 @@
       <div class="nav-container">
         <div class="nav-links">
           <NuxtLink to="/home" class="nav-link">Home</NuxtLink>
-          <NuxtLink to="/users" class="nav-link">Users</NuxtLink>
+          <NuxtLink v-if="isAdmin" to="/users" class="nav-link">Users</NuxtLink>
         </div>
 
         <div class="nav-auth">
@@ -31,7 +31,7 @@
 </template>
 
 <script lang="ts" setup>
-const { isLoggedIn, user } = storeToRefs(useAuthStore());
+const { isLoggedIn, isAdmin, user } = storeToRefs(useAuthStore());
 
 async function handleLogout() {
   await logOut();

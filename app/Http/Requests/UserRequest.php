@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\Role;
 use App\Models\User;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules;
@@ -20,29 +22,24 @@ class UserRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
-        $isCreating = $this->isMethod('POST');
-        $userId = $this->route('user');
+        $required = $this->isMethod('POST') ? 'required' : 'sometimes';
 
         return [
-            'name' => [$isCreating ? 'required' : 'sometimes', 'string', 'max:255'],
+            'name' => [$required, 'string', 'max:255'],
             'email' => [
-                $isCreating ? 'required' : 'sometimes',
+                $required,
                 'string',
                 'lowercase',
                 'email',
                 'max:255',
-                Rule::unique(User::class)->ignore($userId)
+                Rule::unique(User::class)->ignore($this->route('user')),
             ],
-            'password' => [
-                $isCreating ? 'required' : 'sometimes',
-                'confirmed',
-                Rules\Password::defaults()
-            ],
-            'role' => ['sometimes', 'in:' . User::USER_ROLE . ',' . User::ADMIN_ROLE],
+            'password' => [$required, 'confirmed', Rules\Password::defaults()],
+            'role' => ['sometimes', Rule::enum(Role::class)],
         ];
     }
 }

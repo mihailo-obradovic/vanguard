@@ -3,11 +3,6 @@ export type Credentials = {
   password: string;
 };
 
-export type Token = {
-  access_token: string;
-  token_type: string;
-};
-
 export type User = {
   id: number;
   name: string;

@@ -173,10 +173,10 @@
 <script setup lang="ts">
 import {
   fetchCurrentUser,
-  resendEmailVerification
+  resendEmailVerification,
+  updateProfile
 } from '@/services/auth.api';
-import { updateUser } from '@/services/user.api';
-import type { UpdateUserForm } from '@/types/user';
+import type { ProfileForm } from '@/types/user';
 
 const { user } = storeToRefs(useAuthStore());
 const { updateUserInStore } = useAuthStore();
@@ -273,7 +273,7 @@ async function handleSubmitProfile() {
   try {
     isSubmittingProfile.value = true;
 
-    const updateData: UpdateUserForm = {
+    const updateData: ProfileForm = {
       name: profileForm.value.name,
       email: profileForm.value.email,
       current_password: profileForm.value.current_password
@@ -286,7 +286,7 @@ async function handleSubmitProfile() {
         profileForm.value.password_confirmation;
     }
 
-    const updatedUser = await updateUser(user.value.id, updateData);
+    const updatedUser = await updateProfile(updateData);
 
     // Update user in store
     updateUserInStore(updatedUser);

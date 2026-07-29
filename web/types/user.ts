@@ -16,3 +16,11 @@ export type CreateUserForm = {
 export type UpdateUserForm = Partial<CreateUserForm> & {
   current_password?: string;
 };
+
+export type ProfileForm = {
+  name: string;
+  email: string;
+  current_password: string;
+  password?: string;
+  password_confirmation?: string;
+};

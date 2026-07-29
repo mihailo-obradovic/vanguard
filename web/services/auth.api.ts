@@ -4,6 +4,7 @@ import type {
   PasswordResetForm,
   User
 } from '@/types/auth';
+import type { ProfileForm } from '@/types/user';
 
 export async function register(credentials: RegistrationForm) {
   await fetcher('/register', {
@@ -21,6 +22,15 @@ export async function logIn(credentials: Credentials) {
   });
 
   await fetchCurrentUser();
+}
+
+export async function updateProfile(form: ProfileForm): Promise<User> {
+  const response = await fetcher<{ data: User }>('/api/profile', {
+    method: 'PUT',
+    body: form
+  });
+
+  return response.data;
 }
 
 export async function fetchCurrentUser() {

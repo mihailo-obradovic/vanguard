@@ -78,8 +78,8 @@ function handleRegister() {
     .then(() => {
       navigateTo('/home');
     })
-    .catch((error: Error) => {
-      $toast(error.message, 'error');
+    .catch((error: unknown) => {
+      $toast(getErrorMessage(error), 'error');
     });
 }
 </script>

@@ -19,6 +19,7 @@ export default defineNuxtConfig({
     '@nuxt/image',
     '@nuxt/test-utils/module',
     '@pinia/nuxt',
+    '@pinia/colada-nuxt',
     '@vueuse/nuxt'
   ],
 

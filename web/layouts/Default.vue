@@ -12,7 +12,13 @@
             <NuxtLink to="/profile" class="user-name-link">
               {{ user?.name }}
             </NuxtLink>
-            <button class="logout-btn" @click="handleLogout">Logout</button>
+            <button
+              class="logout-btn"
+              :disabled="isLoggingOut"
+              @click="logOut()"
+            >
+              {{ isLoggingOut ? 'Logging out...' : 'Logout' }}
+            </button>
           </template>
           <template v-else>
             <NuxtLink to="/login" class="auth-link">Login</NuxtLink>
@@ -31,11 +37,11 @@
 </template>
 
 <script lang="ts" setup>
+import { useLogOut } from '@/services/queries/useAuthQueries';
+
 const { isLoggedIn, isAdmin, user } = storeToRefs(useAuthStore());
 
-async function handleLogout() {
-  await logOut();
-}
+const { mutate: logOut, isLoading: isLoggingOut } = useLogOut();
 </script>
 
 <style scoped>

@@ -11,8 +11,6 @@ export async function register(credentials: RegistrationForm) {
     method: 'POST',
     body: credentials
   });
-
-  await fetchCurrentUser();
 }
 
 export async function logIn(credentials: Credentials) {
@@ -20,8 +18,6 @@ export async function logIn(credentials: Credentials) {
     method: 'POST',
     body: credentials
   });
-
-  await fetchCurrentUser();
 }
 
 export async function updateProfile(form: ProfileForm): Promise<User> {
@@ -33,33 +29,23 @@ export async function updateProfile(form: ProfileForm): Promise<User> {
   return response.data;
 }
 
-export async function fetchCurrentUser() {
-  const { setUser } = useAuthStore();
-
-  const response = await fetcher<User>('/api/user');
-
-  setUser(response);
-
-  return response;
+export async function fetchCurrentUser(): Promise<User> {
+  return await fetcher<User>('/api/user');
 }
 
 export async function logOut() {
-  const { resetUser } = useAuthStore();
-
   await fetcher('/logout', { method: 'POST' });
-
-  resetUser();
 }
 
 export async function generatePasswordResetEmail(form: { email: string }) {
-  await fetcher('/forgot-password', {
+  return await fetcher<{ status: string }>('/forgot-password', {
     method: 'POST',
     body: form
   });
 }
 
 export async function resetPassword(form: PasswordResetForm) {
-  await fetcher('/reset-password', {
+  return await fetcher<{ status: string }>('/reset-password', {
     method: 'POST',
     body: form
   });

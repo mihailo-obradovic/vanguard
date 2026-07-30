@@ -43,7 +43,7 @@
                   type="button"
                   class="resend-btn"
                   :disabled="isResending"
-                  @click="resendVerification"
+                  @click="resendVerification()"
                 >
                   {{ isResending ? 'Sending...' : 'Resend email' }}
                 </button>
@@ -171,44 +171,36 @@
 </template>
 
 <script setup lang="ts">
+import { fetchCurrentUser } from '@/services/auth.api';
 import {
-  fetchCurrentUser,
-  resendEmailVerification,
-  updateProfile
-} from '@/services/auth.api';
+  useUpdateProfile,
+  useResendEmailVerification
+} from '@/services/queries/useAuthQueries';
 import type { ProfileForm } from '@/types/user';
 
 const { user } = storeToRefs(useAuthStore());
-const { updateUserInStore } = useAuthStore();
+const { setUser } = useAuthStore();
 
 const route = useRoute();
 const router = useRouter();
 
-const isResending = ref(false);
-
 onMounted(async () => {
   if (route.query.verified === '1') {
-    await fetchCurrentUser();
+    setUser(await fetchCurrentUser());
     $toast('Your email has been verified.', 'success');
     router.replace({ query: {} });
   }
 });
 
-async function resendVerification() {
-  try {
-    isResending.value = true;
-    await resendEmailVerification();
-    $toast('Verification email sent. Check your inbox.', 'success');
-  } catch (err: any) {
-    $toast(err?.data?.message || 'Failed to send verification email', 'error');
-  } finally {
-    isResending.value = false;
-  }
-}
+const { mutate: resendVerification, isLoading: isResending } =
+  useResendEmailVerification({
+    onSuccess: () => {
+      $toast('Verification email sent. Check your inbox.', 'success');
+    }
+  });
 
 // Edit form state
 const showEditForm = ref(false);
-const isSubmittingProfile = ref(false);
 const profileForm = ref({
   name: '',
   email: '',
@@ -250,7 +242,15 @@ function closeEditForm() {
   };
 }
 
-async function handleSubmitProfile() {
+const { mutate: updateProfile, isLoading: isSubmittingProfile } =
+  useUpdateProfile({
+    onSuccess: () => {
+      $toast('Profile updated successfully', 'success');
+      closeEditForm();
+    }
+  });
+
+function handleSubmitProfile() {
   if (
     !user.value ||
     !profileForm.value.name ||
@@ -270,34 +270,19 @@ async function handleSubmitProfile() {
     return;
   }
 
-  try {
-    isSubmittingProfile.value = true;
+  const updateData: ProfileForm = {
+    name: profileForm.value.name,
+    email: profileForm.value.email,
+    current_password: profileForm.value.current_password
+  };
 
-    const updateData: ProfileForm = {
-      name: profileForm.value.name,
-      email: profileForm.value.email,
-      current_password: profileForm.value.current_password
-    };
-
-    // Only include password if provided
-    if (profileForm.value.password) {
-      updateData.password = profileForm.value.password;
-      updateData.password_confirmation =
-        profileForm.value.password_confirmation;
-    }
-
-    const updatedUser = await updateProfile(updateData);
-
-    // Update user in store
-    updateUserInStore(updatedUser);
-
-    $toast('Profile updated successfully', 'success');
-    closeEditForm();
-  } catch (err: any) {
-    $toast(err?.data?.message || 'Failed to update profile', 'error');
-  } finally {
-    isSubmittingProfile.value = false;
+  // Only include password if provided
+  if (profileForm.value.password) {
+    updateData.password = profileForm.value.password;
+    updateData.password_confirmation = profileForm.value.password_confirmation;
   }
+
+  updateProfile(updateData);
 }
 </script>
 

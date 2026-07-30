@@ -15,7 +15,7 @@
     </div>
 
     <div v-else-if="error" class="error-state">
-      <p>Error loading users: {{ error }}</p>
+      <p>Error loading users: {{ getErrorMessage(error) }}</p>
     </div>
 
     <div v-else class="users-content">
@@ -202,9 +202,15 @@
         </div>
 
         <div class="modal-actions">
-          <button class="cancel-btn" @click="cancelDelete">Cancel</button>
-          <button class="confirm-delete-btn" @click="handleDelete">
-            Delete User
+          <button class="cancel-btn" :disabled="isDeleting" @click="cancelDelete">
+            Cancel
+          </button>
+          <button
+            class="confirm-delete-btn"
+            :disabled="isDeleting"
+            @click="handleDelete"
+          >
+            {{ isDeleting ? 'Deleting...' : 'Delete User' }}
           </button>
         </div>
       </div>
@@ -214,24 +220,23 @@
 
 <script setup lang="ts">
 import {
-  fetchUsers,
-  deleteUser,
-  createUser,
-  updateUser
-} from '@/services/user.api';
+  useFetchUsers,
+  useCreateUser,
+  useUpdateUser,
+  useDeleteUser
+} from '@/services/queries/useUserQueries';
 import type { User } from '@/types/auth';
 import type { CreateUserForm, UpdateUserForm } from '@/types/user';
 
-const users = ref<User[]>([]);
-const isLoading = ref(true);
-const error = ref<string | null>(null);
+const { data: usersResponse, isLoading, error } = useFetchUsers();
+
+const users = computed(() => usersResponse.value?.data ?? []);
+
 const userToDelete = ref<User | null>(null);
-const isDeletingUser = ref<number | null>(null);
 
 // Create/Edit form state
 const showUserForm = ref(false);
 const isEditMode = ref(false);
-const isSubmittingUser = ref(false);
 const editingUserId = ref<number | null>(null);
 const userForm = ref<CreateUserForm>({
   name: '',
@@ -241,21 +246,40 @@ const userForm = ref<CreateUserForm>({
   role: 'user'
 });
 
-async function loadUsers() {
-  try {
-    isLoading.value = true;
-    error.value = null;
-
-    const response = await fetchUsers();
-
-    users.value = response.data;
-  } catch (err: any) {
-    error.value = err.message || 'Failed to load users';
-    $toast(error.value, 'error');
-  } finally {
-    isLoading.value = false;
+const { mutate: createUser, isLoading: isCreatingUser } = useCreateUser({
+  onSuccess: (newUser) => {
+    $toast(`User "${newUser.name}" created successfully`, 'success');
+    closeUserForm();
   }
-}
+});
+
+const { mutate: updateUser, isLoading: isUpdatingUser } = useUpdateUser({
+  onSuccess: (updatedUser) => {
+    $toast(`User "${updatedUser.name}" updated successfully`, 'success');
+    closeUserForm();
+  }
+});
+
+const isSubmittingUser = computed(
+  () => isCreatingUser.value || isUpdatingUser.value
+);
+
+const {
+  mutate: deleteUser,
+  isLoading: isDeleting,
+  variables: deletingId
+} = useDeleteUser({
+  onSuccess: () => {
+    $toast(`User "${userToDelete.value?.name}" deleted successfully`, 'success');
+  },
+  onSettled: () => {
+    userToDelete.value = null;
+  }
+});
+
+const isDeletingUser = computed(() =>
+  isDeleting.value ? (deletingId.value ?? null) : null
+);
 
 function confirmDelete(user: User) {
   userToDelete.value = user;
@@ -265,26 +289,10 @@ function cancelDelete() {
   userToDelete.value = null;
 }
 
-async function handleDelete() {
+function handleDelete() {
   if (!userToDelete.value) return;
 
-  const user = userToDelete.value;
-
-  try {
-    isDeletingUser.value = user.id;
-
-    await deleteUser(user.id);
-
-    // Remove user from local array
-    users.value = users.value.filter((u) => u.id !== user.id);
-
-    $toast(`User "${user.name}" deleted successfully`, 'success');
-  } catch (err: any) {
-    $toast(err?.data?.message || 'Failed to delete user', 'error');
-  } finally {
-    isDeletingUser.value = null;
-    userToDelete.value = null;
-  }
+  deleteUser(userToDelete.value.id);
 }
 
 // Create/Edit form functions
@@ -327,7 +335,7 @@ function closeUserForm() {
   };
 }
 
-async function handleSubmitUser() {
+function handleSubmitUser() {
   if (!userForm.value.name || !userForm.value.email) return;
 
   // Validate password confirmation
@@ -349,57 +357,28 @@ async function handleSubmitUser() {
     return;
   }
 
-  try {
-    isSubmittingUser.value = true;
+  if (isEditMode.value && editingUserId.value) {
+    const updateData: UpdateUserForm = {
+      name: userForm.value.name,
+      email: userForm.value.email,
+      role: userForm.value.role
+    };
 
-    if (isEditMode.value && editingUserId.value) {
-      // Update existing user
-      const updateData: UpdateUserForm = {
-        name: userForm.value.name,
-        email: userForm.value.email,
-        role: userForm.value.role
-      };
-
-      // Only include password if provided
-      if (userForm.value.password) {
-        updateData.password = userForm.value.password;
-        updateData.password_confirmation = userForm.value.password_confirmation;
-      }
-
-      const updatedUser = await updateUser(editingUserId.value, updateData);
-
-      // Update user in local array
-      const index = users.value.findIndex((u) => u.id === editingUserId.value);
-      if (index !== -1) {
-        users.value[index] = updatedUser;
-      }
-
-      $toast(`User "${updatedUser.name}" updated successfully`, 'success');
-    } else {
-      // Create new user
-      const newUser = await createUser(userForm.value);
-
-      // Add new user to local array
-      users.value.unshift(newUser);
-
-      $toast(`User "${newUser.name}" created successfully`, 'success');
+    // Only include password if provided
+    if (userForm.value.password) {
+      updateData.password = userForm.value.password;
+      updateData.password_confirmation = userForm.value.password_confirmation;
     }
 
-    closeUserForm();
-  } catch (err: any) {
-    $toast(err?.data?.message || 'Failed to save user', 'error');
-  } finally {
-    isSubmittingUser.value = false;
+    updateUser({ id: editingUserId.value, userData: updateData });
+  } else {
+    createUser(userForm.value);
   }
 }
 
 function formatDate(dateString: string) {
   return new Date(dateString).toLocaleDateString();
 }
-
-onMounted(() => {
-  loadUsers();
-});
 </script>
 
 <style scoped>
@@ -757,7 +736,13 @@ onMounted(() => {
   transition: background-color 0.25s ease;
 }
 
-.confirm-delete-btn:hover {
+.confirm-delete-btn:hover:not(:disabled) {
   background-color: #c82333;
+}
+
+.cancel-btn:disabled,
+.confirm-delete-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 </style>

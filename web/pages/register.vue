@@ -12,6 +12,7 @@
             type="text"
             class="form-input"
             required
+            :disabled="isRegistering"
           />
         </div>
 
@@ -23,6 +24,7 @@
             type="email"
             class="form-input"
             required
+            :disabled="isRegistering"
           />
         </div>
 
@@ -34,6 +36,7 @@
             type="password"
             class="form-input"
             required
+            :disabled="isRegistering"
           />
         </div>
 
@@ -47,10 +50,13 @@
             type="password"
             class="form-input"
             required
+            :disabled="isRegistering"
           />
         </div>
 
-        <button type="submit" class="register-btn">Register</button>
+        <button type="submit" class="register-btn" :disabled="isRegistering">
+          {{ isRegistering ? 'Registering...' : 'Register' }}
+        </button>
       </form>
 
       <div class="auth-footer">
@@ -64,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import { register } from '@/services/auth.api';
+import { useRegister } from '@/services/queries/useAuthQueries';
 
 const form = ref({
   name: '',
@@ -73,14 +79,12 @@ const form = ref({
   password_confirmation: ''
 });
 
+const { mutate: register, isLoading: isRegistering } = useRegister({
+  onSuccess: () => navigateTo('/home')
+});
+
 function handleRegister() {
-  register(form.value)
-    .then(() => {
-      navigateTo('/home');
-    })
-    .catch((error: unknown) => {
-      $toast(getErrorMessage(error), 'error');
-    });
+  register(form.value);
 }
 </script>
 
@@ -157,8 +161,19 @@ function handleRegister() {
   margin-top: 8px;
 }
 
-.register-btn:hover {
+.register-btn:hover:not(:disabled) {
   background-color: rgba(0, 102, 255, 0.9);
+}
+
+.register-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.form-input:disabled {
+  background-color: #f8f9fa;
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 
 .auth-footer {

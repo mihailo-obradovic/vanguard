@@ -12,6 +12,7 @@
             type="email"
             class="form-input"
             required
+            :disabled="isLoggingIn"
           />
         </div>
 
@@ -23,10 +24,13 @@
             type="password"
             class="form-input"
             required
+            :disabled="isLoggingIn"
           />
         </div>
 
-        <button type="submit" class="login-btn">Login</button>
+        <button type="submit" class="login-btn" :disabled="isLoggingIn">
+          {{ isLoggingIn ? 'Logging in...' : 'Login' }}
+        </button>
       </form>
 
       <div class="auth-footer">
@@ -40,21 +44,19 @@
 </template>
 
 <script lang="ts" setup>
-import { logIn } from '@/services/auth.api';
+import { useLogIn } from '@/services/queries/useAuthQueries';
 
 const form = ref({
   email: 'test@example.com',
   password: 'gmaz1234'
 });
 
+const { mutate: logIn, isLoading: isLoggingIn } = useLogIn({
+  onSuccess: () => navigateTo('/home')
+});
+
 function handleLogin() {
-  logIn(form.value)
-    .then(() => {
-      navigateTo('/home');
-    })
-    .catch((error: unknown) => {
-      $toast(getErrorMessage(error), 'error');
-    });
+  logIn(form.value);
 }
 </script>
 
@@ -131,8 +133,19 @@ function handleLogin() {
   margin-top: 8px;
 }
 
-.login-btn:hover {
+.login-btn:hover:not(:disabled) {
   background-color: rgba(0, 102, 255, 0.9);
+}
+
+.login-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.form-input:disabled {
+  background-color: #f8f9fa;
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 
 .auth-footer {

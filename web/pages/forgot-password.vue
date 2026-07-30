@@ -1,9 +1,13 @@
 <template>
-  <div class="login-container">
-    <div class="login-card">
-      <h1 class="login-title">Welcome Back</h1>
+  <div class="forgot-password-container">
+    <div class="forgot-password-card">
+      <h1 class="forgot-password-title">Forgot Password</h1>
 
-      <form class="login-form" @submit.prevent="handleLogin">
+      <p class="forgot-password-hint">
+        Enter your email address and we'll send you a password reset link.
+      </p>
+
+      <form class="forgot-password-form" @submit.prevent="handleSubmit">
         <div class="form-group">
           <label for="email" class="form-label">Email</label>
           <input
@@ -12,61 +16,47 @@
             type="email"
             class="form-input"
             required
-            :disabled="isLoggingIn"
+            :disabled="isSending"
           />
         </div>
 
-        <div class="form-group">
-          <label for="password" class="form-label">Password</label>
-          <input
-            id="password"
-            v-model="form.password"
-            type="password"
-            class="form-input"
-            required
-            :disabled="isLoggingIn"
-          />
-        </div>
-
-        <button type="submit" class="login-btn" :disabled="isLoggingIn">
-          {{ isLoggingIn ? 'Logging in...' : 'Login' }}
+        <button type="submit" class="submit-btn" :disabled="isSending">
+          {{ isSending ? 'Sending...' : 'Send Reset Link' }}
         </button>
       </form>
 
       <div class="auth-footer">
         <p>
-          Don't have an account?
-          <NuxtLink to="/register" class="auth-link">Register here</NuxtLink>
-        </p>
-        <p>
-          <NuxtLink to="/forgot-password" class="auth-link">
-            Forgot your password?
-          </NuxtLink>
+          Remembered your password?
+          <NuxtLink to="/login" class="auth-link">Login here</NuxtLink>
         </p>
       </div>
     </div>
   </div>
 </template>
 
-<script lang="ts" setup>
-import { useLogIn } from '@/services/queries/useAuthQueries';
+<script setup lang="ts">
+import { useGeneratePasswordResetEmail } from '@/services/queries/useAuthQueries';
 
 const form = ref({
-  email: 'test@example.com',
-  password: 'gmaz1234'
+  email: ''
 });
 
-const { mutate: logIn, isLoading: isLoggingIn } = useLogIn({
-  onSuccess: () => navigateTo('/home')
-});
+const { mutate: sendResetLink, isLoading: isSending } =
+  useGeneratePasswordResetEmail({
+    onSuccess: (data) => {
+      $toast(data.status, 'success');
+      form.value.email = '';
+    }
+  });
 
-function handleLogin() {
-  logIn(form.value);
+function handleSubmit() {
+  sendResetLink(form.value);
 }
 </script>
 
 <style scoped>
-.login-container {
+.forgot-password-container {
   min-height: calc(100vh - 120px);
   display: flex;
   align-items: center;
@@ -74,7 +64,7 @@ function handleLogin() {
   padding: 16px;
 }
 
-.login-card {
+.forgot-password-card {
   background: white;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -84,15 +74,22 @@ function handleLogin() {
   border: 1px solid #e9ecef;
 }
 
-.login-title {
+.forgot-password-title {
   text-align: center;
-  margin: 0 0 24px 0;
+  margin: 0 0 16px 0;
   color: rgb(0, 102, 255);
   font-size: 28px;
   font-weight: 600;
 }
 
-.login-form {
+.forgot-password-hint {
+  text-align: center;
+  margin: 0 0 24px 0;
+  color: #495057;
+  font-size: 14px;
+}
+
+.forgot-password-form {
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -125,7 +122,13 @@ function handleLogin() {
   box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
 }
 
-.login-btn {
+.form-input:disabled {
+  background-color: #f8f9fa;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.submit-btn {
   background-color: rgb(0, 102, 255);
   color: white;
   border: none;
@@ -138,19 +141,13 @@ function handleLogin() {
   margin-top: 8px;
 }
 
-.login-btn:hover:not(:disabled) {
+.submit-btn:hover:not(:disabled) {
   background-color: rgba(0, 102, 255, 0.9);
 }
 
-.login-btn:disabled {
+.submit-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-}
-
-.form-input:disabled {
-  background-color: #f8f9fa;
-  cursor: not-allowed;
-  opacity: 0.7;
 }
 
 .auth-footer {

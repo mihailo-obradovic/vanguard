@@ -111,7 +111,7 @@ export function useResendEmailVerification(
 
 export function useGeneratePasswordResetEmail(
   options: Omit<
-    AppMutationOptions<void, { email: string }>,
+    AppMutationOptions<{ status: string }, { email: string }>,
     'key' | 'mutation'
   > = {}
 ) {
@@ -124,7 +124,7 @@ export function useGeneratePasswordResetEmail(
 
 export function useResetPassword(
   options: Omit<
-    AppMutationOptions<void, PasswordResetForm>,
+    AppMutationOptions<{ status: string }, PasswordResetForm>,
     'key' | 'mutation'
   > = {}
 ) {

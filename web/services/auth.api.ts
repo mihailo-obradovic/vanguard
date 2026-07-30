@@ -38,14 +38,14 @@ export async function logOut() {
 }
 
 export async function generatePasswordResetEmail(form: { email: string }) {
-  await fetcher('/forgot-password', {
+  return await fetcher<{ status: string }>('/forgot-password', {
     method: 'POST',
     body: form
   });
 }
 
 export async function resetPassword(form: PasswordResetForm) {
-  await fetcher('/reset-password', {
+  return await fetcher<{ status: string }>('/reset-password', {
     method: 'POST',
     body: form
   });

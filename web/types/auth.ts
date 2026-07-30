@@ -20,4 +20,5 @@ export type RegistrationForm = Credentials & {
 
 export type PasswordResetForm = Credentials & {
   token: string;
+  password_confirmation: string;
 };

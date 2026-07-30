@@ -1,9 +1,9 @@
 <template>
-  <div class="login-container">
-    <div class="login-card">
-      <h1 class="login-title">Welcome Back</h1>
+  <div class="password-reset-container">
+    <div class="password-reset-card">
+      <h1 class="password-reset-title">Reset Password</h1>
 
-      <form class="login-form" @submit.prevent="handleLogin">
+      <form class="password-reset-form" @submit.prevent="handleSubmit">
         <div class="form-group">
           <label for="email" class="form-label">Email</label>
           <input
@@ -12,61 +12,84 @@
             type="email"
             class="form-input"
             required
-            :disabled="isLoggingIn"
+            :disabled="isResetting"
           />
         </div>
 
         <div class="form-group">
-          <label for="password" class="form-label">Password</label>
+          <label for="password" class="form-label">New Password</label>
           <input
             id="password"
             v-model="form.password"
             type="password"
             class="form-input"
             required
-            :disabled="isLoggingIn"
+            :disabled="isResetting"
           />
         </div>
 
-        <button type="submit" class="login-btn" :disabled="isLoggingIn">
-          {{ isLoggingIn ? 'Logging in...' : 'Login' }}
+        <div class="form-group">
+          <label for="password_confirmation" class="form-label">
+            Confirm New Password
+          </label>
+          <input
+            id="password_confirmation"
+            v-model="form.password_confirmation"
+            type="password"
+            class="form-input"
+            required
+            :disabled="isResetting"
+          />
+        </div>
+
+        <button type="submit" class="submit-btn" :disabled="isResetting">
+          {{ isResetting ? 'Resetting...' : 'Reset Password' }}
         </button>
       </form>
 
       <div class="auth-footer">
         <p>
-          Don't have an account?
-          <NuxtLink to="/register" class="auth-link">Register here</NuxtLink>
-        </p>
-        <p>
-          <NuxtLink to="/forgot-password" class="auth-link">
-            Forgot your password?
-          </NuxtLink>
+          Remembered your password?
+          <NuxtLink to="/login" class="auth-link">Login here</NuxtLink>
         </p>
       </div>
     </div>
   </div>
 </template>
 
-<script lang="ts" setup>
-import { useLogIn } from '@/services/queries/useAuthQueries';
+<script setup lang="ts">
+import { useResetPassword } from '@/services/queries/useAuthQueries';
+
+const route = useRoute();
 
 const form = ref({
-  email: 'test@example.com',
-  password: 'gmaz1234'
+  email: String(route.query.email ?? ''),
+  password: '',
+  password_confirmation: ''
 });
 
-const { mutate: logIn, isLoading: isLoggingIn } = useLogIn({
-  onSuccess: () => navigateTo('/home')
+const { mutate: resetPassword, isLoading: isResetting } = useResetPassword({
+  onSuccess: (data) => {
+    $toast(data.status, 'success');
+    navigateTo('/login');
+  }
 });
 
-function handleLogin() {
-  logIn(form.value);
+function handleSubmit() {
+  if (form.value.password !== form.value.password_confirmation) {
+    $toast('Password confirmation does not match', 'error');
+    return;
+  }
+
+  resetPassword({
+    token: String(route.params.token ?? ''),
+    ...form.value
+  });
 }
 </script>
 
 <style scoped>
-.login-container {
+.password-reset-container {
   min-height: calc(100vh - 120px);
   display: flex;
   align-items: center;
@@ -74,7 +97,7 @@ function handleLogin() {
   padding: 16px;
 }
 
-.login-card {
+.password-reset-card {
   background: white;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -84,7 +107,7 @@ function handleLogin() {
   border: 1px solid #e9ecef;
 }
 
-.login-title {
+.password-reset-title {
   text-align: center;
   margin: 0 0 24px 0;
   color: rgb(0, 102, 255);
@@ -92,7 +115,7 @@ function handleLogin() {
   font-weight: 600;
 }
 
-.login-form {
+.password-reset-form {
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -125,7 +148,13 @@ function handleLogin() {
   box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
 }
 
-.login-btn {
+.form-input:disabled {
+  background-color: #f8f9fa;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.submit-btn {
   background-color: rgb(0, 102, 255);
   color: white;
   border: none;
@@ -138,19 +167,13 @@ function handleLogin() {
   margin-top: 8px;
 }
 
-.login-btn:hover:not(:disabled) {
+.submit-btn:hover:not(:disabled) {
   background-color: rgba(0, 102, 255, 0.9);
 }
 
-.login-btn:disabled {
+.submit-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-}
-
-.form-input:disabled {
-  background-color: #f8f9fa;
-  cursor: not-allowed;
-  opacity: 0.7;
 }
 
 .auth-footer {

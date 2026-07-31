@@ -1,15 +1,26 @@
 <template>
   <CardDialog
     v-model="dialog"
-    :confirm-disabled="!isFormValid"
+    :confirm-disabled="r$.$invalid"
     :loading="loading"
     title="Log In"
     @cancel="handleCancel"
     @confirm="handleConfirm"
   >
-    <v-text-field v-model="form.email" label="Email" type="email" required />
+    <v-text-field
+      v-model="form.email"
+      :error-messages="r$.email.$errors"
+      label="Email"
+      type="email"
+      required
+    />
 
-    <PasswordField v-model="form.password" label="Password" required />
+    <PasswordField
+      v-model="form.password"
+      :error-messages="r$.password.$errors"
+      label="Password"
+      required
+    />
 
     <v-btn
       class="text-transform-none"
@@ -24,9 +35,18 @@
 </template>
 
 <script setup lang="ts">
+import { useRegle } from '@regle/core';
+import { email, required } from '@regle/rules';
+
 import type { Credentials } from '@/types/auth';
 
-withDefaults(defineProps<{ loading?: boolean }>(), { loading: false });
+const props = withDefaults(
+  defineProps<{
+    loading?: boolean;
+    serverErrors?: Record<string, string[]>;
+  }>(),
+  { loading: false, serverErrors: () => ({}) }
+);
 
 const emit = defineEmits<{
   confirm: [form: Credentials];
@@ -42,16 +62,34 @@ const initialForm = {
 
 const form = ref(Object.assign({}, initialForm));
 
-const isFormValid = computed(() => {
-  return !!form.value.email && !!form.value.password;
-});
+const externalErrors = ref<Record<string, string[]>>({});
+
+watch(
+  () => props.serverErrors,
+  (errors) => {
+    externalErrors.value = errors;
+  }
+);
+
+const { r$ } = useRegle(
+  form,
+  {
+    email: { required, email },
+    password: { required }
+  },
+  { externalErrors }
+);
 
 function handleCancel() {
   dialog.value = false;
 }
 
-function handleConfirm() {
-  emit('confirm', form.value);
+async function handleConfirm() {
+  const { valid } = await r$.$validate();
+
+  if (valid) {
+    emit('confirm', form.value);
+  }
 }
 
 function handleForgotPasswordClick() {
@@ -63,6 +101,7 @@ function handleForgotPasswordClick() {
 watch(dialog, (value) => {
   if (!value) {
     Object.assign(form.value, initialForm);
+    r$.$reset();
   }
 });
 </script>

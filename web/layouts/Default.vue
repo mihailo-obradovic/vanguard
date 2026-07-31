@@ -73,6 +73,7 @@
     <LoginDialog
       v-model="loginDialog"
       :loading="isLoggingIn"
+      :server-errors="loginErrors"
       @confirm="handleLogin"
       @forgot-password-click="forgotPasswordDialog = true"
     />
@@ -143,7 +144,8 @@ const {
   handleForgotPassword,
   isRegistering,
   isLoggingIn,
-  isSendingResetEmail
+  isSendingResetEmail,
+  loginErrors
 } = useUserDialogs();
 
 function useThemeSwitching() {
@@ -179,11 +181,20 @@ function useUserDialogs() {
     }
   });
 
-  const { mutate: handleLogin, isLoading: isLoggingIn } = useLogIn({
+  const {
+    mutate: handleLogin,
+    isLoading: isLoggingIn,
+    error: loginError
+  } = useLogIn({
+    errorHandling: { hideValidationToast: true },
     onSuccess: () => {
       loginDialog.value = false;
     }
   });
+
+  const loginErrors = computed(() =>
+    loginError.value ? getValidationErrors(loginError.value) : {}
+  );
 
   const { mutate: handleForgotPassword, isLoading: isSendingResetEmail } =
     useGeneratePasswordResetEmail({
@@ -202,7 +213,8 @@ function useUserDialogs() {
     handleForgotPassword,
     isRegistering,
     isLoggingIn,
-    isSendingResetEmail
+    isSendingResetEmail,
+    loginErrors
   };
 }
 </script>

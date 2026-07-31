@@ -40,7 +40,7 @@
               :loading="loading"
               @click="handleSubmit"
             >
-              <v-icon :icon="mdiCheck" />
+              <v-icon :icon="mdiCheck" color="white" />
             </v-btn>
           </GapContainer>
         </GapContainer>

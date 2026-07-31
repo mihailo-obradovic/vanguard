@@ -36,6 +36,7 @@ const userCard = useTemplateRef<InstanceType<typeof UserCard>>('userCard');
 const { mutate: updateProfile, isLoading: isUpdatingProfile } =
   useUpdateProfile({
     onSuccess: () => {
+      $toast('Profile updated successfully', 'success');
       userCard.value?.resetForm();
     }
   });

@@ -2,6 +2,7 @@
   <CardDialog
     v-model="dialog"
     :confirm-disabled="!isFormValid"
+    :loading="loading"
     title="Forgot Password"
     @cancel="handleCancel"
     @confirm="handleConfirm"
@@ -15,6 +16,8 @@
 </template>
 
 <script setup lang="ts">
+withDefaults(defineProps<{ loading?: boolean }>(), { loading: false });
+
 const emit = defineEmits<{
   confirm: [form: { email: string }];
 }>();

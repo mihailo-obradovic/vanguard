@@ -28,11 +28,11 @@ export default defineNuxtConfig({
   },
 
   modules: [
-    '@nuxt/eslint',
     '@nuxt/fonts',
     '@nuxt/image',
     '@nuxt/test-utils/module',
     '@pinia/nuxt',
+    '@pinia/colada-nuxt',
     '@vueuse/nuxt'
   ],
 

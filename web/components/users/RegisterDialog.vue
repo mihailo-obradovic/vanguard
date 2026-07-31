@@ -2,6 +2,7 @@
   <CardDialog
     v-model="dialog"
     :confirm-disabled="!isFormValid"
+    :loading="loading"
     title="Register"
     @cancel="handleCancel"
     @confirm="handleConfirm"
@@ -28,6 +29,8 @@
 
 <script setup lang="ts">
 import type { RegistrationForm } from '@/types/auth';
+
+withDefaults(defineProps<{ loading?: boolean }>(), { loading: false });
 
 const emit = defineEmits<{
   confirm: [form: RegistrationForm];

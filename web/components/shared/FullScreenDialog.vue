@@ -15,7 +15,12 @@
         <v-spacer />
 
         <v-toolbar-items>
-          <v-btn :disabled="confirmDisabled" icon @click="emit('confirm')">
+          <v-btn
+            :disabled="confirmDisabled"
+            :loading="loading"
+            icon
+            @click="emit('confirm')"
+          >
             <v-icon :icon="mdiContentSave" />
           </v-btn>
         </v-toolbar-items>
@@ -31,10 +36,17 @@
 <script setup lang="ts">
 import { mdiClose, mdiContentSave } from '@mdi/js';
 
-defineProps<{
-  title: string;
-  confirmDisabled?: boolean;
-}>();
+withDefaults(
+  defineProps<{
+    title: string;
+    confirmDisabled?: boolean;
+    loading?: boolean;
+  }>(),
+  {
+    confirmDisabled: false,
+    loading: false
+  }
+);
 
 const dialog = defineModel<boolean>({ required: true });
 

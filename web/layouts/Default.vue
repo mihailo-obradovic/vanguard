@@ -9,9 +9,7 @@
         </v-btn>
       </template>
 
-      <v-app-bar-title class="user-select-none">
-        Vanguard
-      </v-app-bar-title>
+      <v-app-bar-title class="user-select-none"> Vanguard </v-app-bar-title>
 
       <v-spacer />
 
@@ -26,7 +24,7 @@
           <v-btn :prepend-icon="mdiAccount" to="/profile">Profile</v-btn>
 
           <v-btn
-            :loading="isLoading['logout']"
+            :loading="isLoggingOut"
             :prepend-icon="mdiLogout"
             @click="handleLogout"
           >
@@ -66,16 +64,22 @@
 
     <TheFooter />
 
-    <RegisterDialog v-model="registerDialog" @confirm="handleRegister" />
+    <RegisterDialog
+      v-model="registerDialog"
+      :loading="isRegistering"
+      @confirm="handleRegister"
+    />
 
     <LoginDialog
       v-model="loginDialog"
+      :loading="isLoggingIn"
       @confirm="handleLogin"
       @forgot-password-click="forgotPasswordDialog = true"
     />
 
     <ForgotPasswordDialog
       v-model="forgotPasswordDialog"
+      :loading="isSendingResetEmail"
       @confirm="handleForgotPassword"
     />
   </v-layout>
@@ -99,30 +103,20 @@ import LoginDialog from '@/components/users/LoginDialog.vue';
 import ForgotPasswordDialog from '@/components/users/ForgotPasswordDialog.vue';
 
 import {
-  register,
-  logIn,
-  generatePasswordResetEmail,
-  logOut
-} from '@/services/auth.api';
-
-import type { Credentials, RegistrationForm } from '@/types/auth';
+  useRegister,
+  useLogIn,
+  useLogOut,
+  useGeneratePasswordResetEmail
+} from '@/services/queries/useAuthQueries';
 
 const { isLoggedIn, isAdmin } = storeToRefs(useAuthStore());
-const { isLoading } = storeToRefs(useLoadingStore());
 
-const { $startLoading, $stopLoading } = useLoadingStore();
+const { mutate: logOut, isLoading: isLoggingOut } = useLogOut({
+  onSuccess: () => navigateTo('/')
+});
 
-async function handleLogout() {
-  $startLoading('logout');
-
-  logOut()
-    .then(() => {
-      navigateTo('/');
-    })
-    .catch((error: unknown) => {
-      $toast(getErrorMessage(error), 'error');
-    })
-    .finally(() => $stopLoading('logout'));
+function handleLogout() {
+  logOut();
 }
 
 const drawer = ref(true);
@@ -146,7 +140,10 @@ const {
   forgotPasswordDialog,
   handleRegister,
   handleLogin,
-  handleForgotPassword
+  handleForgotPassword,
+  isRegistering,
+  isLoggingIn,
+  isSendingResetEmail
 } = useUserDialogs();
 
 function useThemeSwitching() {
@@ -176,44 +173,25 @@ function useUserDialogs() {
   const loginDialog = ref(false);
   const forgotPasswordDialog = ref(false);
 
-  function handleRegister(form: RegistrationForm) {
-    $startLoading('dialog');
+  const { mutate: handleRegister, isLoading: isRegistering } = useRegister({
+    onSuccess: () => {
+      registerDialog.value = false;
+    }
+  });
 
-    register(form)
-      .then(() => {
-        registerDialog.value = false;
-      })
-      .catch((error: unknown) => {
-        $toast(getErrorMessage(error), 'error');
-      })
-      .finally(() => $stopLoading('dialog'));
-  }
+  const { mutate: handleLogin, isLoading: isLoggingIn } = useLogIn({
+    onSuccess: () => {
+      loginDialog.value = false;
+    }
+  });
 
-  function handleLogin(form: Credentials) {
-    $startLoading('dialog');
-
-    logIn(form)
-      .then(() => {
-        loginDialog.value = false;
-      })
-      .catch((error: unknown) => {
-        $toast(getErrorMessage(error), 'error');
-      })
-      .finally(() => $stopLoading('dialog'));
-  }
-
-  function handleForgotPassword(form: { email: string }) {
-    $startLoading('dialog');
-
-    generatePasswordResetEmail(form)
-      .then(() => {
+  const { mutate: handleForgotPassword, isLoading: isSendingResetEmail } =
+    useGeneratePasswordResetEmail({
+      onSuccess: (data) => {
+        $toast(data.status, 'success');
         forgotPasswordDialog.value = false;
-      })
-      .catch((error: unknown) => {
-        $toast(getErrorMessage(error), 'error');
-      })
-      .finally(() => $stopLoading('dialog'));
-  }
+      }
+    });
 
   return {
     registerDialog,
@@ -221,7 +199,10 @@ function useUserDialogs() {
     forgotPasswordDialog,
     handleRegister,
     handleLogin,
-    handleForgotPassword
+    handleForgotPassword,
+    isRegistering,
+    isLoggingIn,
+    isSendingResetEmail
   };
 }
 </script>

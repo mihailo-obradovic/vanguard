@@ -1,19 +1,32 @@
-export function fetcher<T>(path: string, params: any = {}): Promise<T> {
+import { FetchError } from 'ofetch';
+import type { NitroFetchOptions, NitroFetchRequest } from 'nitropack/types';
+
+export type FetcherOptions = Omit<
+  NitroFetchOptions<NitroFetchRequest>,
+  'headers'
+> & {
+  headers?: Record<string, string>;
+};
+
+const CSRF_COOKIE_PATH = '/sanctum/csrf-cookie';
+
+function makeRequest<T>(path: string, params: FetcherOptions): Promise<T> {
   const { apiBaseUrl } = useRuntimeConfig().public;
 
-  const headers: any = { Accept: 'application/json' };
-  const options: any = { ...params };
+  const headers: Record<string, string> = { Accept: 'application/json' };
+  // Always send the session cookie for stateful (SPA) requests.
+  const options: FetcherOptions = { ...params, credentials: 'include' };
 
   const isAlteringServerState = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(
-    String(params?.method).toUpperCase()
+    String(params.method).toUpperCase()
   );
 
-  // Send the session cookie and CSRF token for stateful (SPA) requests.
-  if (!params?.method || isAlteringServerState) {
+  if (isAlteringServerState) {
     const token = useCookie('XSRF-TOKEN');
 
-    headers['X-XSRF-TOKEN'] = token.value;
-    options.credentials = 'include';
+    if (token.value) {
+      headers['X-XSRF-TOKEN'] = token.value;
+    }
   }
 
   options.headers = {
@@ -22,4 +35,27 @@ export function fetcher<T>(path: string, params: any = {}): Promise<T> {
   };
 
   return $fetch<T>(apiBaseUrl + path, options);
+}
+
+export async function fetcher<T>(
+  path: string,
+  params: FetcherOptions = {}
+): Promise<T> {
+  try {
+    return await makeRequest<T>(path, params);
+  } catch (error) {
+    // An expired CSRF token (419) is recoverable: refresh the cookie and
+    // retry the request once with the new token.
+    if (
+      error instanceof FetchError &&
+      error.statusCode === 419 &&
+      path !== CSRF_COOKIE_PATH
+    ) {
+      await makeRequest(CSRF_COOKIE_PATH, {});
+
+      return makeRequest<T>(path, params);
+    }
+
+    throw error;
+  }
 }

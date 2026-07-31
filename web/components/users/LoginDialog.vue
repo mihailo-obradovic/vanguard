@@ -2,6 +2,7 @@
   <CardDialog
     v-model="dialog"
     :confirm-disabled="!isFormValid"
+    :loading="loading"
     title="Log In"
     @cancel="handleCancel"
     @confirm="handleConfirm"
@@ -29,6 +30,8 @@
 
 <script setup lang="ts">
 import type { Credentials } from '@/types/auth';
+
+withDefaults(defineProps<{ loading?: boolean }>(), { loading: false });
 
 const emit = defineEmits<{
   confirm: [form: Credentials];

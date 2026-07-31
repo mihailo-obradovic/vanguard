@@ -21,7 +21,7 @@
             <v-col>
               <v-btn
                 :disabled="confirmDisabled"
-                :loading="isLoading['dialog']"
+                :loading="loading"
                 block
                 color="primary"
                 variant="flat"
@@ -44,11 +44,13 @@ withDefaults(
     width?: string;
     scrollable?: boolean;
     confirmDisabled?: boolean;
+    loading?: boolean;
   }>(),
   {
     width: '450px',
     scrollable: false,
-    confirmDisabled: false
+    confirmDisabled: false,
+    loading: false
   }
 );
 
@@ -58,8 +60,6 @@ const emit = defineEmits<{
   cancel: [];
   confirm: [];
 }>();
-
-const { isLoading } = storeToRefs(useLoadingStore());
 </script>
 
 <style scoped>

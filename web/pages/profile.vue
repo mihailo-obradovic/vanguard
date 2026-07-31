@@ -1,48 +1,48 @@
 <template>
-  <LoadingSpinner
-    v-if="isLoading['current-user']"
-    v-model="isLoading['current-user']"
-    fill-height
-  />
+  <LoadingSpinner v-if="!user" :model-value="true" fill-height />
 
-  <UserCard v-else ref="userCard" @update="handleUpdate" />
+  <UserCard
+    v-else
+    ref="userCard"
+    :loading="isUpdatingProfile"
+    @update="handleUpdate"
+  />
 </template>
 
 <script setup lang="ts">
 import UserCard from '@/components/users/UserCard.vue';
 
-import { fetchCurrentUser, updateProfile } from '@/services/auth.api';
+import { fetchCurrentUser } from '@/services/auth.api';
+import { useUpdateProfile } from '@/services/queries/useAuthQueries';
 
-const { isLoading } = storeToRefs(useLoadingStore());
+import type { ProfileForm } from '@/types/user';
+
+const { user } = storeToRefs(useAuthStore());
 const { setUser } = useAuthStore();
-
-const { $startLoading, $stopLoading } = useLoadingStore();
 
 const route = useRoute();
 const router = useRouter();
 
 onMounted(async () => {
   if (route.query.verified === '1') {
-    await fetchCurrentUser();
+    setUser(await fetchCurrentUser());
     $toast('Your email has been verified.', 'success');
     router.replace({ query: {} });
   }
 });
 
-const userCard = ref(null);
+const userCard = useTemplateRef<InstanceType<typeof UserCard>>('userCard');
 
-function handleUpdate(form: any) {
-  $startLoading('dialog');
-
-  updateProfile(form)
-    .then((updatedUser) => {
-      setUser(updatedUser);
-
+const { mutate: updateProfile, isLoading: isUpdatingProfile } =
+  useUpdateProfile({
+    onSuccess: () => {
       userCard.value?.resetForm();
-    })
-    .catch((error: unknown) => {
-      $toast(getErrorMessage(error), 'error');
-    })
-    .finally(() => $stopLoading('dialog'));
+    }
+  });
+
+// The profile card only edits name/email; the wider ProfileForm shape is
+// satisfied server-side.
+function handleUpdate(form: { name: string; email: string }) {
+  updateProfile(form as ProfileForm);
 }
 </script>

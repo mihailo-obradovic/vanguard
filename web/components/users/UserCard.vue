@@ -37,7 +37,7 @@
               variant="flat"
               color="success"
               size="small"
-              :loading="isLoading['dialog']"
+              :loading="loading"
               @click="handleSubmit"
             >
               <v-icon :icon="mdiCheck" />
@@ -66,7 +66,11 @@
               variant="flat"
               size="small"
             >
-              {{ user?.email_verified_at ? 'Email verified' : 'Email not verified' }}
+              {{
+                user?.email_verified_at
+                  ? 'Email verified'
+                  : 'Email not verified'
+              }}
             </v-chip>
 
             <v-btn
@@ -75,7 +79,7 @@
               size="small"
               color="primary"
               :loading="isResending"
-              @click="resendVerification"
+              @click="resendVerification()"
             >
               Resend email
             </v-btn>
@@ -89,31 +93,24 @@
 <script setup lang="ts">
 import { mdiCheck, mdiClose, mdiPencil } from '@mdi/js';
 
-import { resendEmailVerification } from '@/services/auth.api';
+import { useResendEmailVerification } from '@/services/queries/useAuthQueries';
+
+withDefaults(defineProps<{ loading?: boolean }>(), { loading: false });
 
 const emit = defineEmits<{
   update: [form: { name: string; email: string }];
 }>();
 
-const { isLoading } = storeToRefs(useLoadingStore());
 const { user } = storeToRefs(useAuthStore());
 
 const editMode = ref(false);
-const isResending = ref(false);
 
-async function resendVerification() {
-  try {
-    isResending.value = true;
-
-    await resendEmailVerification();
-
-    $toast('Verification email sent. Check your inbox.', 'success');
-  } catch (error: unknown) {
-    $toast(getErrorMessage(error), 'error');
-  } finally {
-    isResending.value = false;
-  }
-}
+const { mutate: resendVerification, isLoading: isResending } =
+  useResendEmailVerification({
+    onSuccess: () => {
+      $toast('Verification email sent. Check your inbox.', 'success');
+    }
+  });
 
 const initialForm = computed(() => {
   return {

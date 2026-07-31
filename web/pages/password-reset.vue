@@ -32,7 +32,7 @@
           <v-col>
             <v-btn
               :disabled="!isFormValid"
-              :loading="isLoading['dialog']"
+              :loading="isResetting"
               block
               color="primary"
               variant="flat"
@@ -48,16 +48,13 @@
 </template>
 
 <script setup lang="ts">
-import { resetPassword } from '@/services/auth.api';
+import { useResetPassword } from '@/services/queries/useAuthQueries';
 
 definePageMeta({
   layout: 'empty'
 });
 
 const route = useRoute();
-
-const { isLoading } = storeToRefs(useLoadingStore());
-const { $startLoading, $stopLoading } = useLoadingStore();
 
 const form = ref({
   token: '',
@@ -67,7 +64,7 @@ const form = ref({
 });
 
 onMounted(() => {
-  form.value.token = String(route.params.token);
+  form.value.token = String(route.query.token ?? '');
 
   form.value.email = String(route.query.email ?? '');
 });
@@ -85,18 +82,14 @@ function handleCancel() {
   navigateTo('/');
 }
 
+const { mutate: resetPassword, isLoading: isResetting } = useResetPassword({
+  onSuccess: (data) => {
+    $toast(data.status, 'success');
+    navigateTo('/');
+  }
+});
+
 function handleConfirm() {
-  $startLoading('dialog');
-
-  resetPassword(form.value)
-    .then(() => {
-      $stopLoading('dialog');
-
-      navigateTo('/');
-    })
-    .catch((error: unknown) => {
-      $toast(getErrorMessage(error), 'error');
-    })
-    .finally(() => $stopLoading('dialog'));
+  resetPassword(form.value);
 }
 </script>

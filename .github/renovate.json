@@ -2,6 +2,12 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
   "baseBranches": ["master", "variant/vuetify"],
+  "minimumReleaseAge": "1 day",
+  "osvVulnerabilityAlerts": true,
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "addLabels": ["security"]
+  },
   "packageRules": [
     {
       "description": "Back-end dependencies - PHP/Composer packages",
@@ -36,6 +42,11 @@
       "matchManagers": ["composer", "npm"],
       "matchBaseBranches": ["variant/vuetify"],
       "excludePackageNames": ["@mdi/font", "vite-plugin-vuetify", "vuetify"],
+      "enabled": false
+    },
+    {
+      "description": "Only raise PRs for major/minor (x.y) releases; skip patch/hotfix (x.y.z) updates. Security patches still come through via vulnerabilityAlerts/osvVulnerabilityAlerts.",
+      "matchUpdateTypes": ["patch"],
       "enabled": false
     }
   ],

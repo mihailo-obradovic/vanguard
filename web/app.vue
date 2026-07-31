@@ -5,7 +5,7 @@
     <NuxtPage />
   </NuxtLayout>
 
-  <!-- TODO: Cookie consent banner -->
+  <CookieConsentBanner />
 </template>
 
 <script setup lang="ts">

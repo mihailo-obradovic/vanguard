@@ -34,22 +34,22 @@ So far, the only prepared branch in addition to master is the [Vuetify](https://
 
 ## Useful Links
 
--   **[Codeus](https://codeus.me)**
+- **[Codeus](https://codeus.me)**
 
--   **[Laravel Docs](https://laravel.com/docs/11.x)**
--   **[Vue.js Docs](https://vuejs.org/guide/introduction.html)**
--   **[NuxtJS Docs](https://nuxt.com/docs/getting-started/introduction)**
--   **[Vite Docs](https://vitejs.dev/guide/)**
--   **[Pinia Docs](https://pinia.vuejs.org/introduction.html)**
--   **[Vitest Docs](https://vitest.dev/guide/)**
--   **[pnpm Docs](https://pnpm.io/motivation)**
--   **[TypeScript Docs](https://www.typescriptlang.org/docs/)**
+- **[Laravel Docs](https://laravel.com/docs/11.x)**
+- **[Vue.js Docs](https://vuejs.org/guide/introduction.html)**
+- **[NuxtJS Docs](https://nuxt.com/docs/getting-started/introduction)**
+- **[Vite Docs](https://vitejs.dev/guide/)**
+- **[Pinia Docs](https://pinia.vuejs.org/introduction.html)**
+- **[Vitest Docs](https://vitest.dev/guide/)**
+- **[pnpm Docs](https://pnpm.io/motivation)**
+- **[TypeScript Docs](https://www.typescriptlang.org/docs/)**
 
--   **[Prettier Docs](https://prettier.io/docs/en/)**
--   **[ESLint Docs](https://eslint.org/docs/latest/)**
--   **[ESLint Vue Docs](https://eslint.vuejs.org/user-guide/)**
+- **[Prettier Docs](https://prettier.io/docs/en/)**
+- **[ESLint Docs](https://eslint.org/docs/latest/)**
+- **[ESLint Vue Docs](https://eslint.vuejs.org/user-guide/)**
 
--   **[Vuetify Docs](https://vuetifyjs.com/en/introduction/why-vuetify/#feature-guides)**
+- **[Vuetify Docs](https://vuetifyjs.com/en/introduction/why-vuetify/#feature-guides)**
 
 ## Contributing
 

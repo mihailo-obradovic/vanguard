@@ -202,7 +202,11 @@
         </div>
 
         <div class="modal-actions">
-          <button class="cancel-btn" :disabled="isDeleting" @click="cancelDelete">
+          <button
+            class="cancel-btn"
+            :disabled="isDeleting"
+            @click="cancelDelete"
+          >
             Cancel
           </button>
           <button
@@ -270,7 +274,10 @@ const {
   variables: deletingId
 } = useDeleteUser({
   onSuccess: () => {
-    $toast(`User "${userToDelete.value?.name}" deleted successfully`, 'success');
+    $toast(
+      `User "${userToDelete.value?.name}" deleted successfully`,
+      'success'
+    );
   },
   onSettled: () => {
     userToDelete.value = null;

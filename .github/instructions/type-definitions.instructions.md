@@ -1,7 +1,9 @@
 ---
 applyTo: '**/*.vue, **/*.ts'
 ---
+
 When defining types, apply the following rules:
+
 - Use `type` definition by default, unless you need to use `interface` for inheritance.
 - If the type is a simple primitive or a specific string, used in only one place, define it inline.
 - If the type is specific to a component, define it at the top of the script section, after imports.

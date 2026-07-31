@@ -16,7 +16,7 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
 ```
 
 `EnsureUserIsAdmin` (the `admin` alias) rejects non-admins with
-`403 Forbidden. Admin access required.`, so *any* profile edit (name, email,
+`403 Forbidden. Admin access required.`, so _any_ profile edit (name, email,
 password) fails — not just password changes. There is no self-service path for a
 user to edit their own record.
 

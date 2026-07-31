@@ -40,9 +40,7 @@ const { mutate: updateProfile, isLoading: isUpdatingProfile } =
     }
   });
 
-// The profile card only edits name/email; the wider ProfileForm shape is
-// satisfied server-side.
-function handleUpdate(form: { name: string; email: string }) {
-  updateProfile(form as ProfileForm);
+function handleUpdate(form: ProfileForm) {
+  updateProfile(form);
 }
 </script>

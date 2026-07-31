@@ -9,12 +9,7 @@
   >
     <v-text-field v-model="form.email" label="Email" type="email" required />
 
-    <v-text-field
-      v-model="form.password"
-      label="Password"
-      type="password"
-      required
-    />
+    <PasswordField v-model="form.password" label="Password" required />
 
     <v-btn
       class="text-transform-none"

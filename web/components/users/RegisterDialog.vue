@@ -11,17 +11,17 @@
 
     <v-text-field v-model="form.email" label="Email" type="email" required />
 
-    <v-text-field
+    <PasswordField
       v-model="form.password"
+      v-model:visible="showPassword"
       label="Password"
-      type="password"
       required
     />
 
-    <v-text-field
+    <PasswordField
       v-model="form.password_confirmation"
+      v-model:visible="showPassword"
       label="Confirm Password"
-      type="password"
       required
     />
   </CardDialog>
@@ -37,6 +37,8 @@ const emit = defineEmits<{
 }>();
 
 const dialog = defineModel<boolean>({ required: true });
+
+const showPassword = ref(false);
 
 const initialForm = {
   name: '',

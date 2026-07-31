@@ -60,6 +60,28 @@
             :readonly="!editMode"
           />
 
+          <template v-if="editMode">
+            <PasswordField
+              v-model="form.current_password"
+              label="Current password"
+              variant="outlined"
+            />
+
+            <PasswordField
+              v-model="form.password"
+              v-model:visible="showNewPassword"
+              label="New password (optional)"
+              variant="outlined"
+            />
+
+            <PasswordField
+              v-model="form.password_confirmation"
+              v-model:visible="showNewPassword"
+              label="Confirm new password"
+              variant="outlined"
+            />
+          </template>
+
           <GapContainer class="align-center justify-space-between">
             <v-chip
               :color="user?.email_verified_at ? 'success' : 'warning'"
@@ -95,15 +117,19 @@ import { mdiCheck, mdiClose, mdiPencil } from '@mdi/js';
 
 import { useResendEmailVerification } from '@/services/queries/useAuthQueries';
 
+import type { ProfileForm } from '@/types/user';
+
 withDefaults(defineProps<{ loading?: boolean }>(), { loading: false });
 
 const emit = defineEmits<{
-  update: [form: { name: string; email: string }];
+  update: [form: ProfileForm];
 }>();
 
 const { user } = storeToRefs(useAuthStore());
 
 const editMode = ref(false);
+
+const showNewPassword = ref(false);
 
 const { mutate: resendVerification, isLoading: isResending } =
   useResendEmailVerification({
@@ -115,7 +141,10 @@ const { mutate: resendVerification, isLoading: isResending } =
 const initialForm = computed(() => {
   return {
     name: user.value?.name || '',
-    email: user.value?.email || ''
+    email: user.value?.email || '',
+    current_password: '',
+    password: '',
+    password_confirmation: ''
   };
 });
 
@@ -128,7 +157,31 @@ function resetForm() {
 }
 
 function handleSubmit() {
-  emit('update', form.value);
+  if (!form.value.name || !form.value.email || !form.value.current_password) {
+    $toast('Please fill in all required fields', 'error');
+    return;
+  }
+
+  if (
+    form.value.password &&
+    form.value.password !== form.value.password_confirmation
+  ) {
+    $toast('Password confirmation does not match', 'error');
+    return;
+  }
+
+  const updateData: ProfileForm = {
+    name: form.value.name,
+    email: form.value.email,
+    current_password: form.value.current_password
+  };
+
+  if (form.value.password) {
+    updateData.password = form.value.password;
+    updateData.password_confirmation = form.value.password_confirmation;
+  }
+
+  emit('update', updateData);
 }
 
 defineExpose({ resetForm });

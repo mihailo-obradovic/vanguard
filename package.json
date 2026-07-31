@@ -10,8 +10,8 @@
     "preinstall": "npx only-allow pnpm",
     "postinstall": "nuxt prepare",
     "typecheck": "nuxt typecheck",
-    "lint": "eslint .",
-    "lint:fix": "eslint --fix .",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
     "format": "oxfmt",
     "format:check": "oxfmt --check"
   },
@@ -30,13 +30,12 @@
     "vue-toastification": "2.0.0-rc.5"
   },
   "devDependencies": {
-    "@nuxt/eslint": "^1.16.0",
     "@nuxt/test-utils": "^4.1.0",
     "@total-typescript/ts-reset": "^0.6.1",
     "@vue/test-utils": "^2.4.11",
-    "eslint": "^10.8.0",
     "happy-dom": "^20.11.1",
     "oxfmt": "^0.61.0",
+    "oxlint": "^1.76.0",
     "typescript": "5.9.3",
     "vitest": "^4.1.10",
     "vue-tsc": "^3.3.8"

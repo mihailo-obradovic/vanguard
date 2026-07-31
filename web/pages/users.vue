@@ -27,6 +27,7 @@
       :edit-mode="isEditMode"
       :user="editingUser"
       :loading="isSubmittingUser"
+      :server-errors="userFormErrors"
       @confirm="handleSubmitUser"
     />
 
@@ -80,14 +81,24 @@ function openEditForm(user: User) {
   showUserForm.value = true;
 }
 
-const { mutate: createUser, isLoading: isCreatingUser } = useCreateUser({
+const {
+  mutate: createUser,
+  isLoading: isCreatingUser,
+  error: createUserError
+} = useCreateUser({
+  errorHandling: { hideValidationToast: true },
   onSuccess: (newUser) => {
     $toast(`User "${newUser.name}" created successfully`, 'success');
     showUserForm.value = false;
   }
 });
 
-const { mutate: updateUser, isLoading: isUpdatingUser } = useUpdateUser({
+const {
+  mutate: updateUser,
+  isLoading: isUpdatingUser,
+  error: updateUserError
+} = useUpdateUser({
+  errorHandling: { hideValidationToast: true },
   onSuccess: (updatedUser) => {
     $toast(`User "${updatedUser.name}" updated successfully`, 'success');
     showUserForm.value = false;
@@ -97,6 +108,14 @@ const { mutate: updateUser, isLoading: isUpdatingUser } = useUpdateUser({
 const isSubmittingUser = computed(
   () => isCreatingUser.value || isUpdatingUser.value
 );
+
+const userFormErrors = computed(() => {
+  const error = isEditMode.value
+    ? updateUserError.value
+    : createUserError.value;
+
+  return error ? getValidationErrors(error) : {};
+});
 
 function handleSubmitUser(form: CreateUserForm) {
   if (isEditMode.value && editingUser.value) {

@@ -1,7 +1,7 @@
 <template>
   <CardDialog
     v-model="dialog"
-    :confirm-disabled="!isFormValid"
+    :confirm-disabled="r$.$invalid"
     :loading="loading"
     title="Forgot Password"
     @cancel="handleCancel"
@@ -11,12 +11,27 @@
       A link for resetting your password will be sent to your email.
     </p>
 
-    <v-text-field v-model="form.email" label="Email" type="email" required />
+    <v-text-field
+      v-model="form.email"
+      :error-messages="r$.email.$errors"
+      label="Email"
+      type="email"
+      required
+    />
   </CardDialog>
 </template>
 
 <script setup lang="ts">
-withDefaults(defineProps<{ loading?: boolean }>(), { loading: false });
+import { useRegle } from '@regle/core';
+import { email, required } from '@regle/rules';
+
+const props = withDefaults(
+  defineProps<{
+    loading?: boolean;
+    serverErrors?: Record<string, string[]>;
+  }>(),
+  { loading: false, serverErrors: () => ({}) }
+);
 
 const emit = defineEmits<{
   confirm: [form: { email: string }];
@@ -30,21 +45,39 @@ const initialForm = {
 
 const form = ref(Object.assign({}, initialForm));
 
-const isFormValid = computed(() => {
-  return !!form.value.email;
-});
+const externalErrors = ref<Record<string, string[]>>({});
+
+watch(
+  () => props.serverErrors,
+  (errors) => {
+    externalErrors.value = errors;
+  }
+);
+
+const { r$ } = useRegle(
+  form,
+  {
+    email: { required, email }
+  },
+  { externalErrors }
+);
 
 function handleCancel() {
   dialog.value = false;
 }
 
-function handleConfirm() {
-  emit('confirm', form.value);
+async function handleConfirm() {
+  const { valid } = await r$.$validate();
+
+  if (valid) {
+    emit('confirm', form.value);
+  }
 }
 
 watch(dialog, (value) => {
   if (!value) {
     form.value = Object.assign({}, initialForm);
+    r$.$reset();
   }
 });
 </script>

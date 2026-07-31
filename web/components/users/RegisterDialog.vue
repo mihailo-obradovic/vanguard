@@ -1,19 +1,31 @@
 <template>
   <CardDialog
     v-model="dialog"
-    :confirm-disabled="!isFormValid"
+    :confirm-disabled="r$.$invalid"
     :loading="loading"
     title="Register"
     @cancel="handleCancel"
     @confirm="handleConfirm"
   >
-    <v-text-field v-model="form.name" label="Name" required />
+    <v-text-field
+      v-model="form.name"
+      :error-messages="r$.name.$errors"
+      label="Name"
+      required
+    />
 
-    <v-text-field v-model="form.email" label="Email" type="email" required />
+    <v-text-field
+      v-model="form.email"
+      :error-messages="r$.email.$errors"
+      label="Email"
+      type="email"
+      required
+    />
 
     <PasswordField
       v-model="form.password"
       v-model:visible="showPassword"
+      :error-messages="r$.password.$errors"
       label="Password"
       required
     />
@@ -21,6 +33,7 @@
     <PasswordField
       v-model="form.password_confirmation"
       v-model:visible="showPassword"
+      :error-messages="r$.password_confirmation.$errors"
       label="Confirm Password"
       required
     />
@@ -28,9 +41,18 @@
 </template>
 
 <script setup lang="ts">
+import { useRegle } from '@regle/core';
+import { email, maxLength, minLength, required, sameAs } from '@regle/rules';
+
 import type { RegistrationForm } from '@/types/auth';
 
-withDefaults(defineProps<{ loading?: boolean }>(), { loading: false });
+const props = withDefaults(
+  defineProps<{
+    loading?: boolean;
+    serverErrors?: Record<string, string[]>;
+  }>(),
+  { loading: false, serverErrors: () => ({}) }
+);
 
 const emit = defineEmits<{
   confirm: [form: RegistrationForm];
@@ -49,29 +71,46 @@ const initialForm = {
 
 const form = ref(Object.assign({}, initialForm));
 
-const isFormValid = computed(() => {
-  const isFormFilled =
-    !!form.value.email &&
-    !!form.value.password &&
-    !!form.value.password_confirmation;
+const externalErrors = ref<Record<string, string[]>>({});
 
-  const doPasswordsMatch =
-    form.value.password === form.value.password_confirmation;
+watch(
+  () => props.serverErrors,
+  (errors) => {
+    externalErrors.value = errors;
+  }
+);
 
-  return isFormFilled && doPasswordsMatch;
-});
+const { r$ } = useRegle(
+  form,
+  {
+    name: { required, maxLength: maxLength(255) },
+    email: { required, email, maxLength: maxLength(255) },
+    password: { required, minLength: minLength(8) },
+    password_confirmation: {
+      required,
+      sameAs: sameAs(() => form.value.password, 'password')
+    }
+  },
+  { externalErrors }
+);
 
 function handleCancel() {
   dialog.value = false;
 }
 
-function handleConfirm() {
-  emit('confirm', form.value);
+async function handleConfirm() {
+  const { valid } = await r$.$validate();
+
+  if (valid) {
+    emit('confirm', form.value);
+  }
 }
 
 watch(dialog, (value) => {
   if (!value) {
     Object.assign(form.value, initialForm);
+    showPassword.value = false;
+    r$.$reset();
   }
 });
 </script>

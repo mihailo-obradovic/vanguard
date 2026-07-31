@@ -5,6 +5,7 @@
     v-else
     ref="userCard"
     :loading="isUpdatingProfile"
+    :server-errors="profileErrors"
     @update="handleUpdate"
   />
 </template>
@@ -33,13 +34,21 @@ onMounted(async () => {
 
 const userCard = useTemplateRef<InstanceType<typeof UserCard>>('userCard');
 
-const { mutate: updateProfile, isLoading: isUpdatingProfile } =
-  useUpdateProfile({
-    onSuccess: () => {
-      $toast('Profile updated successfully', 'success');
-      userCard.value?.resetForm();
-    }
-  });
+const {
+  mutate: updateProfile,
+  isLoading: isUpdatingProfile,
+  error: updateProfileError
+} = useUpdateProfile({
+  errorHandling: { hideValidationToast: true },
+  onSuccess: () => {
+    $toast('Profile updated successfully', 'success');
+    userCard.value?.resetForm();
+  }
+});
+
+const profileErrors = computed(() =>
+  updateProfileError.value ? getValidationErrors(updateProfileError.value) : {}
+);
 
 function handleUpdate(form: ProfileForm) {
   updateProfile(form);

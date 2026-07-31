@@ -5,11 +5,18 @@
     <v-card-text class="px-4 py-2">
       <input type="hidden" name="token" :value="form.token" />
 
-      <v-text-field v-model="form.email" label="Email" type="email" readonly />
+      <v-text-field
+        v-model="form.email"
+        :error-messages="r$.email.$errors"
+        label="Email"
+        type="email"
+        readonly
+      />
 
       <PasswordField
         v-model="form.password"
         v-model:visible="showPassword"
+        :error-messages="r$.password.$errors"
         label="Password"
         required
       />
@@ -17,6 +24,7 @@
       <PasswordField
         v-model="form.password_confirmation"
         v-model:visible="showPassword"
+        :error-messages="r$.password_confirmation.$errors"
         label="Confirm Password"
         required
       />
@@ -31,7 +39,7 @@
 
           <v-col>
             <v-btn
-              :disabled="!isFormValid"
+              :disabled="r$.$invalid"
               :loading="isResetting"
               block
               color="primary"
@@ -48,6 +56,9 @@
 </template>
 
 <script setup lang="ts">
+import { useRegle } from '@regle/core';
+import { email, minLength, required, sameAs } from '@regle/rules';
+
 import { useResetPassword } from '@/services/queries/useAuthQueries';
 
 definePageMeta({
@@ -71,27 +82,49 @@ onMounted(() => {
   form.value.email = String(route.query.email ?? '');
 });
 
-const isFormValid = computed(() => {
-  const isFormFilled = Object.values(form.value).every(Boolean);
+const externalErrors = ref<Record<string, string[]>>({});
 
-  const doPasswordsMatch =
-    form.value.password === form.value.password_confirmation;
-
-  return isFormFilled && doPasswordsMatch;
-});
+// An expired/invalid reset token comes back as a 422 on the email field, so
+// it surfaces under the readonly email input.
+const { r$ } = useRegle(
+  form,
+  {
+    token: { required },
+    email: { required, email },
+    password: { required, minLength: minLength(8) },
+    password_confirmation: {
+      required,
+      sameAs: sameAs(() => form.value.password, 'password')
+    }
+  },
+  { externalErrors }
+);
 
 function handleCancel() {
   navigateTo('/');
 }
 
-const { mutate: resetPassword, isLoading: isResetting } = useResetPassword({
+const {
+  mutate: resetPassword,
+  isLoading: isResetting,
+  error: resetError
+} = useResetPassword({
+  errorHandling: { hideValidationToast: true },
   onSuccess: (data) => {
     $toast(data.status, 'success');
     navigateTo('/');
   }
 });
 
-function handleConfirm() {
-  resetPassword(form.value);
+watch(resetError, (error) => {
+  externalErrors.value = error ? getValidationErrors(error) : {};
+});
+
+async function handleConfirm() {
+  const { valid } = await r$.$validate();
+
+  if (valid) {
+    resetPassword(form.value);
+  }
 }
 </script>

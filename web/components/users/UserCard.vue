@@ -48,6 +48,7 @@
         <GapContainer column class="w-100">
           <v-text-field
             v-model="form.name"
+            :error-messages="r$.name.$errors"
             label="Name"
             variant="outlined"
             :readonly="!editMode"
@@ -55,6 +56,7 @@
 
           <v-text-field
             v-model="form.email"
+            :error-messages="r$.email.$errors"
             label="Email"
             variant="outlined"
             :readonly="!editMode"
@@ -63,6 +65,7 @@
           <template v-if="editMode">
             <PasswordField
               v-model="form.current_password"
+              :error-messages="r$.current_password.$errors"
               label="Current password"
               variant="outlined"
             />
@@ -70,6 +73,7 @@
             <PasswordField
               v-model="form.password"
               v-model:visible="showNewPassword"
+              :error-messages="r$.password.$errors"
               label="New password (optional)"
               variant="outlined"
             />
@@ -77,6 +81,7 @@
             <PasswordField
               v-model="form.password_confirmation"
               v-model:visible="showNewPassword"
+              :error-messages="r$.password_confirmation.$errors"
               label="Confirm new password"
               variant="outlined"
             />
@@ -114,12 +119,27 @@
 
 <script setup lang="ts">
 import { mdiCheck, mdiClose, mdiPencil } from '@mdi/js';
+import { useRegle } from '@regle/core';
+import {
+  email,
+  maxLength,
+  minLength,
+  required,
+  requiredIf,
+  sameAs
+} from '@regle/rules';
 
 import { useResendEmailVerification } from '@/services/queries/useAuthQueries';
 
 import type { ProfileForm } from '@/types/user';
 
-withDefaults(defineProps<{ loading?: boolean }>(), { loading: false });
+const props = withDefaults(
+  defineProps<{
+    loading?: boolean;
+    serverErrors?: Record<string, string[]>;
+  }>(),
+  { loading: false, serverErrors: () => ({}) }
+);
 
 const emit = defineEmits<{
   update: [form: ProfileForm];
@@ -150,23 +170,43 @@ const initialForm = computed(() => {
 
 const form = ref(Object.assign({}, initialForm.value));
 
+const externalErrors = ref<Record<string, string[]>>({});
+
+watch(
+  () => props.serverErrors,
+  (errors) => {
+    externalErrors.value = errors;
+  }
+);
+
+// Mirrors ProfileUpdateRequest: the current password is only needed when
+// setting a new one.
+const { r$ } = useRegle(
+  form,
+  {
+    name: { required, maxLength: maxLength(255) },
+    email: { required, email, maxLength: maxLength(255) },
+    current_password: { requiredIf: requiredIf(() => !!form.value.password) },
+    password: { minLength: minLength(8) },
+    password_confirmation: {
+      requiredIf: requiredIf(() => !!form.value.password),
+      sameAs: sameAs(() => form.value.password, 'password')
+    }
+  },
+  { externalErrors }
+);
+
 function resetForm() {
   editMode.value = false;
 
   Object.assign(form.value, initialForm.value);
+  r$.$reset();
 }
 
-function handleSubmit() {
-  if (!form.value.name || !form.value.email || !form.value.current_password) {
-    $toast('Please fill in all required fields', 'error');
-    return;
-  }
+async function handleSubmit() {
+  const { valid } = await r$.$validate();
 
-  if (
-    form.value.password &&
-    form.value.password !== form.value.password_confirmation
-  ) {
-    $toast('Password confirmation does not match', 'error');
+  if (!valid) {
     return;
   }
 

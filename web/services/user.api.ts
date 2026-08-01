@@ -1,3 +1,6 @@
+import { UserEnvelopeSchema } from '@/types/auth';
+import { UsersResponseSchema } from '@/types/user';
+
 import type { User } from '@/types/auth';
 import type {
   UsersResponse,
@@ -6,36 +9,36 @@ import type {
 } from '@/types/user';
 
 export async function fetchUsers(): Promise<UsersResponse> {
-  const response = await fetcher<UsersResponse>('/api/users');
+  const response = await fetcher('/api/users');
 
-  return response;
+  return parseResponse(UsersResponseSchema, response);
 }
 
 export async function fetchUser(id: number): Promise<User> {
-  const response = await fetcher<{ data: User }>(`/api/users/${id}`);
+  const response = await fetcher(`/api/users/${id}`);
 
-  return response.data;
+  return parseResponse(UserEnvelopeSchema, response).data;
 }
 
 export async function createUser(userData: CreateUserForm): Promise<User> {
-  const response = await fetcher<{ data: User }>('/api/users', {
+  const response = await fetcher('/api/users', {
     method: 'POST',
     body: userData
   });
 
-  return response.data;
+  return parseResponse(UserEnvelopeSchema, response).data;
 }
 
 export async function updateUser(
   id: number,
   userData: UpdateUserForm
 ): Promise<User> {
-  const response = await fetcher<{ data: User }>(`/api/users/${id}`, {
+  const response = await fetcher(`/api/users/${id}`, {
     method: 'PUT',
     body: userData
   });
 
-  return response.data;
+  return parseResponse(UserEnvelopeSchema, response).data;
 }
 
 export async function deleteUser(id: number): Promise<void> {

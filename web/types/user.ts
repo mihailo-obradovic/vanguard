@@ -1,9 +1,13 @@
-import type { User } from '@/types/auth';
+import { z } from 'zod';
 
-export type UsersResponse = {
-  data: User[];
-  total: number;
-};
+import { UserSchema } from '@/types/auth';
+
+export const UsersResponseSchema = z.object({
+  data: z.array(UserSchema),
+  total: z.number()
+});
+
+export type UsersResponse = z.infer<typeof UsersResponseSchema>;
 
 export type CreateUserForm = {
   name: string;

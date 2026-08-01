@@ -31,7 +31,8 @@
     "temporal-polyfill": "^1.0.2",
     "vue": "^3.5.40",
     "vue-toastification": "2.0.0-rc.5",
-    "vuetify": "^4.1.6"
+    "vuetify": "^4.1.6",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@nuxt/test-utils": "^4.1.0",

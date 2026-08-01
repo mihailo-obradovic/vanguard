@@ -1,3 +1,7 @@
+import { z } from 'zod';
+
+import { UserSchema, UserEnvelopeSchema } from '@/types/auth';
+
 import type {
   RegistrationForm,
   Credentials,
@@ -5,6 +9,8 @@ import type {
   User
 } from '@/types/auth';
 import type { ProfileForm } from '@/types/user';
+
+const StatusSchema = z.object({ status: z.string() });
 
 export async function register(credentials: RegistrationForm) {
   await fetcher('/register', {
@@ -21,16 +27,16 @@ export async function logIn(credentials: Credentials) {
 }
 
 export async function updateProfile(form: ProfileForm): Promise<User> {
-  const response = await fetcher<{ data: User }>('/api/profile', {
+  const response = await fetcher('/api/profile', {
     method: 'PUT',
     body: form
   });
 
-  return response.data;
+  return parseResponse(UserEnvelopeSchema, response).data;
 }
 
 export async function fetchCurrentUser(): Promise<User> {
-  return await fetcher<User>('/api/user');
+  return parseResponse(UserSchema, await fetcher('/api/user'));
 }
 
 export async function logOut() {
@@ -38,17 +44,21 @@ export async function logOut() {
 }
 
 export async function generatePasswordResetEmail(form: { email: string }) {
-  return await fetcher<{ status: string }>('/forgot-password', {
+  const response = await fetcher('/forgot-password', {
     method: 'POST',
     body: form
   });
+
+  return parseResponse(StatusSchema, response);
 }
 
 export async function resetPassword(form: PasswordResetForm) {
-  return await fetcher<{ status: string }>('/reset-password', {
+  const response = await fetcher('/reset-password', {
     method: 'POST',
     body: form
   });
+
+  return parseResponse(StatusSchema, response);
 }
 
 export async function resendEmailVerification() {

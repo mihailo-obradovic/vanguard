@@ -81,7 +81,11 @@
           <h3 class="modal-title">Edit Profile</h3>
         </div>
 
-        <form class="profile-form" @submit.prevent="handleSubmitProfile">
+        <form
+          class="profile-form"
+          novalidate
+          @submit.prevent="handleSubmitProfile"
+        >
           <div class="form-group">
             <label for="name" class="form-label">Name</label>
             <input
@@ -92,6 +96,8 @@
               required
               :disabled="isSubmittingProfile"
             />
+
+            <FieldErrors :errors="r$.name.$errors" />
           </div>
 
           <div class="form-group">
@@ -104,20 +110,24 @@
               required
               :disabled="isSubmittingProfile"
             />
+
+            <FieldErrors :errors="r$.email.$errors" />
           </div>
 
           <div class="form-group">
             <label for="current_password" class="form-label">
-              Current Password (required to save changes)
+              Current Password (required when changing password)
             </label>
             <input
               id="current_password"
               v-model="profileForm.current_password"
               type="password"
               class="form-input"
-              required
+              :required="!!profileForm.password"
               :disabled="isSubmittingProfile"
             />
+
+            <FieldErrors :errors="r$.current_password.$errors" />
           </div>
 
           <div class="form-group">
@@ -131,6 +141,8 @@
               class="form-input"
               :disabled="isSubmittingProfile"
             />
+
+            <FieldErrors :errors="r$.password.$errors" />
           </div>
 
           <div class="form-group">
@@ -145,6 +157,8 @@
               :required="!!profileForm.password"
               :disabled="isSubmittingProfile"
             />
+
+            <FieldErrors :errors="r$.password_confirmation.$errors" />
           </div>
 
           <div class="modal-actions">
@@ -159,7 +173,7 @@
             <button
               type="submit"
               class="submit-btn"
-              :disabled="isSubmittingProfile"
+              :disabled="isSubmittingProfile || r$.$invalid"
             >
               {{ isSubmittingProfile ? 'Saving...' : 'Update Profile' }}
             </button>
@@ -171,6 +185,16 @@
 </template>
 
 <script setup lang="ts">
+import { useRegle } from '@regle/core';
+import {
+  email,
+  maxLength,
+  minLength,
+  required,
+  requiredIf,
+  sameAs
+} from '@regle/rules';
+
 import { fetchCurrentUser } from '@/services/auth.api';
 import {
   useUpdateProfile,
@@ -228,6 +252,7 @@ function openEditForm() {
     password: '',
     password_confirmation: ''
   };
+  r$.$reset();
   showEditForm.value = true;
 }
 
@@ -240,33 +265,44 @@ function closeEditForm() {
     password: '',
     password_confirmation: ''
   };
+  r$.$reset();
 }
 
-const { mutate: updateProfile, isLoading: isSubmittingProfile } =
-  useUpdateProfile({
-    onSuccess: () => {
-      $toast('Profile updated successfully', 'success');
-      closeEditForm();
-    }
-  });
-
-function handleSubmitProfile() {
-  if (
-    !user.value ||
-    !profileForm.value.name ||
-    !profileForm.value.email ||
-    !profileForm.value.current_password
-  ) {
-    $toast('Please fill in all required fields', 'error');
-    return;
+const {
+  mutate: updateProfile,
+  isLoading: isSubmittingProfile,
+  error: updateProfileError
+} = useUpdateProfile({
+  errorHandling: { hideValidationToast: true },
+  onSuccess: () => {
+    $toast('Profile updated successfully', 'success');
+    closeEditForm();
   }
+});
 
-  // Validate password confirmation
-  if (
-    profileForm.value.password &&
-    profileForm.value.password !== profileForm.value.password_confirmation
-  ) {
-    $toast('Password confirmation does not match', 'error');
+// Mirrors ProfileUpdateRequest: the current password is only needed when
+// setting a new one.
+const { r$ } = useRegle(
+  profileForm,
+  {
+    name: { required, maxLength: maxLength(255) },
+    email: { required, email, maxLength: maxLength(255) },
+    current_password: {
+      requiredIf: requiredIf(() => !!profileForm.value.password)
+    },
+    password: { minLength: minLength(8) },
+    password_confirmation: {
+      requiredIf: requiredIf(() => !!profileForm.value.password),
+      sameAs: sameAs(() => profileForm.value.password, 'password')
+    }
+  },
+  { externalErrors: useExternalErrors(useValidationErrors(updateProfileError)) }
+);
+
+async function handleSubmitProfile() {
+  const { valid } = await r$.$validate();
+
+  if (!valid) {
     return;
   }
 

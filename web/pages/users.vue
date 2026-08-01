@@ -90,7 +90,7 @@
           </h3>
         </div>
 
-        <form class="user-form" @submit.prevent="handleSubmitUser">
+        <form class="user-form" novalidate @submit.prevent="handleSubmitUser">
           <div class="form-group">
             <label for="name" class="form-label">Name</label>
             <input
@@ -101,6 +101,8 @@
               required
               :disabled="isSubmittingUser"
             />
+
+            <FieldErrors :errors="r$.name.$errors" />
           </div>
 
           <div class="form-group">
@@ -113,6 +115,8 @@
               required
               :disabled="isSubmittingUser"
             />
+
+            <FieldErrors :errors="r$.email.$errors" />
           </div>
 
           <div class="form-group">
@@ -127,6 +131,8 @@
               :required="!isEditMode"
               :disabled="isSubmittingUser"
             />
+
+            <FieldErrors :errors="r$.password.$errors" />
           </div>
 
           <div class="form-group">
@@ -142,6 +148,8 @@
               :required="!isEditMode || !!userForm.password"
               :disabled="isSubmittingUser"
             />
+
+            <FieldErrors :errors="r$.password_confirmation.$errors" />
           </div>
 
           <div class="form-group">
@@ -170,7 +178,7 @@
             <button
               type="submit"
               class="submit-btn"
-              :disabled="isSubmittingUser"
+              :disabled="isSubmittingUser || r$.$invalid"
             >
               {{
                 isSubmittingUser
@@ -223,6 +231,16 @@
 </template>
 
 <script setup lang="ts">
+import { useRegle } from '@regle/core';
+import {
+  email,
+  maxLength,
+  minLength,
+  required,
+  requiredIf,
+  sameAs
+} from '@regle/rules';
+
 import {
   useFetchUsers,
   useCreateUser,
@@ -250,14 +268,24 @@ const userForm = ref<CreateUserForm>({
   role: 'user'
 });
 
-const { mutate: createUser, isLoading: isCreatingUser } = useCreateUser({
+const {
+  mutate: createUser,
+  isLoading: isCreatingUser,
+  error: createUserError
+} = useCreateUser({
+  errorHandling: { hideValidationToast: true },
   onSuccess: (newUser) => {
     $toast(`User "${newUser.name}" created successfully`, 'success');
     closeUserForm();
   }
 });
 
-const { mutate: updateUser, isLoading: isUpdatingUser } = useUpdateUser({
+const {
+  mutate: updateUser,
+  isLoading: isUpdatingUser,
+  error: updateUserError
+} = useUpdateUser({
+  errorHandling: { hideValidationToast: true },
   onSuccess: (updatedUser) => {
     $toast(`User "${updatedUser.name}" updated successfully`, 'success');
     closeUserForm();
@@ -266,6 +294,31 @@ const { mutate: updateUser, isLoading: isUpdatingUser } = useUpdateUser({
 
 const isSubmittingUser = computed(
   () => isCreatingUser.value || isUpdatingUser.value
+);
+
+const userFormErrors = useValidationErrors(
+  computed(() =>
+    isEditMode.value ? updateUserError.value : createUserError.value
+  )
+);
+
+// Create requires a password; edit only validates one when entered.
+const { r$ } = useRegle(
+  userForm,
+  () => ({
+    name: { required, maxLength: maxLength(255) },
+    email: { required, email, maxLength: maxLength(255) },
+    password: isEditMode.value
+      ? { minLength: minLength(8) }
+      : { required, minLength: minLength(8) },
+    password_confirmation: {
+      requiredIf: requiredIf(
+        () => !isEditMode.value || !!userForm.value.password
+      ),
+      sameAs: sameAs(() => userForm.value.password, 'password')
+    }
+  }),
+  { externalErrors: useExternalErrors(() => userFormErrors.value) }
 );
 
 const {
@@ -313,6 +366,7 @@ function openCreateForm() {
     password_confirmation: '',
     role: 'user'
   };
+  r$.$reset();
   showUserForm.value = true;
 }
 
@@ -326,6 +380,7 @@ function openEditForm(user: User) {
     password_confirmation: '',
     role: user.role
   };
+  r$.$reset();
   showUserForm.value = true;
 }
 
@@ -342,25 +397,10 @@ function closeUserForm() {
   };
 }
 
-function handleSubmitUser() {
-  if (!userForm.value.name || !userForm.value.email) return;
+async function handleSubmitUser() {
+  const { valid } = await r$.$validate();
 
-  // Validate password confirmation
-  if (
-    userForm.value.password &&
-    userForm.value.password !== userForm.value.password_confirmation
-  ) {
-    $toast('Password confirmation does not match', 'error');
-    return;
-  }
-
-  // For edit mode, if password is provided, confirmation is required
-  if (
-    isEditMode.value &&
-    userForm.value.password &&
-    !userForm.value.password_confirmation
-  ) {
-    $toast('Password confirmation is required when changing password', 'error');
+  if (!valid) {
     return;
   }
 

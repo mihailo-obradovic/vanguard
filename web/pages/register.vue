@@ -3,7 +3,7 @@
     <div class="register-card">
       <h1 class="register-title">Create Account</h1>
 
-      <form class="register-form" @submit.prevent="handleRegister">
+      <form class="register-form" novalidate @submit.prevent="handleRegister">
         <div class="form-group">
           <label for="name" class="form-label">Name</label>
           <input
@@ -14,6 +14,8 @@
             required
             :disabled="isRegistering"
           />
+
+          <FieldErrors :errors="r$.name.$errors" />
         </div>
 
         <div class="form-group">
@@ -26,6 +28,8 @@
             required
             :disabled="isRegistering"
           />
+
+          <FieldErrors :errors="r$.email.$errors" />
         </div>
 
         <div class="form-group">
@@ -38,6 +42,8 @@
             required
             :disabled="isRegistering"
           />
+
+          <FieldErrors :errors="r$.password.$errors" />
         </div>
 
         <div class="form-group">
@@ -52,9 +58,15 @@
             required
             :disabled="isRegistering"
           />
+
+          <FieldErrors :errors="r$.password_confirmation.$errors" />
         </div>
 
-        <button type="submit" class="register-btn" :disabled="isRegistering">
+        <button
+          type="submit"
+          class="register-btn"
+          :disabled="isRegistering || r$.$invalid"
+        >
           {{ isRegistering ? 'Registering...' : 'Register' }}
         </button>
       </form>
@@ -70,6 +82,9 @@
 </template>
 
 <script setup lang="ts">
+import { useRegle } from '@regle/core';
+import { email, maxLength, minLength, required, sameAs } from '@regle/rules';
+
 import { useRegister } from '@/services/queries/useAuthQueries';
 
 const form = ref({
@@ -79,12 +94,35 @@ const form = ref({
   password_confirmation: ''
 });
 
-const { mutate: register, isLoading: isRegistering } = useRegister({
+const {
+  mutate: register,
+  isLoading: isRegistering,
+  error: registerError
+} = useRegister({
+  errorHandling: { hideValidationToast: true },
   onSuccess: () => navigateTo('/home')
 });
 
-function handleRegister() {
-  register(form.value);
+const { r$ } = useRegle(
+  form,
+  {
+    name: { required, maxLength: maxLength(255) },
+    email: { required, email, maxLength: maxLength(255) },
+    password: { required, minLength: minLength(8) },
+    password_confirmation: {
+      required,
+      sameAs: sameAs(() => form.value.password, 'password')
+    }
+  },
+  { externalErrors: useExternalErrors(useValidationErrors(registerError)) }
+);
+
+async function handleRegister() {
+  const { valid } = await r$.$validate();
+
+  if (valid) {
+    register(form.value);
+  }
 }
 </script>
 

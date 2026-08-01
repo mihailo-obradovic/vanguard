@@ -3,7 +3,11 @@
     <div class="password-reset-card">
       <h1 class="password-reset-title">Reset Password</h1>
 
-      <form class="password-reset-form" @submit.prevent="handleSubmit">
+      <form
+        class="password-reset-form"
+        novalidate
+        @submit.prevent="handleSubmit"
+      >
         <div class="form-group">
           <label for="email" class="form-label">Email</label>
           <input
@@ -14,6 +18,8 @@
             required
             :disabled="isResetting"
           />
+
+          <FieldErrors :errors="r$.email.$errors" />
         </div>
 
         <div class="form-group">
@@ -26,6 +32,8 @@
             required
             :disabled="isResetting"
           />
+
+          <FieldErrors :errors="r$.password.$errors" />
         </div>
 
         <div class="form-group">
@@ -40,9 +48,15 @@
             required
             :disabled="isResetting"
           />
+
+          <FieldErrors :errors="r$.password_confirmation.$errors" />
         </div>
 
-        <button type="submit" class="submit-btn" :disabled="isResetting">
+        <button
+          type="submit"
+          class="submit-btn"
+          :disabled="isResetting || r$.$invalid"
+        >
           {{ isResetting ? 'Resetting...' : 'Reset Password' }}
         </button>
       </form>
@@ -58,6 +72,9 @@
 </template>
 
 <script setup lang="ts">
+import { useRegle } from '@regle/core';
+import { email, minLength, required, sameAs } from '@regle/rules';
+
 import { useResetPassword } from '@/services/queries/useAuthQueries';
 
 const route = useRoute();
@@ -68,23 +85,42 @@ const form = ref({
   password_confirmation: ''
 });
 
-const { mutate: resetPassword, isLoading: isResetting } = useResetPassword({
+const {
+  mutate: resetPassword,
+  isLoading: isResetting,
+  error: resetError
+} = useResetPassword({
+  errorHandling: { hideValidationToast: true },
   onSuccess: (data) => {
     $toast(data.status, 'success');
     navigateTo('/login');
   }
 });
 
-function handleSubmit() {
-  if (form.value.password !== form.value.password_confirmation) {
-    $toast('Password confirmation does not match', 'error');
-    return;
-  }
+// An expired/invalid reset token comes back as a 422 on the email field, so
+// it surfaces under the email input.
+const { r$ } = useRegle(
+  form,
+  {
+    email: { required, email },
+    password: { required, minLength: minLength(8) },
+    password_confirmation: {
+      required,
+      sameAs: sameAs(() => form.value.password, 'password')
+    }
+  },
+  { externalErrors: useExternalErrors(useValidationErrors(resetError)) }
+);
 
-  resetPassword({
-    token: String(route.params.token ?? ''),
-    ...form.value
-  });
+async function handleSubmit() {
+  const { valid } = await r$.$validate();
+
+  if (valid) {
+    resetPassword({
+      token: String(route.params.token ?? ''),
+      ...form.value
+    });
+  }
 }
 </script>
 

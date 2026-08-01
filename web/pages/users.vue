@@ -109,13 +109,11 @@ const isSubmittingUser = computed(
   () => isCreatingUser.value || isUpdatingUser.value
 );
 
-const userFormErrors = computed(() => {
-  const error = isEditMode.value
-    ? updateUserError.value
-    : createUserError.value;
-
-  return error ? getValidationErrors(error) : {};
-});
+const userFormErrors = useValidationErrors(
+  computed(() =>
+    isEditMode.value ? updateUserError.value : createUserError.value
+  )
+);
 
 function handleSubmitUser(form: CreateUserForm) {
   if (isEditMode.value && editingUser.value) {

@@ -190,9 +190,7 @@ function useUserDialogs() {
     }
   });
 
-  const registerErrors = computed(() =>
-    registerError.value ? getValidationErrors(registerError.value) : {}
-  );
+  const registerErrors = useValidationErrors(registerError);
 
   const {
     mutate: handleLogin,
@@ -205,9 +203,7 @@ function useUserDialogs() {
     }
   });
 
-  const loginErrors = computed(() =>
-    loginError.value ? getValidationErrors(loginError.value) : {}
-  );
+  const loginErrors = useValidationErrors(loginError);
 
   const {
     mutate: handleForgotPassword,
@@ -221,11 +217,7 @@ function useUserDialogs() {
     }
   });
 
-  const forgotPasswordErrors = computed(() =>
-    forgotPasswordError.value
-      ? getValidationErrors(forgotPasswordError.value)
-      : {}
-  );
+  const forgotPasswordErrors = useValidationErrors(forgotPasswordError);
 
   return {
     registerDialog,

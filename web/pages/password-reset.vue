@@ -84,7 +84,19 @@ onMounted(() => {
   form.value.email = String(route.query.email ?? '');
 });
 
-const externalErrors = ref<Record<string, string[]>>({});
+const {
+  mutate: resetPassword,
+  isLoading: isResetting,
+  error: resetError
+} = useResetPassword({
+  errorHandling: { hideValidationToast: true },
+  onSuccess: (data) => {
+    $toast(data.status, 'success');
+    navigateTo('/');
+  }
+});
+
+const externalErrors = useExternalErrors(useValidationErrors(resetError));
 
 // An expired/invalid reset token comes back as a 422 on the email field, so
 // it surfaces under the readonly email input.
@@ -105,22 +117,6 @@ const { r$ } = useRegle(
 function handleCancel() {
   navigateTo('/');
 }
-
-const {
-  mutate: resetPassword,
-  isLoading: isResetting,
-  error: resetError
-} = useResetPassword({
-  errorHandling: { hideValidationToast: true },
-  onSuccess: (data) => {
-    $toast(data.status, 'success');
-    navigateTo('/');
-  }
-});
-
-watch(resetError, (error) => {
-  externalErrors.value = error ? getValidationErrors(error) : {};
-});
 
 async function handleConfirm() {
   const { valid } = await r$.$validate();

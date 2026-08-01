@@ -62,14 +62,7 @@ const initialForm = {
 
 const form = ref(Object.assign({}, initialForm));
 
-const externalErrors = ref<Record<string, string[]>>({});
-
-watch(
-  () => props.serverErrors,
-  (errors) => {
-    externalErrors.value = errors;
-  }
-);
+const externalErrors = useExternalErrors(() => props.serverErrors);
 
 const { r$ } = useRegle(
   form,

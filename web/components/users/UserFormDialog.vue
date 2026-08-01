@@ -96,14 +96,7 @@ const form = ref<CreateUserForm>(emptyForm());
 
 const showPassword = ref(false);
 
-const externalErrors = ref<Record<string, string[]>>({});
-
-watch(
-  () => props.serverErrors,
-  (errors) => {
-    externalErrors.value = errors;
-  }
-);
+const externalErrors = useExternalErrors(() => props.serverErrors);
 
 // Create requires a password; edit only validates one when entered.
 const { r$ } = useRegle(

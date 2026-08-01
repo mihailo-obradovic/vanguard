@@ -46,9 +46,7 @@ const {
   }
 });
 
-const profileErrors = computed(() =>
-  updateProfileError.value ? getValidationErrors(updateProfileError.value) : {}
-);
+const profileErrors = useValidationErrors(updateProfileError);
 
 function handleUpdate(form: ProfileForm) {
   updateProfile(form);

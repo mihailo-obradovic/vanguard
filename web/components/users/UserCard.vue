@@ -170,14 +170,7 @@ const initialForm = computed(() => {
 
 const form = ref(Object.assign({}, initialForm.value));
 
-const externalErrors = ref<Record<string, string[]>>({});
-
-watch(
-  () => props.serverErrors,
-  (errors) => {
-    externalErrors.value = errors;
-  }
-);
+const externalErrors = useExternalErrors(() => props.serverErrors);
 
 // Mirrors ProfileUpdateRequest: the current password is only needed when
 // setting a new one.

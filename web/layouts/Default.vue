@@ -140,6 +140,8 @@ const { mutate: logOut, isLoading: isLoggingOut } = useLogOut();
   flex: 1;
   overflow-y: auto;
   width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .layout {

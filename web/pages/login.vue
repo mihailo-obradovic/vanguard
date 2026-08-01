@@ -96,7 +96,7 @@ async function handleLogin() {
 
 <style scoped>
 .login-container {
-  min-height: calc(100vh - 120px);
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;

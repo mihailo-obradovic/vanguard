@@ -87,7 +87,7 @@ async function handleSubmit() {
 
 <style scoped>
 .forgot-password-container {
-  min-height: calc(100vh - 120px);
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;

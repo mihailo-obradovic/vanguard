@@ -1,17 +1,24 @@
+import { z } from 'zod';
+
 export type Credentials = {
   email: string;
   password: string;
 };
 
-export type User = {
-  id: number;
-  name: string;
-  email: string;
-  role: 'user' | 'admin';
-  email_verified_at: string | null;
-  created_at: string;
-  updated_at: string;
-};
+export const UserSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  email: z.string(),
+  role: z.enum(['user', 'admin']),
+  email_verified_at: z.string().nullable(),
+  created_at: z.string(),
+  updated_at: z.string()
+});
+
+// Laravel API resources wrap single models in a `data` envelope.
+export const UserEnvelopeSchema = z.object({ data: UserSchema });
+
+export type User = z.infer<typeof UserSchema>;
 
 export type RegistrationForm = Credentials & {
   name: string;

@@ -21,13 +21,16 @@
     "@pinia/colada": "^1.4.2",
     "@pinia/colada-nuxt": "^1.0.2",
     "@pinia/nuxt": "^1.0.1",
+    "@regle/core": "^1.28.5",
+    "@regle/rules": "^1.28.5",
     "@vueuse/core": "^14.4.0",
     "@vueuse/nuxt": "^14.4.0",
     "nuxt": "^4.5.1",
     "pinia": "^4.0.2",
     "temporal-polyfill": "^1.0.2",
     "vue": "^3.5.40",
-    "vue-toastification": "2.0.0-rc.5"
+    "vue-toastification": "2.0.0-rc.5",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@nuxt/test-utils": "^4.1.0",

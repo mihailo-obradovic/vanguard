@@ -67,12 +67,14 @@
     <RegisterDialog
       v-model="registerDialog"
       :loading="isRegistering"
+      :server-errors="registerErrors"
       @confirm="handleRegister"
     />
 
     <LoginDialog
       v-model="loginDialog"
       :loading="isLoggingIn"
+      :server-errors="loginErrors"
       @confirm="handleLogin"
       @forgot-password-click="forgotPasswordDialog = true"
     />
@@ -80,6 +82,7 @@
     <ForgotPasswordDialog
       v-model="forgotPasswordDialog"
       :loading="isSendingResetEmail"
+      :server-errors="forgotPasswordErrors"
       @confirm="handleForgotPassword"
     />
   </v-layout>
@@ -143,7 +146,10 @@ const {
   handleForgotPassword,
   isRegistering,
   isLoggingIn,
-  isSendingResetEmail
+  isSendingResetEmail,
+  loginErrors,
+  registerErrors,
+  forgotPasswordErrors
 } = useUserDialogs();
 
 function useThemeSwitching() {
@@ -173,25 +179,45 @@ function useUserDialogs() {
   const loginDialog = ref(false);
   const forgotPasswordDialog = ref(false);
 
-  const { mutate: handleRegister, isLoading: isRegistering } = useRegister({
+  const {
+    mutate: handleRegister,
+    isLoading: isRegistering,
+    error: registerError
+  } = useRegister({
+    errorHandling: { hideValidationToast: true },
     onSuccess: () => {
       registerDialog.value = false;
     }
   });
 
-  const { mutate: handleLogin, isLoading: isLoggingIn } = useLogIn({
+  const registerErrors = useValidationErrors(registerError);
+
+  const {
+    mutate: handleLogin,
+    isLoading: isLoggingIn,
+    error: loginError
+  } = useLogIn({
+    errorHandling: { hideValidationToast: true },
     onSuccess: () => {
       loginDialog.value = false;
     }
   });
 
-  const { mutate: handleForgotPassword, isLoading: isSendingResetEmail } =
-    useGeneratePasswordResetEmail({
-      onSuccess: (data) => {
-        $toast(data.status, 'success');
-        forgotPasswordDialog.value = false;
-      }
-    });
+  const loginErrors = useValidationErrors(loginError);
+
+  const {
+    mutate: handleForgotPassword,
+    isLoading: isSendingResetEmail,
+    error: forgotPasswordError
+  } = useGeneratePasswordResetEmail({
+    errorHandling: { hideValidationToast: true },
+    onSuccess: (data) => {
+      $toast(data.status, 'success');
+      forgotPasswordDialog.value = false;
+    }
+  });
+
+  const forgotPasswordErrors = useValidationErrors(forgotPasswordError);
 
   return {
     registerDialog,
@@ -202,7 +228,10 @@ function useUserDialogs() {
     handleForgotPassword,
     isRegistering,
     isLoggingIn,
-    isSendingResetEmail
+    isSendingResetEmail,
+    loginErrors,
+    registerErrors,
+    forgotPasswordErrors
   };
 }
 </script>

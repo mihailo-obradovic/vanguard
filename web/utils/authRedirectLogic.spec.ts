@@ -11,27 +11,46 @@ mockNuxtImport('useAuthStore', () => () => ({ isLoggedIn }));
 mockNuxtImport('storeToRefs', () => (store: unknown) => store);
 
 describe('determineAuthRedirect', () => {
-  it('lets unauthenticated users reach the password-reset page', () => {
+  it('lets unauthenticated users reach the auth pages', () => {
+    isLoggedIn.value = false;
+
+    for (const path of ['/login', '/register', '/forgot-password']) {
+      expect(determineAuthRedirect(path, {})).toEqual({
+        shouldRedirect: false
+      });
+    }
+  });
+
+  it('lets unauthenticated users reach the tokenized password-reset page', () => {
     isLoggedIn.value = false;
 
     expect(
-      determineAuthRedirect('/password-reset', { token: 'abc', email: 'a@b.c' })
+      determineAuthRedirect('/password-reset/abc123', { email: 'a@b.c' })
     ).toEqual({ shouldRedirect: false });
   });
 
-  it('sends authenticated users away from the password-reset page', () => {
+  it('sends authenticated users away from guest-only pages', () => {
     isLoggedIn.value = true;
 
-    const decision = determineAuthRedirect('/password-reset', {});
+    const decision = determineAuthRedirect('/login', {});
 
     expect(decision.shouldRedirect).toBe(true);
     expect(decision.redirectTo).toBe('/home');
   });
 
-  it('still redirects unauthenticated users away from protected pages', () => {
+  it('redirects unauthenticated users from protected pages to login', () => {
     isLoggedIn.value = false;
 
     const decision = determineAuthRedirect('/users', {});
+
+    expect(decision.shouldRedirect).toBe(true);
+    expect(decision.redirectTo).toBe('/login');
+  });
+
+  it('aliases the root path to home', () => {
+    isLoggedIn.value = false;
+
+    const decision = determineAuthRedirect('/', {});
 
     expect(decision.shouldRedirect).toBe(true);
     expect(decision.redirectTo).toBe('/home');

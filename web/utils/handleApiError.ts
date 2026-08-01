@@ -7,18 +7,13 @@ export interface HandleApiErrorContext {
 
 export interface ErrorHandlingOptions {
   hideToast?: boolean;
+  // Suppresses 422 toasts for forms that display validation errors inline;
+  // other errors still toast.
+  hideValidationToast?: boolean;
 }
 
 function getValidationMessages(error: FetchError): string[] {
-  const errors: unknown = error.data?.errors;
-
-  if (!errors || typeof errors !== 'object') {
-    return [];
-  }
-
-  return Object.values(errors)
-    .flat()
-    .filter((message): message is string => typeof message === 'string');
+  return Object.values(getValidationErrors(error)).flat();
 }
 
 export function handleApiError(
@@ -57,7 +52,9 @@ export function handleApiError(
     error.statusCode === 422 ? getValidationMessages(error) : [];
 
   if (validationMessages.length > 0) {
-    validationMessages.forEach((message) => $toast(message, 'error'));
+    if (!options?.hideValidationToast) {
+      validationMessages.forEach((message) => $toast(message, 'error'));
+    }
   } else {
     $toast(getErrorMessage(error), 'error');
   }

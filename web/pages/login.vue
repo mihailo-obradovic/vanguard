@@ -3,7 +3,7 @@
     <div class="login-card">
       <h1 class="login-title">Welcome Back</h1>
 
-      <form class="login-form" @submit.prevent="handleLogin">
+      <form class="login-form" novalidate @submit.prevent="handleLogin">
         <div class="form-group">
           <label for="email" class="form-label">Email</label>
           <input
@@ -14,6 +14,8 @@
             required
             :disabled="isLoggingIn"
           />
+
+          <FieldErrors :errors="r$.email.$errors" />
         </div>
 
         <div class="form-group">
@@ -26,9 +28,15 @@
             required
             :disabled="isLoggingIn"
           />
+
+          <FieldErrors :errors="r$.password.$errors" />
         </div>
 
-        <button type="submit" class="login-btn" :disabled="isLoggingIn">
+        <button
+          type="submit"
+          class="login-btn"
+          :disabled="isLoggingIn || r$.$invalid"
+        >
           {{ isLoggingIn ? 'Logging in...' : 'Login' }}
         </button>
       </form>
@@ -49,6 +57,9 @@
 </template>
 
 <script lang="ts" setup>
+import { useRegle } from '@regle/core';
+import { email, required } from '@regle/rules';
+
 import { useLogIn } from '@/services/queries/useAuthQueries';
 
 const form = ref({
@@ -56,12 +67,30 @@ const form = ref({
   password: 'gmaz1234'
 });
 
-const { mutate: logIn, isLoading: isLoggingIn } = useLogIn({
+const {
+  mutate: logIn,
+  isLoading: isLoggingIn,
+  error: loginError
+} = useLogIn({
+  errorHandling: { hideValidationToast: true },
   onSuccess: () => navigateTo('/home')
 });
 
-function handleLogin() {
-  logIn(form.value);
+const { r$ } = useRegle(
+  form,
+  {
+    email: { required, email },
+    password: { required }
+  },
+  { externalErrors: useExternalErrors(useValidationErrors(loginError)) }
+);
+
+async function handleLogin() {
+  const { valid } = await r$.$validate();
+
+  if (valid) {
+    logIn(form.value);
+  }
 }
 </script>
 

@@ -7,7 +7,11 @@
         Enter your email address and we'll send you a password reset link.
       </p>
 
-      <form class="forgot-password-form" @submit.prevent="handleSubmit">
+      <form
+        class="forgot-password-form"
+        novalidate
+        @submit.prevent="handleSubmit"
+      >
         <div class="form-group">
           <label for="email" class="form-label">Email</label>
           <input
@@ -18,9 +22,15 @@
             required
             :disabled="isSending"
           />
+
+          <FieldErrors :errors="r$.email.$errors" />
         </div>
 
-        <button type="submit" class="submit-btn" :disabled="isSending">
+        <button
+          type="submit"
+          class="submit-btn"
+          :disabled="isSending || r$.$invalid"
+        >
           {{ isSending ? 'Sending...' : 'Send Reset Link' }}
         </button>
       </form>
@@ -36,22 +46,42 @@
 </template>
 
 <script setup lang="ts">
+import { useRegle } from '@regle/core';
+import { email, required } from '@regle/rules';
+
 import { useGeneratePasswordResetEmail } from '@/services/queries/useAuthQueries';
 
 const form = ref({
   email: ''
 });
 
-const { mutate: sendResetLink, isLoading: isSending } =
-  useGeneratePasswordResetEmail({
-    onSuccess: (data) => {
-      $toast(data.status, 'success');
-      form.value.email = '';
-    }
-  });
+const {
+  mutate: sendResetLink,
+  isLoading: isSending,
+  error: sendError
+} = useGeneratePasswordResetEmail({
+  errorHandling: { hideValidationToast: true },
+  onSuccess: (data) => {
+    $toast(data.status, 'success');
+    form.value.email = '';
+    r$.$reset();
+  }
+});
 
-function handleSubmit() {
-  sendResetLink(form.value);
+const { r$ } = useRegle(
+  form,
+  {
+    email: { required, email }
+  },
+  { externalErrors: useExternalErrors(useValidationErrors(sendError)) }
+);
+
+async function handleSubmit() {
+  const { valid } = await r$.$validate();
+
+  if (valid) {
+    sendResetLink(form.value);
+  }
 }
 </script>
 

@@ -22,26 +22,18 @@ export function determineAuthRedirect(
     };
   }
 
-  const guestOnlyPages = [
-    '/login',
-    '/register',
-    '/guest-only',
-    '/forgot-password'
-  ];
-  // Pages with dynamic segments, e.g. /password-reset/{token}
-  const guestOnlyPrefixes = ['/password-reset/'];
+  const guestOnlyPages: string[] = ['/password-reset'];
   const sharedPages = ['/home'];
-  const isGuestOnlyPage =
-    guestOnlyPages.includes(pathWithoutQuery) ||
-    guestOnlyPrefixes.some((prefix) => pathWithoutQuery.startsWith(prefix));
+  const isGuestOnlyPage = guestOnlyPages.includes(pathWithoutQuery);
   const isProtectedPage =
-    !isGuestOnlyPage && !sharedPages.includes(pathWithoutQuery);
+    !guestOnlyPages.includes(pathWithoutQuery) &&
+    !sharedPages.includes(pathWithoutQuery);
 
   // * Redirect unauthenticated users away from protected pages
   if (!isLoggedIn.value && isProtectedPage) {
     return {
       shouldRedirect: true,
-      redirectTo: '/login',
+      redirectTo: '/home',
       reason: 'protected_page_without_auth'
     };
   }

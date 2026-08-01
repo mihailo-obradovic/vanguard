@@ -3,31 +3,33 @@
     <v-card-title class="pa-4 pb-2">Generate new password</v-card-title>
 
     <v-card-text class="px-4 py-2">
-      <input type="hidden" name="token" :value="form.token" />
+      <GapContainer column>
+        <input type="hidden" name="token" :value="form.token" />
 
-      <v-text-field
-        v-model="form.email"
-        :error-messages="r$.email.$errors"
-        label="Email"
-        type="email"
-        readonly
-      />
+        <v-text-field
+          v-model="form.email"
+          :error-messages="r$.email.$errors"
+          label="Email"
+          type="email"
+          readonly
+        />
 
-      <PasswordField
-        v-model="form.password"
-        v-model:visible="showPassword"
-        :error-messages="r$.password.$errors"
-        label="Password"
-        required
-      />
+        <PasswordField
+          v-model="form.password"
+          v-model:visible="showPassword"
+          :error-messages="r$.password.$errors"
+          label="Password"
+          required
+        />
 
-      <PasswordField
-        v-model="form.password_confirmation"
-        v-model:visible="showPassword"
-        :error-messages="r$.password_confirmation.$errors"
-        label="Confirm Password"
-        required
-      />
+        <PasswordField
+          v-model="form.password_confirmation"
+          v-model:visible="showPassword"
+          :error-messages="r$.password_confirmation.$errors"
+          label="Confirm Password"
+          required
+        />
+      </GapContainer>
     </v-card-text>
 
     <v-card-actions class="pa-4 pt-2">

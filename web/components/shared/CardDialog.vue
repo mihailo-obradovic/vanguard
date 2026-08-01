@@ -6,7 +6,9 @@
       </v-card-title>
 
       <v-card-text :class="['px-4', 'py-2', { scrollable: scrollable }]">
-        <slot name="default" />
+        <GapContainer column>
+          <slot name="default" />
+        </GapContainer>
       </v-card-text>
 
       <v-card-actions class="pa-4 pt-2">

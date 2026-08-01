@@ -15,6 +15,24 @@ test('a reset link can be requested', function () {
     Notification::assertSentTo($user, ResetPasswordNotification::class);
 });
 
+test('the reset link points at the front-end route with token and email in the query string', function () {
+    Notification::fake();
+
+    $user = User::factory()->create(['email' => 'test@example.com']);
+
+    $this->postJson('/forgot-password', ['email' => $user->email]);
+
+    Notification::assertSentTo($user, ResetPasswordNotification::class, function (ResetPasswordNotification $notification) use ($user) {
+        $url = $notification->toMail($user)->actionUrl;
+
+        expect($url)->toStartWith(config('app.frontend_url').'/password-reset?')
+            ->and($url)->toContain('token='.$notification->token)
+            ->and($url)->toContain('email='.urlencode($user->email));
+
+        return true;
+    });
+});
+
 test('the password can be reset with a valid token', function () {
     Notification::fake();
 

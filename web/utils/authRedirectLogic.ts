@@ -22,7 +22,7 @@ export function determineAuthRedirect(
     };
   }
 
-  const guestOnlyPages: string[] = [];
+  const guestOnlyPages: string[] = ['/password-reset'];
   const sharedPages = ['/home'];
   const isGuestOnlyPage = guestOnlyPages.includes(pathWithoutQuery);
   const isProtectedPage =

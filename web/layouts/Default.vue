@@ -88,6 +88,9 @@ const { mutate: logOut, isLoading: isLoggingOut } = useLogOut();
   color: rgb(0, 102, 255);
   background-color: #e9ecef;
   padding: 8px 16px;
+  /* Transparent border matches .auth-link so the navbar height doesn't
+     change between logged-in and logged-out states. */
+  border: 1px solid transparent;
   border-radius: 8px;
   transition: all 0.25s ease;
   font-weight: 500;
@@ -102,12 +105,13 @@ const { mutate: logOut, isLoading: isLoggingOut } = useLogOut();
   font-family: 'Lexend', sans-serif;
   background-color: #dc3545;
   color: white;
-  border: none;
+  border: 1px solid transparent;
   padding: 8px 16px;
   border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.25s ease;
   font-size: 16px;
+  line-height: normal;
 }
 
 .logout-btn:hover {

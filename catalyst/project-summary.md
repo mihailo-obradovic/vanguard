@@ -22,6 +22,7 @@ One line per record: type, status, title, link.
 | --- | ----------- | ----------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
 | 001 | init-design | Implemented | Init design — Vanguard brownfield stack                           | [decisions/001_init-design_vanguard-stack.md](decisions/001_init-design_vanguard-stack.md) |
 | 002 | infra       | Implemented | Sanctum session-cookie auth for the SPA pairing (over token mode) | [decisions/002_infra_sanctum-session-spa.md](decisions/002_infra_sanctum-session-spa.md)   |
+| 003 | ui          | Implemented | Vuetify as this branch's UI layer                                 | [decisions/003_ui_vuetify-variant.md](decisions/003_ui_vuetify-variant.md)                 |
 
 ## Experiment Index
 

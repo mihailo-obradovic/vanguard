@@ -102,7 +102,7 @@ Every account type gets the same profile page; admins additionally manage others
 
 - Session auth (feature 001): `auth:sanctum` guards the route; 401 handling and the auth store live there.
 - User management (feature 002): shares `User::changeEmail()` semantics on the admin path; `UserResource` shape is common.
-- Queued notifications: `VerifyEmailNotification` requires a running queue worker to actually deliver.
+- `VerifyEmailNotification` implements `ShouldQueue`; under the local `sync` queue it sends inline, under the `database` driver it needs a running worker (`operations.md`).
 
 ## Open Questions
 

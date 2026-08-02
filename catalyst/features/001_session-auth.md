@@ -97,7 +97,7 @@ Not role-specific — no auth endpoint is role-gated. Registration cannot set a 
 
 ## Dependencies
 
-- Queued notifications need a running queue worker for mail to actually send.
+- Notifications implement `ShouldQueue`; delivery depends on `QUEUE_CONNECTION` — `sync` (current local default) sends inline, the `database` driver needs a running worker (`operations.md`).
 - `FRONTEND_URL` drives CORS origins, the reset-link URL, and the verify bounce — three couplings on one env var.
 - Features 002/003 sit behind `auth:sanctum` and the store/fetcher established here.
 

@@ -21,6 +21,7 @@ One line per record: type, status, title, link.
 | ### | Type | Status | Decision | Document |
 | --- | --- | --- | --- | --- |
 | 001 | init-design | Implemented | Init design — Vanguard brownfield stack | [decisions/001_init-design_vanguard-stack.md](decisions/001_init-design_vanguard-stack.md) |
+| 002 | infra | Implemented | Sanctum session-cookie auth for the SPA pairing (over token mode) | [decisions/002_infra_sanctum-session-spa.md](decisions/002_infra_sanctum-session-spa.md) |
 
 ## Experiment Index
 

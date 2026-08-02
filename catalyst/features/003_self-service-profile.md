@@ -115,6 +115,8 @@ Every account type gets the same profile page; admins additionally manage others
 
 Backend suite green at adoption: `php artisan test` → 36 passed (98 assertions), including all 10 profile tests, on sqlite `:memory:`. Spec-vs-reality audit (2026-08-02) found every backend design point implemented verbatim; deviations are frontend-only (stricter client rules; always-sent `current_password`) and are documented above.
 
+B3 (2026-08-02): the suite moved off sqlite onto the real engine — `php artisan test` green against MySQL `vanguard_testing` (Catalyst Laravel module departure #1 resolved; setup in `operations.md`).
+
 ## Agent Change Rules
 
 Before changing this feature, an agent must:

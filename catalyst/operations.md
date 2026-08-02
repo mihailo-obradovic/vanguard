@@ -15,13 +15,19 @@ php artisan tinker                 # poke at data
 mysql -u <DB_USERNAME> -p vanguard # interactive client
 ```
 
+One-time test-database provisioning (as MySQL root; `RefreshDatabase` migrates it on each run):
+
+```bash
+sudo mariadb -e "CREATE DATABASE IF NOT EXISTS vanguard_testing; GRANT ALL PRIVILEGES ON vanguard_testing.* TO '<DB_USERNAME>'@'localhost'; FLUSH PRIVILEGES;"
+```
+
 ### Recovery
 
 No backup routine exists — dev-only data so far; a restore drill has never been performed. Recreate from scratch with `php artisan migrate:fresh --seed` (seeder creates `test@example.com` admin). **Before any production use, a dump/restore routine must be added here and rehearsed.**
 
 ### Quirks
 
-- Tests do NOT run on this database: `phpunit.xml` forces sqlite `:memory:` — a MySQL-specific failure (column types, `ALTER`, locking) will not surface in the suite (known departure from the Catalyst Laravel module; reconciliation tracked for B3).
+- Tests run on the separate `vanguard_testing` database on this same server (same engine, per the Laravel testing module): `phpunit.xml` pins `DB_CONNECTION`/`DB_DATABASE`; host and credentials are inherited from `.env` (no `.env.testing` exists — creating one would silently take over the test env, since `APP_ENV=testing` prefers it). `php artisan test --parallel` would need databases `vanguard_testing_1..n` — not provisioned.
 - Sessions live in the `sessions` table (`SESSION_DRIVER=database`): truncating it logs everyone out; deleting a user leaves orphaned session rows (no FK).
 
 ## Queue

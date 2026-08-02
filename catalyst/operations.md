@@ -75,3 +75,7 @@ php artisan test && pnpm test   # both suites
 ### Quirks
 
 - The SPA and API must run on the exact origins in `SANCTUM_STATEFUL_DOMAINS` / `FRONTEND_URL` (`localhost:3000`/`3001` + `localhost:8000`) or auth silently fails on cookies/CORS.
+
+## CI
+
+GitHub Actions (`.github/workflows/ci.yml`), on push to `master`/`variant/**` and on PRs. Two jobs: frontend (oxlint, oxfmt check, typecheck, vitest — Node 24 + pnpm) and backend (pint check + Pest against a `mysql:8` service container whose `MYSQL_DATABASE` is `vanguard_testing`; job-level `DB_*` env vars override the phpunit/.env values). No deploy step — deployment remains an honest gap (ADR 001).

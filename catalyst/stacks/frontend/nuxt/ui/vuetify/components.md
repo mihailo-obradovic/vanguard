@@ -50,7 +50,11 @@ Everything else in `../../validation.md` applies unchanged: the rules getter for
 ```ts
 const theme = useTheme();
 const themeSetting = useCookie('theme');
-const isDark = computed(() => theme.current.value.dark);
+const isDark = computed(() => theme.global.current.value.dark);
+
+function toggleTheme() {
+  theme.toggle();
+}
 
 watch(isDark, (value) => {
   themeSetting.value = value ? 'dark' : 'light';
@@ -60,6 +64,8 @@ onMounted(() => {
   theme.change(themeSetting.value || 'light');
 });
 ```
+
+Track `theme.global.current`, not `theme.current` — `change()` and `toggle()` mutate the global theme, while `theme.current` is contextual and diverges from it inside a `v-theme-provider`.
 
 `useCookie` rather than `localStorage` so the value is available to the server if the `ssr` addon is ever adopted. Applying the theme in `onMounted` rather than in setup is deliberate — it is the earliest point the stored value can be trusted.
 

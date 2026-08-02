@@ -83,6 +83,8 @@ export default defineNuxtPlugin((app) => {
 
 The colour values above are placeholders — the project's design tokens go here, and this file becomes the single source for them. A component hardcoding a hex value has bypassed the theme.
 
+The built-in names are not a closed set: any extra key in `colors` becomes a first-class token — usable in `color` props (`color="highlight"`) and exposed to CSS as `--v-theme-<name>` (`rgb(var(--v-theme-highlight))`). Adding a project token here beats reusing a built-in name for a meaning it doesn't have.
+
 ## Icons: SVG, not the icon font
 
 `mdi-svg` means icons are **imported as path data** and tree-shaken, rather than a webfont that ships all six thousand of them:

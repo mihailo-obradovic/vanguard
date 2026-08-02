@@ -6,12 +6,12 @@ Paths below are relative to the repo root. The `catalyst/` documents are normati
 
 ## Structure
 
-- `app.vue` / `error.vue` — entry and error shells; `layouts/Default.vue` is the single layout.
+- `app.vue` / `error.vue` — entry and error shells; `layouts/Default.vue` is the main layout (app bar, navigation drawer, auth dialogs), `layouts/Empty.vue` a bare centered shell for standalone pages.
 - `components/shared/` — auto-imported shared components (`components.dirs` in `nuxt.config.ts`); everything else is explicitly imported.
 - `composables/` — `useAppQuery` / `useAppMutation` (the only query/mutation wrappers components may use), `useValidationErrors` / `useExternalErrors` (server-422-to-Regle bridge), `useCookieConsent`.
 - `middleware/auth.global.ts` — the only route middleware; a thin wrapper over the pure, unit-tested `utils/authRedirectLogic.ts`.
-- `pages/` — file-based routes: `index`, `home`, `profile`, `users`, plus the auth pages (`login`, `register`, `forgot-password`, `password-reset/[token]`).
-- `plugins/` — `auth-loader.ts` (restores the session before first render), `vue-toastification.ts`.
+- `pages/` — file-based routes: `index`, `home`, `profile`, `users`, `password-reset` (reads `?token=&email=` from the query string). There are no auth pages — login, registration, and forgot-password are dialogs (`components/users/`) mounted from `layouts/Default.vue`.
+- `plugins/` — `auth-loader.ts` (restores the session before first render), `vuetify.ts` (Vuetify instance, theme, SVG icons), `vue-toastification.ts`.
 - `services/` — one `<resource>.api.ts` per resource (auto-imported via `imports.dirs`); `services/queries/` holds the `use<Resource>Queries.ts` composables. Two-layer rule: every resource has both files.
 - `stores/useAuthStore.ts` — the only Pinia store.
 - `types/` — shared domain types and Zod schemas (`auth.ts`, `user.ts`) plus ambient declarations.
@@ -25,7 +25,7 @@ Paths below are relative to the repo root. The `catalyst/` documents are normati
 - Forms and validation (Regle + Zod, 422s inline) → `catalyst/stacks/frontend/nuxt/validation.md`
 - Client state (`stores/`) → `catalyst/stacks/frontend/nuxt/client-state.md`
 - Routing and middleware (`pages/`, `middleware/`) → `catalyst/stacks/frontend/nuxt/routing.md`
-- UI posture (no component library; project-owned primitives) → `catalyst/stacks/frontend/nuxt/ui/headless.md`
+- UI (Vuetify wiring, theme, icons) → `catalyst/stacks/frontend/nuxt/ui/vuetify/setup.md`; composition patterns (dialog base, layout skeleton, forms) → `catalyst/stacks/frontend/nuxt/ui/vuetify/components.md`
 - Types and TS conventions (`types/`) → `catalyst/stacks/_lang/typescript/typescript-types.md`
 
 ## Local invariants

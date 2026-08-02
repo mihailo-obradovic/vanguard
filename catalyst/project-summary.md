@@ -59,7 +59,7 @@ Every layer the project has and the module chosen for it (from Catalyst's `stack
 | backend/auth | sanctum-session |
 | database     | mysql           |
 | frontend     | nuxt            |
-| frontend/ui  | headless        |
+| frontend/ui  | vuetify         |
 | maintenance  | renovate        |
 
 Assembled at brownfield adoption — swaps from the default set and non-adopted default layers are recorded in `decisions/001_init-design_vanguard-stack.md`.

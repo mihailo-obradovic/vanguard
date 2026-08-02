@@ -43,7 +43,6 @@
 </template>
 
 <script setup lang="ts">
-import { useRegle } from '@regle/core';
 import {
   email,
   maxLength,

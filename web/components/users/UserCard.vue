@@ -119,7 +119,6 @@
 
 <script setup lang="ts">
 import { mdiCheck, mdiClose, mdiPencil } from '@mdi/js';
-import { useRegle } from '@regle/core';
 import {
   email,
   maxLength,

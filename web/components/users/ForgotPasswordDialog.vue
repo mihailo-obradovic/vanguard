@@ -22,7 +22,6 @@
 </template>
 
 <script setup lang="ts">
-import { useRegle } from '@regle/core';
 import { email, required } from '@regle/rules';
 
 const props = withDefaults(

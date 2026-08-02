@@ -35,7 +35,6 @@
 </template>
 
 <script setup lang="ts">
-import { useRegle } from '@regle/core';
 import { email, required } from '@regle/rules';
 
 import type { Credentials } from '@/types/auth';

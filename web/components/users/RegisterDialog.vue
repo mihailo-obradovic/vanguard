@@ -41,7 +41,6 @@
 </template>
 
 <script setup lang="ts">
-import { useRegle } from '@regle/core';
 import { email, maxLength, minLength, required, sameAs } from '@regle/rules';
 
 import type { RegistrationForm } from '@/types/auth';

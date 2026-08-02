@@ -1,32 +1,20 @@
+# Vanguard
+
 ## About this template
 
-This is a starter template meant to be used for small monorepo projects, although the front-end part can also serve as an independent template.
+This is a starter template for small full-stack projects: a [Laravel](https://laravel.com) 13 API-only back end (PHP ^8.3) paired with a [Nuxt](https://nuxt.com) 4 single-page front end. All non-config front-end files live inside the `web` directory (`srcDir`), keeping the two halves cleanly separated. Server-side rendering is turned off by default (`ssr: false`).
 
-In its base, this is a Laravel project set up in an API-only variant using Laravel Breeze. The front-end portion was created using Nuxt. All non-config front-end files are located inside the web directory, making it easy to separate the front-end from the back-end. Since this is a general purpose template, server side rendering capabilities for Nuxt are turned off by default.
+Authentication uses [Laravel Sanctum](https://laravel.com/docs/13.x/sanctum)'s stateful cookie mode: session cookies with CSRF protection, JSON-only responses, no server-side redirects. The API wraps user payloads in Laravel API Resources (`{ "data": ... }` envelope) and the SPA validates every response with [Zod](https://zod.dev) schemas.
 
-The project was built with [pnpm](https://pnpm.io/) as the primary package manager choice, but it can also work with other options. In that case, the `preinstall` hook in `package.json` should be removed.
+Front-end data access goes through [Pinia](https://pinia.vuejs.org) + [Pinia Colada](https://pinia-colada.esm.dev) in two layers: plain service functions (`web/services/*.api.ts`) and query/mutation composables (`web/services/queries/`), with centralized error handling. Forms validate client-side with [Regle](https://reglejs.dev); server 422s surface inline rather than as toasts.
 
-The `master` branch is CSS/component-framework-agnostic. It's meant to serve as a base for other branches, but it can also be used as a standalone template.
+Installed Nuxt modules: Fonts, Image, Test Utils, Pinia, Pinia Colada, VueUse. Dates are handled with `temporal-polyfill`, toasts with `vue-toastification`. A single global middleware (`web/middleware/auth.global.ts`) owns all auth routing; the `auth-loader` plugin rehydrates the session at boot. Shared components in `web/components/shared` are auto-imported.
 
-An opinionated [oxlint](https://oxc.rs/docs/guide/usage/linter) + [oxfmt](https://oxc.rs/docs/guide/usage/formatter) setup is included, replacing ESLint and Prettier.
+The `master` branch is CSS/component-framework-agnostic — global styles are plain CSS (`web/assets/styles/main.css`). It's meant to serve as a base for other branches, but it can also be used as a standalone template.
 
-Page components can be defined inside `@/web/pages` and support PascalCase naming in addition to built-in kebab-case. An empty home page was defined and can be accessed at `/` or `/home`. In addition to that, users can navigate to profile, users and password reset pages. Components relating to these pages are defined in separate directories under `@/web/components` and by default they still need to be explicitly imported. Supplementary components are located in the `@/web/components/shared` directory, and these are auto-imported by Nuxt when needed.
+An opinionated [oxlint](https://oxc.rs/docs/guide/usage/linter) + [oxfmt](https://oxc.rs/docs/guide/usage/formatter) setup is included, replacing ESLint and Prettier; VS Code users get the `oxc.oxc-vscode` extension recommendation. The project is [pnpm](https://pnpm.io/)-only (enforced by a `preinstall` hook); the Node version is pinned via [mise](https://mise.jdx.dev) (`mise.toml`, Node 24). Dependency updates are automated with Renovate.
 
-Two middleware functions are included: `auth` and `guest`.
-
-An initialization plugin was created. For now, its only functionality is loading the user auth object.
-
-Services are defined in the `@/web/services` directory. They are meant to be used for API calls and other data-related operations.
-
-Stores are defined in the `@/web/stores` directory. They are meant to be used for storing data that needs to be shared between components. For now, two stores are included: `auth` and `loading`. The former handles all authentication processes, while the latter is used to manage loading states of components.
-
-The project uses TypeScript by default but it's not mandatory. While it is recommended to keep config files in TypeScript, it's not necessary (or even strictly preferred) to write components in TypeScript.
-
-To extend the styling capabilities, `sass` was added as a dependency. A `main.scss` file containing some basic global styles was created and set up.
-
-To facilitate setups of various useful libraries, Nuxt modules were installed. The list includes: Image, Test Utils, i18n, Pinia, VueUse, DayJS.
-
-A huge benefit of using Nuxt is that all of these settings can be accessed through the `nuxt.config.js` file without having to look for anything else.
+Project rules and documentation for AI agents (and humans) live in the [`catalyst/`](catalyst/) bundle — feature contracts, decision records, the operations runbook, and per-stack conventions — entered through `CLAUDE.md`/`AGENTS.md` at the root.
 
 ## Branches
 
@@ -36,11 +24,16 @@ So far, the only prepared branch in addition to master is the [Vuetify](https://
 
 - **[Codeus](https://codeus.me)**
 
-- **[Laravel Docs](https://laravel.com/docs/11.x)**
+- **[Laravel Docs](https://laravel.com/docs/13.x)**
+- **[Sanctum Docs](https://laravel.com/docs/13.x/sanctum)**
+- **[Pest Docs](https://pestphp.com/docs)**
 - **[Vue.js Docs](https://vuejs.org/guide/introduction.html)**
 - **[NuxtJS Docs](https://nuxt.com/docs/getting-started/introduction)**
 - **[Vite Docs](https://vitejs.dev/guide/)**
 - **[Pinia Docs](https://pinia.vuejs.org/introduction.html)**
+- **[Pinia Colada Docs](https://pinia-colada.esm.dev)**
+- **[Regle Docs](https://reglejs.dev)**
+- **[Zod Docs](https://zod.dev)**
 - **[Vitest Docs](https://vitest.dev/guide/)**
 - **[pnpm Docs](https://pnpm.io/motivation)**
 - **[TypeScript Docs](https://www.typescriptlang.org/docs/)**
@@ -54,11 +47,9 @@ So far, the only prepared branch in addition to master is the [Vuetify](https://
 
 Explore available branches that are dedicated to specific CSS/component frameworks or create new ones using `master` as a base. Avoid committing directly existing branches unless they're in an early phase or you are the sole contributor.
 
-## Usage permissions
-
-This template is meant to be used internally by employees of Codeus, clients and friends. Please don't share it outside those circles.
-
 ## Setup
+
+Requirements: PHP ^8.3 + Composer, Node 24 (`mise install`), pnpm, and a MySQL server.
 
 ### Back-end
 
@@ -66,18 +57,20 @@ This template is meant to be used internally by employees of Codeus, clients and
 # install dependencies
 composer install
 
-# create a copy of the .env file
+# create a copy of the .env file, then set your DB_* credentials in it
 cp .env.example .env
-
-# run migrations
-php artisan migrate --seed
 
 # generate an app key
 php artisan key:generate
 
+# create the database named in DB_DATABASE, then run migrations
+php artisan migrate --seed
+
 # start dev server on `http://localhost:8000`
 php artisan serve
 ```
+
+Alternatively, `composer run setup` performs install → env copy → key → migrate → front-end install + build in one go (edit `.env` credentials when the copy exists), and `composer run dev` starts the API, queue listener, log tail, and Nuxt dev server together.
 
 ### Front-end
 
@@ -94,3 +87,14 @@ pnpm run build
 # locally preview production build
 pnpm run preview
 ```
+
+### Tests
+
+The back-end suite (Pest) runs against a real MySQL database named `vanguard_testing` — create it once, reusing the credentials from `.env` (see `catalyst/operations.md` for the exact statement). The front-end suite is Vitest.
+
+```bash
+composer test   # back-end (Pest, MySQL)
+pnpm test       # front-end (Vitest)
+```
+
+Other front-end scripts: `pnpm typecheck`, `pnpm lint` / `pnpm lint:fix`, `pnpm format` / `pnpm format:check`.

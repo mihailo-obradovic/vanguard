@@ -50,7 +50,9 @@ test('authenticated users can fetch the current user', function () {
     $this->actingAs($user)
         ->getJson('/api/user')
         ->assertOk()
-        ->assertJsonPath('email', $user->email);
+        ->assertJsonPath('data.email', $user->email)
+        ->assertJsonStructure(['data' => ['id', 'name', 'email', 'role', 'email_verified_at', 'created_at', 'updated_at']])
+        ->assertJsonMissingPath('data.password');
 });
 
 test('guests cannot fetch the current user', function () {

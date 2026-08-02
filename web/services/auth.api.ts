@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { UserSchema, UserEnvelopeSchema } from '@/types/auth';
+import { UserEnvelopeSchema } from '@/types/auth';
 
 import type {
   RegistrationForm,
@@ -36,7 +36,7 @@ export async function updateProfile(form: ProfileForm): Promise<User> {
 }
 
 export async function fetchCurrentUser(): Promise<User> {
-  return parseResponse(UserSchema, await fetcher('/api/user'));
+  return parseResponse(UserEnvelopeSchema, await fetcher('/api/user')).data;
 }
 
 export async function logOut() {

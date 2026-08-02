@@ -16,22 +16,22 @@ Give admins full user lifecycle control — list, inspect, create (including min
 
 ## Inputs
 
-| Input | Type | Source | Constraints |
-| --- | --- | --- | --- |
-| `name` | string | `POST/PUT/PATCH /api/users[/{user}]` | required on create, `sometimes` on update; max 255 |
-| `email` | string | body | required on create, `sometimes` on update; lowercase, valid, max 255, unique ignoring the bound user |
-| `password` (+`_confirmation`) | string | body | required on create, optional on update; `confirmed`, min 8; omit key to keep current |
-| `role` | string | body | `sometimes`; enum `user`/`admin`; create default `user`, update omission keeps current |
-| `{user}` | route param | URL | implicit model binding → 404 JSON on unknown id |
+| Input                         | Type        | Source                               | Constraints                                                                                          |
+| ----------------------------- | ----------- | ------------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| `name`                        | string      | `POST/PUT/PATCH /api/users[/{user}]` | required on create, `sometimes` on update; max 255                                                   |
+| `email`                       | string      | body                                 | required on create, `sometimes` on update; lowercase, valid, max 255, unique ignoring the bound user |
+| `password` (+`_confirmation`) | string      | body                                 | required on create, optional on update; `confirmed`, min 8; omit key to keep current                 |
+| `role`                        | string      | body                                 | `sometimes`; enum `user`/`admin`; create default `user`, update omission keeps current               |
+| `{user}`                      | route param | URL                                  | implicit model binding → 404 JSON on unknown id                                                      |
 
 ## Outputs And Side Effects
 
-| Output / Side Effect | Type | Description |
-| --- | --- | --- |
-| `GET /api/users` → `{ data: UserResource[], total: n }` | 200 | full table, `latest()` order (created_at DESC); **no pagination/filtering/search**; `total` = full count |
-| `show`/`store`/`update` → `{ data: UserResource }` | 200 / 201 (store) | fields: `id, name, email, role (string), email_verified_at, created_at, updated_at` |
-| `DELETE /api/users/{user}` | 204 | **hard delete** (no SoftDeletes); orphaned `sessions` rows and `personal_access_tokens` are not cleaned up |
-| Email change side effects | DB + queued mail | shared `User::changeEmail()`: verification nulled + `VerifyEmailNotification` sent only when the address actually changed (tested) |
+| Output / Side Effect                                    | Type              | Description                                                                                                                        |
+| ------------------------------------------------------- | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /api/users` → `{ data: UserResource[], total: n }` | 200               | full table, `latest()` order (created_at DESC); **no pagination/filtering/search**; `total` = full count                           |
+| `show`/`store`/`update` → `{ data: UserResource }`      | 200 / 201 (store) | fields: `id, name, email, role (string), email_verified_at, created_at, updated_at`                                                |
+| `DELETE /api/users/{user}`                              | 204               | **hard delete** (no SoftDeletes); orphaned `sessions` rows and `personal_access_tokens` are not cleaned up                         |
+| Email change side effects                               | DB + queued mail  | shared `User::changeEmail()`: verification nulled + `VerifyEmailNotification` sent only when the address actually changed (tested) |
 
 ## Scope And Non-Goals
 
@@ -50,24 +50,24 @@ Non-goals: self-service editing (feature 003 — separate contract with `current
 
 ## Roles And Access
 
-| Resource/action | Guest | User | Admin |
-| --- | --- | --- | --- |
-| `GET /api/users`, `GET /api/users/{id}` | 401 | 403 | ✔ |
-| `POST /api/users` (incl. `role: admin`) | 401 | 403 | ✔ |
-| `PUT/PATCH /api/users/{id}` (incl. role changes, passwords without `current_password`) | 401 | 403 | ✔ |
-| `DELETE /api/users/{id}` | 401 | 403 | ✔ (404 unknown id; 422 on self) |
+| Resource/action                                                                        | Guest | User | Admin                           |
+| -------------------------------------------------------------------------------------- | ----- | ---- | ------------------------------- |
+| `GET /api/users`, `GET /api/users/{id}`                                                | 401   | 403  | ✔                               |
+| `POST /api/users` (incl. `role: admin`)                                                | 401   | 403  | ✔                               |
+| `PUT/PATCH /api/users/{id}` (incl. role changes, passwords without `current_password`) | 401   | 403  | ✔                               |
+| `DELETE /api/users/{id}`                                                               | 401   | 403  | ✔ (404 unknown id; 422 on self) |
 
 Walkthroughs — Admin: sees the Users nav entry, full table, all actions; may edit their own row (including demoting themselves — see Edge Cases). User: no nav entry; direct navigation to `/users` renders briefly, then 403 → toast + `/home`. Guest: `/users` → `/login` via default-deny route middleware (feature 001).
 
 ## Examples
 
-| Input | Expected Output | Notes |
-| --- | --- | --- |
-| `POST /api/users` with `role: "admin"` | 201, `data.role = "admin"` | tested — admins mint admins |
-| `POST /api/users` without `role` | 201, `data.role = "user"` | tested — controller default |
-| `PUT /api/users/{id}` `{name, role}` only | 200, email/password untouched | tested — partial update |
-| `DELETE /api/users/{own-id}` | 422, row intact | tested — the only self-guard |
-| `GET /api/users` as non-admin | 403 | tested (status only; body string unasserted) |
+| Input                                     | Expected Output               | Notes                                        |
+| ----------------------------------------- | ----------------------------- | -------------------------------------------- |
+| `POST /api/users` with `role: "admin"`    | 201, `data.role = "admin"`    | tested — admins mint admins                  |
+| `POST /api/users` without `role`          | 201, `data.role = "user"`     | tested — controller default                  |
+| `PUT /api/users/{id}` `{name, role}` only | 200, email/password untouched | tested — partial update                      |
+| `DELETE /api/users/{own-id}`              | 422, row intact               | tested — the only self-guard                 |
+| `GET /api/users` as non-admin             | 403                           | tested (status only; body string unasserted) |
 
 ## Business Rules
 

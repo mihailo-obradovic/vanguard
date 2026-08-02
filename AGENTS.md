@@ -1,4 +1,5 @@
 <!-- catalyst:begin -->
+
 ## Catalyst
 
 Agent guidance for this repository lives in `catalyst/`. Read `catalyst/AGENTS.md` first — it is the file index and says which documents load when.

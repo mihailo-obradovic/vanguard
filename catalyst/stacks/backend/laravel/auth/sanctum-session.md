@@ -62,10 +62,10 @@ The frontend is on a different origin, and the requests are credentialed. `confi
 
 Two settings that look like duplicates and are not:
 
-| Setting | Value | Why |
-| --- | --- | --- |
-| `SESSION_DOMAIN` | `localhost` / `.example.com` | The **cookie's** domain. No port — cookies do not have ports, so one value covers API and frontend. A leading dot shares it across subdomains. |
-| `SANCTUM_STATEFUL_DOMAINS` | `localhost:3000` / `app.example.com` | The **origins** Sanctum treats as first-party. Ports included, because origins have them. |
+| Setting                    | Value                                | Why                                                                                                                                            |
+| -------------------------- | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SESSION_DOMAIN`           | `localhost` / `.example.com`         | The **cookie's** domain. No port — cookies do not have ports, so one value covers API and frontend. A leading dot shares it across subdomains. |
+| `SANCTUM_STATEFUL_DOMAINS` | `localhost:3000` / `app.example.com` | The **origins** Sanctum treats as first-party. Ports included, because origins have them.                                                      |
 
 Getting the port wrong in either direction is the most common cause of "login returns 204 and the next request is still a guest."
 

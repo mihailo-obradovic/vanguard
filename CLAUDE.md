@@ -11,5 +11,6 @@ The Workflowy MCP server is connected and acts as the task tracker for this proj
 - Tasks may carry inline hashtags like `#high-priority`, `#back-end`, `#full-stack`, `#lowpriority`; completed/older items live under the `#archive` child.
 
 <!-- catalyst:begin -->
+
 @catalyst/AGENTS.md
 <!-- catalyst:end -->

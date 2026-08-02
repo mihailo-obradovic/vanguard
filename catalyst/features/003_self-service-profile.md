@@ -16,22 +16,22 @@ Let any authenticated user update their own name, email, and password without ad
 
 ## Inputs
 
-| Input | Type | Source | Constraints |
-| --- | --- | --- | --- |
-| `name` | string | `PUT /api/profile` body | `sometimes`, max 255 |
-| `email` | string | body | `sometimes`, lowercase, valid email, max 255, unique ignoring self |
-| `password` | string | body | `sometimes`, `confirmed`, Laravel `Password::defaults()` (min 8) |
-| `current_password` | string | body | `required_with:password`, must match session user's password (web guard) |
+| Input              | Type   | Source                  | Constraints                                                              |
+| ------------------ | ------ | ----------------------- | ------------------------------------------------------------------------ |
+| `name`             | string | `PUT /api/profile` body | `sometimes`, max 255                                                     |
+| `email`            | string | body                    | `sometimes`, lowercase, valid email, max 255, unique ignoring self       |
+| `password`         | string | body                    | `sometimes`, `confirmed`, Laravel `Password::defaults()` (min 8)         |
+| `current_password` | string | body                    | `required_with:password`, must match session user's password (web guard) |
 
 All fields optional (`sometimes`) — partial updates are valid; `{}` is a 200 no-op. `role` is not accepted: absent from the rules and from `User`'s fillable set — sent values are silently ignored (tested).
 
 ## Outputs And Side Effects
 
-| Output / Side Effect | Type | Description |
-| --- | --- | --- |
-| `200` + `{ data: UserResource }` | JSON | `id, name, email, role (string value), email_verified_at, created_at, updated_at` |
-| Email verification reset | DB | changed email nulls `email_verified_at` (`User::changeEmail()`); same email = no-op returning `false` |
-| Verification mail | queued notification | `VerifyEmailNotification` sent only when the email actually changed |
+| Output / Side Effect             | Type                | Description                                                                                           |
+| -------------------------------- | ------------------- | ----------------------------------------------------------------------------------------------------- |
+| `200` + `{ data: UserResource }` | JSON                | `id, name, email, role (string value), email_verified_at, created_at, updated_at`                     |
+| Email verification reset         | DB                  | changed email nulls `email_verified_at` (`User::changeEmail()`); same email = no-op returning `false` |
+| Verification mail                | queued notification | `VerifyEmailNotification` sent only when the email actually changed                                   |
 
 ## Scope And Non-Goals
 
@@ -49,20 +49,20 @@ Non-goals: admin user management (feature 002 — `PUT /api/users/{id}` keeps ro
 
 ## Roles And Access
 
-| Resource/action | Guest | User | Admin |
-| --- | --- | --- | --- |
-| `PUT /api/profile` (own record only — no route param exists) | 401 | ✔ | ✔ (acts on self) |
+| Resource/action                                              | Guest | User | Admin            |
+| ------------------------------------------------------------ | ----- | ---- | ---------------- |
+| `PUT /api/profile` (own record only — no route param exists) | 401   | ✔    | ✔ (acts on self) |
 
 Every account type gets the same profile page; admins additionally manage others via feature 002.
 
 ## Examples
 
-| Input | Expected Output | Notes |
-| --- | --- | --- |
-| `{ name: "New Name" }` | 200, name persisted | name-only save; empty `current_password` string is skipped (non-implicit rule) |
-| `{ email: <changed> }` | 200, `email_verified_at` null, verification mail queued | tested |
-| `{ password, password_confirmation, current_password: <wrong> }` | 422 on `current_password`, old password still valid | tested |
-| `{ role: "admin" }` | 200, role unchanged | escalation blocked twice: rules + fillable |
+| Input                                                            | Expected Output                                         | Notes                                                                          |
+| ---------------------------------------------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| `{ name: "New Name" }`                                           | 200, name persisted                                     | name-only save; empty `current_password` string is skipped (non-implicit rule) |
+| `{ email: <changed> }`                                           | 200, `email_verified_at` null, verification mail queued | tested                                                                         |
+| `{ password, password_confirmation, current_password: <wrong> }` | 422 on `current_password`, old password still valid     | tested                                                                         |
+| `{ role: "admin" }`                                              | 200, role unchanged                                     | escalation blocked twice: rules + fillable                                     |
 
 ## Business Rules
 

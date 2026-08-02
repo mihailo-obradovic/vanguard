@@ -5,7 +5,7 @@ How the **Catalyst template** is versioned. The current number lives in `VERSION
 Two distinct things are versioned, and this file governs the first:
 
 - **The Catalyst stamp — mandatory.** Every spawned project gets it, and it is what `tools/upgrade_project.py` reads (it refuses to run without one). Not optional, never asked about.
-- **The project's own version — optional, off by default.** A spawned project only gets its own `VERSION` and `CHANGELOG.md` when asked for at spawn (`--versioning`), for versioning the product being built. Its numbering is the project's business, unrelated to the stamp. The `post-commit` hook's `catalyst-requires: versioning` means *this*, not the stamp.
+- **The project's own version — optional, off by default.** A spawned project only gets its own `VERSION` and `CHANGELOG.md` when asked for at spawn (`--versioning`), for versioning the product being built. Its numbering is the project's business, unrelated to the stamp. The `post-commit` hook's `catalyst-requires: versioning` means _this_, not the stamp.
 
 ## The number
 
@@ -21,7 +21,7 @@ We're at `0.x` while the template is still taking shape; cut `1.0.0` when it's s
 
 From the Catalyst repo: `python3 tools/upgrade_project.py <project-path>` — dry-run by default, `--apply` writes. It prints the changelog between the project's stamp and the current version, three-way merges the copied rule files in the project's `catalyst/` (project-local edits are preserved; real conflicts get markers to resolve), reports — but never touches — project-owned documents (`architecture.md`, `project-summary.md` content), offers any hooks new in the target version (`tools/hooks/README.md`), refreshes the generated root pointers, and bumps the stamp only after confirmation. It reads spawn-time file contents from the release tags below; without the project's base tag it degrades to `.catalyst-new` sidecar files instead of overwriting.
 
-The merge base is read by the template's own paths, which do not move when a project's do — Catalyst's root *is* the bundle layout, so a project's `catalyst/<path>` and the template's `<path>` are the same file.
+The merge base is read by the template's own paths, which do not move when a project's do — Catalyst's root _is_ the bundle layout, so a project's `catalyst/<path>` and the template's `<path>` are the same file.
 
 ## Releasing
 

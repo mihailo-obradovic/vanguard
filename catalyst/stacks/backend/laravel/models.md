@@ -35,14 +35,14 @@ class User extends Authenticatable implements MustVerifyEmail
 
 What changed from the older style:
 
-| Older style | Laravel 13 |
-| --- | --- |
-| `protected $fillable = [...]` | `#[Fillable([...])]` class attribute |
-| `protected $hidden = [...]` | `#[Hidden([...])]` class attribute |
-| `protected $casts = [...]` | `protected function casts(): array` |
+| Older style                                               | Laravel 13                                              |
+| --------------------------------------------------------- | ------------------------------------------------------- |
+| `protected $fillable = [...]`                             | `#[Fillable([...])]` class attribute                    |
+| `protected $hidden = [...]`                               | `#[Hidden([...])]` class attribute                      |
+| `protected $casts = [...]`                                | `protected function casts(): array`                     |
 | `protected $table`, `$appends`, `$touches`, `$dateFormat` | `#[Table]`, `#[Appends]`, `#[Touches]`, `#[DateFormat]` |
-| `protected static function booted()` | `#[Boot]`, `#[ObservedBy]`, `#[ScopedBy]` |
-| `$policies` array in a provider | `#[UsePolicy(...)]` on the model |
+| `protected static function booted()`                      | `#[Boot]`, `#[ObservedBy]`, `#[ScopedBy]`               |
+| `$policies` array in a provider                           | `#[UsePolicy(...)]` on the model                        |
 
 The `casts()` method exists because a property could not call anything — a cast needing a constructor argument (`AsEncryptedCollection::class`, a custom caster with parameters) had to be worked around. The method form removes the special case, so use it even when the array is static.
 
@@ -106,6 +106,7 @@ The rule "verification resets when the address changes" now exists once. Every c
   ```php
   $table->string('role')->default(Role::User->value);
   ```
+
 - Business invariants that must hold under concurrency go in the schema — unique, check, and foreign-key constraints. A `->where(...)->exists()` check in a service is a race, not enforcement.
 - Read what `--seed` and any generated migration actually contain before running them.
 

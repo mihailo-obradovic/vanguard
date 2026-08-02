@@ -113,14 +113,14 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
 
 ## Status codes
 
-| Outcome | Status | Returned by |
-| --- | --- | --- |
-| Read succeeded | 200 | `Resource::make()` / `Resource::collection()` |
-| Resource created | 201 | `->response()->setStatusCode(Response::HTTP_CREATED)` |
-| Succeeded, nothing to return | 204 | `response()->noContent()` |
-| Not authenticated | 401 | the auth middleware |
-| Authenticated, not allowed | 403 | FormRequest `authorize()` or route middleware |
-| Not found | 404 | route-model binding |
-| Validation failed | 422 | FormRequest, or `ValidationException::withMessages()` |
+| Outcome                      | Status | Returned by                                           |
+| ---------------------------- | ------ | ----------------------------------------------------- |
+| Read succeeded               | 200    | `Resource::make()` / `Resource::collection()`         |
+| Resource created             | 201    | `->response()->setStatusCode(Response::HTTP_CREATED)` |
+| Succeeded, nothing to return | 204    | `response()->noContent()`                             |
+| Not authenticated            | 401    | the auth middleware                                   |
+| Authenticated, not allowed   | 403    | FormRequest `authorize()` or route middleware         |
+| Not found                    | 404    | route-model binding                                   |
+| Validation failed            | 422    | FormRequest, or `ValidationException::withMessages()` |
 
 422 bodies are the frontend's inline field errors, not a toast — the frontend module holds that half of the contract.

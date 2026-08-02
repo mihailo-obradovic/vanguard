@@ -82,7 +82,9 @@ export function useUpdateUser(options: /* … */ = {}) {
 `@/composables/useAppQuery.ts` and `useAppMutation.ts` wrap Pinia Colada, add central error handling, and take an extra `errorHandling` option that callers use to opt out of toasts:
 
 ```ts
-export type AppQueryOptions<T> = UseQueryOptions<T> & { errorHandling?: ErrorHandlingOptions };
+export type AppQueryOptions<T> = UseQueryOptions<T> & {
+  errorHandling?: ErrorHandlingOptions;
+};
 ```
 
 Two details that are load-bearing:

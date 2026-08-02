@@ -10,7 +10,7 @@ Size budget: target ≤4,800 characters — total characters, since line widths 
 
 ## Steps
 
-1. Draft the hypothesis and the **Success Bar** — the threshold that decides the verdict, fixed *before* the run and never moved after results are seen (Honest Inputs). Commit the `Proposed` document and its index row on `master`; the user approves the hypothesis and bar before any run — approving the bar is the gate, not approving a result.
+1. Draft the hypothesis and the **Success Bar** — the threshold that decides the verdict, fixed _before_ the run and never moved after results are seen (Honest Inputs). Commit the `Proposed` document and its index row on `master`; the user approves the hypothesis and bar before any run — approving the bar is the gate, not approving a result.
 2. On approval the status goes `Running`; build and measure on an `experiment/<nnn>-<slug>` branch. Record the measured Result as it came, no spin.
 3. The verdict is Result against the pre-registered bar, not a judgement call: bar met → `Adopted`, bar missed → `Refuted`. State the code disposition (adopted graduates; refuted keeps or reverts the code) and write the one-line **Finding** either way.
 4. `Adopted` **graduates**: the live change ships as a feature or decision record through the normal flow — the experiment does not become the contract. `Refuted` stays as knowledge: the record and its Index row are never deleted, so a later agent reads the finding instead of re-running the dead hypothesis. A local domain decision that proved cross-cutting graduates to the Domain Decisions register (`references/domain-decisions.md`).

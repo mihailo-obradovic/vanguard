@@ -33,9 +33,9 @@ Default-set layers **not adopted**:
 
 Optional layers walked in order:
 
-| Layer | Verdict | Why |
-| --- | --- | --- |
-| Identity (`keycloak`) | not adopted | two roles (admin/user) carried by Laravel auth + `app/Enums/Role.php`; no federation or external IdP need |
+| Layer                    | Verdict     | Why                                                                                                                             |
+| ------------------------ | ----------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Identity (`keycloak`)    | not adopted | two roles (admin/user) carried by Laravel auth + `app/Enums/Role.php`; no federation or external IdP need                       |
 | Maintenance (`renovate`) | **adopted** | already live — `.github/renovate.json` plus active `renovate/*` branches; committed lockfiles are what the layer exists to move |
 
 Addons: `ssr` not adopted — the app is a deliberate SPA (`nuxt.config.ts` sets `ssr: false`); the underlying rationale is a B-phase backfill record of its own. `framework-mapping` not adopted.

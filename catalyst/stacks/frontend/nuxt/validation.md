@@ -45,7 +45,9 @@ A validation failure the form could have caught belongs on the field that caused
 1. The mutation opts out of the validation toast — and only that toast:
 
    ```ts
-   const { mutate, error } = useUpdateUser({ errorHandling: { hideValidationToast: true } });
+   const { mutate, error } = useUpdateUser({
+     errorHandling: { hideValidationToast: true }
+   });
    ```
 
    Non-422 errors still toast centrally (`error-handling.md`). `hideValidationToast` is narrower than `hideToast` on purpose: a 500 during a form submit must still be visible.

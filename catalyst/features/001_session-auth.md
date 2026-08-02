@@ -16,23 +16,23 @@ Authenticate the Nuxt SPA against the Laravel API with Sanctum's stateful cookie
 
 ## Inputs
 
-| Input | Type | Source | Constraints |
-| --- | --- | --- | --- |
-| `name`, `email`, `password`(+`_confirmation`) | strings | `POST /register` | name max 255; email lowercase/unique/max 255; password confirmed, min 8 |
-| `email`, `password` | strings | `POST /login` | required; 5 attempts per email+IP, then throttled |
-| `email` | string | `POST /forgot-password` | required, valid email |
-| `token`, `email`, `password`(+`_confirmation`) | strings | `POST /reset-password` | token required; password confirmed, min 8 |
-| `id`, `hash` + signature | URL params | `GET /verify-email/{id}/{hash}` | signed URL (60 min), `throttle:6,1`, hash = sha1 of user email |
+| Input                                          | Type       | Source                          | Constraints                                                             |
+| ---------------------------------------------- | ---------- | ------------------------------- | ----------------------------------------------------------------------- |
+| `name`, `email`, `password`(+`_confirmation`)  | strings    | `POST /register`                | name max 255; email lowercase/unique/max 255; password confirmed, min 8 |
+| `email`, `password`                            | strings    | `POST /login`                   | required; 5 attempts per email+IP, then throttled                       |
+| `email`                                        | string     | `POST /forgot-password`         | required, valid email                                                   |
+| `token`, `email`, `password`(+`_confirmation`) | strings    | `POST /reset-password`          | token required; password confirmed, min 8                               |
+| `id`, `hash` + signature                       | URL params | `GET /verify-email/{id}/{hash}` | signed URL (60 min), `throttle:6,1`, hash = sha1 of user email          |
 
 ## Outputs And Side Effects
 
-| Output / Side Effect | Type | Description |
-| --- | --- | --- |
-| `204 No Content` | HTTP | register, login, logout — no body; session rotation per Invariants |
-| `200 {"status": ...}` | JSON | forgot/reset password, resend verification (`verification-link-sent` / `already-verified`) |
-| `GET /api/user` → `UserResource` | JSON | `{ "data": ... }` envelope — `id, name, email, role, email_verified_at, created_at, updated_at` (password/remember_token hidden) |
-| Verify redirect | 302 | signed mail link hits the API, then bounces to `FRONTEND_URL/profile?verified=1` |
-| Queued mail | notification | `VerifyEmailNotification` (register + resend); `ResetPasswordNotification` — link points directly at the SPA (`FRONTEND_URL/password-reset/{token}?email=...`) |
+| Output / Side Effect             | Type         | Description                                                                                                                                                    |
+| -------------------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `204 No Content`                 | HTTP         | register, login, logout — no body; session rotation per Invariants                                                                                             |
+| `200 {"status": ...}`            | JSON         | forgot/reset password, resend verification (`verification-link-sent` / `already-verified`)                                                                     |
+| `GET /api/user` → `UserResource` | JSON         | `{ "data": ... }` envelope — `id, name, email, role, email_verified_at, created_at, updated_at` (password/remember_token hidden)                               |
+| Verify redirect                  | 302          | signed mail link hits the API, then bounces to `FRONTEND_URL/profile?verified=1`                                                                               |
+| Queued mail                      | notification | `VerifyEmailNotification` (register + resend); `ResetPasswordNotification` — link points directly at the SPA (`FRONTEND_URL/password-reset/{token}?email=...`) |
 
 ## Scope And Non-Goals
 
@@ -55,13 +55,13 @@ Not role-specific — no auth endpoint is role-gated; registration cannot set a 
 
 ## Examples
 
-| Input | Expected Output | Notes |
-| --- | --- | --- |
-| `POST /login` valid creds | 204, session regenerated | tested; SPA follows with `GET /api/user` |
-| `POST /login` wrong password ×6 | 422 ×5 on `email`, then throttle 422 | tested |
-| `GET /api/user` as guest (even without JSON Accept) | 401 JSON, never a redirect | tested — `redirectGuestsTo(null)` + forced JSON for `api/*` |
-| `GET /verify-email/{id}/{bad-hash}` | 403, still unverified | tested |
-| `POST /forgot-password` unknown email | 422 on `email` | **leaks account existence** — recorded, not smoothed over |
+| Input                                               | Expected Output                      | Notes                                                       |
+| --------------------------------------------------- | ------------------------------------ | ----------------------------------------------------------- |
+| `POST /login` valid creds                           | 204, session regenerated             | tested; SPA follows with `GET /api/user`                    |
+| `POST /login` wrong password ×6                     | 422 ×5 on `email`, then throttle 422 | tested                                                      |
+| `GET /api/user` as guest (even without JSON Accept) | 401 JSON, never a redirect           | tested — `redirectGuestsTo(null)` + forced JSON for `api/*` |
+| `GET /verify-email/{id}/{bad-hash}`                 | 403, still unverified                | tested                                                      |
+| `POST /forgot-password` unknown email               | 422 on `email`                       | **leaks account existence** — recorded, not smoothed over   |
 
 ## Business Rules
 

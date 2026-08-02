@@ -23,20 +23,20 @@ Where a formatter also reads this file, **the formatter's own config wins** and 
 
 `.vscode/extensions.json` at the project root is **generated**, not hand-maintained: the scaffolder writes the rows whose backing documents the project's bundle actually carries, and the upgrader regenerates it whenever the adopted stack changes. The registry is `EDITOR_EXTENSIONS` in `tools/new_project.py`; the table below is its documented mirror, kept in parity by validator R11.
 
-| Extension | Included when | What it gives |
-| --- | --- | --- |
-| `EditorConfig.EditorConfig` | always | applies the `.editorconfig` above |
-| `aaron-bond.better-comments` | always | colors the [`code-annotations.md`](code-annotations.md) markers |
-| `oxc.oxc-vscode` | the `_lang/typescript` tier travels with the stack | oxlint diagnostics and oxfmt formatting in-editor (`stacks/_lang/typescript/toolchain.md`) |
-| `bradlc.vscode-tailwindcss` | a module bringing Tailwind is adopted (currently `nextjs`) | class completion, hover previews, conflict detection |
-| `dsznajder.es7-react-js-snippets` | the `frontend/_react` tier travels with the stack | React component and hook snippets |
-| `Vue.volar` | the `frontend/_vue` tier travels with the stack | Vue SFC language support and template type-checking |
-| `lokalise.i18n-ally` | the i18n addon is adopted | inline catalog previews, missing-key detection |
-| `laravel.vscode-laravel` | the `laravel` backend module is adopted | completion and go-to-definition for routes, config, env, models, app bindings |
-| `bmewburn.vscode-intelephense-client` | the `laravel` backend module is adopted | PHP language server — completion, diagnostics, go-to-definition |
-| `mehedidracula.php-namespace-resolver` | the `laravel` backend module is adopted | imports and sorts `use` statements |
-| `onecentlin.laravel5-snippets` | the `laravel` backend module is adopted | Laravel class and facade snippets |
-| `xdebug.php-debug` | the `laravel` backend module is adopted | step debugging against Xdebug |
+| Extension                              | Included when                                              | What it gives                                                                              |
+| -------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `EditorConfig.EditorConfig`            | always                                                     | applies the `.editorconfig` above                                                          |
+| `aaron-bond.better-comments`           | always                                                     | colors the [`code-annotations.md`](code-annotations.md) markers                            |
+| `oxc.oxc-vscode`                       | the `_lang/typescript` tier travels with the stack         | oxlint diagnostics and oxfmt formatting in-editor (`stacks/_lang/typescript/toolchain.md`) |
+| `bradlc.vscode-tailwindcss`            | a module bringing Tailwind is adopted (currently `nextjs`) | class completion, hover previews, conflict detection                                       |
+| `dsznajder.es7-react-js-snippets`      | the `frontend/_react` tier travels with the stack          | React component and hook snippets                                                          |
+| `Vue.volar`                            | the `frontend/_vue` tier travels with the stack            | Vue SFC language support and template type-checking                                        |
+| `lokalise.i18n-ally`                   | the i18n addon is adopted                                  | inline catalog previews, missing-key detection                                             |
+| `laravel.vscode-laravel`               | the `laravel` backend module is adopted                    | completion and go-to-definition for routes, config, env, models, app bindings              |
+| `bmewburn.vscode-intelephense-client`  | the `laravel` backend module is adopted                    | PHP language server — completion, diagnostics, go-to-definition                            |
+| `mehedidracula.php-namespace-resolver` | the `laravel` backend module is adopted                    | imports and sorts `use` statements                                                         |
+| `onecentlin.laravel5-snippets`         | the `laravel` backend module is adopted                    | Laravel class and facade snippets                                                          |
+| `xdebug.php-debug`                     | the `laravel` backend module is adopted                    | step debugging against Xdebug                                                              |
 
 Pint needs no extension: it is the formatter of record and runs from `vendor/bin/pint`, which is the rule at the top of this document rather than an omission.
 

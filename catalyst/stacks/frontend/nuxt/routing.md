@@ -37,7 +37,7 @@ The policy lives in a plain function in `@/utils/` that takes a path and returns
 Why the split is worth the extra file:
 
 - **The policy is unit-testable without a router.** Route middleware needs a Nuxt app instance to test; a pure function needs nothing, so every rule and every edge gets a cheap test.
-- **The same decision is needed in more than one place.** Middleware runs on navigation, but authentication state also changes *without* navigating — a session expiring, a logout in another tab. Watching auth state and re-running the same function keeps one policy instead of two that drift.
+- **The same decision is needed in more than one place.** Middleware runs on navigation, but authentication state also changes _without_ navigating — a session expiring, a logout in another tab. Watching auth state and re-running the same function keeps one policy instead of two that drift.
 - Route lists (guest-only, shared, protected) live in the policy function as data, so adding a route is a one-line change in a tested file.
 
 Use `{ replace: true }` on redirects so a guarded page does not sit in history for the back button to return to.

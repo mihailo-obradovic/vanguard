@@ -10,7 +10,7 @@ The Vue-side additions to [`../_common/component-naming.md`](../_common/componen
 
 The underscore is deliberate — it sorts the directory to the top and marks it as infrastructure rather than a feature folder. It is the Vue-side counterpart to React's `@/components/ui/`, and it is wider: it holds shared components generally, `UI*` primitives among them.
 
-``` ts
+```ts
 ✅ @/components/_shared/UIField.vue        auto-registered, no import
 ✅ @/components/users/UserFormDialog.vue   imported explicitly where used
 ```
@@ -21,7 +21,7 @@ Registering a second directory, or turning auto-registration off, is a project d
 
 A component's tag name is built from **its path relative to the registered directory**, not from its filename alone. A file nested one level deeper answers to a different tag.
 
-``` ts
+```ts
 @/components/_shared/UserCard.vue        → <UserCard />
 @/components/_shared/users/UserCard.vue  → <UsersUserCard />
 ```

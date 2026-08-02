@@ -10,12 +10,12 @@ Rules for files under `@/components/`, framework-agnostic — they hold for `.ts
 
 **PascalCase.** Name must describe **visual role or content**, never implementation details.
 
-``` ts
+```ts
 ✅ Challenge.tsx, HiringProcess.vue, ContactCard.tsx
 ❌ ChallengeSection.tsx (no Section suffix), OurHiringProcess.vue (no brand prefix), Card.tsx inside contact/ (not self-describing)
 ```
 
-`Section` is allowed only when it is the noun the component *is* (`SectionWrapper`, `SectionHeader`) - never as a suffix on a content block.
+`Section` is allowed only when it is the noun the component _is_ (`SectionWrapper`, `SectionHeader`) - never as a suffix on a content block.
 
 **Generated files keep their generator's naming.** Where the `frontend/ui` choice vendors components through a CLI that also updates them, the CLI owns those filenames — renaming them breaks the update path, so they are out of scope for this rule and for the style audit. The ui choice's document says which directory that covers and what the convention is there (e.g. shadcn's lowercase `button.tsx` under `@/components/ui/`). Everything hand-written, including primitives added alongside the generated ones, follows the rules here.
 
@@ -34,7 +34,7 @@ Where shared primitives live is the framework tier's call - `@/components/ui/` u
 
 Never reuse a basename in different folders. Each filename must be unambiguous without its folder path.
 
-``` ts
+```ts
 ✅ contact/ContactCard.tsx, services/ServiceCard.tsx, layout/SiteLogo.vue
 ❌ contact/Card.tsx + services/Card.tsx, layout/Logo.vue + layout/home/Logo.vue
 ```
@@ -43,7 +43,7 @@ Never reuse a basename in different folders. Each filename must be unambiguous w
 
 **kebab-case** for multi-word segments inside `@/components/`.
 
-``` ts
+```ts
 ✅ @/components/og-image/OgImage.tsx, @/components/job-application/JobForm.vue
 ❌ @/components/ogImage/OgImage.tsx, @/components/jobApplication/JobForm.vue
 ```

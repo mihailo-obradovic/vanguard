@@ -1,6 +1,6 @@
 # Decision: Init design — field-sensor telemetry service
 
-Standalone reference sample for a *different* fictional project from the QA
+Standalone reference sample for a _different_ fictional project from the QA
 platform the other examples share: a field-sensor telemetry service.
 
 ## Status
@@ -33,10 +33,10 @@ pages, so the Next.js baseline stands without the `ssr` addon.
 
 Optional layers walked in order:
 
-| Layer | Verdict | Why |
-| --- | --- | --- |
-| Identity (`keycloak`) | **adopted** | two end-user roles (agronomist, admin) at launch, and devices need their own credentials |
-| Maintenance (`renovate`) | **adopted** | the compose stack pins image tags from day one, so something has to move them |
+| Layer                    | Verdict     | Why                                                                                      |
+| ------------------------ | ----------- | ---------------------------------------------------------------------------------------- |
+| Identity (`keycloak`)    | **adopted** | two end-user roles (agronomist, admin) at launch, and devices need their own credentials |
+| Maintenance (`renovate`) | **adopted** | the compose stack pins image tags from day one, so something has to move them            |
 
 Time-series storage was considered and deferred: 2 000 devices at 30 s is
 inside what plain Postgres handles, and adopting a Timescale extension is a

@@ -61,8 +61,8 @@ Upstream: https://github.com/vercel-labs/agent-skills — `skills/react-best-pra
 
 Local deviations from upstream:
 
-| Rule | Deviation |
-| --- | --- |
+| Rule                 | Deviation                                                                                                     |
+| -------------------- | ------------------------------------------------------------------------------------------------------------- |
 | `async-dependencies` | Dependency-free promise-chaining pattern promoted to the default; `better-all` demoted to an optional mention |
 
 Re-sync: diff upstream's `rules/` by rule name against the four rule directories; apply upstream changes to whichever tier holds the rule, preserving the deviations listed in each tier's Provenance table.

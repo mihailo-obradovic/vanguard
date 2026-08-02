@@ -17,7 +17,10 @@ import ConfirmDialog from '@/components/users/ConfirmDialog.vue'; // self-contai
 
 import { ROLE_LABELS } from '@/assets/constants/roles'; // 3. static assets
 
-import { useFetchUsers, useDeleteUser } from '@/services/queries/useUserQueries'; // 4. services
+import {
+  useFetchUsers,
+  useDeleteUser
+} from '@/services/queries/useUserQueries'; // 4. services
 
 import type { User } from '@/types/user'; // 5. type imports last
 
@@ -51,13 +54,15 @@ function handleSelect(user: User) {
   emit('select', user);
 }
 
-const handleSearch = useDebounceFn((term: string) => { // arrow is fine as a callback argument
+const handleSearch = useDebounceFn((term: string) => {
+  // arrow is fine as a callback argument
   void term;
 }, 300);
 
 watch(() => route.query.page, handleSearch); // 17. component-wide watchers
 
-onMounted(() => { // 18. lifecycle, in lifecycle order
+onMounted(() => {
+  // 18. lifecycle, in lifecycle order
   searchInput.value?.focus();
 });
 
@@ -83,10 +88,14 @@ Sections 15–17 are for component-wide concerns. A feature's own state, derived
 ```ts
 // ✅ one feature, one place
 const selectedIds = ref<number[]>([]);
-const allSelected = computed(() => selectedIds.value.length === users.value?.length);
+const allSelected = computed(
+  () => selectedIds.value.length === users.value?.length
+);
 
 function toggleAll() {
-  selectedIds.value = allSelected.value ? [] : (users.value ?? []).map((u) => u.id);
+  selectedIds.value = allSelected.value
+    ? []
+    : (users.value ?? []).map((u) => u.id);
 }
 
 watch(users, () => {

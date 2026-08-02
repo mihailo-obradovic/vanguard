@@ -33,17 +33,17 @@ Explain why this feature exists and which user or system problem it solves.
 
 Define accepted inputs formally enough that another agent can test them.
 
-| Input | Type | Source | Constraints |
-| --- | --- | --- | --- |
+| Input    | Type     | Source     | Constraints     |
+| -------- | -------- | ---------- | --------------- |
 | `<name>` | `<type>` | `<source>` | `<constraints>` |
 
 ## Outputs And Side Effects
 
 Define produced outputs and any durable side effects.
 
-| Output / Side Effect | Type | Description |
-| --- | --- | --- |
-| `<name>` | `<type>` | `<description>` |
+| Output / Side Effect | Type     | Description     |
+| -------------------- | -------- | --------------- |
+| `<name>`             | `<type>` | `<description>` |
 
 ## Scope And Non-Goals
 
@@ -74,9 +74,9 @@ Otherwise state: `Not role-specific.`
 
 Use examples where behavior depends on input; they are the acceptance criteria.
 
-| Input | Expected Output | Notes |
-| --- | --- | --- |
-| `<input>` | `<output>` | `<important condition>` |
+| Input     | Expected Output | Notes                   |
+| --------- | --------------- | ----------------------- |
+| `<input>` | `<output>`      | `<important condition>` |
 
 ## Business Rules
 

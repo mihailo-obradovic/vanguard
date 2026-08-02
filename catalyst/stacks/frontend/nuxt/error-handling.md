@@ -19,12 +19,19 @@ A single wrapper over `$fetch` that every service function calls (`data-layer.md
 A cookie-session API expires its CSRF token independently of the session, so a user who left a tab open meets a token failure on their next click while still being perfectly logged in. That is recoverable and should never reach them:
 
 ```ts
-export async function fetcher<T>(path: string, params: FetcherOptions = {}): Promise<T> {
+export async function fetcher<T>(
+  path: string,
+  params: FetcherOptions = {}
+): Promise<T> {
   try {
     return await makeRequest<T>(path, params);
   } catch (error) {
     // An expired CSRF token is recoverable: refresh the cookie and retry once.
-    if (error instanceof FetchError && error.statusCode === 419 && path !== CSRF_COOKIE_PATH) {
+    if (
+      error instanceof FetchError &&
+      error.statusCode === 419 &&
+      path !== CSRF_COOKIE_PATH
+    ) {
       await makeRequest(CSRF_COOKIE_PATH, {});
       return makeRequest<T>(path, params);
     }
@@ -44,12 +51,12 @@ Two details are load-bearing and easy to lose in a refactor:
 
 Every failed request lands here. It decides navigation and messaging in one place:
 
-| Status | Action |
-| --- | --- |
-| **401** | Clear the local user, then redirect to the login route — unless already there |
-| **403** | Redirect to the authenticated landing route — unless already there |
-| **422** | Surface every field message rather than the API's "(and N more errors)" summary |
-| anything else | One toast carrying the API's message |
+| Status        | Action                                                                          |
+| ------------- | ------------------------------------------------------------------------------- |
+| **401**       | Clear the local user, then redirect to the login route — unless already there   |
+| **403**       | Redirect to the authenticated landing route — unless already there              |
+| **422**       | Surface every field message rather than the API's "(and N more errors)" summary |
+| anything else | One toast carrying the API's message                                            |
 
 The guards matter: redirecting to a route the user is already on produces a navigation loop under a global middleware that would redirect them right back.
 
@@ -76,11 +83,11 @@ A `WeakSet` specifically — the entry disappears with the error object, so a lo
 
 ## Getting a usable message out of a failure
 
-`ofetch` throws with a `.message` describing the *request* (`[POST] "/login": 422 Unprocessable Content`) — never the message the API wrote. The API's message is on the parsed body. Read them in order:
+`ofetch` throws with a `.message` describing the _request_ (`[POST] "/login": 422 Unprocessable Content`) — never the message the API wrote. The API's message is on the parsed body. Read them in order:
 
 1. `error.data.message` — what the API actually said.
 2. `error.message` — the transport-level description.
-3. A generic fallback: *"Something went wrong. Please try again."*
+3. A generic fallback: _"Something went wrong. Please try again."_
 
 Only the first is worth showing a user; the other two exist so no failure is silent.
 

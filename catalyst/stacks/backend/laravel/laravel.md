@@ -46,33 +46,33 @@ tests/            Pest — Feature/ and Unit/
 
 ## Tool Bindings
 
-| Universal Rule | Implemented by |
-| --- | --- |
-| Validation | FormRequest classes, array-syntax rules; never inlined in a controller |
-| Contracts | API Resources are the response contract; version in path (`/api/v1`) |
-| Pagination | `->paginate()`; `page` / `per_page` query params, one convention per project |
-| Error handling | `withExceptions()` in `bootstrap/app.php` — one central place, JSON for API requests |
-| Configuration | `config/*.php` files reading `env()`; nothing else calls `env()` |
-| Persistence | Eloquent + Laravel migrations |
-| Transaction boundaries | `DB::transaction()` in the service or model method, never in a controller |
-| Async work | Laravel queues over the same codebase — see Queued Work below |
-| Dead letter | the `failed_jobs` table after the retry budget; redrive with `queue:retry`, never an ad hoc re-dispatch |
-| Idempotency | a natural key on the job payload, or `ShouldBeUnique` where the key is the model |
-| Logging | the `Log` facade (Monolog); the `stderr` channel in containers, so the platform collects it |
-| Observability | `/up` from `withRouting(health: ...)` for liveness; readiness is a separate route that checks the dependencies the service actually needs |
-| Auth seam | the `auth/` choice below; `auth:sanctum` on the protected route groups |
-| Authorization | FormRequest `authorize()` plus route middleware; Policies once per-record ownership rules appear |
-| Tests | Pest 5; feature tests against the Persistence module's real engine |
+| Universal Rule         | Implemented by                                                                                                                            |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Validation             | FormRequest classes, array-syntax rules; never inlined in a controller                                                                    |
+| Contracts              | API Resources are the response contract; version in path (`/api/v1`)                                                                      |
+| Pagination             | `->paginate()`; `page` / `per_page` query params, one convention per project                                                              |
+| Error handling         | `withExceptions()` in `bootstrap/app.php` — one central place, JSON for API requests                                                      |
+| Configuration          | `config/*.php` files reading `env()`; nothing else calls `env()`                                                                          |
+| Persistence            | Eloquent + Laravel migrations                                                                                                             |
+| Transaction boundaries | `DB::transaction()` in the service or model method, never in a controller                                                                 |
+| Async work             | Laravel queues over the same codebase — see Queued Work below                                                                             |
+| Dead letter            | the `failed_jobs` table after the retry budget; redrive with `queue:retry`, never an ad hoc re-dispatch                                   |
+| Idempotency            | a natural key on the job payload, or `ShouldBeUnique` where the key is the model                                                          |
+| Logging                | the `Log` facade (Monolog); the `stderr` channel in containers, so the platform collects it                                               |
+| Observability          | `/up` from `withRouting(health: ...)` for liveness; readiness is a separate route that checks the dependencies the service actually needs |
+| Auth seam              | the `auth/` choice below; `auth:sanctum` on the protected route groups                                                                    |
+| Authorization          | FormRequest `authorize()` plus route middleware; Policies once per-record ownership rules appear                                          |
+| Tests                  | Pest 5; feature tests against the Persistence module's real engine                                                                        |
 
 ## Module Documents
 
-| Document | What it holds |
-| --- | --- |
-| `laravel.md` | This document — the module contract and approved libraries |
-| `http-layer.md` | The request path: thin controllers, FormRequests, Resources, status codes, and the route file split |
-| `models.md` | Eloquent in Laravel 13 — attributes over properties, casts, enums, and where domain logic goes |
-| `testing.md` | Pest conventions, factories, and what runs against a real engine |
-| `auth/<choice>.md` | The authentication recipe for the chosen scheme |
+| Document           | What it holds                                                                                       |
+| ------------------ | --------------------------------------------------------------------------------------------------- |
+| `laravel.md`       | This document — the module contract and approved libraries                                          |
+| `http-layer.md`    | The request path: thin controllers, FormRequests, Resources, status codes, and the route file split |
+| `models.md`        | Eloquent in Laravel 13 — attributes over properties, casts, enums, and where domain logic goes      |
+| `testing.md`       | Pest conventions, factories, and what runs against a real engine                                    |
+| `auth/<choice>.md` | The authentication recipe for the chosen scheme                                                     |
 
 ## Queued Work
 

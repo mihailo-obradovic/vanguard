@@ -8,12 +8,12 @@ Nothing here restates a Universal Rule or a framework rule: framework-specific g
 
 ## Documents
 
-| Document | What it holds | Load |
-| --- | --- | --- |
-| `typescript-types.md` | Where types live, `.d.ts` vs `.ts`, `interface` vs `type`, `import type` discipline | When defining or organizing types |
-| `toolchain.md` | oxlint + oxfmt: config ownership, plugin rules, house format style, scripts | When setting up or changing lint/format tooling, or wiring editor/CI checks |
-| `performance.md` | Router over `rules/` — 24 language-level performance rules | When optimizing, or reviewing for performance |
-| `rules/*.md` | One rule per file: rationale + incorrect/correct examples | Per rule, via `performance.md` — never wholesale |
+| Document              | What it holds                                                                       | Load                                                                        |
+| --------------------- | ----------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| `typescript-types.md` | Where types live, `.d.ts` vs `.ts`, `interface` vs `type`, `import type` discipline | When defining or organizing types                                           |
+| `toolchain.md`        | oxlint + oxfmt: config ownership, plugin rules, house format style, scripts         | When setting up or changing lint/format tooling, or wiring editor/CI checks |
+| `performance.md`      | Router over `rules/` — 24 language-level performance rules                          | When optimizing, or reviewing for performance                               |
+| `rules/*.md`          | One rule per file: rationale + incorrect/correct examples                           | Per rule, via `performance.md` — never wholesale                            |
 
 The annotation convention for deliberate deviations, footguns, and to-dos is not language-level — it binds every project: [`conventions/code-annotations.md`](../../../conventions/code-annotations.md).
 

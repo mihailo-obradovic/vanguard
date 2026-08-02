@@ -12,12 +12,12 @@ This doc is the **single source of truth** for what each marker means. Other doc
 
 ## Markers
 
-| Marker    | Color  | Meaning              | Use for                                                                       |
-| --------- | ------ | -------------------- | ----------------------------------------------------------------------------- |
-| `// *`    | green  | customization / note | any deliberate deviation from a default, or a noteworthy fact worth surfacing |
+| Marker    | Color  | Meaning              | Use for                                                                           |
+| --------- | ------ | -------------------- | --------------------------------------------------------------------------------- |
+| `// *`    | green  | customization / note | any deliberate deviation from a default, or a noteworthy fact worth surfacing     |
 | `// !`    | red    | alert                | gotchas, upstream bugs, rendering/boundary caveats, "do not change this" warnings |
-| `// ?`    | blue   | query                | open questions (rare)                                                         |
-| `// TODO` | orange | to-do                | follow-ups                                                                    |
+| `// ?`    | blue   | query                | open questions (rare)                                                             |
+| `// TODO` | orange | to-do                | follow-ups                                                                        |
 
 The marker is the token after the comment opener, so it carries into every comment syntax the same way: `# * ...` in Python, YAML, and shell, `{/* * ... */}` in JSX, `/* ! ... */` in CSS.
 

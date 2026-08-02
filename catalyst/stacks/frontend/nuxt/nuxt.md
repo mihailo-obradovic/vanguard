@@ -16,14 +16,14 @@ The Vue-side frontend module: a Nuxt 4 app running **as an SPA** (`ssr: false`) 
 
 ## Module Documents
 
-| Document | What it holds |
-| --- | --- |
-| `nuxt.md` | This document — the module contract and approved libraries |
-| `data-layer.md` | The two-layer service + Pinia Colada contract, query keys, cache invalidation |
-| `client-state.md` | Pinia stores — what belongs in one, store shape, and the server-state boundary |
-| `validation.md` | Zod for responses, Regle for requests, and the inline-not-toast 422 path |
-| `error-handling.md` | The fetcher, CSRF retry, and the central error policy |
-| `routing.md` | Pages, layouts, and middleware-as-thin-adapter |
+| Document            | What it holds                                                                  |
+| ------------------- | ------------------------------------------------------------------------------ |
+| `nuxt.md`           | This document — the module contract and approved libraries                     |
+| `data-layer.md`     | The two-layer service + Pinia Colada contract, query keys, cache invalidation  |
+| `client-state.md`   | Pinia stores — what belongs in one, store shape, and the server-state boundary |
+| `validation.md`     | Zod for responses, Regle for requests, and the inline-not-toast 422 path       |
+| `error-handling.md` | The fetcher, CSRF retry, and the central error policy                          |
+| `routing.md`        | Pages, layouts, and middleware-as-thin-adapter                                 |
 
 The shared tiers `_lang/typescript`, `frontend/_vue`, and `frontend/_common` travel with this module and hold the language-level, Vue-general, and framework-agnostic frontend conventions; the style guide `../_vue/vue-style.md` is the authoritative Vue style rules.
 

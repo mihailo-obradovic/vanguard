@@ -2,10 +2,10 @@
 
 **Trigger:** working on, or adding, a `context/` document — and, at spawn, choosing which to include. A project carries only the context documents it opted into; a project with none has no `context/` directory.
 
-Context documents are optional, project-chosen background docs in `context/` that add depth behind the one-paragraph purpose in `project-summary.md`. Each is loaded on demand, only when the kind of work in progress calls for it — never preloaded. They layer *extra* context onto the always-loaded core, so routine startup stays small.
+Context documents are optional, project-chosen background docs in `context/` that add depth behind the one-paragraph purpose in `project-summary.md`. Each is loaded on demand, only when the kind of work in progress calls for it — never preloaded. They layer _extra_ context onto the always-loaded core, so routine startup stays small.
 
 - **Background, never a contract.** A context document records vision and intent, not behavior. When it disagrees with a feature document or `architecture.md`, the contract wins and the context document is updated to catch up. When scope or identity changes, update the context document and the `project-summary.md` purpose paragraph together (Same-Change Rule).
-- **Loads by trigger, gated on presence.** A context document loads when it exists in the project *and* the task matches its declared trigger (below). A document the project never opted into simply never loads.
+- **Loads by trigger, gated on presence.** A context document loads when it exists in the project _and_ the task matches its declared trigger (below). A document the project never opted into simply never loads.
 - **Keep it scannable.** No hard character budget, but a context document earns its routine load only by staying short — trim to what shapes decisions, link out for the rest.
 - **Project-owned once filled in — upgraded by sidecar.** From spawn onward the document's content is the project's; the upgrader never writes into it. When the template's stub improves, the upgrade delivers the new stub as `context/<name>.md.catalyst-new` beside the project's copy — fold in what applies, then delete the sidecar.
 
@@ -13,10 +13,10 @@ Context documents are optional, project-chosen background docs in `context/` tha
 
 The registry of context documents: the scaffold default (whether a spawn includes it unless told otherwise) and the load trigger. The `CONTEXT_DOCS` list in `tools/new_project.py` mirrors this table — keep the two in parity.
 
-| Document | Scaffold default | Loads when |
-| --- | --- | --- |
-| `product-description` | on | Product-shaping work — drafting or estimating a feature document, a product-motivated decision record, Init Design input-gathering, brownfield prioritization, an experiment's Success Bar or graduation, or any task touching product scope, phases, or priorities. Not Minor edits, Incident stabilization, Bootstrap, or Parallel execution. |
-| `brand-description` | off | User-facing design work once the file is kept — UI feature drafting and browser verification, a frontend/UX decision record, the Init Design UI-module choice, or copy/voice/tone work. |
+| Document              | Scaffold default | Loads when                                                                                                                                                                                                                                                                                                                                      |
+| --------------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `product-description` | on               | Product-shaping work — drafting or estimating a feature document, a product-motivated decision record, Init Design input-gathering, brownfield prioritization, an experiment's Success Bar or graduation, or any task touching product scope, phases, or priorities. Not Minor edits, Incident stabilization, Bootstrap, or Parallel execution. |
+| `brand-description`   | off              | User-facing design work once the file is kept — UI feature drafting and browser verification, a frontend/UX decision record, the Init Design UI-module choice, or copy/voice/tone work.                                                                                                                                                         |
 
 `brand-description` is worth keeping only when the product must align to a **shared brand it does not own** — one of several products under an umbrella company or brand whose voice and visual identity its UI has to match. A standalone application does not need it: its own design system — the frontend design tokens (`stacks/frontend/*`) — is the whole brand, and duplicating that intent in prose only invites drift. Default off for that reason; opt in at spawn for portfolio products.
 

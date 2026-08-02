@@ -30,7 +30,41 @@ export type User = z.infer<typeof UserSchema>;
 
 ## Regle — requests only
 
-Forms validate client-side with `@regle/core` + `@regle/rules`. **Rules mirror the backend's validation for that endpoint** — the same `required`, `email`, `maxLength(255)`, `minLength(8)`, `sameAs`, `requiredIf`. When they drift, the user meets a server error the form promised could not happen.
+Forms validate client-side with Regle, wired as the **`@regle/nuxt` module** — one entry in `modules`, no plugin file. (The `ui/vuetify` choice goes the other way and says so in `ui/vuetify/setup.md`; neither call generalises to the other library.)
+
+### Dependencies
+
+| Package        | Where        | Why                                                      |
+| -------------- | ------------ | -------------------------------------------------------- |
+| `@regle/core`  | dependencies | `useRegle` and the validation core                       |
+| `@regle/rules` | dependencies | The built-in rules — `required`, `email`, `minLength`, … |
+| `@regle/nuxt`  | dependencies | The module: auto-imports and the devtools                |
+
+Adding these is a Dependency Change: it needs the user's approval and an `architecture.md` update in the same change.
+
+### Nuxt config
+
+```ts
+export default defineNuxtConfig({
+  modules: ['@regle/nuxt']
+});
+```
+
+That entry is also what turns the **Regle devtools panel** on — there is no separate step. Installing the plugin by hand (`app.use(RegleVuePlugin)`) is what a plain Vue app does; a Nuxt app that registered the module never should.
+
+Where a project needs custom rules or shared error messages, the module injects them from one setup file — `regle: { setupFile: '~/regle-config.ts' }` alongside the `modules` entry. Not the default: a project with neither has no reason to own the file.
+
+### The auto-import boundary
+
+The module auto-imports the `@regle/core` composables — `useRegle`, `inferRules`, `useScopedRegle`, `useCollectScope` — so do not import them explicitly (`../_vue/vue-style.md`, auto-import boundary).
+
+**The rules are the exception and stay explicit:** `import { email, required } from '@regle/rules'`. The module leaves them out deliberately — `required`, `email`, and `minLength` are names a project's own code is likely to want, and auto-importing them would collide. Deleting a rule import because "Regle is auto-imported" breaks the build.
+
+The module also auto-imports `useRegleSchema` and `inferSchema` from `@regle/schemas` — the bridge that drives a form off a Zod schema. **Both are offered by editor completion and neither is used here:** that is Zod doing Regle's job, against the split this document opens with, and the package is not among the three above, so reaching for one fails to resolve rather than merely disagreeing with the stack.
+
+### Writing the form
+
+**Rules mirror the backend's validation for that endpoint** — the same `required`, `email`, `maxLength(255)`, `minLength(8)`, `sameAs`, `requiredIf`. When they drift, the user meets a server error the form promised could not happen.
 
 - The form component keeps a plain `ref` form model and calls `useRegle(form, rules, { externalErrors })`.
 - Rules that depend on props (create mode vs edit mode) use a **rules getter** — `useRegle(form, () => ({ … }), …)` — so they re-evaluate when the props change.

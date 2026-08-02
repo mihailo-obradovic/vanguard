@@ -57,7 +57,6 @@
 </template>
 
 <script lang="ts" setup>
-import { useRegle } from '@regle/core';
 import { email, required } from '@regle/rules';
 
 import { useLogIn } from '@/services/queries/useAuthQueries';

@@ -31,7 +31,7 @@ The shared tiers `_lang/typescript`, `frontend/_vue`, and `frontend/_common` tra
 
 - Nuxt 4, Vue 3, TypeScript.
 - Pinia and `@pinia/colada` (with `@pinia/colada-nuxt`) — client state and server state respectively.
-- Zod (response schemas); `@regle/core` + `@regle/rules` (form validation).
+- Zod (response schemas); `@regle/core` + `@regle/rules` (with `@regle/nuxt`) — form validation.
 - `@vueuse/core`.
 - Vitest, `@nuxt/test-utils`, `@vue/test-utils`.
 - pnpm as the package manager.

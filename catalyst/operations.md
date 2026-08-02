@@ -60,10 +60,10 @@ Check the Mailtrap inbox for verification/reset mails; `php artisan pail` (part 
 ### Operate
 
 ```bash
-composer run dev    # serve (localhost:8000) + queue:listen + pail + npm run dev — NOTE: invokes npm on a pnpm-only repo (B3 fix)
+composer run dev    # serve (localhost:8000) + queue:listen + pail + pnpm run dev
 php artisan serve   # API alone
 pnpm dev            # SPA alone (localhost:3000)
-php artisan test && pnpm vitest run   # both suites
+php artisan test && pnpm test   # both suites
 ```
 
 ### Quirks

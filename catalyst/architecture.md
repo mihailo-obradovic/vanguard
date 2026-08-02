@@ -202,8 +202,7 @@ Maintenance is an **optional layer** as well: adopted once the project has a com
 
 ## Protected Areas
 
-Declared from what already ships (`workflows/brownfield.md` step 2); the handling rule lives in `prime-directive.md` (Protected Areas). Ownership of the first two migrates into their retro feature contracts when those are written.
+Declared from what already ships (`workflows/brownfield.md` step 2); the handling rule lives in `prime-directive.md` (Protected Areas).
 
-- **Public API surface** — `routes/api.php` (`GET /api/user`, `PUT /api/profile`, `apiResource` users behind the `admin` middleware) and the session-auth endpoints in `routes/web.php` (register, login, logout, forgot/reset password, email verification). The SPA is built against both; a path, method, or response-shape change breaks deployed clients.
-- **Session/auth contract** — Sanctum stateful-SPA mechanics: cookie + CSRF flow, `SANCTUM_STATEFUL_DOMAINS`, `SESSION_DRIVER=database`, JSON-only responses with no guest redirects (`bootstrap/app.php`). The frontend's fetcher, auth store, and global middleware all assume it.
 - **DB schema and migrations** — `database/migrations/` (users, cache, jobs, personal_access_tokens) and the persisted `app/Enums/Role.php` values. Existing databases hold this data; changes need migration paths, never edits to shipped migrations.
+- The public API surface and the session/auth contract are declared in their owning feature contracts (001–003) — see the Protected Areas index in `project-summary.md`.

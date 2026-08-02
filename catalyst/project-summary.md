@@ -10,7 +10,9 @@ Vanguard is a full-stack starter pairing a Laravel 13 JSON API with a Nuxt 4 SPA
 
 | ### | Feature | Status | Summary | Document |
 | --- | --- | --- | --- | --- |
-| 000 | _No documented features yet._ | - | Add the first feature when behavior becomes durable. | - |
+| 001 | Session Auth Flow | Active | Sanctum stateful cookie auth for the SPA: register/login/logout, email verification, password reset, CSRF flow, auth store + route guarding. | [features/001_session-auth.md](features/001_session-auth.md) |
+| 002 | User Management | Active | Admin-gated user CRUD behind the `admin` middleware: list/create/update/hard-delete, two-role RBAC (`user`/`admin`), self-delete guard. | [features/002_user-management.md](features/002_user-management.md) |
+| 003 | Self-Service Profile | Active | `PUT /api/profile`: own name/email/password updates; email change resets verification; `current_password` challenge; role untouchable. | [features/003_self-service-profile.md](features/003_self-service-profile.md) |
 
 ## Architecture Decision Record (ADR) Index
 
@@ -42,7 +44,9 @@ Pointer index of protections declared in feature/decision documents (lazy-loaded
 
 | Area | Owner |
 | --- | --- |
-| _No documented protected areas yet._ | - |
+| Session/auth contract + auth endpoints (`routes/web.php`, `GET /api/user`) | features/001_session-auth.md |
+| User management API (`apiResource` users) | features/002_user-management.md |
+| Profile endpoint (`PUT /api/profile`) | features/003_self-service-profile.md |
 
 ## Technical Stack
 

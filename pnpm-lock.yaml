@@ -33,6 +33,9 @@ importers:
       '@regle/core':
         specifier: ^1.28.5
         version: 1.28.5(pinia@4.0.2(@vue/devtools-api@8.2.1)(typescript@5.9.3)(vue@3.5.40(typescript@5.9.3)))(vue@3.5.40(typescript@5.9.3))
+      '@regle/nuxt':
+        specifier: ^1.28.5
+        version: 1.28.5(@vue/devtools-api@8.2.1)(magicast@0.5.3)(typescript@5.9.3)(valibot@1.4.2(typescript@5.9.3))(vue@3.5.40(typescript@5.9.3))(zod@4.4.3)
       '@regle/rules':
         specifier: ^1.28.5
         version: 1.28.5(pinia@4.0.2(@vue/devtools-api@8.2.1)(typescript@5.9.3)(vue@3.5.40(typescript@5.9.3)))(vue@3.5.40(typescript@5.9.3))
@@ -798,6 +801,10 @@ packages:
     resolution: {integrity: sha512-zs1+BZlRK1VlHo37TTzaMXQ+SemS1WeGRtcjWbW1ZoXpL3/ctn2VQu6nFpu6JqsJRd0QAPNS4GYmxGwLK8EHNw==}
     engines: {node: '>=18.12.0'}
 
+  '@nuxt/kit@4.4.8':
+    resolution: {integrity: sha512-ZUlZ5iYfyfJFDPluhn6ZxFWcsuxWbLnZBc8w3MAROcQ4lYfZ+qFpALBLSNlpc0zhOa++33EE+5PEbOAdVIY+dw==}
+    engines: {node: '>=18.12.0'}
+
   '@nuxt/kit@4.5.1':
     resolution: {integrity: sha512-xDXQspE2blxaZwxwGknL/BqaIbkLizl85Ov+pbSlPPd/rw2KjJGx88RHU5SwoQNwCiSC5hWZBnVAznIsq1xNHQ==}
     engines: {node: '>=18.12.0'}
@@ -817,6 +824,10 @@ packages:
         optional: true
       '@rollup/plugin-babel':
         optional: true
+
+  '@nuxt/schema@4.4.8':
+    resolution: {integrity: sha512-igfWuMF0x0Pmx/XwhPwH/bcXgbuwNnjUjqxCAsY6VQhmGKo0e9soJq3Q0ohj+rBkBfX6o2ysTP1/t2M82aK4qA==}
+    engines: {node: ^14.18.0 || >=16.10.0}
 
   '@nuxt/schema@4.5.1':
     resolution: {integrity: sha512-RDdu0BBg9y+Eiyu95LUDJ57YrejJ5v1/VA2r5oBLYiiSiLrlVt33HN9ut4qSyUN8gRTOXnFADery8AyJpTjdWA==}
@@ -1397,8 +1408,26 @@ packages:
       pinia:
         optional: true
 
+  '@regle/nuxt@1.28.5':
+    resolution: {integrity: sha512-4ohImMiDkgkgRzPVfpXH4gZ/CTP3GqSJqct3i3/tBqgdJzwzlPojhPIWyU0IhsmuBtDgIEiFN/tmrfxLNmNwXg==}
+    engines: {node: ^20.19.0 || >=22.12.0}
+
   '@regle/rules@1.28.5':
     resolution: {integrity: sha512-Dv5BtSMbUpIy2W8rU0GJxncDeYNS+Ng8dRRb2DEA5kCA2/zd0QrfEb4SEHcLjpkTlW2RvPEz2q2XtO74f1I6mg==}
+
+  '@regle/schemas@1.28.5':
+    resolution: {integrity: sha512-VpDCKDyjHWBaUZvWw/LSNzjTU/Q+rj3lwDjrihARz7saqRynQ7fsNc0bPM3Pkq8M9Vu7bU0BNLbhiMStoKI+QA==}
+    peerDependencies:
+      arktype: ^2.1.0
+      valibot: ^1.0.0
+      zod: ^3.24.0 || ^4.0.0
+    peerDependenciesMeta:
+      arktype:
+        optional: true
+      valibot:
+        optional: true
+      zod:
+        optional: true
 
   '@rolldown/binding-android-arm64@1.1.5':
     resolution: {integrity: sha512-lZg8fqIv2v7FF237bwMgzGZEJvGL79/s5knJ/i6FmsGF4XXlzccZ4jb+TrFIxtSSxFtIpdsgrPZeMk1I9AFcyQ==}
@@ -5591,6 +5620,31 @@ snapshots:
     transitivePeerDependencies:
       - magicast
 
+  '@nuxt/kit@4.4.8(magicast@0.5.3)':
+    dependencies:
+      c12: 3.3.4(magicast@0.5.3)
+      consola: 3.4.2
+      defu: 6.1.7
+      destr: 2.0.5
+      errx: 0.1.2
+      exsolve: 1.1.1
+      ignore: 7.0.6
+      jiti: 2.7.0
+      klona: 2.0.6
+      mlly: 1.8.2
+      ohash: 2.0.11
+      pathe: 2.0.3
+      pkg-types: 2.3.1
+      rc9: 3.0.1
+      scule: 1.3.0
+      semver: 7.8.5
+      tinyglobby: 0.2.17
+      ufo: 1.6.4
+      unctx: 2.5.0
+      untyped: 2.0.0
+    transitivePeerDependencies:
+      - magicast
+
   '@nuxt/kit@4.5.1(magic-string@1.1.0)(magicast@0.5.3)(oxc-parser@0.140.0)(rolldown@1.2.0)(unplugin@3.3.0(esbuild@0.28.1)(rolldown@1.2.0)(rollup@4.62.3)(vite@8.1.5(@types/node@26.1.2)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.102.0)(terser@5.49.0)(yaml@2.9.0)))':
     dependencies:
       c12: 3.3.4(magicast@0.5.3)
@@ -5706,6 +5760,14 @@ snapshots:
       - vite
       - webpack
       - xml2js
+
+  '@nuxt/schema@4.4.8':
+    dependencies:
+      '@vue/shared': 3.5.40
+      defu: 6.1.7
+      pathe: 2.0.3
+      pkg-types: 2.3.1
+      std-env: 4.2.0
 
   '@nuxt/schema@4.5.1':
     dependencies:
@@ -6135,6 +6197,24 @@ snapshots:
     optionalDependencies:
       pinia: 4.0.2(@vue/devtools-api@8.2.1)(typescript@5.9.3)(vue@3.5.40(typescript@5.9.3))
 
+  '@regle/nuxt@1.28.5(@vue/devtools-api@8.2.1)(magicast@0.5.3)(typescript@5.9.3)(valibot@1.4.2(typescript@5.9.3))(vue@3.5.40(typescript@5.9.3))(zod@4.4.3)':
+    dependencies:
+      '@nuxt/kit': 4.4.8(magicast@0.5.3)
+      '@nuxt/schema': 4.4.8
+      '@regle/core': 1.28.5(pinia@4.0.2(@vue/devtools-api@8.2.1)(typescript@5.9.3)(vue@3.5.40(typescript@5.9.3)))(vue@3.5.40(typescript@5.9.3))
+      '@regle/rules': 1.28.5(pinia@4.0.2(@vue/devtools-api@8.2.1)(typescript@5.9.3)(vue@3.5.40(typescript@5.9.3)))(vue@3.5.40(typescript@5.9.3))
+    optionalDependencies:
+      '@regle/schemas': 1.28.5(pinia@4.0.2(@vue/devtools-api@8.2.1)(typescript@5.9.3)(vue@3.5.40(typescript@5.9.3)))(valibot@1.4.2(typescript@5.9.3))(vue@3.5.40(typescript@5.9.3))(zod@4.4.3)
+      pinia: 4.0.2(@vue/devtools-api@8.2.1)(typescript@5.9.3)(vue@3.5.40(typescript@5.9.3))
+    transitivePeerDependencies:
+      - '@vue/devtools-api'
+      - arktype
+      - magicast
+      - typescript
+      - valibot
+      - vue
+      - zod
+
   '@regle/rules@1.28.5(pinia@4.0.2(@vue/devtools-api@8.2.1)(typescript@5.9.3)(vue@3.5.40(typescript@5.9.3)))(vue@3.5.40(typescript@5.9.3))':
     dependencies:
       '@regle/core': 1.28.5(pinia@4.0.2(@vue/devtools-api@8.2.1)(typescript@5.9.3)(vue@3.5.40(typescript@5.9.3)))(vue@3.5.40(typescript@5.9.3))
@@ -6142,6 +6222,20 @@ snapshots:
     transitivePeerDependencies:
       - pinia
       - vue
+
+  '@regle/schemas@1.28.5(pinia@4.0.2(@vue/devtools-api@8.2.1)(typescript@5.9.3)(vue@3.5.40(typescript@5.9.3)))(valibot@1.4.2(typescript@5.9.3))(vue@3.5.40(typescript@5.9.3))(zod@4.4.3)':
+    dependencies:
+      '@regle/core': 1.28.5(pinia@4.0.2(@vue/devtools-api@8.2.1)(typescript@5.9.3)(vue@3.5.40(typescript@5.9.3)))(vue@3.5.40(typescript@5.9.3))
+      '@regle/rules': 1.28.5(pinia@4.0.2(@vue/devtools-api@8.2.1)(typescript@5.9.3)(vue@3.5.40(typescript@5.9.3)))(vue@3.5.40(typescript@5.9.3))
+      '@standard-schema/spec': 1.1.0
+      type-fest: 5.7.0
+    optionalDependencies:
+      valibot: 1.4.2(typescript@5.9.3)
+      zod: 4.4.3
+    transitivePeerDependencies:
+      - pinia
+      - vue
+    optional: true
 
   '@rolldown/binding-android-arm64@1.1.5':
     optional: true

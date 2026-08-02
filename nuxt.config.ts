@@ -33,6 +33,7 @@ export default defineNuxtConfig({
     '@nuxt/test-utils/module',
     '@pinia/nuxt',
     '@pinia/colada-nuxt',
+    '@regle/nuxt',
     '@vueuse/nuxt'
   ],
 

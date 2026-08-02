@@ -96,7 +96,7 @@ Walkthroughs — Admin: sees the Users nav entry, full table, all actions; may e
 
 ## Entry Points
 
-- `routes/api.php:16-19` (`apiResource` behind `['auth:sanctum','admin']`), `app/Http/Controllers/UserController.php`, `app/Http/Requests/UserRequest.php`, `app/Http/Middleware/EnsureUserIsAdmin.php`, `app/Enums/Role.php`, `app/Http/Resources/UserResource.php`.
+- `routes/api.php:14-17` (`apiResource` behind `['auth:sanctum','admin']`), `app/Http/Controllers/UserController.php`, `app/Http/Requests/UserRequest.php`, `app/Http/Middleware/EnsureUserIsAdmin.php`, `app/Enums/Role.php`, `app/Http/Resources/UserResource.php`.
 - SPA: `web/pages/users.vue`, `web/services/user.api.ts`, `web/services/queries/useUserQueries.ts`, `web/layouts/Default.vue` (nav gating), `web/types/user.ts`.
 
 ## Dependencies

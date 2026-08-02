@@ -4,7 +4,7 @@
 
 Active
 
-Retro-documented at brownfield adoption (2026-08-02) from code, tests, and config. Implemented 2026-07-28 (`b857a34` and neighbors); frontend flow refined through July 2026.
+Retro-documented at brownfield adoption (2026-08-02). Implemented 2026-07-28 (`b857a34` and neighbors); frontend flow refined through July 2026.
 
 ## Task Weight
 
@@ -28,37 +28,37 @@ Authenticate the Nuxt SPA against the Laravel API with Sanctum's stateful cookie
 
 | Output / Side Effect | Type | Description |
 | --- | --- | --- |
-| `204 No Content` | HTTP | register, login, logout — no body; session regenerated (login/register) or invalidated + token regenerated (logout) |
+| `204 No Content` | HTTP | register, login, logout — no body; session rotation per Invariants |
 | `200 {"status": ...}` | JSON | forgot/reset password, resend verification (`verification-link-sent` / `already-verified`) |
-| `GET /api/user` → raw `User` model | JSON | **no `data` envelope** — `id, name, email, role, email_verified_at, created_at, updated_at` (password/remember_token hidden) |
+| `GET /api/user` → `UserResource` | JSON | `{ "data": ... }` envelope — `id, name, email, role, email_verified_at, created_at, updated_at` (password/remember_token hidden) |
 | Verify redirect | 302 | signed mail link hits the API, then bounces to `FRONTEND_URL/profile?verified=1` |
 | Queued mail | notification | `VerifyEmailNotification` (register + resend); `ResetPasswordNotification` — link points directly at the SPA (`FRONTEND_URL/password-reset/{token}?email=...`) |
 
 ## Scope And Non-Goals
 
-In scope: the endpoints above (all in `routes/web.php` under the `web` group except `GET /api/user`), Sanctum stateful mechanics, CSRF flow, the SPA's auth store/middleware/fetcher, verification and reset round-trips.
+In scope: the endpoints above (all in `routes/web.php` except `GET /api/user`), Sanctum stateful mechanics, CSRF flow, the SPA's auth store/middleware/fetcher, verification and reset round-trips.
 
-Non-goals: role gating (feature 002 owns the only `admin` gate); profile editing (feature 003); token-mode auth (`personal_access_tokens` table exists but nothing issues or accepts tokens — see ADR 002); "remember me" (accepted by `LoginRequest` but never sent by the SPA).
+Non-goals: role gating (feature 002 owns the only `admin` gate); profile editing (feature 003); token-mode auth (dormant — see ADR 002); "remember me" (accepted by `LoginRequest` but never sent by the SPA).
 
 ## User / System Behavior
 
-- Registration creates the user (role from DB default `user`), fires `Registered` (→ queued verification mail), logs in, regenerates the session, returns 204.
-- Login validates via the web guard; success regenerates the session, returns 204, and the SPA fetches `GET /api/user` into the store (two-request flow). Failure is a 422 on `email`; the 6th failure in the window 422s with the throttle message. Logout invalidates the session, regenerates the CSRF token, returns 204; the SPA resets the store.
+- Registration creates the user, fires `Registered` (→ queued verification mail), and logs the user in.
+- Login validates via the web guard; the SPA follows success with `GET /api/user` into the store (two-request flow). Failure is a 422 on `email`; the 6th failure in the window 422s with the throttle message. On logout the SPA resets the store.
 - SPA boot (`auth-loader` plugin, awaited): `GET /sanctum/csrf-cookie` first, then `GET /api/user` into the store (failure → guest). Route middleware runs only after this settles.
 - Route decisions (`authRedirectLogic`, default-deny): `/` → `/home` always; guests on any page not in the guest-only/shared lists → `/login`; logged-in users on guest-only pages (`/login`, `/register`, `/forgot-password`, `/password-reset/*`) → `/home`. No return-URL preservation.
-- Fetcher: every request `credentials: 'include'` + JSON Accept; `X-XSRF-TOKEN` on state-changing methods; on 419 it re-primes the CSRF cookie and retries exactly once. Central handling: 401 resets the store → `/login`; 403 → `/home`; 422s inline where forms opt in, toast otherwise.
-- Email verification: mail link hits the API host (signed), marks verified, bounces to `/profile?verified=1`; the profile page refetches and toasts. Password reset: SPA page seeds email from the query, posts token+password, `/login` on success; expired/invalid token surfaces as a 422 on `email`.
+- Fetcher: every request `credentials: 'include'` + JSON Accept; `X-XSRF-TOKEN` on state-changing methods; on 419 it re-primes the CSRF cookie and retries exactly once (central error handling below).
+- Email verification: signed mail link hits the API, marks verified, bounces to `/profile?verified=1`; the profile page refetches and toasts. Password reset: SPA seeds email from the query, posts token+password, `/login` on success; a bad token 422s on `email`.
 
 ## Roles And Access
 
-Not role-specific — no auth endpoint is role-gated. Registration cannot set a role (only name/email/password validated and filled; DB default `user`). The `role` cast, `isAdmin()`, and the SPA's `isAdmin` getter are consumed by feature 002.
+Not role-specific — no auth endpoint is role-gated; registration cannot set a role (DB default `user`). The `role` cast, `isAdmin()`, and the SPA's `isAdmin` getter are consumed by feature 002.
 
 ## Examples
 
 | Input | Expected Output | Notes |
 | --- | --- | --- |
 | `POST /login` valid creds | 204, session regenerated | tested; SPA follows with `GET /api/user` |
-| `POST /login` wrong password ×6 | 422 ×5 on `email`, then throttle 422 | tested (5-attempt limit per email+IP) |
+| `POST /login` wrong password ×6 | 422 ×5 on `email`, then throttle 422 | tested |
 | `GET /api/user` as guest (even without JSON Accept) | 401 JSON, never a redirect | tested — `redirectGuestsTo(null)` + forced JSON for `api/*` |
 | `GET /verify-email/{id}/{bad-hash}` | 403, still unverified | tested |
 | `POST /forgot-password` unknown email | 422 on `email` | **leaks account existence** — recorded, not smoothed over |
@@ -67,11 +67,11 @@ Not role-specific — no auth endpoint is role-gated. Registration cannot set a 
 
 - Stateful domains: `SANCTUM_STATEFUL_DOMAINS=localhost:3000,localhost:3001`; Sanctum guard `web`; sessions in the database (`SESSION_DRIVER=database`, lifetime 120 min, `SameSite=lax`, `SESSION_DOMAIN=localhost`).
 - CORS (`config/cors.php`): credentialed, origins = `FRONTEND_URL` (+ `localhost:3001` in local/testing), fails closed when `FRONTEND_URL` unset; `verify-email/*` deliberately absent (browser navigation, not XHR).
-- Same-site-lax works only because both origins share `localhost`; a production split across apex domains would need `SameSite=None; Secure` — currently unset anywhere.
+- Same-site-lax works only because both origins share `localhost`; a cross-domain production split would need `SameSite=None; Secure`.
 
 ## Edge Cases
 
-- An authenticated `POST /login` hits the `guest` middleware → 302 to `/` (no dashboard route exists). Untested.
+- An authenticated `POST /login` hits the `guest` middleware → 302 to `/`, which 404s since B3 removed the welcome route. Untested.
 - Resend-verification toast in the SPA is unconditional — an already-verified user is still told "Verification email sent" (server said `already-verified`; the status is discarded client-side).
 - The `auth-loader` plugin catches only the user-fetch failure; an unreachable API at boot rejects the CSRF call uncaught.
 
@@ -79,7 +79,7 @@ Not role-specific — no auth endpoint is role-gated. Registration cannot set a 
 
 - Auth state lives in the session cookie; the SPA store is memory-only and rehydrated from `GET /api/user` on every boot.
 - Register/login/logout return `204 No Content` — no body for the SPA to parse.
-- `GET /api/user` returns the **raw model without the `data` envelope**; every other user-returning endpoint wraps in `UserResource`. The SPA encodes both shapes (`UserSchema` vs `UserEnvelopeSchema`) — a known asymmetry, slated for reconciliation (Catalyst Laravel module departure #2), which is a contract change requiring user agreement.
+- Every user-returning endpoint, `GET /api/user` included, wraps in `UserResource` — one `{ data: ... }` envelope for the whole API; the SPA parses user payloads with `UserEnvelopeSchema`.
 - Unauthenticated API requests always get 401 JSON, never a login redirect.
 - Session ID rotates on login/register; session invalidates on logout.
 
@@ -92,26 +92,28 @@ Not role-specific — no auth endpoint is role-gated. Registration cannot set a 
 
 ## Entry Points
 
-- Backend: `routes/web.php` (guest + auth groups), `routes/api.php` (`GET /api/user` closure), `app/Http/Controllers/Auth/*`, `app/Http/Requests/Auth/LoginRequest.php` (rate limiting), `bootstrap/app.php` (statefulApi, no guest redirects, JSON rendering), `config/{sanctum,session,cors}.php`, `app/Notifications/*` (queued), `app/Providers/AppServiceProvider.php` (SPA reset-URL builder).
+- Backend: `routes/web.php` (guest + auth groups), `routes/api.php` (`GET /api/user` via `AuthenticatedUserController`), `app/Http/Controllers/Auth/*`, `app/Http/Requests/Auth/LoginRequest.php` (rate limiting), `bootstrap/app.php` (statefulApi, no guest redirects, JSON rendering), `config/{sanctum,session,cors}.php`, `app/Notifications/*` (queued), `app/Providers/AppServiceProvider.php` (SPA reset-URL builder).
 - SPA: `web/plugins/auth-loader.ts`, `web/middleware/auth.global.ts` + `web/utils/authRedirectLogic.ts`, `web/utils/{fetcher,handleApiError}.ts`, `web/stores/useAuthStore.ts`, `web/services/auth.api.ts` + `web/services/queries/useAuthQueries.ts`, pages `login`, `register`, `forgot-password`, `password-reset/[token]`.
 
 ## Dependencies
 
-- Notifications implement `ShouldQueue`; delivery depends on `QUEUE_CONNECTION` — `sync` (current local default) sends inline, the `database` driver needs a running worker (`operations.md`).
-- `FRONTEND_URL` drives CORS origins, the reset-link URL, and the verify bounce — three couplings on one env var.
+- Notifications implement `ShouldQueue`; `sync` (local default) sends inline, the `database` driver needs a running worker (`operations.md`).
+- `FRONTEND_URL` drives CORS origins, the reset-link URL, and the verify bounce.
 - Features 002/003 sit behind `auth:sanctum` and the store/fetcher established here.
 
 ## Open Questions
 
 ## Tests
 
-- Backend: `tests/Feature/Auth/` — 16 tests: authentication (7: login happy/invalid/throttle, current-user shape, guest 401 ×2, logout), registration (2, incl. default-role assertion), email verification (5: send, verify + redirect, bad hash 403, resend, already-verified), password reset (2 happy paths).
-- Frontend: `web/utils/authRedirectLogic.spec.ts` (5 cases: guest on guest-only pages, reset-prefix match, authed on `/login`, default-deny `/users`, root alias).
-- Known gaps (recorded): CSRF/419 path untested (Laravel skips CSRF in tests); `auth-loader` untested; session rotation asserted only via auth state; authed `POST /login` 302; throttle on verification endpoints; reset negative paths and forgot-password enumeration; `remember` flag; frontend store/fetcher/error-handling/query composables have no specs; hardcoded dev credentials in `login.vue` (cleanup candidate).
+- Backend: `tests/Feature/Auth/` — 16 tests: authentication (7 — login happy/invalid/throttle, current-user envelope shape, guest 401 ×2, logout), registration (2, incl. default role), email verification (5), password reset (2 happy paths).
+- Frontend: `web/utils/authRedirectLogic.spec.ts` (5 cases: guest redirects, reset-prefix match, authed on `/login`, default-deny, root alias).
+- Known gaps (recorded): untested — CSRF/419 path (Laravel skips CSRF in tests), `auth-loader`, session rotation beyond auth state, authed `POST /login` 302, verification throttle, reset negative paths, forgot-password enumeration, `remember` flag; frontend store/fetcher/error-handling/query composables have no specs; hardcoded dev credentials in `login.vue` (cleanup candidate).
 
 ## Verification
 
-Backend suite green at adoption: `php artisan test` → 36 passed (98 assertions) including all 16 auth tests; frontend `pnpm vitest run` → 14 passed including the 5 redirect cases. Endpoint table, config values, and redirect rules verified line-by-line against the source (2026-08-02).
+Backend suite green at adoption: 36 passed including all 16 auth tests; frontend 14 passed including the 5 redirect cases. Endpoint table, config values, and redirect rules verified line-by-line against the source (2026-08-02).
+
+B3 (2026-08-02): `GET /api/user` moved to the `UserResource` envelope (backend + SPA parser + test in one change); stock example tests removed with the welcome route — 34 tests green on MySQL, `route:cache` succeeds.
 
 ## Agent Change Rules
 

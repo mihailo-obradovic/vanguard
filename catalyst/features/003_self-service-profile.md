@@ -93,7 +93,7 @@ Every account type gets the same profile page; admins additionally manage others
 
 ## Entry Points
 
-- `routes/api.php:13` — `PUT /api/profile` (no name, no throttle, PUT only).
+- `routes/api.php:11` — `PUT /api/profile` (no name, no throttle, PUT only).
 - `app/Http/Controllers/ProfileController.php` / `app/Http/Requests/ProfileUpdateRequest.php` — the contract's server half.
 - `app/Models/User.php` — `changeEmail()` + overridden `sendEmailVerificationNotification()` (queued).
 - `web/pages/profile.vue` + `web/services/queries/useAuthQueries.ts` (`useUpdateProfile`) + `web/services/auth.api.ts` (`updateProfile`) — the SPA half.

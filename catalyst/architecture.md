@@ -199,3 +199,11 @@ A module is a single `<module>.md` or a `<module>/` directory: nested choice dir
 Identity is an **optional layer**, not in the default set: it is adopted when the product gains end-user accounts, roles, or permissions beyond a single trusted operator group. A small internal tool never pays the IdP tax, and nobody hand-rolls auth to dodge it (`stacks/identity/keycloak.md`).
 
 Maintenance is an **optional layer** as well: adopted once the project has a committed lockfile or pinned image tags to keep current, it names the bot that moves those pins and the review that gates them (`stacks/maintenance/renovate.md`). It loosens nothing above it — pins stay exact, and bumping a dependency the project already has is not a way around the Dependency Change Rule, which still owns every *new* one.
+
+## Protected Areas
+
+Declared from what already ships (`workflows/brownfield.md` step 2); the handling rule lives in `prime-directive.md` (Protected Areas). Ownership of the first two migrates into their retro feature contracts when those are written.
+
+- **Public API surface** — `routes/api.php` (`GET /api/user`, `PUT /api/profile`, `apiResource` users behind the `admin` middleware) and the session-auth endpoints in `routes/web.php` (register, login, logout, forgot/reset password, email verification). The SPA is built against both; a path, method, or response-shape change breaks deployed clients.
+- **Session/auth contract** — Sanctum stateful-SPA mechanics: cookie + CSRF flow, `SANCTUM_STATEFUL_DOMAINS`, `SESSION_DRIVER=database`, JSON-only responses with no guest redirects (`bootstrap/app.php`). The frontend's fetcher, auth store, and global middleware all assume it.
+- **DB schema and migrations** — `database/migrations/` (users, cache, jobs, personal_access_tokens) and the persisted `app/Enums/Role.php` values. Existing databases hold this data; changes need migration paths, never edits to shipped migrations.

@@ -4,7 +4,7 @@ Catalyst version: 0.16.0
 
 ## Project Purpose
 
-Describe the project in one or two paragraphs. Be specific and concise, i.e. "This project provides <primary capability> for <primary users>. It focuses on <main business or technical goal> and integrates with <important systems>." Detailed specifications, when the project keeps them, live in `context/product-description.md`; a product that must align to a shared/umbrella brand also keeps `context/brand-description.md` (`references/context-documents.md`).
+Vanguard is a full-stack starter pairing a Laravel 13 JSON API with a Nuxt 4 SPA in one repository. It ships session-based Sanctum authentication (Breeze-style endpoints), admin-gated user CRUD with role-based access, self-service profile management, and the data-layer and validation conventions it exists to demonstrate (Pinia Colada two-layer services, Regle + Zod). It is the reference implementation for Catalyst's nuxt + laravel pairing. Detailed specifications live in `context/product-description.md` (stub — to be filled during retro-documentation).
 
 ## Feature Index
 
@@ -18,7 +18,7 @@ One line per record: type, status, title, link.
 
 | ### | Type | Status | Decision | Document |
 | --- | --- | --- | --- | --- |
-| 000 | _No documented decisions yet._ | - | Add the first decision when behavior becomes durable. | - |
+| 001 | init-design | Implemented | Init design — Vanguard brownfield stack | [decisions/001_init-design_vanguard-stack.md](decisions/001_init-design_vanguard-stack.md) |
 
 ## Experiment Index
 
@@ -56,6 +56,8 @@ Every layer the project has and the module chosen for it (from Catalyst's `stack
 | frontend | nuxt |
 | frontend/ui | headless |
 | maintenance | renovate |
+
+Assembled at brownfield adoption — swaps from the default set and non-adopted default layers are recorded in `decisions/001_init-design_vanguard-stack.md`.
 
 ## Status Values
 

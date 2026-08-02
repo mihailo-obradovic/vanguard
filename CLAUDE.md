@@ -45,3 +45,7 @@ Forms validate client-side with Regle (`@regle/core` + `@regle/rules`); rules mi
 - Inputs bind `:error-messages="r$.<field>.$errors"`; confirm buttons bind `r$.$invalid`; submit handlers `await r$.$validate()` before emitting/mutating; dialogs call `r$.$reset()` when they close or (re)open.
 - **Server 422s appear inline, not as toasts.** Mutations behind a validated form pass `errorHandling: { hideValidationToast: true }`. The parent derives field-keyed errors with `useValidationErrors(mutationError)` and passes them to the form component's `serverErrors` prop; the component feeds them to Regle via `useExternalErrors(() => props.serverErrors)`. A page that owns its own mutation chains both: `useExternalErrors(useValidationErrors(error))`. Regle auto-clears a field's server error when the user edits that field.
 - Don't add manual `isFormValid` computeds or validation toasts — Regle owns validity, and non-422 errors still toast centrally.
+
+<!-- catalyst:begin -->
+@catalyst/AGENTS.md
+<!-- catalyst:end -->

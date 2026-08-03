@@ -6,7 +6,7 @@ Two files at the project root, neither of them a contract: they make the convent
 
 ## `.editorconfig`
 
-Every project keeps one at its repository root — outside the bundle, since that is the only place editors look. **The file is the source; this document only says why it reads the way it does.** The scaffolder writes it at spawn and never touches it again: it is the project's own from that moment, like `architecture.md`, and a project with a different language mix edits it freely.
+Every project keeps one at its repository root — outside the bundle, since that is the only place editors look. **The file is the source; this document only says why it reads the way it does.** The scaffolder writes it at spawn and never touches it again: it is the project's own from that moment, like `architecture.md`, and a project with a different language mix edits it freely. The one seatbelt: when a project-owned file lacks a stack-gated section its bundle calls for — a brownfield spawn that kept its own file, or a module adopted after spawn — the scaffolder and upgrader print the template's lines to paste in (`EDITORCONFIG_GATED_SECTIONS` in `tools/new_project.py`), never writing them.
 
 What its sections are doing, and what it deliberately does not do:
 
@@ -21,7 +21,7 @@ Where a formatter also reads this file, **the formatter's own config wins** and 
 
 ## Recommended extensions
 
-`.vscode/extensions.json` at the project root is **generated**, not hand-maintained: the scaffolder writes the rows whose backing documents the project's bundle actually carries, and the upgrader regenerates it whenever the adopted stack changes. The registry is `EDITOR_EXTENSIONS` in `tools/new_project.py`; the table below is its documented mirror, kept in parity by validator R11.
+`.vscode/extensions.json` at the project root carries a **generated block**, not hand-maintained rows: the scaffolder writes the entries whose backing documents the project's bundle actually carries between `// catalyst:begin` / `// catalyst:end` markers at the end of the `recommendations` array, and the upgrader rewrites the block whenever the adopted stack changes. The registry is `EDITOR_EXTENSIONS` in `tools/new_project.py`; the table below is its documented mirror, kept in parity by validator R11.
 
 | Extension                              | Included when                                              | What it gives                                                                              |
 | -------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
@@ -40,6 +40,6 @@ Where a formatter also reads this file, **the formatter's own config wins** and 
 
 Pint needs no extension: it is the formatter of record and runs from `vendor/bin/pint`, which is the rule at the top of this document rather than an omission.
 
-Same marker rule as the generated skill wrappers (`references/agent-skills.md`): a file carrying the `catalyst:generated` marker is Catalyst's to rewrite, and stripping the marker is how a project takes the file over permanently. A pre-existing `.vscode/extensions.json` without the marker — the brownfield case — is never touched; the scaffolder prints the recommended ids instead so they can be merged by hand.
+Same marker rule as the generated root pointers: the block between the markers is Catalyst's to rewrite, everything outside it is the project's own, and deleting the markers is how a project takes the file over permanently. A pre-existing `.vscode/extensions.json` without the markers — the brownfield case — gets the block injected into its `recommendations` array, keeping every row the project wrote; an id already present outside the block (including in `unwantedRecommendations`, an explicit rejection) is left out of it.
 
 Adding a row is two edits plus a validator run: the registry entry (with the bundle path that gates it) and this table. Anything else under `.vscode/` is the project's own business — Catalyst writes no `settings.json`.

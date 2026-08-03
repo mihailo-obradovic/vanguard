@@ -11,6 +11,9 @@ trim_trailing_whitespace = true
 [*.py]
 indent_size = 4
 
+[*.php]
+indent_size = 4
+
 [*.css]
 indent_size = 4
 
@@ -18,4 +21,7 @@ indent_size = 4
 indent_style = tab
 
 [*.{diff,patch}]
+trim_trailing_whitespace = false
+
+[*.md]
 trim_trailing_whitespace = false

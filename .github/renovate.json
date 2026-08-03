@@ -1,7 +1,7 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
-  "baseBranches": ["master", "variant/vuetify"],
+  "baseBranchPatterns": ["master", "/^variant\\//"],
   "minimumReleaseAge": "1 day",
   "osvVulnerabilityAlerts": true,
   "vulnerabilityAlerts": {
@@ -28,21 +28,20 @@
       "assignees": ["mihailo-obradovic"]
     },
     {
-      "description": "Front-end dependencies - JavaScript/Node.js packages, Vuetify",
+      "description": "On any variant branch, disable ALL dependency updates by default. Everything on master is ported to variants, so variants must only receive PRs for their own branch-specific deps (re-enabled explicitly below).",
+      "matchBaseBranches": ["/^variant\\//"],
+      "enabled": false
+    },
+    {
+      "description": "Re-enable Vuetify's branch-specific front-end deps on variant/vuetify (not present on master).",
       "matchManagers": ["npm"],
       "matchBaseBranches": ["variant/vuetify"],
       "matchPackageNames": ["@mdi/font", "vite-plugin-vuetify", "vuetify"],
+      "enabled": true,
       "addLabels": ["front-end", "vuetify"],
       "semanticCommitType": "Dependency",
       "semanticCommitScope": "FE - Vuetify",
       "assignees": ["mihailo-obradovic"]
-    },
-    {
-      "description": "Disable updates for general back-end and front-end dependencies on the framework branches",
-      "matchManagers": ["composer", "npm"],
-      "matchBaseBranches": ["variant/vuetify"],
-      "excludePackageNames": ["@mdi/font", "vite-plugin-vuetify", "vuetify"],
-      "enabled": false
     },
     {
       "description": "Only raise PRs for major/minor (x.y) releases; skip patch/hotfix (x.y.z) updates. Security patches still come through via vulnerabilityAlerts/osvVulnerabilityAlerts.",

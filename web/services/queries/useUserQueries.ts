@@ -2,13 +2,11 @@ import { useQueryCache } from '@pinia/colada';
 
 import {
   fetchUsers,
-  fetchUser,
   createUser,
   updateUser,
   deleteUser
 } from '@/services/user.api';
 
-import type { Ref } from 'vue';
 import type { AppQueryOptions } from '@/composables/useAppQuery';
 import type { AppMutationOptions } from '@/composables/useAppMutation';
 import type { User } from '@/types/auth';
@@ -32,17 +30,6 @@ export function useFetchUsers(
   return useAppQuery<UsersResponse>({
     key: usersQueryKeys.fetchUsers,
     query: () => fetchUsers(),
-    ...options
-  });
-}
-
-export function useFetchUser(
-  id: Ref<number>,
-  options: Omit<AppQueryOptions<User>, 'key' | 'query'> = {}
-) {
-  return useAppQuery<User>({
-    key: () => [...usersQueryKeys.fetchUser, id.value],
-    query: () => fetchUser(id.value),
     ...options
   });
 }

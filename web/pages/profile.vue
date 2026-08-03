@@ -11,17 +11,17 @@
 
           <div class="info-grid">
             <div class="info-item">
-              <label class="info-label">Name</label>
+              <div class="info-label">Name</div>
               <div class="info-value">{{ user.name }}</div>
             </div>
 
             <div class="info-item">
-              <label class="info-label">Email</label>
+              <div class="info-label">Email</div>
               <div class="info-value">{{ user.email }}</div>
             </div>
 
             <div class="info-item">
-              <label class="info-label">Role</label>
+              <div class="info-label">Role</div>
               <div class="info-value">
                 <span class="role-badge" :class="user.role">
                   {{ user.role }}
@@ -30,7 +30,7 @@
             </div>
 
             <div class="info-item">
-              <label class="info-label">Email Verified</label>
+              <div class="info-label">Email Verified</div>
               <div class="info-value verification-value">
                 <span
                   class="verification-badge"
@@ -51,12 +51,12 @@
             </div>
 
             <div class="info-item">
-              <label class="info-label">Member Since</label>
+              <div class="info-label">Member Since</div>
               <div class="info-value">{{ formatDate(user.created_at) }}</div>
             </div>
 
             <div class="info-item">
-              <label class="info-label">Last Updated</label>
+              <div class="info-label">Last Updated</div>
               <div class="info-value">{{ formatDate(user.updated_at) }}</div>
             </div>
           </div>
@@ -76,9 +76,18 @@
 
     <!-- Edit Profile Form -->
     <div v-if="showEditForm" class="modal-overlay" @click="closeEditForm">
-      <div class="modal form-modal" @click.stop>
+      <div
+        ref="editProfileModal"
+        class="modal form-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="edit-profile-title"
+        tabindex="-1"
+        @click.stop
+        @keydown.esc="closeEditForm"
+      >
         <div class="modal-header">
-          <h3 class="modal-title">Edit Profile</h3>
+          <h3 id="edit-profile-title" class="modal-title">Edit Profile</h3>
         </div>
 
         <form
@@ -223,6 +232,7 @@ const { mutate: resendVerification, isLoading: isResending } =
   });
 
 // Edit form state
+const editProfileModal = useTemplateRef('editProfileModal');
 const showEditForm = ref(false);
 const profileForm = ref({
   name: '',
@@ -254,6 +264,15 @@ function openEditForm() {
   r$.$reset();
   showEditForm.value = true;
 }
+
+// Move focus into the dialog so Escape and keyboard navigation work without
+// a pointer.
+watch(showEditForm, async (isOpen) => {
+  if (isOpen) {
+    await nextTick();
+    editProfileModal.value?.focus();
+  }
+});
 
 function closeEditForm() {
   showEditForm.value = false;
@@ -515,6 +534,12 @@ async function handleSubmitProfile() {
   width: 100%;
   max-width: 400px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* The container is focused programmatically on open; the visible focus ring
+   belongs on the controls inside, not the dialog itself. */
+.modal:focus {
+  outline: none;
 }
 
 .form-modal {

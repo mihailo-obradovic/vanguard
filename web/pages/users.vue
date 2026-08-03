@@ -83,9 +83,18 @@
 
     <!-- Create/Edit User Form -->
     <div v-if="showUserForm" class="modal-overlay" @click="closeUserForm">
-      <div class="modal form-modal" @click.stop>
+      <div
+        ref="userFormModal"
+        class="modal form-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="user-form-title"
+        tabindex="-1"
+        @click.stop
+        @keydown.esc="closeUserForm"
+      >
         <div class="modal-header">
-          <h3 class="modal-title">
+          <h3 id="user-form-title" class="modal-title">
             {{ isEditMode ? 'Edit User' : 'Create New User' }}
           </h3>
         </div>
@@ -195,9 +204,20 @@
 
     <!-- Confirmation Dialog -->
     <div v-if="userToDelete" class="modal-overlay" @click="cancelDelete">
-      <div class="modal confirm-modal" @click.stop>
+      <div
+        ref="confirmDeleteModal"
+        class="modal confirm-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirm-delete-title"
+        tabindex="-1"
+        @click.stop
+        @keydown.esc="cancelDelete"
+      >
         <div class="modal-header">
-          <h3 class="modal-title danger">Confirm Delete</h3>
+          <h3 id="confirm-delete-title" class="modal-title danger">
+            Confirm Delete
+          </h3>
         </div>
 
         <div class="modal-content">
@@ -252,6 +272,9 @@ import type { CreateUserForm, UpdateUserForm } from '@/types/user';
 const { data: usersResponse, isLoading, error } = useFetchUsers();
 
 const users = computed(() => usersResponse.value?.data ?? []);
+
+const userFormModal = useTemplateRef('userFormModal');
+const confirmDeleteModal = useTemplateRef('confirmDeleteModal');
 
 const userToDelete = ref<User | null>(null);
 
@@ -344,6 +367,15 @@ function confirmDelete(user: User) {
   userToDelete.value = user;
 }
 
+// Move focus into the dialog so Escape and keyboard navigation work without
+// a pointer.
+watch(userToDelete, async (user) => {
+  if (user) {
+    await nextTick();
+    confirmDeleteModal.value?.focus();
+  }
+});
+
 function cancelDelete() {
   userToDelete.value = null;
 }
@@ -382,6 +414,15 @@ function openEditForm(user: User) {
   r$.$reset();
   showUserForm.value = true;
 }
+
+// Move focus into the dialog so Escape and keyboard navigation work without
+// a pointer.
+watch(showUserForm, async (isOpen) => {
+  if (isOpen) {
+    await nextTick();
+    userFormModal.value?.focus();
+  }
+});
 
 function closeUserForm() {
   showUserForm.value = false;
@@ -648,6 +689,12 @@ function formatDate(dateString: string) {
   width: 100%;
   max-width: 400px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* The container is focused programmatically on open; the visible focus ring
+   belongs on the controls inside, not the dialog itself. */
+.modal:focus {
+  outline: none;
 }
 
 .form-modal {

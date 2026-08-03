@@ -6,6 +6,7 @@
       <div class="nav-container">
         <div class="nav-links">
           <NuxtLink to="/home" class="nav-link">Home</NuxtLink>
+
           <NuxtLink v-if="isAdmin" to="/users" class="nav-link">Users</NuxtLink>
         </div>
 
@@ -14,6 +15,7 @@
             <NuxtLink to="/profile" class="user-name-link">
               {{ user?.name }}
             </NuxtLink>
+
             <button
               class="logout-btn"
               :disabled="isLoggingOut"
@@ -22,8 +24,10 @@
               {{ isLoggingOut ? 'Logging out...' : 'Logout' }}
             </button>
           </template>
+
           <template v-else>
             <NuxtLink to="/login" class="auth-link">Login</NuxtLink>
+
             <NuxtLink to="/register" class="auth-link">Register</NuxtLink>
           </template>
         </div>

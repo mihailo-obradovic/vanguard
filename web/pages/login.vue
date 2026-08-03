@@ -6,6 +6,7 @@
       <form class="login-form" novalidate @submit.prevent="handleLogin">
         <div class="form-group">
           <label for="email" class="form-label">Email</label>
+
           <input
             id="email"
             v-model="form.email"
@@ -20,6 +21,7 @@
 
         <div class="form-group">
           <label for="password" class="form-label">Password</label>
+
           <input
             id="password"
             v-model="form.password"
@@ -46,6 +48,7 @@
           Don't have an account?
           <NuxtLink to="/register" class="auth-link">Register here</NuxtLink>
         </p>
+
         <p>
           <NuxtLink to="/forgot-password" class="auth-link">
             Forgot your password?

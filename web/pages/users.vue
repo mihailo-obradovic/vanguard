@@ -67,6 +67,7 @@
                 >
                   Edit
                 </button>
+
                 <button
                   class="delete-btn"
                   :disabled="isDeletingUser === user.id"
@@ -102,6 +103,7 @@
         <form class="user-form" novalidate @submit.prevent="handleSubmitUser">
           <div class="form-group">
             <label for="name" class="form-label">Name</label>
+
             <input
               id="name"
               v-model="userForm.name"
@@ -116,6 +118,7 @@
 
           <div class="form-group">
             <label for="email" class="form-label">Email</label>
+
             <input
               id="email"
               v-model="userForm.email"
@@ -132,6 +135,7 @@
             <label for="password" class="form-label">
               Password {{ isEditMode ? '(leave empty to keep current)' : '' }}
             </label>
+
             <input
               id="password"
               v-model="userForm.password"
@@ -149,6 +153,7 @@
               Password Confirmation
               {{ isEditMode ? '(required if changing password)' : '' }}
             </label>
+
             <input
               id="password_confirmation"
               v-model="userForm.password_confirmation"
@@ -163,6 +168,7 @@
 
           <div class="form-group">
             <label for="role" class="form-label">Role</label>
+
             <select
               id="role"
               v-model="userForm.role"
@@ -184,6 +190,7 @@
             >
               Cancel
             </button>
+
             <button
               type="submit"
               class="submit-btn"
@@ -226,6 +233,7 @@
             <strong>"{{ userToDelete.name }}"</strong>
             ?
           </p>
+
           <p class="warning-text">This action cannot be undone.</p>
         </div>
 
@@ -237,6 +245,7 @@
           >
             Cancel
           </button>
+
           <button
             class="confirm-delete-btn"
             :disabled="isDeleting"
@@ -269,12 +278,10 @@ import {
 import type { User } from '@/types/auth';
 import type { CreateUserForm, UpdateUserForm } from '@/types/user';
 
-const { data: usersResponse, isLoading, error } = useFetchUsers();
-
-const users = computed(() => usersResponse.value?.data ?? []);
-
 const userFormModal = useTemplateRef('userFormModal');
 const confirmDeleteModal = useTemplateRef('confirmDeleteModal');
+
+const { data: usersResponse, isLoading, error } = useFetchUsers();
 
 const userToDelete = ref<User | null>(null);
 
@@ -314,9 +321,21 @@ const {
   }
 });
 
-const isSubmittingUser = computed(
-  () => isCreatingUser.value || isUpdatingUser.value
-);
+const {
+  mutate: deleteUser,
+  isLoading: isDeleting,
+  variables: deletingId
+} = useDeleteUser({
+  onSuccess: () => {
+    $toast(
+      `User "${userToDelete.value?.name}" deleted successfully`,
+      'success'
+    );
+  },
+  onSettled: () => {
+    userToDelete.value = null;
+  }
+});
 
 const userFormErrors = useValidationErrors(
   computed(() =>
@@ -343,21 +362,11 @@ const { r$ } = useRegle(
   { externalErrors: useExternalErrors(() => userFormErrors.value) }
 );
 
-const {
-  mutate: deleteUser,
-  isLoading: isDeleting,
-  variables: deletingId
-} = useDeleteUser({
-  onSuccess: () => {
-    $toast(
-      `User "${userToDelete.value?.name}" deleted successfully`,
-      'success'
-    );
-  },
-  onSettled: () => {
-    userToDelete.value = null;
-  }
-});
+const users = computed(() => usersResponse.value?.data ?? []);
+
+const isSubmittingUser = computed(
+  () => isCreatingUser.value || isUpdatingUser.value
+);
 
 const isDeletingUser = computed(() =>
   isDeleting.value ? (deletingId.value ?? null) : null
@@ -366,15 +375,6 @@ const isDeletingUser = computed(() =>
 function confirmDelete(user: User) {
   userToDelete.value = user;
 }
-
-// Move focus into the dialog so Escape and keyboard navigation work without
-// a pointer.
-watch(userToDelete, async (user) => {
-  if (user) {
-    await nextTick();
-    confirmDeleteModal.value?.focus();
-  }
-});
 
 function cancelDelete() {
   userToDelete.value = null;
@@ -415,15 +415,6 @@ function openEditForm(user: User) {
   showUserForm.value = true;
 }
 
-// Move focus into the dialog so Escape and keyboard navigation work without
-// a pointer.
-watch(showUserForm, async (isOpen) => {
-  if (isOpen) {
-    await nextTick();
-    userFormModal.value?.focus();
-  }
-});
-
 function closeUserForm() {
   showUserForm.value = false;
   isEditMode.value = false;
@@ -462,6 +453,22 @@ async function handleSubmitUser() {
     createUser(userForm.value);
   }
 }
+
+// Move focus into the dialogs so Escape and keyboard navigation work without
+// a pointer.
+watch(showUserForm, async (isOpen) => {
+  if (isOpen) {
+    await nextTick();
+    userFormModal.value?.focus();
+  }
+});
+
+watch(userToDelete, async (user) => {
+  if (user) {
+    await nextTick();
+    confirmDeleteModal.value?.focus();
+  }
+});
 </script>
 
 <style scoped>

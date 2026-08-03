@@ -6,6 +6,7 @@
       <form class="register-form" novalidate @submit.prevent="handleRegister">
         <div class="form-group">
           <label for="name" class="form-label">Name</label>
+
           <input
             id="name"
             v-model="form.name"
@@ -20,6 +21,7 @@
 
         <div class="form-group">
           <label for="email" class="form-label">Email</label>
+
           <input
             id="email"
             v-model="form.email"
@@ -34,6 +36,7 @@
 
         <div class="form-group">
           <label for="password" class="form-label">Password</label>
+
           <input
             id="password"
             v-model="form.password"
@@ -50,6 +53,7 @@
           <label for="password_confirmation" class="form-label">
             Password Confirmation
           </label>
+
           <input
             id="password_confirmation"
             v-model="form.password_confirmation"

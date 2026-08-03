@@ -27,7 +27,7 @@ public function update(UserRequest $request, User $user): JsonResource
 }
 ```
 
-- **Declare the return type** — `JsonResource`, `ResourceCollection`, `JsonResponse`, `Response`, or a union where an action genuinely has two shapes. It is the cheapest contract documentation available and static analysis reads it.
+- **Declare the return type** — `JsonResource`, `ResourceCollection`, `JsonResponse`, `Response`, or a union where an action genuinely has two shapes.
 - **Route-model binding** over `findOrFail()`: type-hint `User $user` and the 404 is handled before the action runs.
 - **`$request->safe()->only([...])`** for mass assignment, never `$request->all()`. `validated()` is for reading individual values; `safe()->only()` is for deciding which of them may be filled.
 - **`Response::HTTP_CREATED`**, not `201`. Status codes are a contract, and the constant names it.
@@ -35,7 +35,7 @@ public function update(UserRequest $request, User $user): JsonResource
 
 ## FormRequests
 
-`authorize()` is real authorization, not a formality. Returning `false` produces a 403 before `rules()` ever runs, which means an unauthorized caller never learns whether their payload would have validated.
+`authorize()` is real authorization, not a formality. Returning `false` produces a 403 before `rules()` ever runs.
 
 ```php
 public function authorize(): bool
@@ -96,7 +96,7 @@ class UserResource extends JsonResource
 
 ## Route files
 
-Session-based auth splits the routes in a way that surprises people, so it is worth stating plainly:
+Session-based auth splits the routes:
 
 - **`routes/api.php`** — everything under `/api`, guarded by `auth:sanctum`. All data endpoints.
 - **`routes/web.php`** — the session-establishing endpoints (`login`, `logout`, `register`, password reset, email verification), unprefixed. They need the full web middleware stack: session, cookie encryption, CSRF.

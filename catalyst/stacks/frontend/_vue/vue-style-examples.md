@@ -107,7 +107,7 @@ watch(users, () => {
 
 ## The auto-import boundary
 
-What must be imported and what must not, under Nuxt's defaults. Importing an auto-imported symbol is not a build error — it is noise that hides the real dependencies.
+What must be imported and what must not, under Nuxt's defaults.
 
 ```ts
 // ❌ all auto-imported — remove these lines
@@ -182,5 +182,3 @@ const { data: user } = useFetchUser(computed(() => props.userId));
   </li>
 </template>
 ```
-
-Note the empty line between siblings at the same level — it is what makes a long template scannable.

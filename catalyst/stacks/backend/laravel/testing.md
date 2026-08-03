@@ -7,7 +7,7 @@ How this module tests. Read this when adding tests, or when deciding what level 
 
 ## Shape
 
-Feature tests drive the HTTP surface and are the primary coverage. A Laravel endpoint is mostly framework wiring — routing, middleware, validation, serialization, the database — and the Universal Rules already say that is exactly what integration tests are for. A unit test that mocks Eloquent tests the mock.
+Feature tests drive the HTTP surface and are the primary coverage — a Laravel endpoint is mostly framework wiring. A unit test that mocks Eloquent tests the mock.
 
 Unit tests earn their place for logic that stands on its own: a domain method with branches, a calculation, a value object. `changeEmail()` returning false for an unchanged address is a unit test; "an admin can update another user's email" is a feature test.
 
@@ -17,7 +17,7 @@ Unit tests earn their place for logic that stands on its own: a domain method wi
 uses(TestCase::class, RefreshDatabase::class)->in('Feature');
 ```
 
-Applied to the directory, not repeated per file — a new feature test then cannot forget it.
+Applied to the directory, not repeated per file.
 
 ## Conventions
 
@@ -53,9 +53,9 @@ Beyond the happy path, these are the ones that get skipped and then break:
 
 ## The test database
 
-**Tests run against the same engine as production** — the Persistence module's choice, not a substitute. This is a Universal Rule (Testing), and Laravel makes breaking it unusually tempting: `phpunit.xml` ships pointing at SQLite `:memory:`, it is faster, and it works right up until it does not.
+**Tests run against the same engine as production** — the Persistence module's choice, not a substitute. This is a Universal Rule (Testing), and Laravel makes breaking it unusually tempting: `phpunit.xml` ships pointing at SQLite `:memory:`.
 
-What it hides: column types that differ, `ALTER` behavior SQLite silently no-ops, enum and JSON handling, transaction and locking semantics, `ONLY_FULL_GROUP_BY`, collation and case-sensitivity, and any raw SQL at all. Those are precisely the failures a test suite exists to catch before deploy.
+What it hides: column types that differ, `ALTER` behavior SQLite silently no-ops, enum and JSON handling, transaction and locking semantics, `ONLY_FULL_GROUP_BY`, collation and case-sensitivity, and any raw SQL at all.
 
 So point the test connection at a real instance of the project's engine, on its own database:
 

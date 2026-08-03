@@ -8,7 +8,7 @@ The Vue-side additions to [`../_common/component-naming.md`](../_common/componen
 
 **`@/components/_shared/`** is the auto-registered directory: its components are usable in any template with no import. Everything else under `@/components/` is imported explicitly.
 
-The underscore is deliberate — it sorts the directory to the top and marks it as infrastructure rather than a feature folder. It is the Vue-side counterpart to React's `@/components/ui/`, and it is wider: it holds shared components generally, `UI*` primitives among them.
+The underscore is deliberate — it sorts the directory to the top and marks it as infrastructure rather than a feature folder. It holds shared components generally, `UI*` primitives among them.
 
 ```ts
 ✅ @/components/_shared/UIField.vue        auto-registered, no import
@@ -33,7 +33,7 @@ The second one is the stutter that `../_common/component-naming.md`'s self-descr
 - **PascalCase** for project components — `<UserCard />`, `<UIField />`.
 - **kebab-case** for library components — `<v-btn>`, `<u-button>`.
 
-Both are valid Vue for either kind; the split is a convention that lets a reader tell project code from vendor code without checking imports. The `frontend/ui` choice's docs name the library prefix in play.
+Both are valid Vue for either kind; the split is a convention (`vue-style.md`, Template). The `frontend/ui` choice's docs name the library prefix in play.
 
 ## File extension
 

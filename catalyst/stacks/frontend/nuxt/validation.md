@@ -30,7 +30,41 @@ export type User = z.infer<typeof UserSchema>;
 
 ## Regle — requests only
 
-Forms validate client-side with `@regle/core` + `@regle/rules`. **Rules mirror the backend's validation for that endpoint** — the same `required`, `email`, `maxLength(255)`, `minLength(8)`, `sameAs`, `requiredIf`. When they drift, the user meets a server error the form promised could not happen.
+Forms validate client-side with Regle, wired as the **`@regle/nuxt` module** — one entry in `modules`, no plugin file. (The `ui/vuetify` choice goes the other way and says so in `ui/vuetify/setup.md`; neither call generalises to the other library.)
+
+### Dependencies
+
+| Package        | Where        | Why                                                      |
+| -------------- | ------------ | -------------------------------------------------------- |
+| `@regle/core`  | dependencies | `useRegle` and the validation core                       |
+| `@regle/rules` | dependencies | The built-in rules — `required`, `email`, `minLength`, … |
+| `@regle/nuxt`  | dependencies | The module: auto-imports and the devtools                |
+
+Adding these is a Dependency Change: it needs the user's approval and an `architecture.md` update in the same change.
+
+### Nuxt config
+
+```ts
+export default defineNuxtConfig({
+  modules: ['@regle/nuxt']
+});
+```
+
+Installing the plugin by hand (`app.use(RegleVuePlugin)`) is what a plain Vue app does; a Nuxt app that registered the module never should.
+
+Where a project needs custom rules or shared error messages, the module injects them from one setup file — `regle: { setupFile: '~/regle-config.ts' }` alongside the `modules` entry. Not the default: a project with neither has no reason to own the file.
+
+### The auto-import boundary
+
+The module auto-imports the `@regle/core` composables — `useRegle`, `inferRules`, `useScopedRegle`, `useCollectScope` — so do not import them explicitly (`../_vue/vue-style.md`, auto-import boundary).
+
+**The rules are the exception and stay explicit:** `import { email, required } from '@regle/rules'`. Deleting a rule import because "Regle is auto-imported" breaks the build.
+
+The module also auto-imports `useRegleSchema` and `inferSchema` from `@regle/schemas` — the bridge that drives a form off a Zod schema. **Both are offered by editor completion and neither is used here** — that is Zod doing Regle's job.
+
+### Writing the form
+
+**Rules mirror the backend's validation for that endpoint** — the same `required`, `email`, `maxLength(255)`, `minLength(8)`, `sameAs`, `requiredIf`. When they drift, the user meets a server error the form promised could not happen.
 
 - The form component keeps a plain `ref` form model and calls `useRegle(form, rules, { externalErrors })`.
 - Rules that depend on props (create mode vs edit mode) use a **rules getter** — `useRegle(form, () => ({ … }), …)` — so they re-evaluate when the props change.
@@ -63,10 +97,8 @@ A validation failure the form could have caught belongs on the field that caused
 - **A page that owns its own mutation** chains both directly: `useExternalErrors(useValidationErrors(error))`.
 - **A parent that owns the mutation and a child that owns the form** — the common case for dialogs — has the parent derive `useValidationErrors(mutationError)` and pass it down as a `serverErrors` prop; the child does `useExternalErrors(() => props.serverErrors)`.
 
-The second shape is why `useExternalErrors` takes a watch source rather than a plain value: the child has to react to a prop that changes after every failed submit.
-
 ## Field error display
 
 Where the `frontend/ui` choice provides inputs with an error-message prop, pass Regle's `$errors` array straight to it — it is already `string[]`.
 
-Where it does not, the project owns a small presenter component. Give it a **fixed minimum height** so a message appearing or disappearing does not shift the layout under the user's cursor mid-form.
+Where it does not, the project owns a small presenter component with a **fixed minimum height** (`ui/headless.md`, The field-error presenter).

@@ -72,7 +72,6 @@
 </template>
 
 <script setup lang="ts">
-import { useRegle } from '@regle/core';
 import { email, minLength, required, sameAs } from '@regle/rules';
 
 import { useResetPassword } from '@/services/queries/useAuthQueries';

@@ -55,7 +55,7 @@ The frontend is on a different origin, and the requests are credentialed. `confi
 ```
 
 - **`supports_credentials => true`** is mandatory — without it the browser sends no cookie.
-- **`allowed_origins` can never be `['*']`.** The spec forbids the wildcard with credentials, and the browser will reject the response. Derive it from configuration and let it **fail closed**: an unset `FRONTEND_URL` produces an empty allowlist and every cross-origin request is refused, which is the correct behavior for a misconfigured deploy. This is the deny-by-default CORS rule made concrete.
+- **`allowed_origins` can never be `['*']`** — the spec forbids the wildcard with credentials. Derive it from configuration and let it **fail closed**: an unset `FRONTEND_URL` produces an empty allowlist and every cross-origin request is refused. This is the deny-by-default CORS rule (`architecture.md`) made concrete.
 - **The bare paths are not optional.** `login`, `logout`, and the rest live in `routes/web.php`, not under `/api` (`../http-layer.md`), so `api/*` does not cover them. Omitting them is the classic symptom: login is blocked by CORS while every authenticated call works.
 
 ## Session and stateful domains
@@ -83,7 +83,7 @@ The rest:
 3. Every subsequent `/api/*` request carries the session cookie plus the `X-XSRF-TOKEN` header.
 4. `POST /logout` — `Auth::guard('web')->logout()`, then `invalidate()` and `regenerateToken()` on the session.
 
-**Auth endpoints return 204, not a user object.** The client then fetches `/api/user`. One endpoint owns the shape of a user, so login, registration, and a page refresh all get the same thing — and session regeneration on login (which prevents session fixation) is not tangled up with serializing a response.
+**Auth endpoints return 204, not a user object.** The client then fetches `/api/user`. One endpoint owns the shape of a user, so login, registration, and a page refresh all get the same thing.
 
 ## Links that land in the frontend
 
@@ -105,7 +105,7 @@ Email verification is the mirror image: the signed route is verified on the back
 
 The client side of this contract is `stacks/frontend/nuxt/error-handling.md` — one fetcher sending `credentials: 'include'`, `Accept: application/json`, and `X-XSRF-TOKEN` on mutating verbs, with a single retry on `419`.
 
-That **419** is this module's: Laravel returns it when the CSRF token expired but the session did not. It is recoverable and must never reach the user as an error. If the frontend does not implement the refresh-and-retry, users who leave a tab open get a failure on their next click.
+That **419** is this module's: Laravel returns it when the CSRF token expired but the session did not. It is recoverable and must never reach the user as an error.
 
 ## Testing
 

@@ -2,7 +2,7 @@
 
 **Trigger:** once at project start, or when an existing system is first brought under the prime directive.
 
-The locked invariant is in the Flow Index (`prime-directive.md`) and is normative there; this file is the how. The architecture is assembled through one umbrella decision record before any bootstrap or feature work.
+The locked invariant is in the Flow Index (`prime-directive.md`); this file is the how.
 
 ## Steps
 

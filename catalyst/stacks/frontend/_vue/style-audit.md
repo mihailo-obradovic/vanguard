@@ -19,19 +19,13 @@ For each file, verify and fix:
 
 ### Template
 
-- **PascalCase** for project components, **kebab-case** for library components. No exceptions.
-- Empty line between neighboring elements at the same hierarchy level.
-- `v-for` has a stable, unique `:key`. Flag `:key="index"` unless the list is provably static.
-- **`v-if` and `v-for` never share an element** — the fix is a `computed` that pre-filters.
-- Inline conditionals at most one level deep. Flag nested ternaries and stacked `v-if`/`v-else-if` chains; suggest `v-show`, a slot, or subcomponent extraction.
-- Custom CSS only where the project's utility system cannot express it.
-- Emit names are events (`@save`, `@update:modelValue`), parent handlers are `handle*`. Every emit declared in `defineEmits`.
+- Audit against `vue-style.md` → **Template** (tag casing, sibling blank lines, `:key` discipline, `v-if`/`v-for` separation, shallow conditionals, utility-first CSS, emit naming and declaration).
 - Icon-only interactive elements have an accessible name on the control and `aria-hidden` on the icon. Decorative SVGs are `aria-hidden`.
 
 ### Script — imports and the auto-import boundary
 
 - **`@/` alias everywhere; flag every `~/`.**
-- Flag explicit imports of auto-imported symbols: Vue reactivity, framework built-ins, `composables/`, `utils/`, and components in the auto-registered directories. Removing them is safe and is the single most common fix.
+- Flag explicit imports of auto-imported symbols: Vue reactivity, framework built-ins, `composables/`, `utils/`, and components in the auto-registered directories.
 - Flag missing explicit imports: external packages, and components outside the auto-registered directories.
 - Check the project's actual auto-import configuration before flagging either direction — a project that narrowed the defaults records it in a convention annex, and the annex wins.
 - Type-only imports use `import type` and come last. Shared types live in `@/types/`, never redefined inline (`../../_lang/typescript/typescript-types.md`).
@@ -40,7 +34,7 @@ For each file, verify and fix:
 
 Verify the twenty-one sections in `vue-style.md` appear in order, and that the four groups (imports 1–5, declarations 6–7, wiring 8–14, logic 15–21) are separated by blank lines.
 
-**Do NOT auto-fix a section reordering.** Moving declarations past each other can change evaluation order and break a file that currently works — a composable reading a ref declared below it, a `computed` capturing a store binding, a `defineProps` result consumed by an earlier line. Report each ordering violation with its `file:line` and the move it wants, and leave the code alone unless the caller asks for the move specifically.
+**Do NOT auto-fix a section reordering.** Moving declarations past each other can change evaluation order and break a file that currently works. Report each ordering violation with its `file:line` and the move it wants, and leave the code alone unless the caller asks for the move specifically.
 
 Everything else in this document is safe to fix directly.
 
@@ -56,16 +50,11 @@ Everything else in this document is safe to fix directly.
 
 ### Style block
 
-- `<style scoped>` by default — an unscoped block needs a comment giving the reason.
-- No preprocessor the stack does not already ship.
+- Audit against `vue-style.md` → **Style** (`<style scoped>` default with a commented reason for exceptions; no preprocessor the stack does not already ship).
 
 ### General rules
 
-- Empty lines between major blocks.
-- `if + return` over `if/else`; guard clauses over deep nesting.
-- **`function` syntax** for component methods; arrow syntax only for inline callbacks and array-method arguments.
-- No unused code unless a nearby comment explains why.
-- No bare top-level `await` in setup — it suspends the component. Async work belongs in lifecycle hooks, `watch`, or the data layer.
+- Audit against `vue-style.md` → **General rules** (block spacing, guard clauses, `function` syntax for methods, unused code, no bare top-level `await` in setup).
 
 ### Naming
 

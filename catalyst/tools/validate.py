@@ -14,9 +14,9 @@ A spawn keeps its whole rule set in one bundle directory, `<project>/catalyst/`,
 
 Catalyst's own layout is the bundle layout with the bundle at the repository root, so the same checks read both.
 
-Catalyst checks: `VERSION` matches the newest changelog entry (R1), `CLAUDE.md` imports `AGENTS.md` (R2), changelog shape (R3), examples follow the current templates (R4, feature/decision/experiment examples), the Flow Index in `prime-directive.md` points at exactly the `workflows/` shards that exist, every `workflows/`, `references/`, and `conventions/` shard carries its **Trigger:** header, and every `references/` and `conventions/` shard is reachable from an always-loaded document (R6), stack documents carry their contract headers — layer/tool for modules, category/tool for addon docs and payloads, `**Tier:**` for shared-tier docs, YAML `title:` frontmatter for `rules/` files (R7), the context-document catalog agrees across its four mirrors — the Catalog table, `CONTEXT_DOCS` in the scaffolder, the `templates/` stub, and the load-trigger bullet (R8), shared-tier wiring is closed both ways — every `**Requires:**` value resolves to an existing tier, every tier is required by some module (R9), the generated-skill registry (`SKILLS` in the scaffolder) points at existing documents and is mirrored in `references/agent-skills.md` (R10), and the editor-extension registry (`EDITOR_EXTENSIONS`) does the same against `conventions/editor-setup.md` (R11).
+Catalyst checks: `VERSION` matches the newest changelog entry (R1), `CLAUDE.md` imports `AGENTS.md` (R2), changelog shape (R3), examples follow the current templates (R4, feature/decision/experiment examples), the Flow Index in `prime-directive.md` points at exactly the `workflows/` shards that exist, every `workflows/`, `references/`, and `conventions/` shard carries its **Trigger:** header, and every `references/` and `conventions/` shard is reachable from an always-loaded document (R6), stack documents carry their contract headers — layer/tool for modules, category/tool for addon docs and payloads, `**Tier:**` for shared-tier docs, YAML `title:` frontmatter for `rules/` files (R7), the context-document catalog agrees across its four mirrors — the Catalog table, `CONTEXT_DOCS` in the scaffolder, the `templates/` stub, and the load-trigger bullet (R8), shared-tier wiring is closed both ways — every `**Requires:**` value resolves to an existing tier, every tier is required by some module (R9), the generated-skill registry (`SKILLS` in the scaffolder) points at existing documents and is mirrored in `references/agent-skills.md` (R10), the editor-extension registry (`EDITOR_EXTENSIONS`) does the same against `conventions/editor-setup.md` (R11), and the template's markdown is oxfmt-canonical — `pnpm dlx oxfmt --check` tracking `oxfmt@latest` passes, skipped with a note when pnpm is absent (R12).
 
-Project checks (features, decision records, and experiments alike): index <-> files (P1), statuses (P2), template sections for new/changed documents only (P3, diff-aware), unique numbering (P4), Protected Areas rows point to existing documents (P5), a soft Catalyst-version drift note when the project's stamp lags (P6, note only), the size budgets (P7, diff-aware — a hard error over a feature's maximum, a note over a target), a soft note when Open Questions are not empty past the drafting gate (P8, diff-aware note), and a soft note when a project with features has no operations.md (P9, note).
+Project checks (features, decision records, and experiments alike): index <-> files (P1), statuses (P2), template sections for new/changed documents only (P3, diff-aware), unique numbering (P4), Protected Areas rows point to existing documents (P5), a soft Catalyst-version drift note when the project's stamp lags (P6, note only), the size budgets (P7, diff-aware — a hard error over a feature's maximum, a note over a target), a soft note when Open Questions are not empty past the drafting gate (P8, diff-aware note), a soft note when a project with features has no operations.md (P9, note), and a soft note when numbered documents exist but their folder's _template.md is not in the bundle — an unadopted flow (P10, note).
 
 Exit code is non-zero when any error is found. Notes never block.
 
@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import ast
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -35,6 +36,9 @@ CATALYST_ROOT = Path(__file__).resolve().parent.parent
 
 # The directory a spawn keeps its rule set in, below the project root. Kept in step with new_project.py's BUNDLE.
 BUNDLE = "catalyst"
+
+# The oxfmt the template's markdown is formatted with (R12). Tracks latest: when a new oxfmt release changes the output and the check starts failing on untouched files, rerun `pnpm dlx oxfmt@latest .` and commit the reflow.
+OXFMT_VERSION = "latest"
 
 FEATURE_STATUSES = {"Draft", "Approved", "Active", "Changing", "Deprecated", "Removed"}
 EXPERIMENT_STATUSES = {"Proposed", "Running", "Adopted", "Refuted"}
@@ -350,6 +354,20 @@ def check_catalyst(root: Path) -> None:
             if setup_text and f"`{ident}`" not in setup_text:
                 error(f"conventions/editor-setup.md: recommended extension `{ident}` is not in the table — every generated recommendation is documented")
 
+    # R12: the template's markdown is oxfmt-canonical (stacks/_lang/typescript/toolchain.md) — spawns format their whole repository, so any drift here comes back as merge churn on every upgrade. The vendored rules/ payloads are covered too; sync_rules.py normalizes upstream through oxfmt before comparing. Template mode only: a spawn's own `format:check` script already owns this. pnpm is the one non-stdlib need, so its absence is a note, never an error.
+    if shutil.which("pnpm") is None:
+        note("oxfmt check skipped — pnpm is not on PATH (R12)")
+    else:
+        fmt = subprocess.run(
+            ["pnpm", "dlx", f"oxfmt@{OXFMT_VERSION}", "--check", "."],
+            cwd=root,
+            capture_output=True,
+            text=True,
+        )
+        if fmt.returncode != 0:
+            detail = (fmt.stdout + fmt.stderr).strip()
+            error(f"markdown is not oxfmt-formatted — run `pnpm dlx oxfmt@{OXFMT_VERSION} .` (R12)\n{detail}")
+
 
 # --- project checks ----------------------------------------------------------
 
@@ -416,13 +434,14 @@ def check_project(project: Path, check_all: bool) -> None:
         return
     summary = read(summary_path)
 
+    # Templates resolve against the project's own bundle, not CATALYST_ROOT — run from the Catalyst repo against a project path, the repo's always-present templates would mask an unadopted flow (P10) and check documents against a template the project does not carry (P3).
     plans = [
         ("Feature Index", "features", 2, FEATURE_STATUSES,
-         CATALYST_ROOT / "features" / "_template.md"),
+         project / "features" / "_template.md"),
         ("Architecture Decision Record (ADR) Index", "decisions", 2,
-         DECISION_STATUSES, CATALYST_ROOT / "decisions" / "_template.md"),
+         DECISION_STATUSES, project / "decisions" / "_template.md"),
         ("Experiment Index", "experiments", 3, EXPERIMENT_STATUSES,
-         CATALYST_ROOT / "experiments" / "_template.md"),
+         project / "experiments" / "_template.md"),
     ]
     changed = changed_docs(project)
     if changed is None and not check_all:
@@ -434,6 +453,10 @@ def check_project(project: Path, check_all: bool) -> None:
             f"{folder}/{path.name}"
             for path in (project / folder).glob("[0-9]*.md")
         }
+
+        # P10: documents without their template in the bundle — an unadopted flow (experiments are opt-in at spawn).
+        if on_disk and not template.exists():
+            note(f"{project}/{folder}: documents exist but the bundle has no {folder}/_template.md — from the Catalyst repo, tools/upgrade_project.py --apply offers adopting the flow")
 
         # P1: index <-> files, both directions.
         for missing_row in sorted(on_disk - set(indexed)):

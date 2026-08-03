@@ -5,8 +5,6 @@
 
 All API communication goes through two layers. Adding endpoints for a new resource means creating **both** files — a service file and a query file. Nothing in a component calls the network directly.
 
-The split exists so that the thing which talks HTTP has no opinions (no store access, no toasts, no navigation) and the thing which has opinions never talks HTTP. That is what makes services trivially testable and queries trivially cacheable.
-
 ## 1. Service file — `@/services/<resource>.api.ts`
 
 Pure async functions over `fetcher<T>()`, one per endpoint. Named `fetchItems` / `fetchItem`, `createItem`, `updateItem`, `deleteItem`.

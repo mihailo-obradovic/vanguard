@@ -32,27 +32,22 @@ export default defineNuxtRouteMiddleware((to) => {
 });
 ```
 
-The policy lives in a plain function in `@/utils/` that takes a path and returns a decision object — `{ shouldRedirect, redirectTo?, reason? }`. The `reason` is not decoration: it names which rule fired, which is what makes a redirect loop debuggable and the unit tests readable.
+The policy lives in a plain function in `@/utils/` that takes a path and returns a decision object — `{ shouldRedirect, redirectTo?, reason? }`. The `reason` names which rule fired.
 
-Why the split is worth the extra file:
-
-- **The policy is unit-testable without a router.** Route middleware needs a Nuxt app instance to test; a pure function needs nothing, so every rule and every edge gets a cheap test.
-- **The same decision is needed in more than one place.** Middleware runs on navigation, but authentication state also changes _without_ navigating — a session expiring, a logout in another tab. Watching auth state and re-running the same function keeps one policy instead of two that drift.
-- Route lists (guest-only, shared, protected) live in the policy function as data, so adding a route is a one-line change in a tested file.
+- Authentication state also changes _without_ navigating — a session expiring, a logout in another tab. Watch auth state and re-run the same policy function, keeping one policy instead of two that drift.
+- Route lists (guest-only, shared, protected) live in the policy function as data.
 
 Use `{ replace: true }` on redirects so a guarded page does not sit in history for the back button to return to.
 
 ## Global vs named middleware
 
-Global middleware (`middleware/*.global.ts`) runs on every navigation — right for authentication, which must not be forgotten on a new page. Named middleware, opted into via `definePageMeta`, is right for anything narrower. **Prefer global for security-relevant checks**; a rule that has to be remembered per page eventually is not.
+Global middleware (`middleware/*.global.ts`) runs on every navigation — right for authentication, which must not be forgotten on a new page. Named middleware, opted into via `definePageMeta`, is right for anything narrower. **Prefer global for security-relevant checks.**
 
 ## Priming the session
 
 Baseline only — the `ssr` addon supersedes this section (`addons/ssr.md`, Cookie-session auth under SSR).
 
 Under `ssr: false` the app boots with no server-rendered state, so anything the first render depends on is fetched by a plugin before the app mounts: prime the CSRF cookie, then attempt to rehydrate the user from the session cookie, treating failure as "not logged in" rather than an error.
-
-Without this, the first paint shows a logged-out shell to a logged-in user, and the global middleware bounces them to login before the session check returns.
 
 ## Navigation
 

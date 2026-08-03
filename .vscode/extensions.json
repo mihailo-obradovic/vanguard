@@ -1,4 +1,16 @@
 {
-  "recommendations": ["oxc.oxc-vscode"],
+  "recommendations": [
+    "oxc.oxc-vscode",
+    // catalyst:begin
+    "EditorConfig.EditorConfig", // applies the .editorconfig at the repository root
+    "aaron-bond.better-comments", // colors the annotation markers in conventions/code-annotations.md
+    "Vue.volar", // Vue SFC language support and template type-checking
+    "laravel.vscode-laravel", // official Laravel extension — completion and go-to-definition for routes, config, env, models, and app bindings
+    "bmewburn.vscode-intelephense-client", // PHP language server — completion, diagnostics, go-to-definition
+    "mehedidracula.php-namespace-resolver", // imports and sorts `use` statements
+    "onecentlin.laravel5-snippets", // Laravel class and facade snippets
+    "xdebug.php-debug" // step debugging against Xdebug
+    // catalyst:end
+  ],
   "unwantedRecommendations": ["esbenp.prettier-vscode"]
 }

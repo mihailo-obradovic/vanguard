@@ -46,7 +46,6 @@
 </template>
 
 <script setup lang="ts">
-import { useRegle } from '@regle/core';
 import { email, required } from '@regle/rules';
 
 import { useGeneratePasswordResetEmail } from '@/services/queries/useAuthQueries';

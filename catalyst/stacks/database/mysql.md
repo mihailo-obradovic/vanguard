@@ -3,7 +3,7 @@
 **Layer:** Database
 **Tool:** MySQL
 
-The alternative database module — PostgreSQL is the default; MySQL is picked when the environment decides for you (existing infrastructure, a hosting constraint, a team standard). It only names the tool — the persistence rules (versioned forward-only migrations, transaction boundaries, database-enforced invariants, tested backups) are Universal Rules and are not restated here.
+The alternative database module — PostgreSQL is the default; MySQL is picked when the environment decides for you (existing infrastructure, a hosting constraint, a team standard). It only names the tool — the persistence rules are Universal Rules and are not restated here.
 
 - MySQL is the operational database, and InnoDB is the only storage engine in play — the persistence Universal Rules (transactions, row-level locking, foreign-key constraints) assume it; MyISAM has no place in a spawned project.
 - Character set is `utf8mb4` everywhere — MySQL's legacy `utf8` is a three-byte trap, not UTF-8.

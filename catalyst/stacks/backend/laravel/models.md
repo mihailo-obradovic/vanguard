@@ -44,7 +44,7 @@ What changed from the older style:
 | `protected static function booted()`                      | `#[Boot]`, `#[ObservedBy]`, `#[ScopedBy]`               |
 | `$policies` array in a provider                           | `#[UsePolicy(...)]` on the model                        |
 
-The `casts()` method exists because a property could not call anything — a cast needing a constructor argument (`AsEncryptedCollection::class`, a custom caster with parameters) had to be worked around. The method form removes the special case, so use it even when the array is static.
+Use the `casts()` method form even when the array is static.
 
 ## Casts
 
@@ -92,15 +92,13 @@ public function changeEmail(string $email): bool
 }
 ```
 
-The rule "verification resets when the address changes" now exists once. Every caller — admin user management, self-service profile, an import — gets it, and no controller can forget.
-
 - Predicates that read as domain vocabulary (`isAdmin()`, `isOverdue()`) beat the comparison spelled out at each call site.
 - A method that returns "did something meaningful happen" lets the caller own the side effect (sending mail, dispatching a job) without the model reaching for a facade.
 - Logic moves to `app/Services/` when it spans several models or owns a transaction boundary. That is the trigger — not the number of methods on the model.
 
 ## Migrations
 
-- A schema change ships with its migration in the same change, and after first deploy migrations are **forward-only**: a change is a new migration, never an edit to one that has run. Editing the base `create_users_table` to add a column is fine on day one and a data-loss bug on day two.
+- Schema changes follow the Universal Persistence rules (same-change migration, forward-only in production). The Laravel trap is editing a migration that has already run: adding a column to the base `create_users_table` is fine on day one and a data-loss bug on day two — after first deploy, a change is always a new migration.
 - Columns backed by an enum use `string` with the enum-derived default, not a database `enum` type — the database enum has to be altered in lockstep with the PHP one and gains nothing:
 
   ```php

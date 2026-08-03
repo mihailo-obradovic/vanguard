@@ -19,7 +19,7 @@ What does not:
 - **State one component uses.** A plain `ref` in that component is the right answer; a store is not tidier, it is just wider.
 - **State shared by exactly two adjacent components.** Lift it to the parent first. Reach for a store when lifting stops being reasonable.
 
-The one deliberate exception is a **form draft**: an explicit local copy of server-owned data, held as client state until submit. That is a copy on purpose, not an accidental mirror — the Universal Rules name it as such.
+The one deliberate exception is a **form draft**: an explicit local copy of server-owned data, held as client state until submit — the exception the Universal Rules (Client And UI) name.
 
 ## Store shape
 
@@ -47,8 +47,8 @@ export const useAuthStore = defineStore('auth', () => {
 
 Three rules the shape encodes:
 
-- **Return state as `readonly()`.** A consumer that can write `authStore.user.value = …` will eventually do it, and then the store's invariants live in whichever component wrote last. Actions are the only mutation path.
-- **Derive with `computed`, never store what you can derive.** `isLoggedIn` as its own `ref` is a second source of truth that will disagree with `user` sooner or later.
+- **Return state as `readonly()`.** Actions are the only mutation path.
+- **Derive with `computed`, never store what you can derive.**
 - **Actions are plain functions** and stay synchronous where they can. See below for the async case.
 
 ## Consuming a store
@@ -64,11 +64,7 @@ Never wrap a store value in a local property that only re-exposes it (`const cur
 
 ## Stores do not call the API
 
-A store action does not fetch. The query layer calls the service, then calls the store action with the result (`data-layer.md` — "store side effects belong to the query layer's internal hook"). Keeping stores synchronous means:
-
-- A store never has a loading state, an error state, or a retry — Pinia Colada owns those.
-- A store is testable without mocking the network.
-- There is one place that talks HTTP, which is the point of the data layer.
+A store action does not fetch. The query layer calls the service, then calls the store action with the result (`data-layer.md` — "store side effects belong to the query layer's internal hook"). A store never has a loading state, an error state, or a retry — Pinia Colada owns those.
 
 Where a store genuinely must trigger a fetch — priming the session at startup — that lives in a plugin that calls the service and hands the result to the action, not in the action itself (`routing.md`).
 
@@ -80,4 +76,4 @@ Under Nuxt with `@pinia/nuxt`, `defineStore` and the store composables are auto-
 
 ## Persistence
 
-A store is memory; a reload empties it. Anything that must survive one is written deliberately to a cookie or storage and read back on startup — `useCookie` where the value may ever need to be readable server-side (the theme is the usual case, see the vuetify `ui/` choice). Do not reach for a blanket persistence plugin: it turns every store field into a compatibility surface that has to be migrated when its shape changes.
+A store is memory; a reload empties it. Anything that must survive one is written deliberately to a cookie or storage and read back on startup — `useCookie` where the value may ever need to be readable server-side (the theme is the usual case, see the vuetify `ui/` choice). Do not reach for a blanket persistence plugin.

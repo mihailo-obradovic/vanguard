@@ -6,7 +6,7 @@ The authoritative style rules for Vue code in any Catalyst Vue frontend (Vue 3 +
 
 ## Template
 
-- **Custom components are PascalCase** (`<UserCard />`); **library components are kebab-case** (`<v-btn>`, `<u-button>`). The casing is how a reader tells project code from vendor code at a glance, so this is a hard rule.
+- **Custom components are PascalCase** (`<UserCard />`); **library components are kebab-case** (`<v-btn>`, `<u-button>`). The casing is how a reader tells project code from vendor code at a glance.
 - Leave an empty line between neighboring elements at the same hierarchy level.
 - Prefer the project's utility classes over custom CSS where the `frontend/ui` choice provides a utility system; where it does not, a `<style scoped>` block is the default and carries no stigma.
 - Avoid deep `v-if` / `v-else` nesting. Reach for `v-show`, a named slot, or `v-for` over pre-filtered data before nesting a second level.
@@ -19,7 +19,7 @@ The authoritative style rules for Vue code in any Catalyst Vue frontend (Vue 3 +
 
 Always `<script setup lang="ts">`. Use the **`@/` alias, never `~/`**.
 
-**Auto-imports follow the framework's defaults** — under Nuxt that means Vue reactivity (`ref`, `computed`, `watch`, …), framework built-ins (`useRoute`, `useRouter`, `navigateTo`, …), `composables/`, `utils/`, and the component directories named in the framework config. Import explicitly: external packages, and components outside those directories. A project that narrows or widens the auto-import set records it in a convention annex (`references/convention-annexes.md`) — the narrowing is what makes an otherwise-correct file look wrong.
+**Auto-imports follow the framework's defaults** — under Nuxt that means Vue reactivity (`ref`, `computed`, `watch`, …), framework built-ins (`useRoute`, `useRouter`, `navigateTo`, …), `composables/`, `utils/`, and the component directories named in the framework config. Import explicitly: external packages, and components outside those directories. A project that narrows or widens the auto-import set records it in a convention annex (`references/convention-annexes.md`).
 
 **Section order** — follow it strictly. Four logical groups, separated by blank lines: **imports** (1–5), **declarations** (6–7), **wiring** (8–14), **logic** (15–21).
 
@@ -55,7 +55,7 @@ Always `<script setup lang="ts">`. Use the **`@/` alias, never `~/`**.
 
 ## SFC block order
 
-`<template>` → `<script setup>` → `<style scoped>`. The template comes first because it is what a reader looks for first; keep the order identical in every file.
+`<template>` → `<script setup>` → `<style scoped>`. Keep the order identical in every file.
 
 ## General rules
 

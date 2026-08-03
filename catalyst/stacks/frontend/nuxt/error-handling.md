@@ -11,12 +11,12 @@ A single wrapper over `$fetch` that every service function calls (`data-layer.md
 
 - **`Accept: application/json`** on every request, so an API that would otherwise redirect or render HTML answers with JSON it can parse.
 - **`credentials: 'include'`**, for a cookie-session API on another origin.
-- **The base URL**, read from public runtime config rather than hardcoded — build-time injection, per the Universal Rules.
+- **The base URL**, read from public runtime config — the Universal Rules' injection rule bound to Nuxt.
 - **The CSRF header** (`X-XSRF-TOKEN`, read from the CSRF cookie) on mutating verbs only — `POST`, `PUT`, `PATCH`, `DELETE`. Sending it on reads is harmless but noise.
 
 ### The CSRF retry
 
-A cookie-session API expires its CSRF token independently of the session, so a user who left a tab open meets a token failure on their next click while still being perfectly logged in. That is recoverable and should never reach them:
+A cookie-session API expires its CSRF token independently of the session. An expired token is recoverable and must never reach the user:
 
 ```ts
 export async function fetcher<T>(
@@ -58,8 +58,6 @@ Every failed request lands here. It decides navigation and messaging in one plac
 | **422**       | Surface every field message rather than the API's "(and N more errors)" summary |
 | anything else | One toast carrying the API's message                                            |
 
-The guards matter: redirecting to a route the user is already on produces a navigation loop under a global middleware that would redirect them right back.
-
 **Opt-outs** are per call, passed through the query composable's `errorHandling` option:
 
 - `hideToast` — the caller renders the failure itself.
@@ -67,7 +65,7 @@ The guards matter: redirecting to a route the user is already on produces a navi
 
 ## Deduplicating handled errors
 
-A query used by three components attaches three watchers to the same error ref, so one failure would toast three times and redirect three times. Track handled errors in a **`WeakSet`** and handle each object once:
+A query used by several components attaches a watcher per component to the same error ref. Track handled errors in a **`WeakSet`** and handle each object once:
 
 ```ts
 const handledErrors = new WeakSet<FetchError>();

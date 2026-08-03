@@ -13,4 +13,4 @@ Shared Vue-general conventions for any Vue-based frontend module — SFC style, 
 | `component-naming.md`   | The Vue-side additions to `../_common/component-naming.md` — auto-import name resolution, tag casing, where shared components live | When creating or renaming component files                               |
 | `style-audit.md`        | The audit procedure — count violations against the style guide, fix, re-check against the baseline                                 | When auditing Vue files (via the `audit-vue-style` wrapper or directly) |
 
-There is no Vue performance rule set yet — the React tier has one and this tier does not. Until there is, performance work here leans on the language-level rules in `../../_lang/typescript/performance.md`.
+Performance work leans on the language-level rules in `../../_lang/typescript/performance.md`; there is no Vue-specific rule set.

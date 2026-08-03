@@ -4,9 +4,9 @@
 **Tool:** Nuxt 4 · Vue 3 · TypeScript
 **Requires:** _lang/typescript · frontend/_vue · frontend/_common
 
-The Vue-side frontend module: a Nuxt 4 app running **as an SPA** (`ssr: false`) — pages render on the client and the app deploys as static assets against a separate API. Server-side rendering is the `ssr` addon, adopted when it earns its keep (SEO, fast first paint on content pages, server-side data composition); an authenticated app behind a login usually does not need it, and a cookie-session API pairing is simpler without it. Binds the Universal Rules (Client And UI) to Nuxt; never restates a Universal Rule.
+The Vue-side frontend module: a Nuxt 4 app running **as an SPA** (`ssr: false`) — pages render on the client and the app deploys as static assets against a separate API. Server-side rendering is the `ssr` addon; `addons/ssr.md` owns the adoption criteria. Binds the Universal Rules (Client And UI) to Nuxt; never restates a Universal Rule.
 
-- Data fetching goes through the two-layer data access described in `data-layer.md` — a pure service function per endpoint, a Pinia Colada composable per operation. Nuxt's own `useFetch` / `useAsyncData` are SSR-oriented and are not the default here; they come into play with the `ssr` addon.
+- Data fetching goes through the two-layer data access described in `data-layer.md` — a pure service function per endpoint, a Pinia Colada composable per operation.
 - Every response is parsed against a Zod schema rather than asserted with a generic — a removed or renamed field fails at the boundary, not three components deep.
 - Forms: Regle for client-side rules, mirroring the backend's validation for the endpoint. Server 422s render inline on the field, never as a toast.
 - Errors are handled centrally, once, at the query layer — components carry no try-catch and no manual loading flags.
@@ -31,7 +31,7 @@ The shared tiers `_lang/typescript`, `frontend/_vue`, and `frontend/_common` tra
 
 - Nuxt 4, Vue 3, TypeScript.
 - Pinia and `@pinia/colada` (with `@pinia/colada-nuxt`) — client state and server state respectively.
-- Zod (response schemas); `@regle/core` + `@regle/rules` (form validation).
+- Zod (response schemas); `@regle/core` + `@regle/rules` (with `@regle/nuxt`) — form validation.
 - `@vueuse/core`.
 - Vitest, `@nuxt/test-utils`, `@vue/test-utils`.
 - pnpm as the package manager.

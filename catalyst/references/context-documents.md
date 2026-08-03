@@ -2,7 +2,7 @@
 
 **Trigger:** working on, or adding, a `context/` document — and, at spawn, choosing which to include. A project carries only the context documents it opted into; a project with none has no `context/` directory.
 
-Context documents are optional, project-chosen background docs in `context/` that add depth behind the one-paragraph purpose in `project-summary.md`. Each is loaded on demand, only when the kind of work in progress calls for it — never preloaded. They layer _extra_ context onto the always-loaded core, so routine startup stays small.
+Context documents are optional, project-chosen background docs in `context/` that add depth behind the one-paragraph purpose in `project-summary.md`. Each is loaded on demand, only when the kind of work in progress calls for it — never preloaded.
 
 - **Background, never a contract.** A context document records vision and intent, not behavior. When it disagrees with a feature document or `architecture.md`, the contract wins and the context document is updated to catch up. When scope or identity changes, update the context document and the `project-summary.md` purpose paragraph together (Same-Change Rule).
 - **Loads by trigger, gated on presence.** A context document loads when it exists in the project _and_ the task matches its declared trigger (below). A document the project never opted into simply never loads.
@@ -18,7 +18,7 @@ The registry of context documents: the scaffold default (whether a spawn include
 | `product-description` | on               | Product-shaping work — drafting or estimating a feature document, a product-motivated decision record, Init Design input-gathering, brownfield prioritization, an experiment's Success Bar or graduation, or any task touching product scope, phases, or priorities. Not Minor edits, Incident stabilization, Bootstrap, or Parallel execution. |
 | `brand-description`   | off              | User-facing design work once the file is kept — UI feature drafting and browser verification, a frontend/UX decision record, the Init Design UI-module choice, or copy/voice/tone work.                                                                                                                                                         |
 
-`brand-description` is worth keeping only when the product must align to a **shared brand it does not own** — one of several products under an umbrella company or brand whose voice and visual identity its UI has to match. A standalone application does not need it: its own design system — the frontend design tokens (`stacks/frontend/*`) — is the whole brand, and duplicating that intent in prose only invites drift. Default off for that reason; opt in at spawn for portfolio products.
+`brand-description` is worth keeping only when the product must align to a **shared brand it does not own** — one of several products under an umbrella company or brand whose voice and visual identity its UI has to match. A standalone application's design system (`stacks/frontend/*`) is the whole brand. Default off; opt in at spawn for portfolio products.
 
 ## Adding a context document
 

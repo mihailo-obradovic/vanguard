@@ -11,17 +11,20 @@
 
           <div class="info-grid">
             <div class="info-item">
-              <label class="info-label">Name</label>
+              <div class="info-label">Name</div>
+
               <div class="info-value">{{ user.name }}</div>
             </div>
 
             <div class="info-item">
-              <label class="info-label">Email</label>
+              <div class="info-label">Email</div>
+
               <div class="info-value">{{ user.email }}</div>
             </div>
 
             <div class="info-item">
-              <label class="info-label">Role</label>
+              <div class="info-label">Role</div>
+
               <div class="info-value">
                 <span class="role-badge" :class="user.role">
                   {{ user.role }}
@@ -30,7 +33,8 @@
             </div>
 
             <div class="info-item">
-              <label class="info-label">Email Verified</label>
+              <div class="info-label">Email Verified</div>
+
               <div class="info-value verification-value">
                 <span
                   class="verification-badge"
@@ -38,6 +42,7 @@
                 >
                   {{ user.email_verified_at ? 'Verified' : 'Not Verified' }}
                 </span>
+
                 <button
                   v-if="!user.email_verified_at"
                   type="button"
@@ -51,12 +56,14 @@
             </div>
 
             <div class="info-item">
-              <label class="info-label">Member Since</label>
+              <div class="info-label">Member Since</div>
+
               <div class="info-value">{{ formatDate(user.created_at) }}</div>
             </div>
 
             <div class="info-item">
-              <label class="info-label">Last Updated</label>
+              <div class="info-label">Last Updated</div>
+
               <div class="info-value">{{ formatDate(user.updated_at) }}</div>
             </div>
           </div>
@@ -76,9 +83,18 @@
 
     <!-- Edit Profile Form -->
     <div v-if="showEditForm" class="modal-overlay" @click="closeEditForm">
-      <div class="modal form-modal" @click.stop>
+      <div
+        ref="editProfileModal"
+        class="modal form-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="edit-profile-title"
+        tabindex="-1"
+        @click.stop
+        @keydown.esc="closeEditForm"
+      >
         <div class="modal-header">
-          <h3 class="modal-title">Edit Profile</h3>
+          <h3 id="edit-profile-title" class="modal-title">Edit Profile</h3>
         </div>
 
         <form
@@ -88,6 +104,7 @@
         >
           <div class="form-group">
             <label for="name" class="form-label">Name</label>
+
             <input
               id="name"
               v-model="profileForm.name"
@@ -102,6 +119,7 @@
 
           <div class="form-group">
             <label for="email" class="form-label">Email</label>
+
             <input
               id="email"
               v-model="profileForm.email"
@@ -118,6 +136,7 @@
             <label for="current_password" class="form-label">
               Current Password (required when changing password)
             </label>
+
             <input
               id="current_password"
               v-model="profileForm.current_password"
@@ -134,6 +153,7 @@
             <label for="password" class="form-label">
               New Password (leave empty to keep current)
             </label>
+
             <input
               id="password"
               v-model="profileForm.password"
@@ -149,6 +169,7 @@
             <label for="password_confirmation" class="form-label">
               Confirm New Password (required if changing password)
             </label>
+
             <input
               id="password_confirmation"
               v-model="profileForm.password_confirmation"
@@ -170,6 +191,7 @@
             >
               Cancel
             </button>
+
             <button
               type="submit"
               class="submit-btn"
@@ -201,28 +223,8 @@ import {
 } from '@/services/queries/useAuthQueries';
 import type { ProfileForm } from '@/types/user';
 
-const { user } = storeToRefs(useAuthStore());
-const { setUser } = useAuthStore();
-
-const route = useRoute();
-const router = useRouter();
-
-onMounted(async () => {
-  if (route.query.verified === '1') {
-    setUser(await fetchCurrentUser());
-    $toast('Your email has been verified.', 'success');
-    router.replace({ query: {} });
-  }
-});
-
-const { mutate: resendVerification, isLoading: isResending } =
-  useResendEmailVerification({
-    onSuccess: () => {
-      $toast('Verification email sent. Check your inbox.', 'success');
-    }
-  });
-
 // Edit form state
+const editProfileModal = useTemplateRef('editProfileModal');
 const showEditForm = ref(false);
 const profileForm = ref({
   name: '',
@@ -232,40 +234,18 @@ const profileForm = ref({
   password_confirmation: ''
 });
 
-function formatDate(dateString: string) {
-  if (!dateString) return 'N/A';
-  return new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
+const route = useRoute();
+const router = useRouter();
+
+const { user } = storeToRefs(useAuthStore());
+const { setUser } = useAuthStore();
+
+const { mutate: resendVerification, isLoading: isResending } =
+  useResendEmailVerification({
+    onSuccess: () => {
+      $toast('Verification email sent. Check your inbox.', 'success');
+    }
   });
-}
-
-function openEditForm() {
-  if (!user.value) return;
-
-  profileForm.value = {
-    name: user.value.name,
-    email: user.value.email,
-    current_password: '',
-    password: '',
-    password_confirmation: ''
-  };
-  r$.$reset();
-  showEditForm.value = true;
-}
-
-function closeEditForm() {
-  showEditForm.value = false;
-  profileForm.value = {
-    name: '',
-    email: '',
-    current_password: '',
-    password: '',
-    password_confirmation: ''
-  };
-  r$.$reset();
-}
 
 const {
   mutate: updateProfile,
@@ -298,6 +278,32 @@ const { r$ } = useRegle(
   { externalErrors: useExternalErrors(useValidationErrors(updateProfileError)) }
 );
 
+function openEditForm() {
+  if (!user.value) return;
+
+  profileForm.value = {
+    name: user.value.name,
+    email: user.value.email,
+    current_password: '',
+    password: '',
+    password_confirmation: ''
+  };
+  r$.$reset();
+  showEditForm.value = true;
+}
+
+function closeEditForm() {
+  showEditForm.value = false;
+  profileForm.value = {
+    name: '',
+    email: '',
+    current_password: '',
+    password: '',
+    password_confirmation: ''
+  };
+  r$.$reset();
+}
+
 async function handleSubmitProfile() {
   const { valid } = await r$.$validate();
 
@@ -319,6 +325,23 @@ async function handleSubmitProfile() {
 
   updateProfile(updateData);
 }
+
+// Move focus into the dialog so Escape and keyboard navigation work without
+// a pointer.
+watch(showEditForm, async (isOpen) => {
+  if (isOpen) {
+    await nextTick();
+    editProfileModal.value?.focus();
+  }
+});
+
+onMounted(async () => {
+  if (route.query.verified === '1') {
+    setUser(await fetchCurrentUser());
+    $toast('Your email has been verified.', 'success');
+    router.replace({ query: {} });
+  }
+});
 </script>
 
 <style scoped>
@@ -515,6 +538,12 @@ async function handleSubmitProfile() {
   width: 100%;
   max-width: 400px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* The container is focused programmatically on open; the visible focus ring
+   belongs on the controls inside, not the dialog itself. */
+.modal:focus {
+  outline: none;
 }
 
 .form-modal {

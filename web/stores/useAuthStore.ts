@@ -13,10 +13,6 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = u;
   }
 
-  function updateUserInStore(u: User) {
-    user.value = u;
-  }
-
   function resetUser() {
     user.value = null;
   }
@@ -26,7 +22,6 @@ export const useAuthStore = defineStore('auth', () => {
     isLoggedIn,
     isAdmin,
     setUser,
-    updateUserInStore,
     resetUser
   };
 });

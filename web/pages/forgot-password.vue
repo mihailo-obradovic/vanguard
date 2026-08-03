@@ -14,6 +14,7 @@
       >
         <div class="form-group">
           <label for="email" class="form-label">Email</label>
+
           <input
             id="email"
             v-model="form.email"

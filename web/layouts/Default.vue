@@ -1,9 +1,12 @@
 <template>
   <div class="layout">
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
     <nav class="navbar">
       <div class="nav-container">
         <div class="nav-links">
           <NuxtLink to="/home" class="nav-link">Home</NuxtLink>
+
           <NuxtLink v-if="isAdmin" to="/users" class="nav-link">Users</NuxtLink>
         </div>
 
@@ -12,6 +15,7 @@
             <NuxtLink to="/profile" class="user-name-link">
               {{ user?.name }}
             </NuxtLink>
+
             <button
               class="logout-btn"
               :disabled="isLoggingOut"
@@ -20,15 +24,17 @@
               {{ isLoggingOut ? 'Logging out...' : 'Logout' }}
             </button>
           </template>
+
           <template v-else>
             <NuxtLink to="/login" class="auth-link">Login</NuxtLink>
+
             <NuxtLink to="/register" class="auth-link">Register</NuxtLink>
           </template>
         </div>
       </div>
     </nav>
 
-    <main class="main-content">
+    <main id="main-content" class="main-content">
       <slot />
     </main>
 
@@ -36,7 +42,7 @@
   </div>
 </template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
 import { useLogOut } from '@/services/queries/useAuthQueries';
 
 const { isLoggedIn, isAdmin, user } = storeToRefs(useAuthStore());
@@ -45,6 +51,24 @@ const { mutate: logOut, isLoading: isLoggingOut } = useLogOut();
 </script>
 
 <style scoped>
+/* Visually hidden until focused, so keyboard users can jump past the navbar. */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  z-index: 2000;
+  background-color: white;
+  color: rgb(0, 102, 255);
+  padding: 8px 16px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.skip-link:focus {
+  left: 16px;
+  top: 16px;
+}
+
 .navbar {
   background-color: rgb(0, 102, 255);
   border-bottom: 1px solid #000000;

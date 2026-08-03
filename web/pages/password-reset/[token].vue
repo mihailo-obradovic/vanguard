@@ -10,6 +10,7 @@
       >
         <div class="form-group">
           <label for="email" class="form-label">Email</label>
+
           <input
             id="email"
             v-model="form.email"
@@ -24,6 +25,7 @@
 
         <div class="form-group">
           <label for="password" class="form-label">New Password</label>
+
           <input
             id="password"
             v-model="form.password"
@@ -40,6 +42,7 @@
           <label for="password_confirmation" class="form-label">
             Confirm New Password
           </label>
+
           <input
             id="password_confirmation"
             v-model="form.password_confirmation"

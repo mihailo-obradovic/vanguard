@@ -67,6 +67,7 @@
                 >
                   Edit
                 </button>
+
                 <button
                   class="delete-btn"
                   :disabled="isDeletingUser === user.id"
@@ -83,9 +84,18 @@
 
     <!-- Create/Edit User Form -->
     <div v-if="showUserForm" class="modal-overlay" @click="closeUserForm">
-      <div class="modal form-modal" @click.stop>
+      <div
+        ref="userFormModal"
+        class="modal form-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="user-form-title"
+        tabindex="-1"
+        @click.stop
+        @keydown.esc="closeUserForm"
+      >
         <div class="modal-header">
-          <h3 class="modal-title">
+          <h3 id="user-form-title" class="modal-title">
             {{ isEditMode ? 'Edit User' : 'Create New User' }}
           </h3>
         </div>
@@ -93,6 +103,7 @@
         <form class="user-form" novalidate @submit.prevent="handleSubmitUser">
           <div class="form-group">
             <label for="name" class="form-label">Name</label>
+
             <input
               id="name"
               v-model="userForm.name"
@@ -107,6 +118,7 @@
 
           <div class="form-group">
             <label for="email" class="form-label">Email</label>
+
             <input
               id="email"
               v-model="userForm.email"
@@ -123,6 +135,7 @@
             <label for="password" class="form-label">
               Password {{ isEditMode ? '(leave empty to keep current)' : '' }}
             </label>
+
             <input
               id="password"
               v-model="userForm.password"
@@ -140,6 +153,7 @@
               Password Confirmation
               {{ isEditMode ? '(required if changing password)' : '' }}
             </label>
+
             <input
               id="password_confirmation"
               v-model="userForm.password_confirmation"
@@ -154,6 +168,7 @@
 
           <div class="form-group">
             <label for="role" class="form-label">Role</label>
+
             <select
               id="role"
               v-model="userForm.role"
@@ -175,6 +190,7 @@
             >
               Cancel
             </button>
+
             <button
               type="submit"
               class="submit-btn"
@@ -195,9 +211,20 @@
 
     <!-- Confirmation Dialog -->
     <div v-if="userToDelete" class="modal-overlay" @click="cancelDelete">
-      <div class="modal confirm-modal" @click.stop>
+      <div
+        ref="confirmDeleteModal"
+        class="modal confirm-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirm-delete-title"
+        tabindex="-1"
+        @click.stop
+        @keydown.esc="cancelDelete"
+      >
         <div class="modal-header">
-          <h3 class="modal-title danger">Confirm Delete</h3>
+          <h3 id="confirm-delete-title" class="modal-title danger">
+            Confirm Delete
+          </h3>
         </div>
 
         <div class="modal-content">
@@ -206,6 +233,7 @@
             <strong>"{{ userToDelete.name }}"</strong>
             ?
           </p>
+
           <p class="warning-text">This action cannot be undone.</p>
         </div>
 
@@ -217,6 +245,7 @@
           >
             Cancel
           </button>
+
           <button
             class="confirm-delete-btn"
             :disabled="isDeleting"
@@ -249,9 +278,10 @@ import {
 import type { User } from '@/types/auth';
 import type { CreateUserForm, UpdateUserForm } from '@/types/user';
 
-const { data: usersResponse, isLoading, error } = useFetchUsers();
+const userFormModal = useTemplateRef('userFormModal');
+const confirmDeleteModal = useTemplateRef('confirmDeleteModal');
 
-const users = computed(() => usersResponse.value?.data ?? []);
+const { data: usersResponse, isLoading, error } = useFetchUsers();
 
 const userToDelete = ref<User | null>(null);
 
@@ -291,9 +321,21 @@ const {
   }
 });
 
-const isSubmittingUser = computed(
-  () => isCreatingUser.value || isUpdatingUser.value
-);
+const {
+  mutate: deleteUser,
+  isLoading: isDeleting,
+  variables: deletingId
+} = useDeleteUser({
+  onSuccess: () => {
+    $toast(
+      `User "${userToDelete.value?.name}" deleted successfully`,
+      'success'
+    );
+  },
+  onSettled: () => {
+    userToDelete.value = null;
+  }
+});
 
 const userFormErrors = useValidationErrors(
   computed(() =>
@@ -320,21 +362,11 @@ const { r$ } = useRegle(
   { externalErrors: useExternalErrors(() => userFormErrors.value) }
 );
 
-const {
-  mutate: deleteUser,
-  isLoading: isDeleting,
-  variables: deletingId
-} = useDeleteUser({
-  onSuccess: () => {
-    $toast(
-      `User "${userToDelete.value?.name}" deleted successfully`,
-      'success'
-    );
-  },
-  onSettled: () => {
-    userToDelete.value = null;
-  }
-});
+const users = computed(() => usersResponse.value?.data ?? []);
+
+const isSubmittingUser = computed(
+  () => isCreatingUser.value || isUpdatingUser.value
+);
 
 const isDeletingUser = computed(() =>
   isDeleting.value ? (deletingId.value ?? null) : null
@@ -422,9 +454,21 @@ async function handleSubmitUser() {
   }
 }
 
-function formatDate(dateString: string) {
-  return new Date(dateString).toLocaleDateString();
-}
+// Move focus into the dialogs so Escape and keyboard navigation work without
+// a pointer.
+watch(showUserForm, async (isOpen) => {
+  if (isOpen) {
+    await nextTick();
+    userFormModal.value?.focus();
+  }
+});
+
+watch(userToDelete, async (user) => {
+  if (user) {
+    await nextTick();
+    confirmDeleteModal.value?.focus();
+  }
+});
 </script>
 
 <style scoped>
@@ -648,6 +692,12 @@ function formatDate(dateString: string) {
   width: 100%;
   max-width: 400px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* The container is focused programmatically on open; the visible focus ring
+   belongs on the controls inside, not the dialog itself. */
+.modal:focus {
+  outline: none;
 }
 
 .form-modal {

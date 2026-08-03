@@ -4,5 +4,6 @@
 
 <script setup lang="ts">
 // * This page is intentionally left blank.
-// * The redirection for authenticated users is handled in the auth redirection composable.
+// * The redirection away from the root path is handled by the global auth
+// * middleware via utils/authRedirectLogic.ts.
 </script>

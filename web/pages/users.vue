@@ -462,10 +462,6 @@ async function handleSubmitUser() {
     createUser(userForm.value);
   }
 }
-
-function formatDate(dateString: string) {
-  return new Date(dateString).toLocaleDateString();
-}
 </script>
 
 <style scoped>

@@ -38,7 +38,7 @@
   </div>
 </template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
 import { useLogOut } from '@/services/queries/useAuthQueries';
 
 const { isLoggedIn, isAdmin, user } = storeToRefs(useAuthStore());

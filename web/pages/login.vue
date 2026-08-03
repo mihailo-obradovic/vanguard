@@ -56,7 +56,7 @@
   </div>
 </template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
 import { email, required } from '@regle/rules';
 
 import { useLogIn } from '@/services/queries/useAuthQueries';

@@ -23,14 +23,6 @@ One line per record: type, status, title, link.
 | 001 | init-design | Implemented | Init design — Vanguard brownfield stack                           | [decisions/001_init-design_vanguard-stack.md](decisions/001_init-design_vanguard-stack.md) |
 | 002 | infra       | Implemented | Sanctum session-cookie auth for the SPA pairing (over token mode) | [decisions/002_infra_sanctum-session-spa.md](decisions/002_infra_sanctum-session-spa.md)   |
 
-## Experiment Index
-
-Present only in projects that run research/optimization work. Status carries the experiment's lifecycle, ending in the verdict (`Adopted` / `Refuted`). Finding is the one-line knowledge a later agent reads instead of re-running a dead hypothesis (`workflows/experiments.md`). Empty or absent for pure delivery projects.
-
-| ### | Experiment                       | Hypothesis | Status | Finding | Document |
-| --- | -------------------------------- | ---------- | ------ | ------- | -------- |
-| 000 | _No documented experiments yet._ | -          | -      | -       | -        |
-
 ## Domain Decision Index
 
 Present only when the project has standing, cross-cutting domain or method decisions that must stay visible and locked (e.g. "negative values are signal, never clipped"). Pre-resolved judgment calls the agent follows and does not re-litigate — distinct from decision records (architectural why, lazy-loaded) and Protected Areas (load-bearing contracts). One line each: the decision + short rationale. A local decision in a feature or experiment graduates here when it proves cross-cutting.
@@ -78,8 +70,6 @@ Three separate sets — the validator rejects a row carrying another index's sta
 - `Removed`: intentionally removed; keep only if historical context matters.
 
 **Decision records** (ADR Index): `Proposed` → `Accepted` → `Implemented`, plus `Superseded by <nnn>` when a later record replaces it.
-
-**Experiments** (Experiment Index): `Proposed` → `Running` → `Adopted` / `Refuted`, the last two terminal.
 
 ## Summary Rules
 

@@ -7,7 +7,7 @@ No component library. The project owns its markup and its CSS, and builds the sm
 
 Choose this when the design is bespoke enough that a library would be fought rather than used, when the bundle budget is tight, or when the component surface is genuinely small — a handful of forms, a table, a dialog. Choose a library instead when the app is broad, when accessible behaviour (focus traps, roving tabindex, listbox semantics) would otherwise be hand-rolled, or when the team's velocity matters more than the last 5% of visual control.
 
-Adopting a library later is a decision record and a real migration, not a config change. This choice is worth making deliberately rather than by default.
+Adopting a library later is a decision record and a real migration, not a config change.
 
 ## What the project owns
 

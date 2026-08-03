@@ -4,7 +4,7 @@
 
 ## Generated wrappers
 
-Agent harnesses discover skills at `.claude/skills/<name>/SKILL.md`, outside the bundle. Catalyst keeps the substance in the bundle anyway and generates **thin wrappers** at that path: frontmatter (name + trigger description) plus pointers into `catalyst/` documents. The scaffolder writes them at spawn and the upgrader regenerates them on every apply — always from what the bundle actually carries (presence-detected, never recorded), so adopting a doc set by hand yields its wrapper on the next upgrade.
+Agent harnesses discover skills at `.claude/skills/<name>/SKILL.md`, outside the bundle. Catalyst keeps the substance in the bundle anyway and generates **thin wrappers** at that path: frontmatter (name + trigger description) plus pointers into `catalyst/` documents. The scaffolder writes them at spawn and the upgrader regenerates them on every apply, from what the bundle actually carries.
 
 Rules of the mechanism:
 
@@ -15,7 +15,7 @@ Rules of the mechanism:
 - `.claude/settings.local.json` is machine-local and gitignored by the scaffolder; nothing else under `.claude/` is Catalyst's business.
 - Skills are discovered at the repository root only. If the bundle sits deeper (monorepo adoption), the wrappers still land at the root the scaffolder was pointed at — the pointers inside them stay correct because they are root-relative.
 
-**Precedence:** bundle documents and the project's convention annexes win over generic guidance from installed plugins or similarly-named third-party skills (`references/convention-annexes.md` states the same rule). A wrapper says so in its body; when a project installs an upstream skill with the same name (e.g. Vercel's `react-best-practices`), the repo's own tiered copy is the one its conventions bind to.
+**Precedence:** bundle documents and the project's convention annexes win over generic guidance from installed plugins or similarly-named third-party skills. A wrapper says so in its body; when a project installs an upstream skill with the same name (e.g. Vercel's `react-best-practices`), the repo's own tiered copy is the one its conventions bind to.
 
 ## Authoring skills
 

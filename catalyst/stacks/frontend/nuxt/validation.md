@@ -50,7 +50,7 @@ export default defineNuxtConfig({
 });
 ```
 
-That entry is also what turns the **Regle devtools panel** on — there is no separate step. Installing the plugin by hand (`app.use(RegleVuePlugin)`) is what a plain Vue app does; a Nuxt app that registered the module never should.
+Installing the plugin by hand (`app.use(RegleVuePlugin)`) is what a plain Vue app does; a Nuxt app that registered the module never should.
 
 Where a project needs custom rules or shared error messages, the module injects them from one setup file — `regle: { setupFile: '~/regle-config.ts' }` alongside the `modules` entry. Not the default: a project with neither has no reason to own the file.
 
@@ -58,9 +58,9 @@ Where a project needs custom rules or shared error messages, the module injects 
 
 The module auto-imports the `@regle/core` composables — `useRegle`, `inferRules`, `useScopedRegle`, `useCollectScope` — so do not import them explicitly (`../_vue/vue-style.md`, auto-import boundary).
 
-**The rules are the exception and stay explicit:** `import { email, required } from '@regle/rules'`. The module leaves them out deliberately — `required`, `email`, and `minLength` are names a project's own code is likely to want, and auto-importing them would collide. Deleting a rule import because "Regle is auto-imported" breaks the build.
+**The rules are the exception and stay explicit:** `import { email, required } from '@regle/rules'`. Deleting a rule import because "Regle is auto-imported" breaks the build.
 
-The module also auto-imports `useRegleSchema` and `inferSchema` from `@regle/schemas` — the bridge that drives a form off a Zod schema. **Both are offered by editor completion and neither is used here:** that is Zod doing Regle's job, against the split this document opens with, and the package is not among the three above, so reaching for one fails to resolve rather than merely disagreeing with the stack.
+The module also auto-imports `useRegleSchema` and `inferSchema` from `@regle/schemas` — the bridge that drives a form off a Zod schema. **Both are offered by editor completion and neither is used here** — that is Zod doing Regle's job.
 
 ### Writing the form
 
@@ -97,10 +97,8 @@ A validation failure the form could have caught belongs on the field that caused
 - **A page that owns its own mutation** chains both directly: `useExternalErrors(useValidationErrors(error))`.
 - **A parent that owns the mutation and a child that owns the form** — the common case for dialogs — has the parent derive `useValidationErrors(mutationError)` and pass it down as a `serverErrors` prop; the child does `useExternalErrors(() => props.serverErrors)`.
 
-The second shape is why `useExternalErrors` takes a watch source rather than a plain value: the child has to react to a prop that changes after every failed submit.
-
 ## Field error display
 
 Where the `frontend/ui` choice provides inputs with an error-message prop, pass Regle's `$errors` array straight to it — it is already `string[]`.
 
-Where it does not, the project owns a small presenter component. Give it a **fixed minimum height** so a message appearing or disappearing does not shift the layout under the user's cursor mid-form.
+Where it does not, the project owns a small presenter component with a **fixed minimum height** (`ui/headless.md`, The field-error presenter).

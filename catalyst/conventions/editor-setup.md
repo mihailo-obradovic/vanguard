@@ -10,7 +10,7 @@ Every project keeps one at its repository root — outside the bundle, since tha
 
 What its sections are doing, and what it deliberately does not do:
 
-- **Two-space default, four for Python, PHP, and CSS.** The Python backend module formats at 4 (Black/Ruff) and the Laravel one at 4 (Pint's `laravel` preset); the TypeScript stack at 2; CSS at 4, matching the override in the generated `.oxfmtrc.json`. All stated, so none depends on an editor default.
+- **Two-space default, four for Python, CSS, and PHP.** The Python backend module formats at 4 (Black/Ruff), the TypeScript stack at 2, CSS at 4 matching the override in the generated `.oxfmtrc.json`, and PHP at 4 (Pint's `laravel` preset) — the `[*.php]` section is copied only into spawns carrying a PHP module. All stated, so none depends on an editor default.
 - **JSON stays at the two-space default.** Tooling rewrites `package.json`, `components.json`, and `tsconfig.json` on its own schedule and writes them at 2 — setting anything else here buys a diff on every install.
 - **Tabs in makefiles.** `make` requires them; a space-indented recipe is a syntax error.
 - **No trimming in patches or markdown.** Trailing whitespace is meaningful in a diff's context lines, and two trailing spaces are markdown's hard line break — trimming them on save rewrites prose. In Catalyst's own repository it would also manufacture drift in the vendored rule files that `tools/sync_rules.py` diffs against upstream.

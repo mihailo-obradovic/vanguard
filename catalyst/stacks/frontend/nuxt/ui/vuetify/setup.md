@@ -106,7 +106,3 @@ The trade is that a string icon name (`icon="mdi-close"`) will silently render n
 - In a template, `<v-card>` needs no import.
 - Referencing a component **programmatically** — a `computed` returning a component, a dynamic `<component :is>` — still needs an explicit import: `import { VSheet, VCard } from 'vuetify/components'`.
 - Composables are always explicit: `import { useTheme } from 'vuetify'`.
-
-## Verifying the wiring
-
-The four config edits fail in distinct ways, which makes them quick to tell apart: a build error on Vuetify's own syntax means `transpile`; unstyled components mean `css`; an unknown-component warning means the Vite plugin; a blank icon means the SVG iconset.

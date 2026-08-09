@@ -1,5 +1,7 @@
 <template>
   <v-layout class="layout">
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
     <v-app-bar color="primary" class="px-2">
       <template #prepend>
         <v-app-bar-nav-icon @click="toggleDrawer" />
@@ -56,7 +58,7 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-main>
+    <v-main id="main-content">
       <v-container fluid>
         <slot />
       </v-container>
@@ -88,7 +90,7 @@
   </v-layout>
 </template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
 import { useTheme } from 'vuetify';
 import {
   mdiAccount,
@@ -237,6 +239,24 @@ function useUserDialogs() {
 </script>
 
 <style lang="scss" scoped>
+/* Visually hidden until focused, so keyboard users can jump past the app bar. */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  z-index: 2000;
+  background-color: rgb(var(--v-theme-surface));
+  color: rgb(var(--v-theme-primary));
+  padding: 8px 16px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.skip-link:focus {
+  left: 16px;
+  top: 16px;
+}
+
 .layout {
   height: 100%;
   width: 100%;

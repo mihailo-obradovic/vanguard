@@ -14,12 +14,6 @@ export async function fetchUsers(): Promise<UsersResponse> {
   return parseResponse(UsersResponseSchema, response);
 }
 
-export async function fetchUser(id: number): Promise<User> {
-  const response = await fetcher(`/api/users/${id}`);
-
-  return parseResponse(UserEnvelopeSchema, response).data;
-}
-
 export async function createUser(userData: CreateUserForm): Promise<User> {
   const response = await fetcher('/api/users', {
     method: 'POST',

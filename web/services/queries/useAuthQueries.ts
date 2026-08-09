@@ -85,14 +85,14 @@ export function useLogOut(
 export function useUpdateProfile(
   options: Omit<AppMutationOptions<User, ProfileForm>, 'key' | 'mutation'> = {}
 ) {
-  const { updateUserInStore } = useAuthStore();
+  const { setUser } = useAuthStore();
 
   return useAppMutation({
     key: authQueryKeys.updateProfile,
     mutation: (form: ProfileForm) => updateProfile(form),
     ...options,
     onSuccess: async (data, vars, context) => {
-      updateUserInStore(data);
+      setUser(data);
 
       await options.onSuccess?.(data, vars, context);
     }

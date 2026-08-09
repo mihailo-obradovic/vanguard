@@ -28,13 +28,15 @@ Use `.ts` when the file contains **runtime values** alongside types: `enum` memb
 
 One file per concern. Name the file after the domain, not after a structure keyword.
 
-| File              | Owns                                                                   |
-| ----------------- | ---------------------------------------------------------------------- |
-| `global.d.ts`     | `declare global {}` - third-party script augmentations (e.g. `Window`) |
-| `components.d.ts` | Shared prop contracts used across two or more components               |
-| `api.d.ts`        | API response shapes and request payload types                          |
+| File              | Owns                                                                     |
+| ----------------- | ------------------------------------------------------------------------ |
+| `global.d.ts`     | `declare global {}` - third-party script augmentations (e.g. `Window`)   |
+| `components.d.ts` | Shared prop contracts used across two or more components                 |
+| `<domain>.ts`     | A domain's Zod schemas and the types inferred from them (e.g. `user.ts`) |
 
-When adding a type that doesn't belong to any existing file, create a new file named after the new concern (e.g., `payments.d.ts`, `notifications.d.ts`).
+A domain whose shapes are validated at the boundary owns a `.ts` file: the schema is a runtime value, and the type is inferred from it beside the schema rather than hand-written elsewhere - the frontend module's `validation.md` owns that rule. Only shapes with no runtime schema behind them stay in a `.d.ts`.
+
+When adding a type that doesn't belong to any existing file, create a new file named after the new concern (e.g., `payments.ts`, `notifications.d.ts`).
 
 Framework-generated types (in a Next.js project: `next-env.d.ts`, `.next/types/**`) live where the framework puts them and are managed by it - do not edit or colocate them under `@/types/`.
 
@@ -42,8 +44,8 @@ Framework-generated types (in a Next.js project: `next-env.d.ts`, `.next/types/*
 
 ## 4. `interface` vs `type`
 
-- **`interface`** for object shapes that may be extended or augmented (component props, data models, API response shapes).
-- **`type`** for unions, intersections, aliases, utility types, and anything that can't be expressed as an interface.
+- **`type`** everywhere by default - component props, data models, response shapes, unions, intersections, aliases, utility types, and every `z.infer` result.
+- **`interface`** only where declaration merging is the mechanism: augmenting a library's or the framework's own types (`declare module`, `declare global`). Merging is the reason to reach for it, not extensibility in general - a shape that grows is a `type` plus an intersection.
 
 ---
 

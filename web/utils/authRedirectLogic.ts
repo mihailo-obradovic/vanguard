@@ -26,8 +26,7 @@ export function determineAuthRedirect(
   const sharedPages = ['/home'];
   const isGuestOnlyPage = guestOnlyPages.includes(pathWithoutQuery);
   const isProtectedPage =
-    !guestOnlyPages.includes(pathWithoutQuery) &&
-    !sharedPages.includes(pathWithoutQuery);
+    !isGuestOnlyPage && !sharedPages.includes(pathWithoutQuery);
 
   // * Redirect unauthenticated users away from protected pages
   if (!isLoggedIn.value && isProtectedPage) {

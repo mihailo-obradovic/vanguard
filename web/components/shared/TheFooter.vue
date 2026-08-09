@@ -4,7 +4,7 @@
   </v-footer>
 </template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
 import { Temporal } from 'temporal-polyfill';
 
 const currentYear = Temporal.Now.plainDateISO().year;

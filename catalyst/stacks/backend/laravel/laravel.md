@@ -66,13 +66,13 @@ tests/            Pest — Feature/ and Unit/
 
 ## Module Documents
 
-| Document           | What it holds                                                                                       |
-| ------------------ | --------------------------------------------------------------------------------------------------- |
-| `laravel.md`       | This document — the module contract and approved libraries                                          |
-| `http-layer.md`    | The request path: thin controllers, FormRequests, Resources, status codes, and the route file split |
-| `models.md`        | Eloquent in Laravel 13 — attributes over properties, casts, enums, and where domain logic goes      |
-| `testing.md`       | Pest conventions, factories, and what runs against a real engine                                    |
-| `auth/<choice>.md` | The authentication recipe for the chosen scheme                                                     |
+| Document           | What it holds                                                                                       | Load                                                                  |
+| ------------------ | --------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| `laravel.md`       | This document — the module contract and approved libraries                                          | Always, with the module                                               |
+| `http-layer.md`    | The request path: thin controllers, FormRequests, Resources, status codes, and the route file split | When adding or changing a route, controller, FormRequest, or Resource |
+| `models.md`        | Eloquent in Laravel 13 — attributes over properties, casts, enums, and where domain logic goes      | When adding or changing a model, migration, or query                  |
+| `testing.md`       | Pest conventions, factories, and what runs against a real engine                                    | When writing or changing tests                                        |
+| `auth/<choice>.md` | The authentication recipe for the chosen scheme                                                     | When wiring or changing authentication                                |
 
 ## Queued Work
 

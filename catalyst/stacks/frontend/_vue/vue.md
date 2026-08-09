@@ -4,7 +4,7 @@
 
 Shared Vue-general conventions for any Vue-based frontend module — SFC style, script section order, component structure, and the auto-import boundary, framework-agnostic within Vue. This directory is never a spawn choice; it travels automatically with any module whose `**Requires:**` header names `frontend/_vue` (e.g. the nuxt module). Language-level rules live in `../../_lang/typescript/`; framework-agnostic component file naming lives in [`../_common/component-naming.md`](../_common/component-naming.md); framework-specific rules (routing, data layer, SSR) live with the framework module that requires this tier.
 
-## Documents
+## Module Documents
 
 | Document                | What it holds                                                                                                                      | Load                                                                    |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |

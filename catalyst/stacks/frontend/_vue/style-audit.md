@@ -42,6 +42,7 @@ Everything else in this document is safe to fix directly.
 
 - `defineProps` → `defineModel` → `defineEmits`, in that order.
 - Props typed explicitly, optional props included. Flag untyped or inferred-only props.
+- Flag an `interface` declaring props or any other object shape — `interface` is reserved for declaration merging (`../../_lang/typescript/typescript-types.md`, §4).
 - `defineProps` bound to a `const` **only** when script logic reads it — flag an unused `const props`.
 - `useTemplateRef` for template refs rather than a bare `ref()`.
 - Store access destructures `storeToRefs()` for state, plain destructuring for actions. Flag a local wrapper property that only re-exposes a store value.
@@ -51,6 +52,7 @@ Everything else in this document is safe to fix directly.
 ### Style block
 
 - Audit against `vue-style.md` → **Style** (`<style scoped>` default with a commented reason for exceptions; no preprocessor the stack does not already ship).
+- When the project has an instantiated design-system annex, styling values — colors, spacing, radii, shadows, z-index, durations — come from its tokens (`var(--*)` / Vuetify theme keys). Flag raw hex/px one-offs and off-scale values.
 
 ### General rules
 

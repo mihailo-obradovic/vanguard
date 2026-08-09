@@ -1,28 +1,34 @@
 # vanguard
 
-Catalyst version: 0.17.3
+Catalyst version: 1.0.0
 
 ## Project Purpose
 
-Vanguard is a full-stack starter pairing a Laravel 13 JSON API with a Nuxt 4 SPA in one repository. It ships session-based Sanctum authentication (Breeze-style endpoints), admin-gated user CRUD with role-based access, self-service profile management, and the data-layer and validation conventions it exists to demonstrate (Pinia Colada two-layer services, Regle + Zod). It is the reference implementation for Catalyst's nuxt + laravel pairing. Detailed specifications live in `context/product-description.md` (stub — to be filled during retro-documentation).
+Vanguard is a full-stack starter pairing a Laravel 13 JSON API with a Nuxt 4 SPA in one repository. It ships session-based Sanctum authentication (Breeze-style endpoints), admin-gated user CRUD with role-based access, self-service profile management, and a cookie-consent banner. The data-layer and validation conventions it exists to demonstrate — Pinia Colada two-layer services and Regle + Zod — have their own demonstration feature contracts (005, 006) alongside the stack modules that hold their rules. It is the reference implementation for Catalyst's nuxt + laravel pairing, and doubles as an experimental testbed for the optimal Laravel + Nuxt setup across UI-library variants. Product vision, audience, and priorities live in `context/product-description.md`.
 
 ## Feature Index
 
-| ### | Feature              | Status | Summary                                                                                                                                      | Document                                                                     |
-| --- | -------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| 001 | Session Auth Flow    | Active | Sanctum stateful cookie auth for the SPA: register/login/logout, email verification, password reset, CSRF flow, auth store + route guarding. | [features/001_session-auth.md](features/001_session-auth.md)                 |
-| 002 | User Management      | Active | Admin-gated user CRUD behind the `admin` middleware: list/create/update/hard-delete, two-role RBAC (`user`/`admin`), self-delete guard.      | [features/002_user-management.md](features/002_user-management.md)           |
-| 003 | Self-Service Profile | Active | `PUT /api/profile`: own name/email/password updates; email change resets verification; `current_password` challenge; role untouchable.       | [features/003_self-service-profile.md](features/003_self-service-profile.md) |
+| ### | Feature              | Status | Summary                                                                                                                                        | Document                                                                     |
+| --- | -------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| 001 | Session Auth Flow    | Active | Sanctum stateful cookie auth for the SPA: register/login/logout, email verification, password reset, CSRF flow, auth store + route guarding.   | [features/001_session-auth.md](features/001_session-auth.md)                 |
+| 002 | User Management      | Active | Admin-gated user CRUD behind the `admin` middleware: list/create/update/hard-delete, two-role RBAC (`user`/`admin`), self-delete guard.        | [features/002_user-management.md](features/002_user-management.md)           |
+| 003 | Self-Service Profile | Active | `PUT /api/profile`: own name/email/password updates; email change resets verification; `current_password` challenge; role untouchable.         | [features/003_self-service-profile.md](features/003_self-service-profile.md) |
+| 004 | Cookie Consent       | Active | Accept/decline banner (`web/app.vue`) persisting a `cookie_consent` cookie for a year; consent recorded but not yet gating anything.           | [features/004_cookie-consent.md](features/004_cookie-consent.md)             |
+| 005 | Client Data Layer    | Active | Demonstration contract: two-layer `services` → `queries` composables (Pinia Colada), one fetcher, Zod response parsing, central error routing. | [features/005_client-data-layer.md](features/005_client-data-layer.md)       |
+| 006 | Form Validation UX   | Active | Demonstration contract: Regle rules mirror the backend, Zod validates responses only, server 422s bridge to inline field errors (no toast).    | [features/006_form-validation-ux.md](features/006_form-validation-ux.md)     |
 
 ## Architecture Decision Record (ADR) Index
 
 One line per record: type, status, title, link.
 
-| ### | Type        | Status      | Decision                                                          | Document                                                                                   |
-| --- | ----------- | ----------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| 001 | init-design | Implemented | Init design — Vanguard brownfield stack                           | [decisions/001_init-design_vanguard-stack.md](decisions/001_init-design_vanguard-stack.md) |
-| 002 | infra       | Implemented | Sanctum session-cookie auth for the SPA pairing (over token mode) | [decisions/002_infra_sanctum-session-spa.md](decisions/002_infra_sanctum-session-spa.md)   |
-| 003 | ui          | Implemented | Vuetify as this branch's UI layer                                 | [decisions/003_ui_vuetify-variant.md](decisions/003_ui_vuetify-variant.md)                 |
+| ### | Type        | Status      | Decision                                                           | Document                                                                                             |
+| --- | ----------- | ----------- | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| 001 | init-design | Implemented | Init design — Vanguard brownfield stack                            | [decisions/001_init-design_vanguard-stack.md](decisions/001_init-design_vanguard-stack.md)           |
+| 002 | infra       | Implemented | Sanctum session-cookie auth for the SPA pairing (over token mode)  | [decisions/002_infra_sanctum-session-spa.md](decisions/002_infra_sanctum-session-spa.md)             |
+| 003 | tooling     | Implemented | oxlint + oxfmt for the frontend toolchain (over ESLint + Prettier) | [decisions/003_tooling_oxlint-oxfmt.md](decisions/003_tooling_oxlint-oxfmt.md)                       |
+| 004 | tooling     | Implemented | Hold TypeScript at 5.9.x (TS 7 unsupported by vue-tsc)             | [decisions/004_tooling_typescript-version-hold.md](decisions/004_tooling_typescript-version-hold.md) |
+| 005 | infra       | Implemented | Client-only SPA (`ssr: false`), paired with cookie-session auth    | [decisions/005_infra_spa-no-ssr.md](decisions/005_infra_spa-no-ssr.md)                               |
+| 006 | ui          | Implemented | Vuetify as this branch's UI layer                                  | [decisions/006_ui_vuetify-variant.md](decisions/006_ui_vuetify-variant.md)                           |
 
 ## Domain Decision Index
 

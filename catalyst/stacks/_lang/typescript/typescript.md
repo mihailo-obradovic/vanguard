@@ -6,7 +6,7 @@ Shared language-level conventions and performance rules for every stack that shi
 
 Nothing here restates a Universal Rule or a framework rule: framework-specific guidance lives with the module that requires this tier (e.g. React conventions in `../../frontend/_react/`, Next.js conventions in the `nextjs` module).
 
-## Documents
+## Module Documents
 
 | Document              | What it holds                                                                       | Load                                                                        |
 | --------------------- | ----------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |

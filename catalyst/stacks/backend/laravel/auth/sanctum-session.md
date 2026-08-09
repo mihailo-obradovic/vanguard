@@ -103,7 +103,7 @@ Email verification is the mirror image: the signed route is verified on the back
 
 ## The frontend half
 
-The client side of this contract is `stacks/frontend/nuxt/error-handling.md` — one fetcher sending `credentials: 'include'`, `Accept: application/json`, and `X-XSRF-TOKEN` on mutating verbs, with a single retry on `419`.
+The client side of this contract is `stacks/frontend/nuxt/error-handling.md` or `stacks/frontend/nextjs/error-handling.md`, whichever frontend module the project chose — one fetcher sending `credentials: 'include'`, `Accept: application/json`, and `X-XSRF-TOKEN` on mutating verbs, with a single retry on `419`.
 
 That **419** is this module's: Laravel returns it when the CSRF token expired but the session did not. It is recoverable and must never reach the user as an error.
 

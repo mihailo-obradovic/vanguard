@@ -1,5 +1,7 @@
 # Decision: Request tracing across services
 
+Worked reference example following `decisions/_template.md`. Fictional QA automation platform — the same project the other examples describe.
+
 ## Status
 
 Implemented

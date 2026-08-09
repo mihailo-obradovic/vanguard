@@ -16,7 +16,7 @@ Catalyst's own layout is the bundle layout with the bundle at the repository roo
 
 Catalyst checks: `VERSION` matches the newest changelog entry (R1), `CLAUDE.md` imports `AGENTS.md` (R2), changelog shape (R3), examples follow the current templates (R4, feature/decision/experiment examples), the Flow Index in `prime-directive.md` points at exactly the `workflows/` shards that exist, every `workflows/`, `references/`, and `conventions/` shard carries its **Trigger:** header, and every `references/` and `conventions/` shard is reachable from an always-loaded document (R6), stack documents carry their contract headers — layer/tool for modules, category/tool for addon docs and payloads, `**Tier:**` for shared-tier docs, YAML `title:` frontmatter for `rules/` files (R7), the context-document catalog agrees across its four mirrors — the Catalog table, `CONTEXT_DOCS` in the scaffolder, the `templates/` stub, and the load-trigger bullet (R8), shared-tier wiring is closed both ways — every `**Requires:**` value resolves to an existing tier, every tier is required by some module (R9), the generated-skill registry (`SKILLS` in the scaffolder) points at existing documents and is mirrored in `references/agent-skills.md` (R10), the editor-extension registry (`EDITOR_EXTENSIONS`) does the same against `conventions/editor-setup.md` (R11), and the template's markdown is oxfmt-canonical — `pnpm dlx oxfmt --check` tracking `oxfmt@latest` passes, skipped with a note when pnpm is absent (R12).
 
-Project checks (features, decision records, and experiments alike): index <-> files (P1), statuses (P2), template sections for new/changed documents only (P3, diff-aware), unique numbering (P4), Protected Areas rows point to existing documents (P5), a soft Catalyst-version drift note when the project's stamp lags (P6, note only), the size budgets (P7, diff-aware — a hard error over a feature's maximum, a note over a target), a soft note when Open Questions are not empty past the drafting gate (P8, diff-aware note), a soft note when a project with features has no operations.md (P9, note), and a soft note when numbered documents exist but their folder's _template.md is not in the bundle — an unadopted flow (P10, note).
+Project checks (features, decision records, and experiments alike): index <-> files (P1), statuses (P2), template sections for new/changed documents only (P3, diff-aware), unique numbering (P4), Protected Areas rows point to existing documents (P5), a soft Catalyst-version drift note when the project's stamp lags (P6, note only), the size budgets (P7, diff-aware — a hard error over a feature's maximum, a note over a target), a soft note when Open Questions are not empty past the drafting gate (P8, diff-aware note), a soft note when a project with features has no operations.md (P9, note), a soft note when numbered documents exist but their folder's _template.md is not in the bundle — an unadopted flow (P10, note), and an error when a present `KNOWN_FAKES.md` holds no register rows — absence is the healthy state, an empty register is deleted, not kept (P11).
 
 Exit code is non-zero when any error is found. Notes never block.
 
@@ -550,6 +550,14 @@ def check_project(project: Path, check_all: bool) -> None:
     has_features = any((project / "features").glob("[0-9]*.md"))
     if has_features and not (project / "operations.md").exists():
         note(f"{project}: no operations.md — a project with stateful infrastructure keeps an operator runbook (Operations Runbook)")
+
+    # P11: a present KNOWN_FAKES.md holds at least one register row. Absence is the healthy state (Honest Inputs), so nothing is said when the file is missing — but present-and-empty misreads as attestation, and the rule is to delete the file with the last fake, so that is an error.
+    fakes = project / "KNOWN_FAKES.md"
+    if fakes.exists():
+        pipe_lines = [ln.strip() for ln in read(fakes).splitlines() if ln.strip().startswith("|")]
+        rows = [ln for ln in pipe_lines if not re.fullmatch(r"\|(?:\s*:?-+:?\s*\|)+", ln)]
+        if len(rows) < 2:  # header only, or no table at all
+            error(f"{project}/KNOWN_FAKES.md: register has no entries — delete the file when the last fake is removed (Known Fakes Register)")
 
 
 def bundle_root(path: Path) -> Path:

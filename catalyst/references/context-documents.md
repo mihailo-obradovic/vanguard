@@ -27,4 +27,4 @@ The registry of context documents: the scaffold default (whether a spawn include
 3. Add its load-trigger bullet to `prime-directive.md` (Context Loading).
 4. Add it to `CONTEXT_DOCS` in `tools/new_project.py` so the spawn offers it.
 
-Worked sample: `examples/context/product-description.md`.
+Worked samples: `examples/context/product-description.md`, `examples/context/brand-description.md`.

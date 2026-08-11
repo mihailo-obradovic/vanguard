@@ -94,7 +94,7 @@ An explicitly requested feature (e.g. a prompt starting `feature: <name>`) alway
 
 Plan mode and brainstorming are the baseline; hosts often install richer pipelines (e.g. Claude Code's `feature-dev` plugin). Whatever is installed, the weights route the same way as above, and the adopting repository's entry document (`AGENTS.md`/`CLAUDE.md`) records the concrete mapping for its installed tools.
 
-A project also carries generated `.claude/skills/` wrappers — thin pointers into the bundle's stack docs (`references/agent-skills.md`). The bundle documents and the project's convention annexes win over generic guidance from installed plugins or similarly-named third-party skills; the wrappers are regenerated on spawn and upgrade, so guidance changes go into the bundle documents, never into a wrapper.
+A project also carries generated `.claude/skills/` wrappers — thin pointers into the bundle's stack docs. How they are generated, and how they rank against installed plugins and similarly-named third-party skills, is `references/agent-skills.md`.
 
 Two constraints hold on every route:
 

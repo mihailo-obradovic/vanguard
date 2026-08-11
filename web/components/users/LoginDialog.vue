@@ -23,7 +23,7 @@
     />
 
     <v-btn
-      class="text-transform-none"
+      class="text-none"
       color="link"
       size="small"
       variant="text"

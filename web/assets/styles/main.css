@@ -20,14 +20,6 @@ body {
     user-select: none;
 }
 
-.text-transform-none {
-    text-transform: none;
-}
-
 .z-index-top {
     z-index: 1000;
-}
-
-.br-2 {
-    border-radius: 8px;
 }

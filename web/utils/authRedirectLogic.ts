@@ -12,7 +12,7 @@ export function determineAuthRedirect(
 ): RedirectDecision {
   const { isLoggedIn } = storeToRefs(useAuthStore());
 
-  const pathWithoutQuery = path.split('?')[0];
+  const pathWithoutQuery = path.split('?')[0] ?? path;
 
   if (pathWithoutQuery === '/') {
     return {

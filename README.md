@@ -8,7 +8,7 @@ Authentication uses [Laravel Sanctum](https://laravel.com/docs/13.x/sanctum)'s s
 
 Front-end data access goes through [Pinia](https://pinia.vuejs.org) + [Pinia Colada](https://pinia-colada.esm.dev) in two layers: plain service functions (`web/services/*.api.ts`) and query/mutation composables (`web/services/queries/`), with centralized error handling. Forms validate client-side with [Regle](https://reglejs.dev); server 422s surface inline rather than as toasts.
 
-Installed Nuxt modules: Fonts, Image, Test Utils, Pinia, Pinia Colada, VueUse. Dates are handled with `temporal-polyfill`, toasts with `vue-toastification`. A single global middleware (`web/middleware/auth.global.ts`) owns all auth routing; the `auth-loader` plugin rehydrates the session at boot. Shared components in `web/components/shared` are auto-imported.
+Installed Nuxt modules: Fonts, Image, Test Utils, Pinia, Pinia Colada, VueUse. Dates are handled with `temporal-polyfill`, toasts with `vue-toastification`. A single global middleware (`web/middleware/auth.global.ts`) owns all auth routing; the `auth-loader` plugin rehydrates the session at boot. Shared components in `web/components/_shared` are auto-imported.
 
 The `master` branch is CSS/component-framework-agnostic — global styles are plain CSS (`web/assets/styles/main.css`). It's meant to serve as a base for other branches, but it can also be used as a standalone template.
 

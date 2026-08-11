@@ -80,7 +80,7 @@ No protected area — this feature owns no backend contract and no cross-feature
 ## Entry Points
 
 - `web/composables/useCookieConsent.ts`: the cookie read/write and derived state (`isDecided`, `hasConsented`, `accept`, `decline`).
-- `web/components/shared/CookieConsentBanner.vue`: the banner UI (auto-imported from `components/shared/`).
+- `web/components/_shared/CookieConsentBanner.vue`: the banner UI (auto-imported from `components/_shared/`).
 - `web/app.vue`: mounts the banner once, globally.
 
 ## Dependencies

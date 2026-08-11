@@ -10,7 +10,7 @@ SemVer (`MAJOR.MINOR.PATCH`):
 - **MINOR** — something new was added (a doc, workflow, stack).
 - **PATCH** — fixes and wording, no rule change.
 
-We're at `0.x` while the template is still taking shape; cut `1.0.0` when it's stable. The changelog stays in Catalyst — it never travels into spawns.
+`1.0.0` is cut, so a rule change that could break an existing project is a MAJOR bump from here. The changelog stays in Catalyst — it never travels into spawns.
 
 ## Upgrading a project
 

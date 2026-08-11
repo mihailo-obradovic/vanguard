@@ -1,6 +1,6 @@
 <template>
   <v-layout class="layout">
-    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <SkipLink />
 
     <v-app-bar color="primary" class="px-2">
       <template #prepend>
@@ -239,24 +239,6 @@ function useUserDialogs() {
 </script>
 
 <style lang="scss" scoped>
-/* Visually hidden until focused, so keyboard users can jump past the app bar. */
-.skip-link {
-  position: absolute;
-  left: -9999px;
-  z-index: 2000;
-  background-color: rgb(var(--v-theme-surface));
-  color: rgb(var(--v-theme-primary));
-  padding: 8px 16px;
-  border-radius: 8px;
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.skip-link:focus {
-  left: 16px;
-  top: 16px;
-}
-
 .layout {
   height: 100%;
   width: 100%;

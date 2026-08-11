@@ -12,7 +12,7 @@ Installed Nuxt modules: Fonts, Image, Test Utils, Pinia, Pinia Colada, VueUse. D
 
 The `master` branch is CSS/component-framework-agnostic — global styles are plain CSS (`web/assets/styles/main.css`). It's meant to serve as a base for other branches, but it can also be used as a standalone template.
 
-An opinionated [oxlint](https://oxc.rs/docs/guide/usage/linter) + [oxfmt](https://oxc.rs/docs/guide/usage/formatter) setup is included, replacing ESLint and Prettier; VS Code users get the `oxc.oxc-vscode` extension recommendation. The project is [pnpm](https://pnpm.io/)-only (enforced by a `preinstall` hook); the Node version is pinned via [mise](https://mise.jdx.dev) (`mise.toml`, Node 24). Dependency updates are automated with Renovate.
+An opinionated [oxlint](https://oxc.rs/docs/guide/usage/linter) + [oxfmt](https://oxc.rs/docs/guide/usage/formatter) setup is included for linting and formatting; VS Code users get the `oxc.oxc-vscode` extension recommendation. The project is [pnpm](https://pnpm.io/)-only (enforced by a `preinstall` hook); the Node version is pinned via [mise](https://mise.jdx.dev) (`mise.toml`, Node 24). Dependency updates are automated with Renovate.
 
 Project rules and documentation for AI agents (and humans) live in the [`catalyst/`](catalyst/) bundle — feature contracts, decision records, the operations runbook, and per-stack conventions — entered through `CLAUDE.md`/`AGENTS.md` at the root.
 
@@ -20,28 +20,26 @@ Project rules and documentation for AI agents (and humans) live in the [`catalys
 
 So far, the only prepared branch in addition to master is the [Vuetify](https://vuetifyjs.com) variant. It covers all the baseline functionalities present on `master` with interfaces built using ready Vuetify components. Some customization and commonly used components are included.
 
-## Useful Links
+## Docs
 
-- **[Codeus](https://codeus.me)**
+- **[Laravel](https://laravel.com/docs/13.x)**
+- **[Sanctum](https://laravel.com/docs/13.x/sanctum)**
+- **[Pest](https://pestphp.com/docs)**
+- **[Vue.js](https://vuejs.org/guide/introduction.html)**
+- **[NuxtJS](https://nuxt.com/docs/getting-started/introduction)**
+- **[Vite](https://vitejs.dev/guide/)**
+- **[Pinia](https://pinia.vuejs.org/introduction.html)**
+- **[Pinia Colada](https://pinia-colada.esm.dev)**
+- **[Regle](https://reglejs.dev)**
+- **[Zod](https://zod.dev)**
+- **[Vitest](https://vitest.dev/guide/)**
+- **[pnpm](https://pnpm.io/motivation)**
+- **[TypeScript](https://www.typescriptlang.org/docs/)**
 
-- **[Laravel Docs](https://laravel.com/docs/13.x)**
-- **[Sanctum Docs](https://laravel.com/docs/13.x/sanctum)**
-- **[Pest Docs](https://pestphp.com/docs)**
-- **[Vue.js Docs](https://vuejs.org/guide/introduction.html)**
-- **[NuxtJS Docs](https://nuxt.com/docs/getting-started/introduction)**
-- **[Vite Docs](https://vitejs.dev/guide/)**
-- **[Pinia Docs](https://pinia.vuejs.org/introduction.html)**
-- **[Pinia Colada Docs](https://pinia-colada.esm.dev)**
-- **[Regle Docs](https://reglejs.dev)**
-- **[Zod Docs](https://zod.dev)**
-- **[Vitest Docs](https://vitest.dev/guide/)**
-- **[pnpm Docs](https://pnpm.io/motivation)**
-- **[TypeScript Docs](https://www.typescriptlang.org/docs/)**
+- **[oxlint](https://oxc.rs/docs/guide/usage/linter)**
+- **[oxfmt](https://oxc.rs/docs/guide/usage/formatter)**
 
-- **[oxlint Docs](https://oxc.rs/docs/guide/usage/linter)**
-- **[oxfmt Docs](https://oxc.rs/docs/guide/usage/formatter)**
-
-- **[Vuetify Docs](https://vuetifyjs.com/en/introduction/why-vuetify/#feature-guides)**
+- **[Vuetify](https://vuetifyjs.com/en/introduction/why-vuetify/#feature-guides)**
 
 ## Contributing
 

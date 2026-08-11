@@ -23,6 +23,24 @@ test('guests cannot access user management', function () {
     $this->getJson('/api/users')->assertUnauthorized();
 });
 
+test('admins can view a single user', function () {
+    $admin = User::factory()->admin()->create();
+    $user = User::factory()->create();
+
+    $this->actingAs($admin)
+        ->getJson("/api/users/{$user->id}")
+        ->assertOk()
+        ->assertJsonPath('data.id', $user->id)
+        ->assertJsonPath('data.email', $user->email);
+});
+
+test('non-admins cannot view a single user', function () {
+    $user = User::factory()->create();
+    $other = User::factory()->create();
+
+    $this->actingAs($user)->getJson("/api/users/{$other->id}")->assertForbidden();
+});
+
 test('admins can create a user', function () {
     $admin = User::factory()->admin()->create();
 

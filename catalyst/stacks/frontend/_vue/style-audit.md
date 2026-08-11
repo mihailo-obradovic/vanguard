@@ -62,6 +62,7 @@ Everything else in this document is safe to fix directly.
 
 - File names per `../_common/component-naming.md` — PascalCase, no `*Section` suffix or brand prefix, self-describing basenames, kebab-case folders.
 - Auto-import tag resolution per `component-naming.md`: flag a nested file under the registered directory whose generated tag stutters (`_shared/users/UserCard.vue` → `<UsersUserCard>`).
+- The registered shared-components directory is `@/components/_shared/` per `component-naming.md`: cross-check the framework's registration config (e.g. `components.dirs` in `nuxt.config.ts`) and flag a registered directory named anything else (`shared/`, `ui/`, `common/`) unless a convention annex records the deviation.
 
 ### Accessibility
 

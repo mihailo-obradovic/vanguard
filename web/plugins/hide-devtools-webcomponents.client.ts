@@ -15,8 +15,7 @@ export default defineNuxtPlugin({
 
     customElements.define = (name, constructor, options) => {
       if (name.startsWith('nuxt-devtools')) {
-        // defineCustomElement() exposes the component definition as a static
-        // `def` on the returned constructor.
+        // * defineCustomElement() exposes the component definition as a static `def` on the returned constructor.
         const def = (constructor as { def?: Record<string, unknown> }).def;
 
         if (def) {

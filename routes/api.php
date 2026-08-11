@@ -11,7 +11,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/profile', [ProfileController::class, 'update']);
 });
 
-// Admin-only user management.
+// * Admin-only user management.
 Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::apiResource('users', UserController::class);
 });

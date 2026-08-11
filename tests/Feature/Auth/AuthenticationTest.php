@@ -60,7 +60,7 @@ test('guests cannot fetch the current user', function () {
 });
 
 test('unauthenticated api requests return 401 instead of redirecting to a login route', function () {
-    // A non-JSON request must not try to redirect to a (non-existent) login route.
+    // * A non-JSON request must not try to redirect to a (non-existent) login route.
     $this->get('/api/user')->assertUnauthorized();
 });
 

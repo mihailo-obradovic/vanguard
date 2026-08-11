@@ -20,7 +20,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Password reset links resolve to the Nuxt front-end, not the API.
+        // * Password reset links resolve to the Nuxt front-end, not the API.
         ResetPassword::createUrlUsing(function ($notifiable, string $token) {
             $email = urlencode($notifiable->getEmailForPasswordReset());
 

@@ -171,8 +171,7 @@ const form = ref(Object.assign({}, initialForm.value));
 
 const externalErrors = useExternalErrors(() => props.serverErrors);
 
-// Mirrors ProfileUpdateRequest: the current password is only needed when
-// setting a new one.
+// * Mirrors ProfileUpdateRequest: the current password is only needed when setting a new one.
 const { r$ } = useRegle(
   form,
   {

@@ -97,7 +97,7 @@ const showPassword = ref(false);
 
 const externalErrors = useExternalErrors(() => props.serverErrors);
 
-// Create requires a password; edit only validates one when entered.
+// * Create requires a password; edit only validates one when entered.
 const { r$ } = useRegle(
   form,
   () => ({

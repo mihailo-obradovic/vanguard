@@ -15,7 +15,7 @@ export const UserSchema = z.object({
   updated_at: z.string()
 });
 
-// Laravel API resources wrap single models in a `data` envelope.
+// * Laravel API resources wrap single models in a `data` envelope.
 export const UserEnvelopeSchema = z.object({ data: UserSchema });
 
 export type User = z.infer<typeof UserSchema>;

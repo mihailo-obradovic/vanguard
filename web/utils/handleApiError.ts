@@ -7,8 +7,7 @@ export interface HandleApiErrorContext {
 
 export interface ErrorHandlingOptions {
   hideToast?: boolean;
-  // Suppresses 422 toasts for forms that display validation errors inline;
-  // other errors still toast.
+  // * Suppresses 422 toasts for forms that display validation errors inline; other errors still toast.
   hideValidationToast?: boolean;
 }
 
@@ -46,8 +45,7 @@ export function handleApiError(
     return;
   }
 
-  // Validation failures list every field's message instead of Laravel's
-  // "(and N more errors)" summary.
+  // * Validation failures list every field's message instead of Laravel's "(and N more errors)" summary.
   const validationMessages =
     error.statusCode === 422 ? getValidationMessages(error) : [];
 

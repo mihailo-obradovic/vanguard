@@ -97,8 +97,7 @@ const {
 
 const externalErrors = useExternalErrors(useValidationErrors(resetError));
 
-// An expired/invalid reset token comes back as a 422 on the email field, so
-// it surfaces under the readonly email input.
+// * An expired/invalid reset token comes back as a 422 on the email field, so it surfaces under the readonly email input.
 const { r$ } = useRegle(
   form,
   {

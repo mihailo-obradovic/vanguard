@@ -12,11 +12,10 @@ import { VSheet, VCard } from 'vuetify/components';
 
 const props = withDefaults(
   defineProps<{
-    // HTML element or Vuetify component. Vuetify components need to be
-    // manually imported below.
+    // * HTML element or Vuetify component. Vuetify components need to be manually imported below.
     type?: string;
     column?: boolean;
-    // Vuetify measurement unit
+    // * Vuetify measurement unit
     gap?: string;
   }>(),
   {

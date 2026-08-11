@@ -64,7 +64,7 @@ const { data, isLoading } = useFetchUsers();
 
 const users = computed(() => data.value?.data ?? []);
 
-// Create / edit form state
+// * Create / edit form state
 const showUserForm = ref(false);
 const isEditMode = ref(false);
 const editingUser = ref<User | null>(null);
@@ -123,7 +123,7 @@ function handleSubmitUser(form: CreateUserForm) {
       role: form.role
     };
 
-    // Only include the password when the admin is changing it.
+    // * Only include the password when the admin is changing it.
     if (form.password) {
       updateData.password = form.password;
       updateData.password_confirmation = form.password_confirmation;
@@ -135,7 +135,7 @@ function handleSubmitUser(form: CreateUserForm) {
   }
 }
 
-// Delete state
+// * Delete state
 const userToDelete = ref<User | null>(null);
 
 const showDeleteDialog = computed({
@@ -154,7 +154,7 @@ const deleteMessage = computed(() =>
 );
 
 function confirmDelete(user: User) {
-  // Users can't delete themselves.
+  // * Users can't delete themselves.
   if (user.id === currentUser.value?.id) {
     return;
   }

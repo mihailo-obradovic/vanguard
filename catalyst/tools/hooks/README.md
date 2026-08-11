@@ -25,7 +25,7 @@ Both tag hooks resolve the default branch themselves: `git config catalyst.defau
 
 A hook declares what the project must have with a `# catalyst-requires: <token>` line in its header; it is only offered — at spawn or on upgrade — when the project meets it, and `install.sh` checks the same tokens itself, skipping a hook whose requirement the project does not provide. `versioning` means the project versions itself with its own `VERSION` file, not the `Catalyst version` stamp (`versioning.md`).
 
-Upgrades: run from the Catalyst repo, `tools/upgrade_project.py` updates the hooks a project carries, never re-adds a declined one, and offers new ones under `--apply`.
+Upgrades: run from the Catalyst repo, `tools/upgrade_project.py` updates the hooks a project carries, never re-adds a declined one, and offers new ones under `--apply`. A hook turned down — at spawn or at that offer — is written to `catalyst/.catalyst-declined` and not offered again; delete its `hook:<name>` line to be asked on the next upgrade. A hook held back by its `catalyst-requires:` is not a refusal and is offered as soon as the project qualifies.
 
 ## Adding a hook
 

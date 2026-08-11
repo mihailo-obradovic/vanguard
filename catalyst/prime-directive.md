@@ -12,7 +12,7 @@ Start with: `AGENTS.md`/`CLAUDE.md`, `prime-directive.md`, `architecture.md` and
 
 - `features/<nnn>_<feature>.md` — when the user, task, branch, code path, failing test, or `project-summary.md` points to that feature.
 - `decisions/<nnn>_<type>_<decision>.md` — when the task touches what a record decided (same triggers as features).
-- `experiments/<nnn>_<experiment>.md` — when running or extending an experiment the Experiment Index points to; the index in `project-summary.md` (statuses + findings) is the fast orientation. Opt-in at spawn — a project without `experiments/` declined; the upgrader offers adoption.
+- `experiments/<nnn>_<experiment>.md` — when running or extending an experiment the Experiment Index points to; the index in `project-summary.md` (statuses + findings) is the fast orientation. Opt-in at spawn — a project without `experiments/` declined; the upgrader offers adoption once and records a refusal in `.catalyst-declined` rather than re-asking.
 - `workflows/<flow>.md` — the steps for a trigger-fired flow, when the Flow Index below says it fires; the locked invariant is already in the Flow Index here.
 - `references/<topic>.md` — a conditional document-type rule: `references/operations-runbook.md`, `references/known-fakes.md`, `references/release-notes.md`, `references/domain-decisions.md`, `references/convention-annexes.md`, `references/folder-documents.md`, `references/context-documents.md`, `references/agent-skills.md`. Loaded when that document type applies to the project or task.
 - `conventions/<doc>.md` — an always-applied cross-cutting convention, Catalyst's own, arriving with the bundle: `conventions/code-annotations.md`, `conventions/editor-setup.md`. Loaded when the task matches the document's trigger.

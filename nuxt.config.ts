@@ -6,8 +6,6 @@ export default defineNuxtConfig({
   ssr: false,
 
   runtimeConfig: {
-    environment: process.env.APP_ENV,
-
     public: {
       apiBaseUrl: ''
     }

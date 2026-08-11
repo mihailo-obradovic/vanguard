@@ -22,7 +22,16 @@ export default defineNuxtConfig({
       }
     },
 
-    plugins: [vuetify({ autoImport: true })]
+    plugins: [vuetify({ autoImport: true })],
+
+    optimizeDeps: {
+      // @regle/nuxt's runtime plugin resolves the raw copy of @regle/core
+      // while app code gets the pre-bundled one; the two module instances
+      // carry different injection symbols, which triggers a bogus "Regle
+      // Devtools are not available" console warning. Excluding both (rules
+      // imports core) keeps a single instance. Dev-only setting.
+      exclude: ['@regle/core', '@regle/rules']
+    }
   },
 
   modules: [

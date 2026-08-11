@@ -1,7 +1,9 @@
 import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify';
 
 export default defineNuxtConfig({
-  devtools: { enabled: ['local', 'development'].includes(process.env.APP_ENV ?? '') },
+  devtools: {
+    enabled: ['local', 'development'].includes(process.env.APP_ENV ?? '')
+  },
 
   srcDir: 'web/',
 
@@ -25,11 +27,7 @@ export default defineNuxtConfig({
     plugins: [vuetify({ autoImport: true })],
 
     optimizeDeps: {
-      // @regle/nuxt's runtime plugin resolves the raw copy of @regle/core
-      // while app code gets the pre-bundled one; the two module instances
-      // carry different injection symbols, which triggers a bogus "Regle
-      // Devtools are not available" console warning. Excluding both (rules
-      // imports core) keeps a single instance. Dev-only setting.
+      // ! @regle/nuxt resolves its own raw copy of @regle/core at runtime while the app gets the pre-bundled one; the differing injection symbols trigger a bogus "Regle Devtools are not available" warning — excluding both keeps a single instance in dev.
       exclude: ['@regle/core', '@regle/rules']
     }
   },
@@ -54,5 +52,5 @@ export default defineNuxtConfig({
     dirs: ['services']
   },
 
-  compatibilityDate: '2025-07-25'
+  compatibilityDate: '2026-08-11'
 });

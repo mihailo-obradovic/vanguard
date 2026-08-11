@@ -2,6 +2,7 @@ import { useQueryCache } from '@pinia/colada';
 
 import {
   fetchUsers,
+  fetchUser,
   createUser,
   updateUser,
   deleteUser
@@ -18,10 +19,7 @@ import type {
 
 export const usersQueryKeys = {
   fetchUsers: ['users', 'fetch'],
-  fetchUser: ['users', 'get'],
-  createUser: ['users', 'create'],
-  updateUser: ['users', 'update'],
-  deleteUser: ['users', 'delete']
+  fetchUser: ['users', 'get']
 } as const;
 
 export function useFetchUsers(
@@ -30,6 +28,18 @@ export function useFetchUsers(
   return useAppQuery<UsersResponse>({
     key: usersQueryKeys.fetchUsers,
     query: () => fetchUsers(),
+    ...options
+  });
+}
+
+// * Not consumed yet — intended for the upcoming user-detail view.
+export function useFetchUser(
+  id: Ref<number>,
+  options: Omit<AppQueryOptions<User>, 'key' | 'query'> = {}
+) {
+  return useAppQuery<User>({
+    key: () => [...usersQueryKeys.fetchUser, id.value],
+    query: () => fetchUser(id.value),
     ...options
   });
 }
@@ -43,7 +53,6 @@ export function useCreateUser(
   const queryCache = useQueryCache();
 
   return useAppMutation({
-    key: usersQueryKeys.createUser,
     mutation: (userData: CreateUserForm) => createUser(userData),
     ...options,
     onSettled: async (data, error, vars, context) => {
@@ -63,7 +72,6 @@ export function useUpdateUser(
   const queryCache = useQueryCache();
 
   return useAppMutation({
-    key: usersQueryKeys.updateUser,
     mutation: ({ id, userData }: { id: number; userData: UpdateUserForm }) =>
       updateUser(id, userData),
     ...options,
@@ -84,7 +92,6 @@ export function useDeleteUser(
   const queryCache = useQueryCache();
 
   return useAppMutation({
-    key: usersQueryKeys.deleteUser,
     mutation: (id: number) => deleteUser(id),
     ...options,
     onSettled: async (data, error, id, context) => {

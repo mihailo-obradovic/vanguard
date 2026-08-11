@@ -12,7 +12,7 @@ Start with: `AGENTS.md`/`CLAUDE.md`, `prime-directive.md`, `architecture.md` and
 
 - `features/<nnn>_<feature>.md` — when the user, task, branch, code path, failing test, or `project-summary.md` points to that feature.
 - `decisions/<nnn>_<type>_<decision>.md` — when the task touches what a record decided (same triggers as features).
-- `experiments/<nnn>_<experiment>.md` — when running or extending an experiment the Experiment Index points to; the index in `project-summary.md` (statuses + findings) is the fast orientation. Opt-in at spawn — a project without `experiments/` declined; the upgrader offers adoption.
+- `experiments/<nnn>_<experiment>.md` — when running or extending an experiment the Experiment Index points to; the index in `project-summary.md` (statuses + findings) is the fast orientation. Opt-in at spawn — a project without `experiments/` declined; the upgrader offers adoption once and records a refusal in `.catalyst-declined` rather than re-asking.
 - `workflows/<flow>.md` — the steps for a trigger-fired flow, when the Flow Index below says it fires; the locked invariant is already in the Flow Index here.
 - `references/<topic>.md` — a conditional document-type rule: `references/operations-runbook.md`, `references/known-fakes.md`, `references/release-notes.md`, `references/domain-decisions.md`, `references/convention-annexes.md`, `references/folder-documents.md`, `references/context-documents.md`, `references/agent-skills.md`. Loaded when that document type applies to the project or task.
 - `conventions/<doc>.md` — an always-applied cross-cutting convention, Catalyst's own, arriving with the bundle: `conventions/code-annotations.md`, `conventions/editor-setup.md`. Loaded when the task matches the document's trigger.
@@ -94,7 +94,7 @@ An explicitly requested feature (e.g. a prompt starting `feature: <name>`) alway
 
 Plan mode and brainstorming are the baseline; hosts often install richer pipelines (e.g. Claude Code's `feature-dev` plugin). Whatever is installed, the weights route the same way as above, and the adopting repository's entry document (`AGENTS.md`/`CLAUDE.md`) records the concrete mapping for its installed tools.
 
-A project also carries generated `.claude/skills/` wrappers — thin pointers into the bundle's stack docs (`references/agent-skills.md`). The bundle documents and the project's convention annexes win over generic guidance from installed plugins or similarly-named third-party skills; the wrappers are regenerated on spawn and upgrade, so guidance changes go into the bundle documents, never into a wrapper.
+A project also carries generated `.claude/skills/` wrappers — thin pointers into the bundle's stack docs. How they are generated, and how they rank against installed plugins and similarly-named third-party skills, is `references/agent-skills.md`.
 
 Two constraints hold on every route:
 

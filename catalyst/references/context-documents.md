@@ -5,7 +5,7 @@
 Context documents are optional, project-chosen background docs in `context/` that add depth behind the one-paragraph purpose in `project-summary.md`. Each is loaded on demand, only when the kind of work in progress calls for it — never preloaded.
 
 - **Background, never a contract.** A context document records vision and intent, not behavior. When it disagrees with a feature document or `architecture.md`, the contract wins and the context document is updated to catch up. When scope or identity changes, update the context document and the `project-summary.md` purpose paragraph together (Same-Change Rule).
-- **Loads by trigger, gated on presence.** A context document loads when it exists in the project _and_ the task matches its declared trigger (below). A document the project never opted into simply never loads.
+- **Loads by trigger, gated on presence.** A context document loads when it exists in the project _and_ the task matches its declared trigger (below). A document the project never opted into simply never loads. Which ones a project carries is its `Context documents:` line in `project-summary.md`, written at spawn — read it instead of stating `context/`.
 - **Keep it scannable.** No hard character budget, but a context document earns its routine load only by staying short — trim to what shapes decisions, link out for the rest.
 - **Project-owned once filled in — upgraded by sidecar.** From spawn onward the document's content is the project's; the upgrader never writes into it. When the template's stub improves, the upgrade delivers the new stub as `context/<name>.md.catalyst-new` beside the project's copy — fold in what applies, then delete the sidecar.
 

@@ -14,9 +14,9 @@ A spawn keeps its whole rule set in one bundle directory, `<project>/catalyst/`,
 
 Catalyst's own layout is the bundle layout with the bundle at the repository root, so the same checks read both.
 
-Catalyst checks: `VERSION` matches the newest changelog entry (R1), `CLAUDE.md` imports `AGENTS.md` (R2), changelog shape (R3), examples follow the current templates (R4, feature/decision/experiment examples), the Flow Index in `prime-directive.md` points at exactly the `workflows/` shards that exist, every `workflows/`, `references/`, and `conventions/` shard carries its **Trigger:** header, and every `references/` and `conventions/` shard is reachable from an always-loaded document (R6), stack documents carry their contract headers — layer/tool for modules, category/tool for addon docs and payloads, `**Tier:**` for shared-tier docs, YAML `title:` frontmatter for `rules/` files (R7), the context-document catalog agrees across its four mirrors — the Catalog table, `CONTEXT_DOCS` in the scaffolder, the `templates/` stub, and the load-trigger bullet (R8), shared-tier wiring is closed both ways — every `**Requires:**` value resolves to an existing tier, every tier is required by some module (R9), the generated-skill registry (`SKILLS` in the scaffolder) points at existing documents and is mirrored in `references/agent-skills.md` (R10), the editor-extension registry (`EDITOR_EXTENSIONS`) does the same against `conventions/editor-setup.md` (R11), and the template's markdown is oxfmt-canonical — `pnpm dlx oxfmt --check` tracking `oxfmt@latest` passes, skipped with a note when pnpm is absent (R12).
+Catalyst checks: `VERSION` matches the newest changelog entry (R1), `CLAUDE.md` imports `AGENTS.md` (R2), changelog shape (R3), examples follow the current templates (R4, feature/decision/experiment examples), the Flow Index in `prime-directive.md` points at exactly the `workflows/` shards that exist, every `workflows/`, `references/`, and `conventions/` shard carries its **Trigger:** header, and every `references/` and `conventions/` shard is reachable from an always-loaded document (R6), stack documents carry their contract headers — layer/tool for modules, category/tool for addon docs and payloads, `**Tier:**` for shared-tier docs, YAML `title:` frontmatter for `rules/` files (R7), the context-document catalog agrees across its four mirrors — the Catalog table, `CONTEXT_DOCS` in the scaffolder, the `templates/` stub, and the load-trigger bullet (R8), shared-tier wiring is closed both ways — every `**Requires:**` value resolves to an existing tier, every tier is required by some module (R9), the generated-skill registry (`SKILLS` in the scaffolder) points at existing documents and agrees with `references/agent-skills.md` in both directions (R10), the editor-extension registry (`EDITOR_EXTENSIONS`) does the same against `conventions/editor-setup.md` (R11), the template's markdown is oxfmt-canonical — `pnpm dlx oxfmt --check` tracking `oxfmt@latest` passes, skipped with a note when pnpm is absent (R12), every backticked document path in prose resolves to a document the template has (R13), the scaffolder's copy lists (`MANIFEST`, `EXPERIMENT_FILES`, `HOOKS_SUPPORT`) name files that exist and agree with the file/directory split the upgrader relies on (R14), `tools/hooks/README.md`'s table matches the hooks on disk and their `catalyst-requires:` headers (R15), and `sync_rules.py`'s hardcoded lists match the tree it syncs — every `rules/` payload known to the tool, every router carrying its `Upstream:` line, every deviation present and explained in its router's Provenance table (R16), `architecture.md`'s Stack Modules table links documents that exist and links every document a spawn can select (R17), its Shared tiers paragraph enumerates exactly the tier directories on disk (R18), and `COVERAGE.md`'s document and rule counts match the tree for every row naming one module (R19).
 
-Project checks (features, decision records, and experiments alike): index <-> files (P1), statuses (P2), template sections for new/changed documents only (P3, diff-aware), unique numbering (P4), Protected Areas rows point to existing documents (P5), a soft Catalyst-version drift note when the project's stamp lags (P6, note only), the size budgets (P7, diff-aware — a hard error over a feature's maximum, a note over a target), a soft note when Open Questions are not empty past the drafting gate (P8, diff-aware note), a soft note when a project with features has no operations.md (P9, note), a soft note when numbered documents exist but their folder's _template.md is not in the bundle — an unadopted flow (P10, note), and an error when a present `KNOWN_FAKES.md` holds no register rows — absence is the healthy state, an empty register is deleted, not kept (P11).
+Project checks (features, decision records, and experiments alike): index <-> files (P1), statuses (P2), template sections for new/changed documents only (P3, diff-aware), unique numbering (P4), Protected Areas rows point to existing documents (P5), a soft Catalyst-version drift note when the project's stamp lags (P6, note only), the size budgets (P7, diff-aware — a hard error over a feature's maximum, a note over a target), a soft note when Open Questions are not empty past the drafting gate (P8, diff-aware note), a soft note when a project with features has no operations.md (P9, note), a soft note when numbered documents exist but their folder's _template.md is not in the bundle — an unadopted flow (P10, note), an error when a present `KNOWN_FAKES.md` holds no register rows — absence is the healthy state, an empty register is deleted, not kept (P11), and the generated `.claude/skills/` wrappers at the repository root point into documents the bundle has (P12).
 
 Exit code is non-zero when any error is found. Notes never block.
 
@@ -25,6 +25,7 @@ Stdlib only — no dependencies.
 
 from __future__ import annotations
 
+import argparse
 import ast
 import re
 import shutil
@@ -36,6 +37,12 @@ CATALYST_ROOT = Path(__file__).resolve().parent.parent
 
 # The directory a spawn keeps its rule set in, below the project root. Kept in step with new_project.py's BUNDLE.
 BUNDLE = "catalyst"
+
+# Where the optional git hooks live, and how their table is headed. Kept in step with new_project.py's HOOKS_DIR.
+HOOKS_DIR = "tools/hooks"
+
+# What marks a `.claude/skills/` wrapper as Catalyst's to rewrite; a skill without it is the project's own. Kept in step with new_project.py's SKILL_MARK.
+SKILL_MARK = "<!-- catalyst:generated skill wrapper"
 
 # The oxfmt the template's markdown is formatted with (R12). Tracks latest: when a new oxfmt release changes the output and the check starts failing on untouched files, rerun `pnpm dlx oxfmt@latest .` and commit the reflow.
 OXFMT_VERSION = "latest"
@@ -70,6 +77,17 @@ def note(message: str) -> None:
 
 def read(path: Path) -> str:
     return path.read_text(encoding="utf-8")
+
+
+def read_required(path: Path, root: Path, why: str) -> str | None:
+    """A file a rule cannot run without: its text, or None with the error already recorded.
+
+    Only for paths named in the code rather than found on disk. An absent one used to end the run in a traceback, which reads as a broken validator rather than a broken repository.
+    """
+    if not path.is_file():
+        error(f"{path.relative_to(root) if root in path.parents else path}: missing — {why}")
+        return None
+    return read(path)
 
 
 def is_catalyst_repo(root: Path) -> bool:
@@ -181,21 +199,184 @@ def catalog_defaults(text: str) -> dict[str, bool]:
     return rows
 
 
+_FENCE_RE = re.compile(r"^```.*?^```", re.M | re.S)
+# A backticked path pointing at a document. Only `.md`: a stack document names the source files a project will write (`core/config.py`, `@/utils/signupAction.ts`) as often as it names a document, and those are the project's to create.
+_PATH_RE = re.compile(r"`([^`\s]+\.md)`")
+
+# Documents a spawn writes for itself, so the template legitimately has no copy — naming one is a pointer to where it would live, not a broken link (references/known-fakes.md, references/operations-runbook.md).
+PROJECT_AUTHORED = {"KNOWN_FAKES.md", "operations.md"}
+
+
+def doc_paths(text: str) -> set[str]:
+    """Backticked document paths in prose, with fenced blocks and placeholder forms left out."""
+    body = _FENCE_RE.sub("", text)
+    out = set()
+    for raw in _PATH_RE.findall(body):
+        if any(ch in raw for ch in "<>*?|,"):  # `features/<nnn>_<feature>.md` and friends
+            continue
+        out.add(raw)
+    return out
+
+
+def tier_dirs(stacks_root: Path) -> set[str]:
+    """Shared-tier directories under stacks/, as `frontend/_react` — an `_`-prefixed path component and documents of their own.
+
+    A grouping directory like `_lang/` holds tiers rather than documents, so it is not one itself.
+    """
+    out = set()
+    for path in stacks_root.rglob("*"):
+        if not path.is_dir():
+            continue
+        parts = path.relative_to(stacks_root).parts
+        if not any(seg.startswith("_") for seg in parts):
+            continue
+        if any(child.is_file() and child.suffix == ".md" for child in path.iterdir()):
+            out.add("/".join(parts))
+    return out
+
+
+def selectable_docs(stacks_root: Path) -> set[str]:
+    """Every document a spawn can choose: modules, their nested choices, and their addons.
+
+    The same shape `tools/new_project.py` walks to build the interview — a module is `<layer>/<tool>.md` or `<layer>/<tool>/<tool>.md`, a choice is the same one level deeper, and an addon is `<module>/addons/<name>.md`. A module's other documents are indexed by the module itself, not by `architecture.md`.
+    """
+    out: set[str] = set()
+
+    def entries(directory: Path) -> list[Path]:
+        return [p for p in sorted(directory.iterdir()) if p.suffix == ".md" or (p.is_dir() and not p.name.startswith("_"))]
+
+    def contract(entry: Path) -> Path:
+        return entry if entry.is_file() else entry / f"{entry.name}.md"
+
+    for layer in sorted(p for p in stacks_root.iterdir() if p.is_dir() and not p.name.startswith("_")):
+        for module in entries(layer):
+            doc = contract(module)
+            if doc.is_file():
+                out.add(str(doc.relative_to(stacks_root.parent)))
+            if not module.is_dir():
+                continue
+            for addon in sorted((module / "addons").glob("*.md")):
+                out.add(str(addon.relative_to(stacks_root.parent)))
+            for sub in sorted(p for p in module.iterdir() if p.is_dir() and p.name not in ("addons", "rules", "starter")):
+                for choice in entries(sub):
+                    choice_doc = contract(choice)
+                    if choice_doc.is_file():
+                        out.add(str(choice_doc.relative_to(stacks_root.parent)))
+    return out
+
+
+def table_rows(text: str):
+    """Every data row of every markdown table in `text`, as (headers, cells)."""
+    headers: list[str] = []
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not stripped.startswith("|"):
+            headers = []
+            continue
+        cells = [c.strip() for c in stripped.strip("|").split("|")]
+        if re.fullmatch(r"\|(?:\s*:?-+:?\s*\|)+", stripped):  # the separator under a header
+            continue
+        if not headers:
+            headers = cells
+            continue
+        yield headers, cells
+
+
+def module_path(stacks_root: Path, name: str) -> Path | None:
+    """The one module, tier, choice, or addon payload named `name`, or None when it is not exactly one path."""
+    if not stacks_root.is_dir():
+        return None
+    if "/" in name:
+        dirs = [stacks_root / name] if (stacks_root / name).is_dir() else []
+        files = [stacks_root / f"{name}.md"] if (stacks_root / f"{name}.md").is_file() else []
+    else:
+        dirs = [p for p in stacks_root.rglob(name) if p.is_dir() and p.name not in ("rules", "addons")]
+        files = [p for p in stacks_root.rglob(f"{name}.md") if p.parent.name != "rules"]
+    # A directory module carries its own contract document inside it, so both forms match; the directory is the module.
+    candidates = dirs or files
+    return candidates[0] if len(candidates) == 1 else None
+
+
+def module_counts(path: Path) -> tuple[int, int]:
+    """(own documents, rule files) for a module path.
+
+    Own documents are the `.md` files directly in the directory — a nested choice, an addon, and a `rules/` payload each count for themselves, which is how COVERAGE.md's tables are built. A single-file module counts as the one document it is.
+    """
+    if path.is_file():
+        return 1, 0
+    return len(list(path.glob("*.md"))), len(list((path / "rules").glob("*.md")))
+
+
+def table_row(text: str, heading: str, name: str, column: int) -> str:
+    """One cell of the row whose first column is `name`, in the table under `## <heading>`."""
+    in_section = False
+    for line in text.splitlines():
+        if line.startswith("## "):
+            in_section = line.strip() == f"## {heading}"
+            continue
+        if not in_section or not line.strip().startswith("|"):
+            continue
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        if len(cells) > column and cells[0] == f"`{name}`":
+            return cells[column]
+    return ""
+
+
+def hook_requires(text: str) -> set[str]:
+    """The `catalyst-requires:` tokens a hook script declares (tools/hooks/README.md, Requirements)."""
+    m = re.search(r"^#\s*catalyst-requires:\s*(.+)$", text, re.M)
+    return set(m.group(1).split()) if m else set()
+
+
+def table_names(text: str, heading: str) -> set[str]:
+    """Backticked first-column values of the table under `## <heading>` — a documented inventory."""
+    names: set[str] = set()
+    in_section = False
+    for line in text.splitlines():
+        if line.startswith("## "):
+            in_section = line.strip() == f"## {heading}"
+            continue
+        if not in_section or not line.strip().startswith("|"):
+            continue
+        first = line.strip().strip("|").split("|")[0].strip()
+        cell = re.fullmatch(r"`([^`]+)`", first)  # skips the header and separator rows
+        if cell:
+            names.add(cell.group(1))
+    return names
+
+
+def listed_names(text: str, marker: str) -> set[str]:
+    """Backticked names after `marker` on the line carrying it — an inventory written as prose.
+
+    references/agent-skills.md lists its wrappers in one sentence rather than a table, and the document is full of other backticked things; the marker is what makes the extraction exact.
+    """
+    for line in text.splitlines():
+        head, sep, tail = line.partition(marker)
+        if sep:
+            return set(re.findall(r"`([^`]+)`", tail))
+    return set()
+
+
 # --- Catalyst checks ---------------------------------------------------------
 
 
 def check_catalyst(root: Path) -> None:
-    changelog = read(root / "CHANGELOG.md")
+    changelog = read_required(root / "CHANGELOG.md", root, "the template's history and R1's version source")
     entries = []
-    for line in changelog.splitlines():
+    for line in (changelog or "").splitlines():
         m = _ENTRY_RE.match(line)
         if m:
             entries.append((tuple(int(p) for p in m.group(1).split(".")), m.group(1), m.group(2)))
 
     # R1: VERSION == the newest changelog entry. The number lives in VERSION (versioning.md); releasing moves the two together.
-    declared = read(root / "VERSION").strip()
-    if not re.fullmatch(r"\d+\.\d+\.\d+", declared):
+    version_text = read_required(root / "VERSION", root, "the template's version (versioning.md)")
+    declared = (version_text or "").strip()
+    if version_text is None:
+        pass
+    elif not re.fullmatch(r"\d+\.\d+\.\d+", declared):
         error(f"VERSION: {declared!r} is not a MAJOR.MINOR.PATCH version")
+    elif changelog is None:
+        pass
     elif not entries:
         error("CHANGELOG.md: no version entries found")
     elif declared != entries[0][1]:
@@ -204,7 +385,8 @@ def check_catalyst(root: Path) -> None:
         )
 
     # R2: CLAUDE.md is an import of AGENTS.md, not a copy of it — one entry document, reachable under both names.
-    if "@AGENTS.md" not in read(root / "CLAUDE.md"):
+    claude = read_required(root / "CLAUDE.md", root, "the entry document under its second name")
+    if claude is not None and "@AGENTS.md" not in claude:
         error("CLAUDE.md: does not import AGENTS.md (expected an `@AGENTS.md` line)")
 
     # R3: changelog entries strictly descending, each one dated.
@@ -262,13 +444,7 @@ def check_catalyst(root: Path) -> None:
                         error(f"{path}: **Requires:** names stacks/{tier}, which does not exist")
                     elif not any(seg.startswith("_") for seg in Path(tier).parts):
                         error(f"{path}: **Requires:** names stacks/{tier}, which is not a shared tier (no `_`-prefixed path component)")
-        for tier_dir in sorted(p for p in stacks_root.rglob("*") if p.is_dir()):
-            rel_parts = tier_dir.relative_to(stacks_root).parts
-            if not any(seg.startswith("_") for seg in rel_parts):
-                continue
-            if not any(child.is_file() and child.suffix == ".md" for child in tier_dir.iterdir()):
-                continue  # a grouping dir like stacks/_lang/ holds tiers, not documents
-            rel = "/".join(rel_parts)
+        for rel in sorted(tier_dirs(stacks_root)):
             if not any(rel == r or rel.startswith(r + "/") for r in required):
                 error(f"stacks/{rel}: shared-tier directory is required by no module's **Requires:** header — it would never travel into a spawn")
 
@@ -277,7 +453,7 @@ def check_catalyst(root: Path) -> None:
         for path in sorted((root / folder).glob("*.md")):
             if "**Trigger:**" not in read(path):
                 error(f"{path}: shard document is missing **Trigger:**")
-    prime = read(root / "prime-directive.md")
+    prime = read_required(root / "prime-directive.md", root, "the global rules every session loads") or ""
     workflows_built = (root / "workflows").is_dir()
     workflow_files = {p.name for p in (root / "workflows").glob("*.md")}
     linked = set(re.findall(r"\(workflows/([^)]+\.md)\)", prime))
@@ -336,8 +512,11 @@ def check_catalyst(root: Path) -> None:
                     error(f"tools/new_project.py: SKILLS `{name}` references {rel}, which does not exist in the template")
             if shard_text and f"`{name}`" not in shard_text:
                 error(f"references/agent-skills.md: generated skill `{name}` is not mentioned — list every wrapper the scaffolder can generate")
+        # The other direction: a wrapper the inventory sentence still lists after the scaffolder dropped it. Nothing generates it any more, so the document promises a skill no spawn has.
+        for name in sorted(listed_names(shard_text, "Current wrappers:") - {s.get("name") for s in skills}):
+            error(f"references/agent-skills.md: lists generated skill `{name}`, which is not in SKILLS — no spawn generates it")
 
-    # R11: editor-extension parity, the same two directions R10 checks for skills. A `needs` path that does not exist gates the entry off forever — the extension would silently never be recommended — and an entry absent from conventions/editor-setup.md means the generated .vscode/extensions.json carries a recommendation the documents never explain. Both drift silently: the spawn still succeeds and nothing points at the gap.
+    # R11: editor-extension parity, the same directions R10 checks for skills. A `needs` path that does not exist gates the entry off forever — the extension would silently never be recommended — an entry absent from conventions/editor-setup.md means the generated .vscode/extensions.json carries a recommendation the documents never explain, and a row in the document with no entry recommends something no spawn receives. All three drift silently: the spawn still succeeds and nothing points at the gap.
     extensions = scaffolder_literal(root / "tools" / "new_project.py", "EDITOR_EXTENSIONS")
     setup_shard = root / "conventions" / "editor-setup.md"
     if extensions is None:
@@ -353,6 +532,141 @@ def check_catalyst(root: Path) -> None:
                     error(f"tools/new_project.py: EDITOR_EXTENSIONS `{ident}` needs {rel}, which does not exist in the template — the extension could never be recommended")
             if setup_text and f"`{ident}`" not in setup_text:
                 error(f"conventions/editor-setup.md: recommended extension `{ident}` is not in the table — every generated recommendation is documented")
+        # The other direction: a table row the scaffolder no longer carries. The document then recommends an extension no spawn ever receives.
+        for ident in sorted(table_names(setup_text, "Recommended extensions") - {e.get("id") for e in extensions}):
+            error(f"conventions/editor-setup.md: recommends `{ident}`, which is not in EDITOR_EXTENSIONS — no spawn is given it")
+
+    # R13: every backticked document path resolves. Pointing at a document is how the bundle routes work — a shard nobody can open is guidance that silently never loads, and a rename leaves the old name behind in prose no rule ever reads. A path resolves relative to the repository root or to the document naming it (both forms are in use), with a leading `catalyst/` stripped: root-facing documents address the bundle the way a project sees it.
+    known = {p.name for p in root.rglob("*") if p.is_file()}
+    for path in sorted(root.rglob("*.md")):
+        # CHANGELOG.md and TODO.md are the two documents that legitimately name files the tree does not have: history keeps the old names, and a TODO describes what has not been written yet. `examples/` documents a fictional project's own features and decisions. `.claude/` is harness configuration, not bundle documents.
+        if any(part in (".git", ".claude", "node_modules", "examples") for part in path.parts):
+            continue
+        if path.name in ("CHANGELOG.md", "TODO.md"):
+            continue
+        for ref in sorted(doc_paths(read(path))):
+            target = ref[len(BUNDLE) + 1:] if ref.startswith(f"{BUNDLE}/") else ref
+            # `context/` exists only in a spawn that opted in, and the project-authored documents are the project's to write (references/known-fakes.md, references/operations-runbook.md). A leading numbered segment is an upstream documentation tree, cited in a Provenance section rather than pointed at.
+            if target.startswith("context/") or Path(target).name in PROJECT_AUTHORED:
+                continue
+            if re.match(r"^\d+-", target):
+                continue
+            # Resolved root-relative, relative to the document naming it, or — for the shorthand the bundle writes in prose — by a document of that name existing somewhere in the tree. All three answer the question the rule asks: can a reader open what this points at.
+            if (root / target).exists() or (path.parent / target).exists() or Path(target).name in known:
+                continue
+            error(f"{path.relative_to(root)}: `{ref}` does not resolve to a document in the template (R13)")
+
+    # R14: the scaffolder's copy lists name things that exist. MANIFEST is what a spawn receives — an entry that has been renamed away is reported at spawn time and nowhere else, so a project quietly ships without a document the rules assume it has. The directory heuristic matters too: upgrade_project.py splits MANIFEST on "has no extension" to decide what to walk, so a file entered without its suffix would be treated as a directory and never upgraded.
+    scaffolder = root / "tools" / "new_project.py"
+    for literal in ("MANIFEST", "EXPERIMENT_FILES", "HOOKS_SUPPORT"):
+        entries = scaffolder_literal(scaffolder, literal)
+        if entries is None:
+            error(f"tools/new_project.py: {literal} not found or not a literal list — the spawn's copy list cannot be checked (R14)")
+            continue
+        for rel in entries:
+            target = root / (f"{HOOKS_DIR}/{rel}" if literal == "HOOKS_SUPPORT" else rel)
+            if not target.exists():
+                error(f"tools/new_project.py: {literal} lists {rel}, which does not exist in the template — a spawn would be missing it (R14)")
+            elif literal == "MANIFEST" and target.is_dir() != (Path(rel).suffix == ""):
+                error(f"tools/new_project.py: MANIFEST entry {rel} is a {'directory' if target.is_dir() else 'file'} but reads as the other by its suffix — upgrade_project.py splits the list that way (R14)")
+
+    # R15: the hooks table documents the hooks that exist. A hook is discovered from the directory (discover_hooks in the scaffolder: extensionless files under tools/hooks/), so a new one ships and is offered at spawn whether or not anyone wrote its row — and its `catalyst-requires:` header decides whether a project is even offered it, which is the one thing a reader needs the table to state correctly.
+    hooks_dir = root / HOOKS_DIR
+    hooks_readme = hooks_dir / "README.md"
+    if hooks_dir.is_dir() and hooks_readme.is_file():
+        on_disk = {p.name for p in hooks_dir.iterdir() if p.is_file() and not p.suffix and not p.name.startswith(".")}
+        documented = table_names(read(hooks_readme), "The hooks")
+        for name in sorted(on_disk - documented):
+            error(f"{HOOKS_DIR}/README.md: hook `{name}` exists but has no row in the table — every hook a spawn is offered is documented (R15)")
+        for name in sorted(documented - on_disk):
+            error(f"{HOOKS_DIR}/README.md: table lists hook `{name}`, which is not in {HOOKS_DIR}/ — no spawn is ever offered it (R15)")
+        for name in sorted(on_disk & documented):
+            declared = set(re.findall(r"`([^`]+)`", table_row(read(hooks_readme), "The hooks", name, 1)))
+            actual = set(hook_requires(read(hooks_dir / name)))
+            if declared != actual:
+                error(f"{HOOKS_DIR}/README.md: hook `{name}` requires {sorted(actual) or ['nothing']} but its Requires cell says {sorted(declared) or ['nothing']} (R15)")
+
+    # R16: sync_rules.py's hardcoded lists against the tree it syncs. A rules/ payload the tool does not know about is never compared to upstream — it silently stops tracking — and a DEVIATIONS entry names a file that must exist and must be explained in its router's Provenance table, which is the only record of why a vendored rule diverges.
+    sync = root / "tools" / "sync_rules.py"
+    if sync.is_file():
+        rule_dirs = scaffolder_literal(sync, "RULE_DIRS")
+        routers = scaffolder_literal(sync, "ROUTERS")
+        deviations = scaffolder_literal(sync, "DEVIATIONS")
+        if rule_dirs is None or routers is None or deviations is None:
+            error("tools/sync_rules.py: RULE_DIRS, ROUTERS, or DEVIATIONS not found or not a literal — the upstream sync cannot be checked (R16)")
+        else:
+            on_disk = {str(p.parent.relative_to(root)) for p in root.glob("stacks/**/rules/*.md")}
+            for rel in sorted(on_disk - set(rule_dirs)):
+                error(f"tools/sync_rules.py: RULE_DIRS does not list {rel}, which holds vendored rules — that payload is never compared to upstream (R16)")
+            for rel in sorted(set(rule_dirs) - on_disk):
+                error(f"tools/sync_rules.py: RULE_DIRS lists {rel}, which holds no rule files (R16)")
+            for rel in routers:
+                text = read(root / rel) if (root / rel).is_file() else None
+                if text is None:
+                    error(f"tools/sync_rules.py: ROUTERS lists {rel}, which does not exist (R16)")
+                elif not re.search(r"^Upstream: ", text, re.M):
+                    error(f"{rel}: no `Upstream:` line, but sync_rules.py rewrites one here on --apply (R16)")
+            for rel in sorted(deviations):
+                if not (root / rel).is_file():
+                    error(f"tools/sync_rules.py: DEVIATIONS lists {rel}, which does not exist (R16)")
+                    continue
+                router = next((r for r in routers if Path(rel).parent.parent == Path(r).parent or Path(rel).parent == Path(r).parent / "rules"), None)
+                if router and (root / router).is_file() and Path(rel).stem not in read(root / router):
+                    error(f"{router}: deviation `{Path(rel).stem}` has no Provenance row, but sync_rules.py never overwrites it (R16)")
+
+    # R17: architecture.md's Stack Modules table against the stacks/ tree, both directions. The table is what an Init Design reads to pick a stack, so a module missing from it is a module no project is ever offered — the failure is silence, not an error — and a row linking at a moved document sends the reader nowhere. Only the links are checked, not the Options cell's grammar: what matters is that each link lands and that nothing selectable is absent.
+    architecture = root / "architecture.md"
+    if stacks_root.is_dir() and architecture.is_file():
+        section = re.search(r"^## Stack Modules$.*?(?=^## |\Z)", read(architecture), re.M | re.S)
+        if section is None:
+            error("architecture.md: no `## Stack Modules` section — the stack index (R17)")
+        else:
+            linked = set(re.findall(r"\]\((stacks/[^)]+\.md)\)", section.group(0)))
+            for rel in sorted(linked):
+                if not (root / rel).is_file():
+                    error(f"architecture.md: Stack Modules links {rel}, which does not exist (R17)")
+            for rel in sorted(selectable_docs(stacks_root) - linked):
+                error(f"architecture.md: {rel} is selectable at spawn but no Stack Modules row links it — no project is offered it (R17)")
+
+    # R18: the Shared tiers paragraph enumerates the tier directories in prose, and that enumeration has rotted before. Same set R9 walks, so the two cannot disagree: a tier missing from the paragraph is invisible to anyone reading how the stack composes, and one named there but absent on disk is a promise the scaffolder cannot keep.
+    if stacks_root.is_dir() and architecture.is_file():
+        para = re.search(r"^\*\*Shared tiers\.\*\*.*$", read(architecture), re.M)
+        if para is None:
+            error("architecture.md: no `**Shared tiers.**` paragraph — the tier enumeration (R18)")
+        else:
+            # The paragraph also names `stacks/` itself, as the directory the tiers live under; a tier is the paths with an `_`-prefixed segment.
+            named = {
+                p.rstrip("/")
+                for p in re.findall(r"`([^`]+/)`", para.group(0))
+                if any(seg.startswith("_") for seg in p.split("/"))
+            }
+            tiers = tier_dirs(stacks_root)
+            roots = {t for t in tiers if not any(t.startswith(o + "/") for o in tiers)}
+            for rel in sorted(roots - named):
+                error(f"architecture.md: the Shared tiers paragraph does not name stacks/{rel}/ (R18)")
+            for rel in sorted(named - roots):
+                error(f"architecture.md: the Shared tiers paragraph names stacks/{rel}/, which is not a shared tier directory (R18)")
+
+    # R19: COVERAGE.md's counts against the tree. They are hand-maintained and have rotted twice, and a wrong number is worse than none — the file exists to be believed when deciding what to build next. Only rows whose backticked name resolves to exactly one path are checked: the Addons table names addons two modules share, and the Other layers table does not backtick its first column, so both are left to the prose. The prose is not checkable at all and stays hand-maintained (one of the two rots was in it).
+    coverage = root / "COVERAGE.md"
+    if coverage.is_file() and stacks_root.is_dir():
+        for headers, cells in table_rows(read(coverage)):
+            name = re.fullmatch(r"`([^`]+)`(?:\s*\(default\))?", cells[0])
+            if not name:
+                continue
+            path = module_path(stacks_root, name.group(1))
+            if path is None:
+                continue
+            docs, rules = module_counts(path)
+            cell = dict(zip(headers, cells)).get("Docs", "")
+            # An addon's row counts the addon document itself first and its payload in the parenthetical, so the payload count is the one to read there; every other row leads with its own document count.
+            payload = path.parent.name == "addons"
+            claimed = re.search(r"\(\+(\d+)", cell) if payload else re.match(r"(\d+)", cell)
+            if claimed and int(claimed.group(1)) != docs:
+                error(f"COVERAGE.md: `{name.group(1)}` claims {claimed.group(1)} documents, the tree has {docs} (R19)")
+            claimed_rules = re.search(r"(\d+)(?=\s*rules)", cell) or re.fullmatch(r"(\d+)", dict(zip(headers, cells)).get("Rules", ""))
+            if claimed_rules and int(claimed_rules.group(1)) != rules:
+                error(f"COVERAGE.md: `{name.group(1)}` claims {claimed_rules.group(1)} rules, the tree has {rules} (R19)")
 
     # R12: the template's markdown is oxfmt-canonical (stacks/_lang/typescript/toolchain.md) — spawns format their whole repository, so any drift here comes back as merge churn on every upgrade. The vendored rules/ payloads are covered too; sync_rules.py normalizes upstream through oxfmt before comparing. Template mode only: a spawn's own `format:check` script already owns this. pnpm is the one non-stdlib need, so its absence is a note, never an error.
     if shutil.which("pnpm") is None:
@@ -427,7 +741,7 @@ def changed_docs(project: Path) -> set[str] | None:
     return changed
 
 
-def check_project(project: Path, check_all: bool) -> None:
+def check_project(project: Path, check_all: bool, repo_root: Path | None = None) -> None:
     summary_path = project / "project-summary.md"
     if not summary_path.exists():
         error(f"{project}: project-summary.md not found — is this a project root?")
@@ -559,6 +873,17 @@ def check_project(project: Path, check_all: bool) -> None:
         if len(rows) < 2:  # header only, or no table at all
             error(f"{project}/KNOWN_FAKES.md: register has no entries — delete the file when the last fake is removed (Known Fakes Register)")
 
+    # P12: the generated skill wrappers point into documents the bundle actually has. A wrapper is the harness's way in — a pointer that no longer resolves means the skill fires and routes the agent at nothing, silently, which is worse than having no wrapper at all. Only wrappers carrying the catalyst marker are checked; a same-named skill without it belongs to the project (references/agent-skills.md). Skills are discovered at the repository root only, so nothing is said when there is no .claude/skills there — in a monorepo adoption the wrappers sit at a root this run may not have been pointed at.
+    skills_dir = (repo_root or project.parent) / ".claude" / "skills"
+    if skills_dir.is_dir():
+        for wrapper in sorted(skills_dir.glob("*/SKILL.md")):
+            text = read(wrapper)
+            if SKILL_MARK not in text:
+                continue
+            for ref in sorted(re.findall(rf"`({BUNDLE}/[^`\s]+\.md)`", text)):
+                if not (skills_dir.parent.parent / ref).is_file():
+                    error(f".claude/skills/{wrapper.parent.name}/SKILL.md: points at `{ref}`, which is not in the bundle — the skill routes to nothing (P12)")
+
 
 def bundle_root(path: Path) -> Path:
     """The directory holding a project's rule set: <path>/catalyst/, or <path> itself.
@@ -570,10 +895,28 @@ def bundle_root(path: Path) -> Path:
 
 
 def main() -> int:
-    args = [a for a in sys.argv[1:] if a != "--all"]
-    check_all = "--all" in sys.argv[1:]
-    if args:
-        check_project(bundle_root(Path(args[0]).resolve()), check_all)
+    parser = argparse.ArgumentParser(
+        description="Validate the Catalyst template, or a project spawned from it.",
+        epilog="With no PROJECT, validates the repository this script sits in.",
+    )
+    parser.add_argument(
+        "project",
+        nargs="?",
+        metavar="PROJECT",
+        help="path to a spawned project — its repository root or its catalyst/ bundle",
+    )
+    parser.add_argument(
+        "--all",
+        action="store_true",
+        help="template-check every document, not only the ones changed in the tree",
+    )
+    args = parser.parse_args()
+    check_all = args.all
+    if args.project:
+        # The bundle is what every project rule reads; the repository root above it is needed only by P12, since the skill wrappers live outside the bundle.
+        given = Path(args.project).expanduser().resolve()
+        bundle = bundle_root(given)
+        check_project(bundle, check_all, repo_root=given if bundle != given else given.parent)
     elif is_catalyst_repo(CATALYST_ROOT):
         check_catalyst(CATALYST_ROOT)
     else:

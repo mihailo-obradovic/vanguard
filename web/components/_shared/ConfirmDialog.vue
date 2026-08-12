@@ -3,6 +3,7 @@
     v-model="dialog"
     :title="title"
     :loading="loading"
+    :fullscreen-on-mobile="false"
     @cancel="emit('cancel')"
     @confirm="emit('confirm')"
   >

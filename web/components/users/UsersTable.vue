@@ -82,23 +82,10 @@ const root = useTemplateRef<ComponentPublicInstance>('root');
 // * Where the table starts in the viewport, so it can cap at the space below it (footer and page padding included)
 const { top } = useElementBounding(root, { windowScroll: false });
 
-// * The page gap below the table is the v-container's own padding, which no Vuetify API exposes — measure it
-const containerPaddingBottom = ref(0);
-
-onMounted(() => {
-  const container = (root.value?.$el as HTMLElement | undefined)?.closest(
-    '.v-container'
-  );
-
-  if (container) {
-    containerPaddingBottom.value =
-      Number.parseFloat(getComputedStyle(container).paddingBottom) || 0;
-  }
-});
-
+// * --page-padding-bottom is published by the layout's page container; the fallback keeps this usable outside it
 const maxHeight = computed(
   () =>
-    `calc(100dvh - ${top.value}px - var(--v-layout-bottom, 0px) - ${containerPaddingBottom.value}px)`
+    `calc(100dvh - ${top.value}px - var(--v-layout-bottom, 0px) - var(--page-padding-bottom, 0px))`
 );
 </script>
 

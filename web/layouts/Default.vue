@@ -59,7 +59,7 @@
     </v-navigation-drawer>
 
     <v-main id="main-content">
-      <v-container fluid>
+      <v-container fluid class="page-container">
         <slot />
       </v-container>
     </v-main>
@@ -239,9 +239,20 @@ function useUserDialogs() {
 </script>
 
 <style lang="scss" scoped>
+@use 'vuetify/settings';
+
 .layout {
   height: 100%;
   width: 100%;
   background: rgb(var(--v-theme-background));
+}
+
+/* * The page's own bottom gap, published to descendants so a full-height child can subtract it.
+   Vuetify's own padding is the shorthand `padding: $container-padding-x`, so restate the bottom
+   from the variable — the gap and the value handed down can never disagree. */
+.page-container {
+  --page-padding-bottom: #{settings.$container-padding-x};
+
+  padding-bottom: var(--page-padding-bottom);
 }
 </style>

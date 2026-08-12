@@ -75,7 +75,7 @@
 </template>
 
 <script setup lang="ts">
-import { email, minLength, required, sameAs } from '@regle/rules';
+import { email, required } from '@regle/rules';
 
 import { useResetPassword } from '@/services/queries/useAuthQueries';
 
@@ -105,11 +105,7 @@ const { r$ } = useRegle(
   form,
   {
     email: { required, email },
-    password: { required, minLength: minLength(8) },
-    password_confirmation: {
-      required,
-      sameAs: sameAs(() => form.value.password, 'password')
-    }
+    ...newPasswordRules(() => form.value.password)
   },
   { externalErrors: useExternalErrors(useValidationErrors(resetError)) }
 );

@@ -207,14 +207,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  email,
-  maxLength,
-  minLength,
-  required,
-  requiredIf,
-  sameAs
-} from '@regle/rules';
+import { email, maxLength, required, requiredIf } from '@regle/rules';
 
 import {
   useRefreshUser,
@@ -275,11 +268,7 @@ const { r$ } = useRegle(
     current_password: {
       requiredIf: requiredIf(() => !!profileForm.value.password)
     },
-    password: { minLength: minLength(8) },
-    password_confirmation: {
-      requiredIf: requiredIf(() => !!profileForm.value.password),
-      sameAs: sameAs(() => profileForm.value.password, 'password')
-    }
+    ...newPasswordRules(() => profileForm.value.password, true)
   },
   { externalErrors: useExternalErrors(useValidationErrors(updateProfileError)) }
 );

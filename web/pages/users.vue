@@ -260,14 +260,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  email,
-  maxLength,
-  minLength,
-  required,
-  requiredIf,
-  sameAs
-} from '@regle/rules';
+import { email, maxLength, required } from '@regle/rules';
 
 import {
   useFetchUsers,
@@ -349,15 +342,10 @@ const { r$ } = useRegle(
   () => ({
     name: { required, maxLength: maxLength(255) },
     email: { required, email, maxLength: maxLength(255) },
-    password: isEditMode.value
-      ? { minLength: minLength(8) }
-      : { required, minLength: minLength(8) },
-    password_confirmation: {
-      requiredIf: requiredIf(
-        () => !isEditMode.value || !!userForm.value.password
-      ),
-      sameAs: sameAs(() => userForm.value.password, 'password')
-    }
+    ...newPasswordRules(
+      () => userForm.value.password,
+      () => isEditMode.value
+    )
   }),
   { externalErrors: useExternalErrors(() => userFormErrors.value) }
 );

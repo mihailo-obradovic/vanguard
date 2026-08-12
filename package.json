@@ -8,6 +8,8 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "preinstall": "npx only-allow pnpm",
     "postinstall": "nuxt prepare",
     "typecheck": "nuxt typecheck",
@@ -38,6 +40,7 @@
   "devDependencies": {
     "@nuxt/test-utils": "^4.1.0",
     "@total-typescript/ts-reset": "^0.6.1",
+    "@vitest/coverage-v8": "^4.1.10",
     "@vue/test-utils": "^2.4.11",
     "happy-dom": "^20.11.2",
     "oxfmt": "^0.63.0",

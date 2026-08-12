@@ -33,6 +33,7 @@ One line per record: type, status, title, link.
 | 005 | infra       | Implemented | Client-only SPA (`ssr: false`), paired with cookie-session auth    | [decisions/005_infra_spa-no-ssr.md](decisions/005_infra_spa-no-ssr.md)                               |
 | 006 | infra       | Accepted    | Adopt the i18n addon (`@nuxtjs/i18n`) with en / sr-Latn / sr-Cyrl  | [decisions/006_infra_i18n-adoption.md](decisions/006_infra_i18n-adoption.md)                         |
 | 007 | infra       | Implemented | Serve GraphQL alongside REST (Lighthouse + a fetcher-based client) | [decisions/007_infra_graphql-alongside-rest.md](decisions/007_infra_graphql-alongside-rest.md)       |
+| 008 | process     | Implemented | Testing strategy: coverage measured not gated, `_tests/` placement | [decisions/008_process_testing-strategy.md](decisions/008_process_testing-strategy.md)               |
 
 ## Domain Decision Index
 

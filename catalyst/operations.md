@@ -70,6 +70,8 @@ composer run dev    # serve (localhost:8000) + queue:listen + pail + pnpm run de
 php artisan serve   # API alone
 pnpm dev            # SPA alone (localhost:3000)
 php artisan test && pnpm test   # both suites
+composer test:coverage          # backend coverage (sets XDEBUG_MODE=coverage; needs the Xdebug extension)
+pnpm test:coverage              # frontend coverage (text + html + lcov into coverage/, gitignored)
 ```
 
 ### Quirks
@@ -78,4 +80,4 @@ php artisan test && pnpm test   # both suites
 
 ## CI
 
-GitHub Actions (`.github/workflows/ci.yml`), on push to `master`/`variant/**` and on PRs. Two jobs: frontend (oxlint, oxfmt check, typecheck, vitest — Node 24 + pnpm) and backend (pint check + Pest against a `mysql:8` service container whose `MYSQL_DATABASE` is `vanguard_testing`; job-level `DB_*` env vars override the phpunit/.env values). No deploy step — deployment remains an honest gap (ADR 001).
+GitHub Actions (`.github/workflows/ci.yml`), on push to `master`/`variant/**` and on PRs. Two jobs: frontend (oxlint, oxfmt check, typecheck, vitest with coverage — Node 24 + pnpm) and backend (pint check + Pest with coverage against a `mysql:8` service container whose `MYSQL_DATABASE` is `vanguard_testing`; job-level `DB_*` env vars override the phpunit/.env values). Coverage is printed, never gated (ADR 008); CI's driver is PCOV via `setup-php`, while local runs use Xdebug. No deploy step — deployment remains an honest gap (ADR 001).

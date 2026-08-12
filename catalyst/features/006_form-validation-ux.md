@@ -4,7 +4,7 @@
 
 Active
 
-Retro-documented at brownfield adoption (2026-08-04) from code. **Demonstration contract** — the rules live in `catalyst/stacks/frontend/nuxt/validation.md`; this document records how *this project* wires client validation and folds server 422s back into the form.
+Retro-documented at brownfield adoption (2026-08-04) from code. **Demonstration contract** — the rules live in `catalyst/stacks/frontend/nuxt/validation.md`; this document records how _this project_ wires client validation and folds server 422s back into the form.
 
 ## Task Weight
 
@@ -16,19 +16,19 @@ Give forms immediate, inline validation feedback and render backend validation e
 
 ## Inputs
 
-| Input                 | Type            | Source                          | Constraints                                                        |
-| --------------------- | --------------- | ------------------------------- | ------------------------------------------------------------------ |
-| Field values          | form state      | login/register/profile/users forms | validated by Regle rules mirroring the backend                  |
-| Server 422 body       | JSON            | API via a mutation's `error` ref | `{ errors: { field: [messages] } }` — Laravel shape               |
-| API response          | JSON            | `fetcher` → `parseResponse`     | validated by Zod (response-only, not form validation)             |
+| Input           | Type       | Source                             | Constraints                                           |
+| --------------- | ---------- | ---------------------------------- | ----------------------------------------------------- |
+| Field values    | form state | login/register/profile/users forms | validated by Regle rules mirroring the backend        |
+| Server 422 body | JSON       | API via a mutation's `error` ref   | `{ errors: { field: [messages] } }` — Laravel shape   |
+| API response    | JSON       | `fetcher` → `parseResponse`        | validated by Zod (response-only, not form validation) |
 
 ## Outputs And Side Effects
 
-| Output / Side Effect        | Type   | Description                                                                                 |
-| --------------------------- | ------ | ------------------------------------------------------------------------------------------- |
-| Inline field errors         | UI     | Regle messages + server errors rendered under each field via `FieldErrors.vue`              |
-| Suppressed validation toast | UX     | 422s handled inline are not also toasted (opted-in per form); non-422 errors still toast     |
-| Submit gating               | UX     | invalid forms block submission; a field clears its server error as the user edits it         |
+| Output / Side Effect        | Type | Description                                                                              |
+| --------------------------- | ---- | ---------------------------------------------------------------------------------------- |
+| Inline field errors         | UI   | Regle messages + server errors rendered under each field via `FieldErrors.vue`           |
+| Suppressed validation toast | UX   | 422s handled inline are not also toasted (opted-in per form); non-422 errors still toast |
+| Submit gating               | UX   | invalid forms block submission; a field clears its server error as the user edits it     |
 
 ## Scope And Non-Goals
 
@@ -50,13 +50,13 @@ Not role-specific — validation UX applies to every form regardless of role.
 
 ## Examples
 
-| Input                                       | Expected Output                                         | Notes                                              |
-| ------------------------------------------- | ------------------------------------------------------- | -------------------------------------------------- |
-| Empty required field, blur                  | inline "required" message                               | Regle, no network call                             |
-| Password mismatch on register               | inline error on confirmation                            | Regle `sameAs`                                     |
-| Server 422 on `email` (duplicate)           | inline error on the email field, no toast               | bridged via `useValidationErrors`/`useExternalErrors` |
-| Edit the errored field                      | its server error clears                                 | Regle owns `externalErrors`, clears on edit        |
-| Non-422 failure (e.g. 500)                  | central toast                                           | inline path is 422-only                            |
+| Input                             | Expected Output                           | Notes                                                 |
+| --------------------------------- | ----------------------------------------- | ----------------------------------------------------- |
+| Empty required field, blur        | inline "required" message                 | Regle, no network call                                |
+| Password mismatch on register     | inline error on confirmation              | Regle `sameAs`                                        |
+| Server 422 on `email` (duplicate) | inline error on the email field, no toast | bridged via `useValidationErrors`/`useExternalErrors` |
+| Edit the errored field            | its server error clears                   | Regle owns `externalErrors`, clears on edit           |
+| Non-422 failure (e.g. 500)        | central toast                             | inline path is 422-only                               |
 
 ## Business Rules
 

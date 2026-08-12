@@ -4,7 +4,7 @@
 
 Active
 
-Retro-documented at brownfield adoption (2026-08-04) from code. This is a **demonstration contract**: Vanguard exists partly to show this pattern. The conventions live in `catalyst/stacks/frontend/nuxt/data-layer.md` and `error-handling.md` — this document records how *this project* wires them and what stays true, not the rules themselves.
+Retro-documented at brownfield adoption (2026-08-04) from code. This is a **demonstration contract**: Vanguard exists partly to show this pattern. The conventions live in `catalyst/stacks/frontend/nuxt/data-layer.md` and `error-handling.md` — this document records how _this project_ wires them and what stays true, not the rules themselves.
 
 ## Task Weight
 
@@ -16,18 +16,18 @@ Give the SPA one disciplined path from component to API so data fetching, cachin
 
 ## Inputs
 
-| Input                | Type            | Source                              | Constraints                                                       |
-| -------------------- | --------------- | ----------------------------------- | ----------------------------------------------------------------- |
-| Query/mutation call  | composable call | components → `use<Resource>Queries` | components never call `fetcher`/`useQuery`/`useMutation` directly  |
-| Request args         | typed params    | query/mutation composable           | typed against `web/types/*`                                       |
-| API response         | JSON            | Laravel API via `fetcher`           | parsed through a Zod schema (`parseResponse`) before use          |
+| Input               | Type            | Source                              | Constraints                                                       |
+| ------------------- | --------------- | ----------------------------------- | ----------------------------------------------------------------- |
+| Query/mutation call | composable call | components → `use<Resource>Queries` | components never call `fetcher`/`useQuery`/`useMutation` directly |
+| Request args        | typed params    | query/mutation composable           | typed against `web/types/*`                                       |
+| API response        | JSON            | Laravel API via `fetcher`           | parsed through a Zod schema (`parseResponse`) before use          |
 
 ## Outputs And Side Effects
 
-| Output / Side Effect     | Type      | Description                                                                                   |
-| ------------------------ | --------- | --------------------------------------------------------------------------------------------- |
-| Query/mutation state     | reactive  | `data`/`error`/`status` from Pinia Colada, surfaced through `useAppQuery`/`useAppMutation`     |
-| Cache invalidation       | side effect | mutations invalidate related keys in `onSettled` (e.g. `usersQueryKeys.fetchUsers`)         |
+| Output / Side Effect      | Type        | Description                                                                                   |
+| ------------------------- | ----------- | --------------------------------------------------------------------------------------------- |
+| Query/mutation state      | reactive    | `data`/`error`/`status` from Pinia Colada, surfaced through `useAppQuery`/`useAppMutation`    |
+| Cache invalidation        | side effect | mutations invalidate related keys in `onSettled` (e.g. `usersQueryKeys.fetchUsers`)           |
 | Centralized error routing | side effect | `setupQueryErrorHandling` maps failures (401→login, 403→home, 422 inline/toast) once per call |
 
 ## Scope And Non-Goals
@@ -51,12 +51,12 @@ Not role-specific — the layer is transport plumbing; role gating lives in the 
 
 ## Examples
 
-| Input                             | Expected Output                                       | Notes                                                 |
-| --------------------------------- | ----------------------------------------------------- | ----------------------------------------------------- |
-| `useFetchUsers()` on mount        | `UsersResponse` after Zod parse; prior data meanwhile | `placeholderData` prevents flicker                    |
-| `useCreateUser().mutate(form)`    | user created, `['users','fetch']` invalidated         | list refetches via `onSettled`                        |
-| API returns 419                   | CSRF cookie re-primed, request retried once           | transparent to the caller                             |
-| Response fails its Zod schema     | thrown presentable error, not a malformed object      | `parseResponse` is the contract guard                 |
+| Input                          | Expected Output                                       | Notes                                 |
+| ------------------------------ | ----------------------------------------------------- | ------------------------------------- |
+| `useFetchUsers()` on mount     | `UsersResponse` after Zod parse; prior data meanwhile | `placeholderData` prevents flicker    |
+| `useCreateUser().mutate(form)` | user created, `['users','fetch']` invalidated         | list refetches via `onSettled`        |
+| API returns 419                | CSRF cookie re-primed, request retried once           | transparent to the caller             |
+| Response fails its Zod schema  | thrown presentable error, not a malformed object      | `parseResponse` is the contract guard |
 
 ## Business Rules
 

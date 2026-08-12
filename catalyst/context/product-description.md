@@ -41,13 +41,13 @@ Non-goals:
 
 The **prioritized backlog is the source of truth in Workflowy** (`Home → Work → Vanguard`, per the root `CLAUDE.md`), tagged by priority and area — this table is intent, not the task list, and should not be kept in lockstep with it.
 
-| Phase              | Focus                                                             | Priority       |
-| ------------------ | ---------------------------------------------------------------- | -------------- |
-| Identity core      | Auth, user management, profile, consent — the load-bearing base   | must (shipped) |
-| Convention layer   | Data layer + validation UX as reusable, documented patterns       | must (shipped) |
-| UI variants        | Prove the core across UI ecosystems (headless done; more planned) | should         |
-| Test coverage      | Close the recorded frontend/backend test gaps                     | should         |
-| Deployment story   | Fill the acknowledged deploy gap                                  | later          |
+| Phase            | Focus                                                             | Priority       |
+| ---------------- | ----------------------------------------------------------------- | -------------- |
+| Identity core    | Auth, user management, profile, consent — the load-bearing base   | must (shipped) |
+| Convention layer | Data layer + validation UX as reusable, documented patterns       | must (shipped) |
+| UI variants      | Prove the core across UI ecosystems (headless done; more planned) | should         |
+| Test coverage    | Close the recorded frontend/backend test gaps                     | should         |
+| Deployment story | Fill the acknowledged deploy gap                                  | later          |
 
 ## Key Integrations
 

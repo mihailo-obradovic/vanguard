@@ -16,19 +16,19 @@ Present a dismissable banner that records the visitor's accept/decline choice fo
 
 ## Inputs
 
-| Input             | Type       | Source                                | Constraints                                              |
-| ----------------- | ---------- | ------------------------------------- | -------------------------------------------------------- |
-| Accept click      | user event | `CookieConsentBanner.vue` button      | sets `cookie_consent=accepted`                           |
-| Decline click     | user event | `CookieConsentBanner.vue` button      | sets `cookie_consent=declined`                           |
-| `cookie_consent`  | cookie     | browser (read on load via `useCookie`) | `'accepted' \| 'declined' \| null`; `maxAge` 1 year      |
+| Input            | Type       | Source                                 | Constraints                                         |
+| ---------------- | ---------- | -------------------------------------- | --------------------------------------------------- |
+| Accept click     | user event | `CookieConsentBanner.vue` button       | sets `cookie_consent=accepted`                      |
+| Decline click    | user event | `CookieConsentBanner.vue` button       | sets `cookie_consent=declined`                      |
+| `cookie_consent` | cookie     | browser (read on load via `useCookie`) | `'accepted' \| 'declined' \| null`; `maxAge` 1 year |
 
 ## Outputs And Side Effects
 
-| Output / Side Effect     | Type    | Description                                                                              |
-| ------------------------ | ------- | ---------------------------------------------------------------------------------------- |
-| `cookie_consent` cookie  | cookie  | persisted choice, 1-year `maxAge`; absent until the user decides                         |
-| Banner visibility        | UI      | fixed bottom banner shown while the choice is undecided, hidden (with transition) once set |
-| `hasConsented` computed  | state   | `true` only when the stored value is `accepted` — exposed for future gating (see Non-Goals) |
+| Output / Side Effect    | Type   | Description                                                                                 |
+| ----------------------- | ------ | ------------------------------------------------------------------------------------------- |
+| `cookie_consent` cookie | cookie | persisted choice, 1-year `maxAge`; absent until the user decides                            |
+| Banner visibility       | UI     | fixed bottom banner shown while the choice is undecided, hidden (with transition) once set  |
+| `hasConsented` computed | state  | `true` only when the stored value is `accepted` — exposed for future gating (see Non-Goals) |
 
 ## Scope And Non-Goals
 
@@ -49,12 +49,12 @@ Not role-specific — shown to every visitor including guests, independent of au
 
 ## Examples
 
-| Input                          | Expected Output                                | Notes                                        |
-| ------------------------------ | ---------------------------------------------- | -------------------------------------------- |
-| First visit, no cookie         | banner visible                                 | `isDecided` false                            |
-| Click Accept                   | cookie `accepted`, banner hidden, `hasConsented` true | persists 1 year                        |
-| Click Decline                  | cookie `declined`, banner hidden, `hasConsented` false | persists 1 year                       |
-| Return visit with cookie set   | no banner                                      | `isDecided` true on load                     |
+| Input                        | Expected Output                                        | Notes                    |
+| ---------------------------- | ------------------------------------------------------ | ------------------------ |
+| First visit, no cookie       | banner visible                                         | `isDecided` false        |
+| Click Accept                 | cookie `accepted`, banner hidden, `hasConsented` true  | persists 1 year          |
+| Click Decline                | cookie `declined`, banner hidden, `hasConsented` false | persists 1 year          |
+| Return visit with cookie set | no banner                                              | `isDecided` true on load |
 
 ## Business Rules
 

@@ -8,6 +8,7 @@
     :confirm-color="destructive ? 'error' : 'primary'"
     @cancel="emit('cancel')"
     @confirm="emit('confirm')"
+    @after-leave="emit('after-leave')"
   >
     <p class="text-body-2">{{ message }}</p>
   </CardDialog>
@@ -31,6 +32,7 @@ withDefaults(
 const emit = defineEmits<{
   cancel: [];
   confirm: [];
+  'after-leave': [];
 }>();
 
 const dialog = defineModel<boolean>({ required: true });

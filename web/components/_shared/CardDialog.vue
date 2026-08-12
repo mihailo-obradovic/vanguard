@@ -4,6 +4,7 @@
     :width="width"
     :fullscreen="fullscreenOnMobile && xs"
     scrollable
+    @after-leave="emit('after-leave')"
   >
     <FormCard
       :title="title"
@@ -59,5 +60,7 @@ const dialog = defineModel<boolean>({ required: true });
 const emit = defineEmits<{
   cancel: [];
   confirm: [];
+  // * Fires once the close transition has finished — the safe moment for owners to clear state the dialog was rendering
+  'after-leave': [];
 }>();
 </script>

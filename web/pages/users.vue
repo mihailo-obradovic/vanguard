@@ -39,6 +39,7 @@
       destructive
       @cancel="cancelDelete"
       @confirm="handleDelete"
+      @after-leave="handleDeleteDialogAfterLeave"
     />
   </template>
 </template>
@@ -137,7 +138,7 @@ function handleSubmitUser(form: CreateUserForm) {
   }
 }
 
-// * Delete state. userToDelete is kept after closing so the message doesn't empty out mid fade-out; the next delete overwrites it.
+// * Delete state. userToDelete outlives showDeleteDialog so the message doesn't empty out mid fade-out; after-leave clears it.
 const userToDelete = ref<User | null>(null);
 
 const showDeleteDialog = ref(false);
@@ -160,6 +161,10 @@ function confirmDelete(user: User) {
 
 function cancelDelete() {
   showDeleteDialog.value = false;
+}
+
+function handleDeleteDialogAfterLeave() {
+  userToDelete.value = null;
 }
 
 const {

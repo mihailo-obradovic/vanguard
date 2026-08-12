@@ -19,7 +19,7 @@
                 :prepend-icon="mdiRefresh"
                 @click="refreshPage"
               >
-                Refresh
+                {{ $t('errors.page.refresh') }}
               </v-btn>
             </v-col>
 
@@ -31,13 +31,16 @@
                 :prepend-icon="mdiHome"
                 @click="goHome"
               >
-                Go Home
+                {{ $t('errors.page.goHome') }}
               </v-btn>
             </v-col>
           </v-row>
 
           <v-expansion-panels>
-            <v-expansion-panel bg-color="background" title="Technical details">
+            <v-expansion-panel
+              bg-color="background"
+              :title="$t('errors.page.technicalDetails')"
+            >
               <v-expansion-panel-text>
                 <pre class="details">{{ formattedError }}</pre>
               </v-expansion-panel-text>
@@ -56,13 +59,17 @@ import type { NuxtError } from '#app';
 
 const props = defineProps<{ error: NuxtError }>();
 
+const { t } = useI18n();
+
 const title = computed(() =>
-  props.error.statusCode === 404 ? 'Page Not Found' : 'Something Went Wrong'
+  props.error.statusCode === 404
+    ? t('errors.page.notFoundTitle')
+    : t('errors.page.unexpectedTitle')
 );
 
 const message = computed(() => {
   if (props.error.statusCode === 404) {
-    return 'The page you are looking for does not exist or has been moved.';
+    return t('errors.page.notFoundMessage');
   }
 
   // * Nuxt defaults `message` to "Internal Server Error" — not worth showing.
@@ -70,7 +77,7 @@ const message = computed(() => {
     return props.error.message;
   }
 
-  return 'An unexpected error occurred. Please try again.';
+  return t('errors.page.unexpectedMessage');
 });
 
 const formattedError = computed(() =>

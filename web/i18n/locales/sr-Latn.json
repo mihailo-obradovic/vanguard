@@ -1,5 +1,6 @@
 {
   "auth": {
+    "backToLogin": "Nazad na prijavu?",
     "forgotPassword": {
       "hint": "Unesite svoju e-adresu i poslaćemo vam link za resetovanje lozinke.",
       "submit": "Pošalji link",
@@ -33,11 +34,13 @@
   "common": {
     "actions": {
       "cancel": "Otkaži",
+      "confirm": "Potvrdi",
       "delete": "Obriši",
       "deleting": "Brisanje...",
       "edit": "Izmeni",
       "saving": "Čuvanje..."
     },
+    "confirmTitle": "Da li ste sigurni?",
     "cookieConsent": {
       "accept": "Prihvati",
       "decline": "Odbij",
@@ -45,8 +48,11 @@
       "message": "Koristimo kolačiće da bismo poboljšali vaše iskustvo. Možete prihvatiti ili odbiti kolačiće koji nisu neophodni."
     },
     "fields": {
+      "confirmNewPassword": "Potvrdi novu lozinku",
+      "currentPassword": "Trenutna lozinka",
       "email": "E-pošta",
       "name": "Ime",
+      "newPassword": "Nova lozinka (opciono)",
       "password": "Lozinka",
       "passwordConfirmation": "Potvrda lozinke",
       "role": "Uloga"
@@ -61,6 +67,7 @@
       "login": "Prijava",
       "logout": "Odjava",
       "logoutPending": "Odjavljivanje...",
+      "profile": "Profil",
       "register": "Registracija",
       "users": "Korisnici"
     },
@@ -69,6 +76,15 @@
   },
   "errors": {
     "generic": "Nešto je pošlo naopako. Pokušajte ponovo.",
+    "page": {
+      "goHome": "Na početnu",
+      "notFoundMessage": "Stranica koju tražite ne postoji ili je premeštena.",
+      "notFoundTitle": "Stranica nije pronađena",
+      "refresh": "Osveži",
+      "technicalDetails": "Tehnički detalji",
+      "unexpectedMessage": "Došlo je do neočekivane greške. Pokušajte ponovo.",
+      "unexpectedTitle": "Nešto je pošlo naopako"
+    },
     "unexpectedResponse": "Neočekivan odgovor servera.",
     "usersLoad": "Greška pri učitavanju korisnika: {message}"
   },

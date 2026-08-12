@@ -1,5 +1,6 @@
 {
   "auth": {
+    "backToLogin": "Back to login?",
     "forgotPassword": {
       "hint": "Enter your email address and we'll send you a password reset link.",
       "submit": "Send Reset Link",
@@ -33,11 +34,13 @@
   "common": {
     "actions": {
       "cancel": "Cancel",
+      "confirm": "Confirm",
       "delete": "Delete",
       "deleting": "Deleting...",
       "edit": "Edit",
       "saving": "Saving..."
     },
+    "confirmTitle": "Are you sure?",
     "cookieConsent": {
       "accept": "Accept",
       "decline": "Decline",
@@ -45,8 +48,11 @@
       "message": "We use cookies to enhance your experience. You can accept or decline non-essential cookies."
     },
     "fields": {
+      "confirmNewPassword": "Confirm new password",
+      "currentPassword": "Current password",
       "email": "Email",
       "name": "Name",
+      "newPassword": "New password (optional)",
       "password": "Password",
       "passwordConfirmation": "Password Confirmation",
       "role": "Role"
@@ -61,6 +67,7 @@
       "login": "Login",
       "logout": "Logout",
       "logoutPending": "Logging out...",
+      "profile": "Profile",
       "register": "Register",
       "users": "Users"
     },
@@ -69,6 +76,15 @@
   },
   "errors": {
     "generic": "Something went wrong. Please try again.",
+    "page": {
+      "goHome": "Go Home",
+      "notFoundMessage": "The page you are looking for does not exist or has been moved.",
+      "notFoundTitle": "Page Not Found",
+      "refresh": "Refresh",
+      "technicalDetails": "Technical details",
+      "unexpectedMessage": "An unexpected error occurred. Please try again.",
+      "unexpectedTitle": "Something Went Wrong"
+    },
     "unexpectedResponse": "Unexpected response from the server.",
     "usersLoad": "Error loading users: {message}"
   },

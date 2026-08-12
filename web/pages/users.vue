@@ -3,14 +3,14 @@
 
   <template v-else>
     <GapContainer class="justify-space-between align-center mb-4">
-      <h1>Users</h1>
+      <h1>{{ $t('common.nav.users') }}</h1>
 
       <v-btn
         color="primary"
         :prepend-icon="mdiAccountPlus"
         @click="openCreateForm"
       >
-        Create User
+        {{ $t('users.create') }}
       </v-btn>
     </GapContainer>
 
@@ -33,7 +33,7 @@
 
     <ConfirmDialog
       v-model="showDeleteDialog"
-      title="Delete user"
+      :title="$t('users.delete.title')"
       :message="deleteMessage"
       :loading="isDeleting"
       destructive
@@ -59,6 +59,8 @@ import {
 
 import type { User } from '@/types/auth';
 import type { CreateUserForm, UpdateUserForm } from '@/types/user';
+
+const { t } = useI18n();
 
 const { user: currentUser } = storeToRefs(useAuthStore());
 
@@ -91,7 +93,7 @@ const {
 } = useCreateUser({
   errorHandling: { hideValidationToast: true },
   onSuccess: (newUser) => {
-    $toast(`User "${newUser.name}" created successfully`, 'success');
+    $toast(t('users.toasts.created', { name: newUser.name }), 'success');
     showUserForm.value = false;
   }
 });
@@ -103,7 +105,7 @@ const {
 } = useUpdateUser({
   errorHandling: { hideValidationToast: true },
   onSuccess: (updatedUser) => {
-    $toast(`User "${updatedUser.name}" updated successfully`, 'success');
+    $toast(t('users.toasts.updated', { name: updatedUser.name }), 'success');
     showUserForm.value = false;
   }
 });
@@ -145,7 +147,7 @@ const showDeleteDialog = ref(false);
 
 const deleteMessage = computed(() =>
   userToDelete.value
-    ? `Are you sure you want to delete "${userToDelete.value.name}"?`
+    ? t('users.delete.confirm', { name: userToDelete.value.name })
     : ''
 );
 
@@ -174,7 +176,7 @@ const {
 } = useDeleteUser({
   onSuccess: () => {
     $toast(
-      `User "${userToDelete.value?.name}" deleted successfully`,
+      t('users.toasts.deleted', { name: userToDelete.value?.name ?? '' }),
       'success'
     );
   },

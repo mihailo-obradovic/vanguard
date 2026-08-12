@@ -1,6 +1,6 @@
 <template>
   <v-footer app elevation="2" class="justify-center">
-    Copyright ©, Vanguard {{ currentYear }}
+    {{ $t('common.footer.copyright', { year: currentYear }) }}
   </v-footer>
 </template>
 

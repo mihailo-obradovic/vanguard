@@ -1,6 +1,11 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 
 import { getErrorMessage } from './getErrorMessage';
+
+// * The fallback goes through the catalog, so the test asserts the key rather than a copy of the English copy. `#app/nuxt` is where the auto-imported `useNuxtApp` resolves from.
+vi.mock('#app/nuxt', () => ({
+  useNuxtApp: () => ({ $i18n: { t: (key: string) => key } })
+}));
 
 describe('getErrorMessage', () => {
   it('prefers the server-provided message from the response body', () => {
@@ -21,6 +26,6 @@ describe('getErrorMessage', () => {
   });
 
   it('returns a generic message for unrecognised errors', () => {
-    expect(getErrorMessage({})).toBe('Something went wrong. Please try again.');
+    expect(getErrorMessage({})).toBe('errors.generic');
   });
 });

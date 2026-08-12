@@ -1,5 +1,5 @@
 <template>
-  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <a href="#main-content" class="skip-link">{{ $t('common.skipToContent') }}</a>
 </template>
 
 <style scoped>

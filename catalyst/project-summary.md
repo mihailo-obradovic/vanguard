@@ -30,7 +30,8 @@ One line per record: type, status, title, link.
 | 003 | tooling     | Implemented | oxlint + oxfmt for the frontend toolchain (over ESLint + Prettier) | [decisions/003_tooling_oxlint-oxfmt.md](decisions/003_tooling_oxlint-oxfmt.md)                       |
 | 004 | tooling     | Implemented | Hold TypeScript at 5.9.x (TS 7 unsupported by vue-tsc)             | [decisions/004_tooling_typescript-version-hold.md](decisions/004_tooling_typescript-version-hold.md) |
 | 005 | infra       | Implemented | Client-only SPA (`ssr: false`), paired with cookie-session auth    | [decisions/005_infra_spa-no-ssr.md](decisions/005_infra_spa-no-ssr.md)                               |
-| 006 | ui          | Implemented | Vuetify as this branch's UI layer                                  | [decisions/006_ui_vuetify-variant.md](decisions/006_ui_vuetify-variant.md)                           |
+| 006 | infra       | Accepted    | Adopt the i18n addon (`@nuxtjs/i18n`) with en / sr-Latn / sr-Cyrl  | [decisions/006_infra_i18n-adoption.md](decisions/006_infra_i18n-adoption.md)                         |
+| 007 | ui          | Implemented | Vuetify as this branch's UI layer                                  | [decisions/007_ui_vuetify-variant.md](decisions/007_ui_vuetify-variant.md)                           |
 
 ## Domain Decision Index
 
@@ -54,16 +55,19 @@ Pointer index of protections declared in feature/decision documents (lazy-loaded
 
 Every layer the project has and the module chosen for it (from Catalyst's `stacks/`), defaults included, plus UI choices, adopted addons, and any optional layer — the scaffolder fills this from the spawn choices, and it is what tells an agent which stack documents apply. See `architecture.md` for the index.
 
-| Layer        | Module          |
-| ------------ | --------------- |
-| backend      | laravel         |
-| backend/auth | sanctum-session |
-| database     | mysql           |
-| frontend     | nuxt            |
-| frontend/ui  | vuetify         |
-| maintenance  | renovate        |
+| Layer           | Module          |
+| --------------- | --------------- |
+| backend         | laravel         |
+| backend/auth    | sanctum-session |
+| database        | mysql           |
+| frontend        | nuxt            |
+| frontend/ui     | vuetify         |
+| frontend/addons | i18n            |
+| maintenance     | renovate        |
 
 Assembled at brownfield adoption — swaps from the default set and non-adopted default layers are recorded in `decisions/001_init-design_vanguard-stack.md`.
+
+**i18n locale set:** `en` (source, authored first) · `sr-Latn` · `sr-Cyrl`. Serbian is authored in Latin and transliterated to Cyrillic; plain `sr` / `sr-RS` resolve to `sr-Latn`. Adopted in `decisions/006_infra_i18n-adoption.md`.
 
 ## Status Values
 

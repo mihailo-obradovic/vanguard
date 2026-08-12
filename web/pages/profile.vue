@@ -20,6 +20,8 @@ import {
 
 import type { ProfileForm } from '@/types/user';
 
+const { t } = useI18n();
+
 const { user } = storeToRefs(useAuthStore());
 
 const route = useRoute();
@@ -27,7 +29,7 @@ const router = useRouter();
 
 const { mutate: refreshUser } = useRefreshUser({
   onSuccess: () => {
-    $toast('Your email has been verified.', 'success');
+    $toast(t('profile.toasts.emailVerified'), 'success');
     router.replace({ query: {} });
   }
 });
@@ -47,7 +49,7 @@ const {
 } = useUpdateProfile({
   errorHandling: { hideValidationToast: true },
   onSuccess: () => {
-    $toast('Profile updated successfully', 'success');
+    $toast(t('profile.toasts.updated'), 'success');
     userCard.value?.resetForm();
   }
 });

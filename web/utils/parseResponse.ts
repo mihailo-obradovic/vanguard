@@ -7,7 +7,8 @@ export function parseResponse<T>(schema: ZodType<T>, data: unknown): T {
   if (!result.success) {
     console.error('Unexpected API response shape:', result.error);
 
-    throw new Error('Unexpected response from the server.');
+    // * Resolved per call, never at module scope — the Nuxt app does not exist at import time.
+    throw new Error(useNuxtApp().$i18n.t('errors.unexpectedResponse'));
   }
 
   return result.data;

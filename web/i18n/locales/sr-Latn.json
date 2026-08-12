@@ -1,0 +1,149 @@
+{
+  "auth": {
+    "forgotPassword": {
+      "hint": "Unesite svoju e-adresu i poslaćemo vam link za resetovanje lozinke.",
+      "submit": "Pošalji link",
+      "submitting": "Slanje...",
+      "title": "Zaboravljena lozinka"
+    },
+    "login": {
+      "forgotPasswordLink": "Zaboravili ste lozinku?",
+      "noAccount": "Nemate nalog?",
+      "registerLink": "Registrujte se ovde",
+      "submit": "Prijavi se",
+      "submitting": "Prijavljivanje...",
+      "title": "Dobro došli nazad"
+    },
+    "loginLink": "Prijavite se ovde",
+    "passwordReset": {
+      "confirmNewPassword": "Potvrdi novu lozinku",
+      "newPassword": "Nova lozinka",
+      "submit": "Resetuj lozinku",
+      "submitting": "Resetovanje...",
+      "title": "Resetovanje lozinke"
+    },
+    "register": {
+      "haveAccount": "Već imate nalog?",
+      "submit": "Registruj se",
+      "submitting": "Registrovanje...",
+      "title": "Kreirajte nalog"
+    },
+    "rememberedPassword": "Setili ste se lozinke?"
+  },
+  "common": {
+    "actions": {
+      "cancel": "Otkaži",
+      "delete": "Obriši",
+      "deleting": "Brisanje...",
+      "edit": "Izmeni",
+      "saving": "Čuvanje..."
+    },
+    "cookieConsent": {
+      "accept": "Prihvati",
+      "decline": "Odbij",
+      "label": "Saglasnost za kolačiće",
+      "message": "Koristimo kolačiće da bismo poboljšali vaše iskustvo. Možete prihvatiti ili odbiti kolačiće koji nisu neophodni."
+    },
+    "fields": {
+      "email": "E-pošta",
+      "name": "Ime",
+      "password": "Lozinka",
+      "passwordConfirmation": "Potvrda lozinke",
+      "role": "Uloga"
+    },
+    "footer": {
+      "copyright": "Autorska prava ©, Vanguard {year}"
+    },
+    "greeting": "Zdravo, svete!",
+    "language": "Jezik",
+    "nav": {
+      "home": "Početna",
+      "login": "Prijava",
+      "logout": "Odjava",
+      "logoutPending": "Odjavljivanje...",
+      "register": "Registracija",
+      "users": "Korisnici"
+    },
+    "notAvailable": "Nije dostupno",
+    "skipToContent": "Pređi na glavni sadržaj"
+  },
+  "errors": {
+    "generic": "Nešto je pošlo naopako. Pokušajte ponovo.",
+    "unexpectedResponse": "Neočekivan odgovor servera.",
+    "usersLoad": "Greška pri učitavanju korisnika: {message}"
+  },
+  "profile": {
+    "edit": "Izmeni profil",
+    "form": {
+      "confirmNewPassword": "Potvrdi novu lozinku (obavezno pri promeni lozinke)",
+      "currentPassword": "Trenutna lozinka (obavezna pri promeni lozinke)",
+      "newPassword": "Nova lozinka (ostavite prazno da zadržite trenutnu)",
+      "submit": "Sačuvaj profil"
+    },
+    "info": {
+      "emailVerified": "E-pošta potvrđena",
+      "lastUpdated": "Poslednja izmena",
+      "memberSince": "Član od",
+      "notVerified": "Nije potvrđena",
+      "personalInformation": "Lični podaci",
+      "resend": "Pošalji ponovo",
+      "resending": "Slanje...",
+      "verified": "Potvrđena"
+    },
+    "loading": "Učitavanje profila...",
+    "title": "Moj profil",
+    "toasts": {
+      "emailVerified": "Vaša e-adresa je potvrđena.",
+      "updated": "Profil je uspešno ažuriran",
+      "verificationSent": "Poslali smo e-poruku za potvrdu. Proverite prijemno sanduče."
+    }
+  },
+  "users": {
+    "columns": {
+      "actions": "Radnje",
+      "createdAt": "Datum kreiranja",
+      "email": "E-pošta",
+      "emailVerified": "E-pošta potvrđena",
+      "id": "ID",
+      "name": "Ime",
+      "role": "Uloga"
+    },
+    "create": "Novi korisnik",
+    "delete": {
+      "confirm": "Da li ste sigurni da želite da obrišete korisnika {name}?",
+      "submit": "Obriši korisnika",
+      "title": "Potvrda brisanja",
+      "warning": "Ova radnja se ne može poništiti."
+    },
+    "form": {
+      "editTitle": "Izmeni korisnika",
+      "passwordConfirmationHint": "(obavezno pri promeni lozinke)",
+      "passwordHint": "(ostavite prazno da zadržite trenutnu)",
+      "submitCreate": "Kreiraj korisnika",
+      "submitUpdate": "Sačuvaj korisnika"
+    },
+    "loading": "Učitavanje korisnika...",
+    "roles": {
+      "admin": "Administrator",
+      "user": "Korisnik"
+    },
+    "title": "Upravljanje korisnicima",
+    "toasts": {
+      "created": "Korisnik „{name}“ je uspešno kreiran",
+      "deleted": "Korisnik „{name}“ je uspešno obrisan",
+      "updated": "Korisnik „{name}“ je uspešno ažuriran"
+    },
+    "total": "Ukupno korisnika:",
+    "verified": {
+      "no": "Ne",
+      "yes": "Da"
+    }
+  },
+  "validation": {
+    "email": "Unesite ispravnu e-adresu.",
+    "maxLength": "Ovo polje može imati najviše {max} karaktera.",
+    "minLength": "Ovo polje mora imati najmanje {min} karaktera.",
+    "required": "Ovo polje je obavezno.",
+    "sameAs": "Vrednosti se ne poklapaju."
+  }
+}

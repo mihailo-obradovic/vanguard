@@ -16,6 +16,8 @@
       <v-spacer />
 
       <div class="d-flex align-center pa-2 ga-2">
+        <LocaleSwitcher />
+
         <v-btn icon @click="toggleTheme">
           <v-icon
             :icon="isDark ? mdiMoonWaxingCrescent : mdiWhiteBalanceSunny"
@@ -23,24 +25,26 @@
         </v-btn>
 
         <template v-if="isLoggedIn">
-          <v-btn :prepend-icon="mdiAccount" to="/profile">Profile</v-btn>
+          <v-btn :prepend-icon="mdiAccount" to="/profile">
+            {{ $t('common.nav.profile') }}
+          </v-btn>
 
           <v-btn
             :loading="isLoggingOut"
             :prepend-icon="mdiLogout"
             @click="handleLogout"
           >
-            Log Out
+            {{ $t('common.nav.logout') }}
           </v-btn>
         </template>
 
         <template v-else>
           <v-btn :prepend-icon="mdiLogin" @click="loginDialog = true">
-            Log In
+            {{ $t('common.nav.login') }}
           </v-btn>
 
           <v-btn :prepend-icon="mdiAccountPlus" @click="registerDialog = true">
-            Register
+            {{ $t('common.nav.register') }}
           </v-btn>
         </template>
       </div>
@@ -117,6 +121,8 @@ import {
   useGeneratePasswordResetEmail
 } from '@/services/queries/useAuthQueries';
 
+const { t } = useI18n();
+
 const { isLoggedIn, isAdmin } = storeToRefs(useAuthStore());
 
 const { mutate: logOut, isLoading: isLoggingOut } = useLogOut({
@@ -130,9 +136,9 @@ function handleLogout() {
 const drawer = ref(true);
 
 const drawerItems = computed(() => [
-  { title: 'Profile', to: '/profile', icon: mdiAccount },
+  { title: t('common.nav.profile'), to: '/profile', icon: mdiAccount },
   ...(isAdmin.value
-    ? [{ title: 'Users', to: '/users', icon: mdiAccountMultiple }]
+    ? [{ title: t('common.nav.users'), to: '/users', icon: mdiAccountMultiple }]
     : [])
 ]);
 

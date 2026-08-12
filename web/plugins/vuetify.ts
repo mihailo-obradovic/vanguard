@@ -1,5 +1,7 @@
 import { createVuetify } from 'vuetify';
 import { aliases, mdi } from 'vuetify/iconsets/mdi-svg';
+import { createVueI18nAdapter } from 'vuetify/locale/adapters/vue-i18n';
+import { useI18n } from 'vue-i18n';
 
 const baseColors = {
   // * Force white content on success surfaces; Vuetify's computed contrast would pick black on this light green
@@ -50,7 +52,19 @@ const options = {
 };
 
 export default defineNuxtPlugin((app) => {
-  const vuetify = createVuetify(options);
+  // * Routes Vuetify's own strings (data table, pagination) through the app's catalogs, so one locale switch moves everything. The $vuetify trees live in web/i18n/i18n.config.ts.
+  const vuetify = createVuetify({
+    ...options,
+    locale: {
+      // * The adapter wants an I18n instance; Nuxt exposes the Composer, which is that instance's `global`.
+      adapter: createVueI18nAdapter({
+        i18n: { global: app.$i18n } as Parameters<
+          typeof createVueI18nAdapter
+        >[0]['i18n'],
+        useI18n
+      })
+    }
+  });
 
   app.vueApp.use(vuetify);
 });

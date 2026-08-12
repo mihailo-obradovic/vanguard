@@ -4,6 +4,7 @@
     :title="title"
     :loading="loading"
     :fullscreen-on-mobile="false"
+    :confirm-on-enter="false"
     @cancel="emit('cancel')"
     @confirm="emit('confirm')"
   >

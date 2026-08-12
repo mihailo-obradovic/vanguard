@@ -5,7 +5,7 @@
     :fullscreen="fullscreenOnMobile && xs"
     scrollable
   >
-    <v-card color="background">
+    <v-card color="background" @keydown.enter="handleEnterKey">
       <v-card-title class="pa-4 pb-2">
         <slot name="title">{{ title }}</slot>
       </v-card-title>
@@ -51,19 +51,21 @@
 import type { ComponentPublicInstance } from 'vue';
 import { useDisplay } from 'vuetify';
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     title: string;
     width?: string;
     confirmDisabled?: boolean;
     loading?: boolean;
     fullscreenOnMobile?: boolean;
+    confirmOnEnter?: boolean;
   }>(),
   {
     width: '450px',
     confirmDisabled: false,
     loading: false,
-    fullscreenOnMobile: true
+    fullscreenOnMobile: true,
+    confirmOnEnter: true
   }
 );
 
@@ -84,14 +86,25 @@ const isOverflowing = ref(false);
 
 // * Show the body's scroll borders only while its content actually overflows; observing both elements catches window resizes and slot content changes
 useResizeObserver(
-  computed(() =>
-    [body.value?.$el, content.value?.$el].filter(Boolean)
-  ),
+  computed(() => [body.value?.$el, content.value?.$el].filter(Boolean)),
   () => {
     const el = body.value?.$el as HTMLElement | undefined;
     isOverflowing.value = !!el && el.scrollHeight > el.clientHeight;
   }
 );
+
+function handleEnterKey(event: KeyboardEvent) {
+  if (!props.confirmOnEnter || props.confirmDisabled || props.loading) {
+    return;
+  }
+
+  // * Interactive elements handle Enter themselves (buttons click, selects toggle their menu); confirming here too would double-fire
+  if ((event.target as HTMLElement).closest('button, a, textarea, .v-select')) {
+    return;
+  }
+
+  emit('confirm');
+}
 </script>
 
 <style scoped>

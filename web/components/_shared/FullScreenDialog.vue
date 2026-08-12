@@ -1,6 +1,6 @@
 <template>
   <v-dialog v-model="dialog" fullscreen>
-    <v-sheet class="h-100 d-flex flex-column">
+    <v-sheet class="h-100 d-flex flex-column" @keydown.enter="handleEnterKey">
       <v-toolbar flat color="primary" class="px-2">
         <v-toolbar-items>
           <v-btn icon @click="emit('cancel')">
@@ -36,7 +36,7 @@
 <script setup lang="ts">
 import { mdiClose, mdiContentSave } from '@mdi/js';
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     title: string;
     confirmDisabled?: boolean;
@@ -54,4 +54,17 @@ const emit = defineEmits<{
   cancel: [];
   confirm: [];
 }>();
+
+function handleEnterKey(event: KeyboardEvent) {
+  if (props.confirmDisabled || props.loading) {
+    return;
+  }
+
+  // * Interactive elements handle Enter themselves (buttons click, selects toggle their menu); confirming here too would double-fire
+  if ((event.target as HTMLElement).closest('button, a, textarea, .v-select')) {
+    return;
+  }
+
+  emit('confirm');
+}
 </script>

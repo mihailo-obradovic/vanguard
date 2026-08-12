@@ -2,7 +2,7 @@
   <v-row no-gutters>
     <v-col cols="12" md="6">
       <GapContainer type="VSheet" class="pa-4 rounded-lg" column elevation="1">
-        <GapContainer class="justify-space-between mb-2">
+        <GapContainer class="justify-space-between align-center mb-2">
           <h2>Profile</h2>
 
           <GapContainer>
@@ -40,7 +40,7 @@
               :loading="loading"
               @click="handleSubmit"
             >
-              <v-icon :icon="mdiCheck" color="white" />
+              <v-icon :icon="mdiCheck" />
             </v-btn>
           </GapContainer>
         </GapContainer>
@@ -61,6 +61,31 @@
             variant="outlined"
             :readonly="!editMode"
           />
+
+          <GapContainer class="align-center">
+            <v-chip
+              :color="user?.email_verified_at ? 'success' : 'warning'"
+              variant="flat"
+              size="small"
+            >
+              {{
+                user?.email_verified_at
+                  ? 'Email verified'
+                  : 'Email not verified'
+              }}
+            </v-chip>
+
+            <v-btn
+              v-if="!user?.email_verified_at"
+              variant="text"
+              size="small"
+              color="primary"
+              :loading="isResending"
+              @click="resendVerification()"
+            >
+              Resend email
+            </v-btn>
+          </GapContainer>
 
           <template v-if="editMode">
             <PasswordField
@@ -87,30 +112,6 @@
             />
           </template>
 
-          <GapContainer class="align-center justify-space-between">
-            <v-chip
-              :color="user?.email_verified_at ? 'success' : 'warning'"
-              variant="flat"
-              size="small"
-            >
-              {{
-                user?.email_verified_at
-                  ? 'Email verified'
-                  : 'Email not verified'
-              }}
-            </v-chip>
-
-            <v-btn
-              v-if="!user?.email_verified_at"
-              variant="text"
-              size="small"
-              color="primary"
-              :loading="isResending"
-              @click="resendVerification()"
-            >
-              Resend email
-            </v-btn>
-          </GapContainer>
         </GapContainer>
       </GapContainer>
     </v-col>

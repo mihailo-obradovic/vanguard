@@ -2,6 +2,8 @@ import { createVuetify } from 'vuetify';
 import { aliases, mdi } from 'vuetify/iconsets/mdi-svg';
 
 const baseColors = {
+  // * Force white content on success surfaces; Vuetify's computed contrast would pick black on this light green
+  'on-success': '#ffffff',
   primary: '#bd93f9',
   secondary: '#44475a',
   accent: '#ff79c6',

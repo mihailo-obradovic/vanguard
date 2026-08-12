@@ -10,14 +10,15 @@ Context documents: `context/product-description.md` (`references/context-documen
 
 ## Feature Index
 
-| ### | Feature              | Status | Summary                                                                                                                                        | Document                                                                     |
-| --- | -------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| 001 | Session Auth Flow    | Active | Sanctum stateful cookie auth for the SPA: register/login/logout, email verification, password reset, CSRF flow, auth store + route guarding.   | [features/001_session-auth.md](features/001_session-auth.md)                 |
-| 002 | User Management      | Active | Admin-gated user CRUD behind the `admin` middleware: list/create/update/hard-delete, two-role RBAC (`user`/`admin`), self-delete guard.        | [features/002_user-management.md](features/002_user-management.md)           |
-| 003 | Self-Service Profile | Active | `PUT /api/profile`: own name/email/password updates; email change resets verification; `current_password` challenge; role untouchable.         | [features/003_self-service-profile.md](features/003_self-service-profile.md) |
-| 004 | Cookie Consent       | Active | Accept/decline banner (`web/app.vue`) persisting a `cookie_consent` cookie for a year; consent recorded but not yet gating anything.           | [features/004_cookie-consent.md](features/004_cookie-consent.md)             |
-| 005 | Client Data Layer    | Active | Demonstration contract: two-layer `services` → `queries` composables (Pinia Colada), one fetcher, Zod response parsing, central error routing. | [features/005_client-data-layer.md](features/005_client-data-layer.md)       |
-| 006 | Form Validation UX   | Active | Demonstration contract: Regle rules mirror the backend, Zod validates responses only, server 422s bridge to inline field errors (no toast).    | [features/006_form-validation-ux.md](features/006_form-validation-ux.md)     |
+| ### | Feature              | Status   | Summary                                                                                                                                                                    | Document                                                                     |
+| --- | -------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| 001 | Session Auth Flow    | Active   | Sanctum stateful cookie auth for the SPA: register/login/logout, email verification, password reset, CSRF flow, auth store + route guarding.                               | [features/001_session-auth.md](features/001_session-auth.md)                 |
+| 002 | User Management      | Active   | Admin-gated user CRUD behind the `admin` middleware: list/create/update/hard-delete, two-role RBAC (`user`/`admin`), self-delete guard.                                    | [features/002_user-management.md](features/002_user-management.md)           |
+| 003 | Self-Service Profile | Active   | `PUT /api/profile`: own name/email/password updates; email change resets verification; `current_password` challenge; role untouchable.                                     | [features/003_self-service-profile.md](features/003_self-service-profile.md) |
+| 004 | Cookie Consent       | Active   | Accept/decline banner (`web/app.vue`) persisting a `cookie_consent` cookie for a year; consent recorded but not yet gating anything.                                       | [features/004_cookie-consent.md](features/004_cookie-consent.md)             |
+| 005 | Client Data Layer    | Active   | Demonstration contract: two-layer `services` → `queries` composables (Pinia Colada), one fetcher, Zod response parsing, central error routing.                             | [features/005_client-data-layer.md](features/005_client-data-layer.md)       |
+| 006 | Form Validation UX   | Active   | Demonstration contract: Regle rules mirror the backend, Zod validates responses only, server 422s bridge to inline field errors (no toast).                                | [features/006_form-validation-ux.md](features/006_form-validation-ux.md)     |
+| 007 | GraphQL API          | Approved | Demonstration contract: a Lighthouse `/graphql` endpoint (users query + updateUser mutation) and the client wrappers that make a GraphQL call cost what a REST call costs. | [features/007_graphql-api.md](features/007_graphql-api.md)                   |
 
 ## Architecture Decision Record (ADR) Index
 
@@ -31,6 +32,7 @@ One line per record: type, status, title, link.
 | 004 | tooling     | Implemented | Hold TypeScript at 5.9.x (TS 7 unsupported by vue-tsc)             | [decisions/004_tooling_typescript-version-hold.md](decisions/004_tooling_typescript-version-hold.md) |
 | 005 | infra       | Implemented | Client-only SPA (`ssr: false`), paired with cookie-session auth    | [decisions/005_infra_spa-no-ssr.md](decisions/005_infra_spa-no-ssr.md)                               |
 | 006 | infra       | Accepted    | Adopt the i18n addon (`@nuxtjs/i18n`) with en / sr-Latn / sr-Cyrl  | [decisions/006_infra_i18n-adoption.md](decisions/006_infra_i18n-adoption.md)                         |
+| 007 | infra       | Accepted    | Serve GraphQL alongside REST (Lighthouse + a fetcher-based client) | [decisions/007_infra_graphql-alongside-rest.md](decisions/007_infra_graphql-alongside-rest.md)       |
 
 ## Domain Decision Index
 
@@ -49,6 +51,7 @@ Pointer index of protections declared in feature/decision documents (lazy-loaded
 | Session/auth contract + auth endpoints (`routes/web.php`, `GET /api/user`) | features/001_session-auth.md         |
 | User management API (`apiResource` users)                                  | features/002_user-management.md      |
 | Profile endpoint (`PUT /api/profile`)                                      | features/003_self-service-profile.md |
+| GraphQL schema + `/graphql` endpoint                                       | features/007_graphql-api.md          |
 
 ## Technical Stack
 
@@ -67,6 +70,8 @@ Every layer the project has and the module chosen for it (from Catalyst's `stack
 Assembled at brownfield adoption — swaps from the default set and non-adopted default layers are recorded in `decisions/001_init-design_vanguard-stack.md`.
 
 **i18n locale set:** `en` (source, authored first) · `sr-Latn` · `sr-Cyrl`. Serbian is authored in Latin and transliterated to Cyrillic; plain `sr` / `sr-RS` resolve to `sr-Latn`. Adopted in `decisions/006_infra_i18n-adoption.md`.
+
+**GraphQL:** served alongside REST by `nuwave/lighthouse` on the backend and a `gqlFetcher` built on the project's own fetcher on the frontend — no GraphQL client library, no stack module yet. Adopted in `decisions/007_infra_graphql-alongside-rest.md`; the contract is `features/007_graphql-api.md`. Porting it to Catalyst as opt-in `graphql` addons for the `laravel` and `nuxt` modules is a follow-up.
 
 ## Status Values
 

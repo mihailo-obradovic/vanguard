@@ -90,6 +90,8 @@ Walkthroughs — Admin: sees the Users nav entry, full table, all actions; may e
 
 **Protected area (declared here, indexed in `project-summary.md`):** the `apiResource('users')` surface — paths, methods, status codes, and the envelope/`total` response shapes above. The persisted `Role` enum values are covered by the DB-schema protection in `architecture.md`.
 
+**Second transport.** Feature 007 exposes this domain over GraphQL as well (`users` query, `updateUser` mutation). The REST contract above is unchanged by it: both transports share `UserResource`, the validation rules, the `UserPolicy` admin check, and `App\Actions\UpdateUser`, so a change to any shared rule must be verified on both.
+
 ## Error Handling
 
 - 401/403/404/422 as tabled above; validation errors are standard Laravel 422 `{errors:{...}}`, rendered inline in the modal; non-422 errors toast via the central handler.

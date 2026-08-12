@@ -27,7 +27,7 @@ Present a dismissable banner that records the visitor's accept/decline choice fo
 | Output / Side Effect    | Type   | Description                                                                                 |
 | ----------------------- | ------ | ------------------------------------------------------------------------------------------- |
 | `cookie_consent` cookie | cookie | persisted choice, 1-year `maxAge`; absent until the user decides                            |
-| Banner visibility       | UI     | fixed bottom banner shown while the choice is undecided, hidden (with transition) once set  |
+| Banner visibility       | UI     | modal bottom sheet (with scrim) shown while the choice is undecided, hidden once set        |
 | `hasConsented` computed | state  | `true` only when the stored value is `accepted` — exposed for future gating (see Non-Goals) |
 
 ## Scope And Non-Goals
@@ -38,8 +38,8 @@ Non-goals: **actually gating any cookie, script, or analytics on the choice** �
 
 ## User / System Behavior
 
-- On first load with no `cookie_consent` cookie, the banner slides in at the bottom offering Accept / Decline.
-- Clicking Accept or Decline writes the cookie and hides the banner (slide-out transition); the choice persists for a year, so the banner does not reappear on later visits.
+- On first load with no `cookie_consent` cookie, a modal bottom sheet slides in offering Accept / Decline; its scrim blocks page interaction until the visitor decides (persistent — outside clicks and Esc do not dismiss it).
+- Clicking Accept or Decline writes the cookie and hides the sheet (slide-out transition); the choice persists for a year, so the sheet does not reappear on later visits.
 - The banner only renders after `onMounted` sets an `isMounted` flag — avoiding a flash before the component is client-mounted (the app is `ssr: false`).
 - The banner is `role="region"` with `aria-label="Cookie consent"`.
 
@@ -85,7 +85,7 @@ No protected area — this feature owns no backend contract and no cross-feature
 
 ## Dependencies
 
-- Nuxt `useCookie` for persistence; Vue `Transition` for the slide animation. No backend, no other feature.
+- Nuxt `useCookie` for persistence; Vuetify `v-bottom-sheet` for the modal presentation and slide animation. No backend, no other feature.
 
 ## Open Questions
 

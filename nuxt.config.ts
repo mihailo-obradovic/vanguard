@@ -33,7 +33,7 @@ export default defineNuxtConfig({
   },
 
   components: {
-    dirs: ['@/components/shared']
+    dirs: ['@/components/_shared']
   },
 
   imports: {

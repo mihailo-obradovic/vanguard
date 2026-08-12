@@ -1,7 +1,14 @@
 <template>
   <v-row no-gutters>
     <v-col cols="12" md="6">
-      <GapContainer type="VSheet" class="pa-4 rounded-lg" column elevation="1">
+      <GapContainer
+        type="VSheet"
+        class="pa-4 rounded-lg"
+        column
+        elevation="1"
+        @keydown.enter="handleEnterKey"
+        @keydown.esc="handleEscKey"
+      >
         <GapContainer class="justify-space-between align-center mb-2">
           <h2>Profile</h2>
 
@@ -111,7 +118,6 @@
               variant="outlined"
             />
           </template>
-
         </GapContainer>
       </GapContainer>
     </v-col>
@@ -202,6 +208,25 @@ async function handleSubmit() {
   }
 
   emit('update', updateData);
+}
+
+function handleEnterKey(event: KeyboardEvent) {
+  if (!editMode.value) {
+    return;
+  }
+
+  // * Buttons and links handle Enter themselves; submitting here too would double-fire
+  if ((event.target as HTMLElement).closest('button, a')) {
+    return;
+  }
+
+  handleSubmit();
+}
+
+function handleEscKey() {
+  if (editMode.value) {
+    resetForm();
+  }
 }
 
 defineExpose({ resetForm });

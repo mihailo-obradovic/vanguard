@@ -57,6 +57,40 @@ test('a password change requires the current password', function () {
         ->assertJsonValidationErrors('current_password');
 });
 
+test('a password change fails when the confirmation does not match', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->putJson('/api/profile', [
+            'current_password' => 'password',
+            'password' => 'new-password',
+            'password_confirmation' => 'different-password',
+        ])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors('password');
+
+    expect(Hash::check('password', $user->fresh()->password))->toBeTrue();
+});
+
+test('a profile update rejects an email belonging to another user', function () {
+    $user = User::factory()->create();
+    User::factory()->create(['email' => 'taken@example.com']);
+
+    $this->actingAs($user)
+        ->putJson('/api/profile', ['email' => 'taken@example.com'])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors('email');
+});
+
+test('a profile update rejects a malformed email', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->putJson('/api/profile', ['email' => 'not-an-email'])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors('email');
+});
+
 test('changing email resets verification and sends a new link', function () {
     Notification::fake();
 

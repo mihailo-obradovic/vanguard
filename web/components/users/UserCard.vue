@@ -7,7 +7,6 @@
         column
         elevation="1"
         @keydown.enter="handleEnterKey"
-        @keydown.esc="handleEscKey"
       >
         <GapContainer class="justify-space-between align-center mb-2">
           <h2>Profile</h2>
@@ -223,11 +222,12 @@ function handleEnterKey(event: KeyboardEvent) {
   handleSubmit();
 }
 
-function handleEscKey() {
+// * Window-level so Esc cancels editing even when focus has left the card
+onKeyStroke('Escape', () => {
   if (editMode.value) {
     resetForm();
   }
-}
+});
 
 defineExpose({ resetForm });
 </script>

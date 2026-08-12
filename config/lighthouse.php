@@ -161,7 +161,13 @@ return [
          * - opcache: store parsed queries in PHP files on the local filesystem to leverage OPcache
          * - hybrid: leverage OPcache, but use a shared cache store when local files are not found
          */
-        'mode' => env('LIGHTHOUSE_QUERY_CACHE_MODE', 'store'),
+        // * Changes: 'store' -> 'opcache'. The store mode serializes a parsed DocumentNode into
+        // ! the Laravel cache, but this project keeps Laravel 13's hardened default
+        // ! `serializable_classes => false` (config/cache.php), so it comes back as
+        // ! __PHP_Incomplete_Class and every cache hit 500s. Writing parsed queries as PHP files
+        // * keeps the optimization without allowlisting graphql-php's whole AST for
+        // * unserialization. Requires bootstrap/cache to be writable.
+        'mode' => env('LIGHTHOUSE_QUERY_CACHE_MODE', 'opcache'),
 
         /*
          * Specifies the path where the PHP files are stored when using opcache or hybrid mode.

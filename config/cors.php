@@ -17,6 +17,9 @@ return [
 
     'paths' => [
         'api/*',
+        // * The GraphQL endpoint sits outside api/* (Lighthouse owns the route) but is called
+        // * by the same cross-origin SPA, so it needs the same credentialed CORS treatment.
+        'graphql',
         'sanctum/csrf-cookie',
         'login',
         'logout',

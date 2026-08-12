@@ -2,7 +2,7 @@
 
 ## Status
 
-Approved
+Active
 
 ## Task Weight
 
@@ -150,7 +150,13 @@ Authorization is enforced per field by `UserPolicy` (`viewAny`, `update`), not b
 
 ## Verification
 
-Filled at implementation.
+`php artisan test` — 50 passing, including the 12 new GraphQL cases and the untouched REST user-management suite, which is the proof that extracting `App\Actions\UpdateUser` left the REST contract intact. A test compares the `users` GraphQL payload against `GET /api/users` field for field. Frontend: `pnpm test` (40 passing, `gqlFetcher.spec.ts` covering every row of the Error Handling table plus catalog parity for the new keys), `pnpm typecheck`, `pnpm lint`, `pnpm format`.
+
+Live walk at `/graphql-demo` against the running stack: the list loads over `POST /graphql`; a duplicate email renders inline on the field with no toast; a successful update closes the dialog and the list refetches through cache invalidation; a signed-in non-admin is navigated to `/home`; a guest gets `401` (verified directly against the endpoint). All GraphQL responses are HTTP 200, so the translation layer is what produces the REST-equivalent behavior.
+
+Two integration defects were found by the live walk and fixed, neither reachable from the test suite: Lighthouse's default `store` query-cache mode 500s on every cache hit under Laravel's hardened `cache.serializable_classes => false` (now `opcache` mode, guarded by `QueryCacheConfigTest`), and `/graphql` sits outside `api/*` so it needed adding to `config/cors.php` for the cross-origin SPA.
+
+Remaining risk: the client keys on `extensions.status`, which `RestStatusHandler` sets — a Lighthouse upgrade that changes how underlying exceptions are wrapped would silently degrade every error to a generic 500 toast. The Pest tests assert the status on each error class, so that regression fails the suite rather than reaching users.
 
 ## Agent Change Rules
 

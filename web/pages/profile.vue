@@ -216,8 +216,8 @@ import {
   sameAs
 } from '@regle/rules';
 
-import { fetchCurrentUser } from '@/services/auth.api';
 import {
+  useRefreshUser,
   useUpdateProfile,
   useResendEmailVerification
 } from '@/services/queries/useAuthQueries';
@@ -238,7 +238,13 @@ const route = useRoute();
 const router = useRouter();
 
 const { user } = storeToRefs(useAuthStore());
-const { setUser } = useAuthStore();
+
+const { mutate: refreshUser } = useRefreshUser({
+  onSuccess: () => {
+    $toast('Your email has been verified.', 'success');
+    router.replace({ query: {} });
+  }
+});
 
 const { mutate: resendVerification, isLoading: isResending } =
   useResendEmailVerification({
@@ -335,11 +341,9 @@ watch(showEditForm, async (isOpen) => {
   }
 });
 
-onMounted(async () => {
+onMounted(() => {
   if (route.query.verified === '1') {
-    setUser(await fetchCurrentUser());
-    $toast('Your email has been verified.', 'success');
-    router.replace({ query: {} });
+    refreshUser();
   }
 });
 </script>

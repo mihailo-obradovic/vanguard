@@ -1,11 +1,13 @@
 <template>
   <div class="login-container">
     <div class="login-card">
-      <h1 class="login-title">Welcome Back</h1>
+      <h1 class="login-title">{{ $t('auth.login.title') }}</h1>
 
       <form class="login-form" novalidate @submit.prevent="handleLogin">
         <div class="form-group">
-          <label for="email" class="form-label">Email</label>
+          <label for="email" class="form-label">
+            {{ $t('common.fields.email') }}
+          </label>
 
           <input
             id="email"
@@ -20,7 +22,9 @@
         </div>
 
         <div class="form-group">
-          <label for="password" class="form-label">Password</label>
+          <label for="password" class="form-label">
+            {{ $t('common.fields.password') }}
+          </label>
 
           <input
             id="password"
@@ -39,19 +43,23 @@
           class="login-btn"
           :disabled="isLoggingIn || r$.$invalid"
         >
-          {{ isLoggingIn ? 'Logging in...' : 'Login' }}
+          {{
+            isLoggingIn ? $t('auth.login.submitting') : $t('auth.login.submit')
+          }}
         </button>
       </form>
 
       <div class="auth-footer">
         <p>
-          Don't have an account?
-          <NuxtLink to="/register" class="auth-link">Register here</NuxtLink>
+          {{ $t('auth.login.noAccount') }}
+          <NuxtLink to="/register" class="auth-link">
+            {{ $t('auth.login.registerLink') }}
+          </NuxtLink>
         </p>
 
         <p>
           <NuxtLink to="/forgot-password" class="auth-link">
-            Forgot your password?
+            {{ $t('auth.login.forgotPasswordLink') }}
           </NuxtLink>
         </p>
       </div>

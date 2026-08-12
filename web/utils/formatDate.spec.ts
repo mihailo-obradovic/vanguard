@@ -1,6 +1,13 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { formatDate } from './formatDate';
+
+const locale = { value: 'en' };
+
+// * `#app/nuxt` is where the auto-imported `useNuxtApp` resolves from.
+vi.mock('#app/nuxt', () => ({
+  useNuxtApp: () => ({ $i18n: { locale, t: (key: string) => key } })
+}));
 
 describe('formatDate', () => {
   it('formats an ISO timestamp as a long date', () => {
@@ -11,7 +18,17 @@ describe('formatDate', () => {
     expect(formatDate('2026-12-31T23:59:59Z')).toBe('December 31, 2026');
   });
 
+  it('follows the active locale', () => {
+    locale.value = 'sr-Latn';
+    expect(formatDate('2026-08-03T12:34:56.000000Z')).toBe('3. avgust 2026.');
+
+    locale.value = 'sr-Cyrl';
+    expect(formatDate('2026-08-03T12:34:56.000000Z')).toBe('3. август 2026.');
+
+    locale.value = 'en';
+  });
+
   it('falls back for an empty value', () => {
-    expect(formatDate('')).toBe('N/A');
+    expect(formatDate('')).toBe('common.notAvailable');
   });
 });

@@ -1,11 +1,13 @@
 <template>
   <div class="register-container">
     <div class="register-card">
-      <h1 class="register-title">Create Account</h1>
+      <h1 class="register-title">{{ $t('auth.register.title') }}</h1>
 
       <form class="register-form" novalidate @submit.prevent="handleRegister">
         <div class="form-group">
-          <label for="name" class="form-label">Name</label>
+          <label for="name" class="form-label">
+            {{ $t('common.fields.name') }}
+          </label>
 
           <input
             id="name"
@@ -20,7 +22,9 @@
         </div>
 
         <div class="form-group">
-          <label for="email" class="form-label">Email</label>
+          <label for="email" class="form-label">
+            {{ $t('common.fields.email') }}
+          </label>
 
           <input
             id="email"
@@ -35,7 +39,9 @@
         </div>
 
         <div class="form-group">
-          <label for="password" class="form-label">Password</label>
+          <label for="password" class="form-label">
+            {{ $t('common.fields.password') }}
+          </label>
 
           <input
             id="password"
@@ -51,7 +57,7 @@
 
         <div class="form-group">
           <label for="password_confirmation" class="form-label">
-            Password Confirmation
+            {{ $t('common.fields.passwordConfirmation') }}
           </label>
 
           <input
@@ -71,14 +77,20 @@
           class="register-btn"
           :disabled="isRegistering || r$.$invalid"
         >
-          {{ isRegistering ? 'Registering...' : 'Register' }}
+          {{
+            isRegistering
+              ? $t('auth.register.submitting')
+              : $t('auth.register.submit')
+          }}
         </button>
       </form>
 
       <div class="auth-footer">
         <p>
-          Already have an account?
-          <NuxtLink to="/login" class="auth-link">Login here</NuxtLink>
+          {{ $t('auth.register.haveAccount') }}
+          <NuxtLink to="/login" class="auth-link">
+            {{ $t('auth.loginLink') }}
+          </NuxtLink>
         </p>
       </div>
     </div>

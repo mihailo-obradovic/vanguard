@@ -10,12 +10,12 @@ Context documents: `context/product-description.md` (`references/context-documen
 
 ## Feature Index
 
-| ### | Feature              | Status | Summary                                                                                                                                      | Document                                                                     |
-| --- | -------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| 001 | Session Auth Flow    | Active | Sanctum stateful cookie auth for the SPA: register/login/logout, email verification, password reset, CSRF flow, auth store + route guarding. | [features/001_session-auth.md](features/001_session-auth.md)                 |
-| 002 | User Management      | Active | Admin-gated user CRUD behind the `admin` middleware: list/create/update/hard-delete, two-role RBAC (`user`/`admin`), self-delete guard.      | [features/002_user-management.md](features/002_user-management.md)           |
-| 003 | Self-Service Profile | Active | `PUT /api/profile`: own name/email/password updates; email change resets verification; `current_password` challenge; role untouchable.       | [features/003_self-service-profile.md](features/003_self-service-profile.md) |
-| 004 | Cookie Consent       | Active | Accept/decline banner (`web/app.vue`) persisting a `cookie_consent` cookie for a year; consent recorded but not yet gating anything.          | [features/004_cookie-consent.md](features/004_cookie-consent.md)             |
+| ### | Feature              | Status | Summary                                                                                                                                        | Document                                                                     |
+| --- | -------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| 001 | Session Auth Flow    | Active | Sanctum stateful cookie auth for the SPA: register/login/logout, email verification, password reset, CSRF flow, auth store + route guarding.   | [features/001_session-auth.md](features/001_session-auth.md)                 |
+| 002 | User Management      | Active | Admin-gated user CRUD behind the `admin` middleware: list/create/update/hard-delete, two-role RBAC (`user`/`admin`), self-delete guard.        | [features/002_user-management.md](features/002_user-management.md)           |
+| 003 | Self-Service Profile | Active | `PUT /api/profile`: own name/email/password updates; email change resets verification; `current_password` challenge; role untouchable.         | [features/003_self-service-profile.md](features/003_self-service-profile.md) |
+| 004 | Cookie Consent       | Active | Accept/decline banner (`web/app.vue`) persisting a `cookie_consent` cookie for a year; consent recorded but not yet gating anything.           | [features/004_cookie-consent.md](features/004_cookie-consent.md)             |
 | 005 | Client Data Layer    | Active | Demonstration contract: two-layer `services` → `queries` composables (Pinia Colada), one fetcher, Zod response parsing, central error routing. | [features/005_client-data-layer.md](features/005_client-data-layer.md)       |
 | 006 | Form Validation UX   | Active | Demonstration contract: Regle rules mirror the backend, Zod validates responses only, server 422s bridge to inline field errors (no toast).    | [features/006_form-validation-ux.md](features/006_form-validation-ux.md)     |
 
@@ -23,13 +23,14 @@ Context documents: `context/product-description.md` (`references/context-documen
 
 One line per record: type, status, title, link.
 
-| ### | Type        | Status      | Decision                                                          | Document                                                                                   |
-| --- | ----------- | ----------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| 001 | init-design | Implemented | Init design — Vanguard brownfield stack                           | [decisions/001_init-design_vanguard-stack.md](decisions/001_init-design_vanguard-stack.md) |
-| 002 | infra       | Implemented | Sanctum session-cookie auth for the SPA pairing (over token mode) | [decisions/002_infra_sanctum-session-spa.md](decisions/002_infra_sanctum-session-spa.md)   |
-| 003 | tooling     | Implemented | oxlint + oxfmt for the frontend toolchain (over ESLint + Prettier) | [decisions/003_tooling_oxlint-oxfmt.md](decisions/003_tooling_oxlint-oxfmt.md)             |
+| ### | Type        | Status      | Decision                                                           | Document                                                                                             |
+| --- | ----------- | ----------- | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| 001 | init-design | Implemented | Init design — Vanguard brownfield stack                            | [decisions/001_init-design_vanguard-stack.md](decisions/001_init-design_vanguard-stack.md)           |
+| 002 | infra       | Implemented | Sanctum session-cookie auth for the SPA pairing (over token mode)  | [decisions/002_infra_sanctum-session-spa.md](decisions/002_infra_sanctum-session-spa.md)             |
+| 003 | tooling     | Implemented | oxlint + oxfmt for the frontend toolchain (over ESLint + Prettier) | [decisions/003_tooling_oxlint-oxfmt.md](decisions/003_tooling_oxlint-oxfmt.md)                       |
 | 004 | tooling     | Implemented | Hold TypeScript at 5.9.x (TS 7 unsupported by vue-tsc)             | [decisions/004_tooling_typescript-version-hold.md](decisions/004_tooling_typescript-version-hold.md) |
-| 005 | infra       | Implemented | Client-only SPA (`ssr: false`), paired with cookie-session auth   | [decisions/005_infra_spa-no-ssr.md](decisions/005_infra_spa-no-ssr.md)                     |
+| 005 | infra       | Implemented | Client-only SPA (`ssr: false`), paired with cookie-session auth    | [decisions/005_infra_spa-no-ssr.md](decisions/005_infra_spa-no-ssr.md)                               |
+| 006 | infra       | Accepted    | Adopt the i18n addon (`@nuxtjs/i18n`) with en / sr-Latn / sr-Cyrl  | [decisions/006_infra_i18n-adoption.md](decisions/006_infra_i18n-adoption.md)                         |
 
 ## Domain Decision Index
 
@@ -53,16 +54,19 @@ Pointer index of protections declared in feature/decision documents (lazy-loaded
 
 Every layer the project has and the module chosen for it (from Catalyst's `stacks/`), defaults included, plus UI choices, adopted addons, and any optional layer — the scaffolder fills this from the spawn choices, and it is what tells an agent which stack documents apply. See `architecture.md` for the index.
 
-| Layer        | Module          |
-| ------------ | --------------- |
-| backend      | laravel         |
-| backend/auth | sanctum-session |
-| database     | mysql           |
-| frontend     | nuxt            |
-| frontend/ui  | headless        |
-| maintenance  | renovate        |
+| Layer           | Module          |
+| --------------- | --------------- |
+| backend         | laravel         |
+| backend/auth    | sanctum-session |
+| database        | mysql           |
+| frontend        | nuxt            |
+| frontend/ui     | headless        |
+| frontend/addons | i18n            |
+| maintenance     | renovate        |
 
 Assembled at brownfield adoption — swaps from the default set and non-adopted default layers are recorded in `decisions/001_init-design_vanguard-stack.md`.
+
+**i18n locale set:** `en` (source, authored first) · `sr-Latn` · `sr-Cyrl`. Serbian is authored in Latin and transliterated to Cyrillic; plain `sr` / `sr-RS` resolve to `sr-Latn`. Adopted in `decisions/006_infra_i18n-adoption.md`.
 
 ## Status Values
 

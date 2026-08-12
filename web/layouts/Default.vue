@@ -5,12 +5,18 @@
     <nav class="navbar">
       <div class="nav-container">
         <div class="nav-links">
-          <NuxtLink to="/home" class="nav-link">Home</NuxtLink>
+          <NuxtLink to="/home" class="nav-link">
+            {{ $t('common.nav.home') }}
+          </NuxtLink>
 
-          <NuxtLink v-if="isAdmin" to="/users" class="nav-link">Users</NuxtLink>
+          <NuxtLink v-if="isAdmin" to="/users" class="nav-link">
+            {{ $t('common.nav.users') }}
+          </NuxtLink>
         </div>
 
         <div class="nav-auth">
+          <LocaleSwitcher />
+
           <template v-if="isLoggedIn">
             <NuxtLink to="/profile" class="user-name-link">
               {{ user?.name }}
@@ -21,14 +27,22 @@
               :disabled="isLoggingOut"
               @click="logOut()"
             >
-              {{ isLoggingOut ? 'Logging out...' : 'Logout' }}
+              {{
+                isLoggingOut
+                  ? $t('common.nav.logoutPending')
+                  : $t('common.nav.logout')
+              }}
             </button>
           </template>
 
           <template v-else>
-            <NuxtLink to="/login" class="auth-link">Login</NuxtLink>
+            <NuxtLink to="/login" class="auth-link">
+              {{ $t('common.nav.login') }}
+            </NuxtLink>
 
-            <NuxtLink to="/register" class="auth-link">Register</NuxtLink>
+            <NuxtLink to="/register" class="auth-link">
+              {{ $t('common.nav.register') }}
+            </NuxtLink>
           </template>
         </div>
       </div>

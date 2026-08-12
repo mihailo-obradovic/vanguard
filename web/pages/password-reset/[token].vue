@@ -1,7 +1,7 @@
 <template>
   <div class="password-reset-container">
     <div class="password-reset-card">
-      <h1 class="password-reset-title">Reset Password</h1>
+      <h1 class="password-reset-title">{{ $t('auth.passwordReset.title') }}</h1>
 
       <form
         class="password-reset-form"
@@ -9,7 +9,9 @@
         @submit.prevent="handleSubmit"
       >
         <div class="form-group">
-          <label for="email" class="form-label">Email</label>
+          <label for="email" class="form-label">
+            {{ $t('common.fields.email') }}
+          </label>
 
           <input
             id="email"
@@ -24,7 +26,9 @@
         </div>
 
         <div class="form-group">
-          <label for="password" class="form-label">New Password</label>
+          <label for="password" class="form-label">
+            {{ $t('auth.passwordReset.newPassword') }}
+          </label>
 
           <input
             id="password"
@@ -40,7 +44,7 @@
 
         <div class="form-group">
           <label for="password_confirmation" class="form-label">
-            Confirm New Password
+            {{ $t('auth.passwordReset.confirmNewPassword') }}
           </label>
 
           <input
@@ -60,14 +64,20 @@
           class="submit-btn"
           :disabled="isResetting || r$.$invalid"
         >
-          {{ isResetting ? 'Resetting...' : 'Reset Password' }}
+          {{
+            isResetting
+              ? $t('auth.passwordReset.submitting')
+              : $t('auth.passwordReset.submit')
+          }}
         </button>
       </form>
 
       <div class="auth-footer">
         <p>
-          Remembered your password?
-          <NuxtLink to="/login" class="auth-link">Login here</NuxtLink>
+          {{ $t('auth.rememberedPassword') }}
+          <NuxtLink to="/login" class="auth-link">
+            {{ $t('auth.loginLink') }}
+          </NuxtLink>
         </p>
       </div>
     </div>

@@ -202,7 +202,12 @@ async function handleSubmit() {
     return;
   }
 
-  updateUser({ id: editingUser.value.id, ...userForm.value });
+  // * Partial update: only the fields the admin actually changed go on the wire — omitted
+  // * GraphQL variables never reach the resolver, so untouched fields keep their values.
+  updateUser({
+    id: editingUser.value.id,
+    ...changedFields(editingUser.value, userForm.value)
+  });
 }
 
 // * Move focus into the dialog so Escape and keyboard navigation work without a pointer.

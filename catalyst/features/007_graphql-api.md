@@ -51,7 +51,7 @@ Non-goals:
 ## User / System Behavior
 
 - When an admin's SPA session issues the `users` query, the system returns every user, newest first, serialized by `UserResource`.
-- When an admin issues `updateUser`, the system validates the arguments, applies the change through the shared update action, and returns the updated user.
+- When an admin issues `updateUser`, the system validates the arguments, applies the change through the shared update action, and returns the updated user. The demo page sends only the arguments whose values the admin changed — an omitted GraphQL variable never reaches the resolver, so untouched fields keep their values. This is deliberately sharper than the REST edit form (which sends the whole editable set): optional arguments as partial input is one of the GraphQL advantages the demo exists to show.
 - When `updateUser` changes the email address, the system clears `email_verified_at` and queues a verification notification — the same side effect the REST endpoint has.
 - When a guest issues any operation, the system reports an authentication failure and the client behaves exactly as it does on a REST 401: the auth store is cleared and the app redirects to login.
 - When a signed-in non-admin issues any operation, the system reports an authorization failure and the client behaves as on a REST 403.

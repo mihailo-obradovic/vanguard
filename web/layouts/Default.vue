@@ -94,8 +94,7 @@ const { mutate: logOut, isLoading: isLoggingOut } = useLogOut();
   color: rgb(0, 102, 255);
   background-color: #e9ecef;
   padding: 8px 16px;
-  /* Transparent border matches .auth-link so the navbar height doesn't
-     change between logged-in and logged-out states. */
+  /* * Transparent border matches .auth-link so the navbar height doesn't change between logged-in and logged-out states. */
   border: 1px solid transparent;
   border-radius: 8px;
   transition: all 0.25s ease;

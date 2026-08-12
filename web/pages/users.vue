@@ -82,7 +82,7 @@
       </div>
     </div>
 
-    <!-- Create/Edit User Form -->
+    <!-- * Create/Edit User Form -->
     <div v-if="showUserForm" class="modal-overlay" @click="closeUserForm">
       <div
         ref="userFormModal"
@@ -209,7 +209,7 @@
       </div>
     </div>
 
-    <!-- Confirmation Dialog -->
+    <!-- * Confirmation Dialog -->
     <div v-if="userToDelete" class="modal-overlay" @click="cancelDelete">
       <div
         ref="confirmDeleteModal"
@@ -278,7 +278,7 @@ const { data: usersResponse, isLoading, error } = useFetchUsers();
 
 const userToDelete = ref<User | null>(null);
 
-// Create/Edit form state
+// * Create/Edit form state
 const showUserForm = ref(false);
 const isEditMode = ref(false);
 const editingUserId = ref<number | null>(null);
@@ -336,7 +336,7 @@ const userFormErrors = useValidationErrors(
   )
 );
 
-// Create requires a password; edit only validates one when entered.
+// * Create requires a password; edit only validates one when entered.
 const { r$ } = useRegle(
   userForm,
   () => ({
@@ -374,7 +374,7 @@ function handleDelete() {
   deleteUser(userToDelete.value.id);
 }
 
-// Create/Edit form functions
+// * Create/Edit form functions
 function openCreateForm() {
   isEditMode.value = false;
   editingUserId.value = null;
@@ -430,7 +430,7 @@ async function handleSubmitUser() {
       role: userForm.value.role
     };
 
-    // Only include password if provided
+    // * Only include password if provided
     if (userForm.value.password) {
       updateData.password = userForm.value.password;
       updateData.password_confirmation = userForm.value.password_confirmation;
@@ -442,8 +442,7 @@ async function handleSubmitUser() {
   }
 }
 
-// Move focus into the dialogs so Escape and keyboard navigation work without
-// a pointer.
+// * Move focus into the dialogs so Escape and keyboard navigation work without a pointer.
 watch(showUserForm, async (isOpen) => {
   if (isOpen) {
     await nextTick();
@@ -682,8 +681,7 @@ watch(userToDelete, async (user) => {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* The container is focused programmatically on open; the visible focus ring
-   belongs on the controls inside, not the dialog itself. */
+/* * The container is focused programmatically on open; the visible focus ring belongs on the controls inside, not the dialog itself. */
 .modal:focus {
   outline: none;
 }

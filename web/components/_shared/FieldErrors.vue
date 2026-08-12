@@ -9,8 +9,7 @@ defineProps<{ errors: string[] }>();
 </script>
 
 <style scoped>
-/* Always occupies one line so messages appearing/disappearing don't shift
-   the layout. */
+/* * Always occupies one line so messages appearing/disappearing don't shift the layout. */
 .field-error {
   color: #dc3545;
   font-size: 14px;

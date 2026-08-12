@@ -81,7 +81,7 @@
       </div>
     </div>
 
-    <!-- Edit Profile Form -->
+    <!-- * Edit Profile Form -->
     <div v-if="showEditForm" class="modal-overlay" @click="closeEditForm">
       <div
         ref="editProfileModal"
@@ -216,7 +216,7 @@ import {
 } from '@/services/queries/useAuthQueries';
 import type { ProfileForm } from '@/types/user';
 
-// Edit form state
+// * Edit form state
 const editProfileModal = useTemplateRef('editProfileModal');
 const showEditForm = ref(false);
 const profileForm = ref({
@@ -258,8 +258,7 @@ const {
   }
 });
 
-// Mirrors ProfileUpdateRequest: the current password is only needed when
-// setting a new one.
+// * Mirrors ProfileUpdateRequest: the current password is only needed when setting a new one.
 const { r$ } = useRegle(
   profileForm,
   {
@@ -312,7 +311,7 @@ async function handleSubmitProfile() {
     current_password: profileForm.value.current_password
   };
 
-  // Only include password if provided
+  // * Only include password if provided
   if (profileForm.value.password) {
     updateData.password = profileForm.value.password;
     updateData.password_confirmation = profileForm.value.password_confirmation;
@@ -321,8 +320,7 @@ async function handleSubmitProfile() {
   updateProfile(updateData);
 }
 
-// Move focus into the dialog so Escape and keyboard navigation work without
-// a pointer.
+// * Move focus into the dialog so Escape and keyboard navigation work without a pointer.
 watch(showEditForm, async (isOpen) => {
   if (isOpen) {
     await nextTick();
@@ -510,7 +508,7 @@ onMounted(() => {
   font-size: 18px;
 }
 
-/* Modal Styles */
+/* * Modal Styles */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -533,8 +531,7 @@ onMounted(() => {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* The container is focused programmatically on open; the visible focus ring
-   belongs on the controls inside, not the dialog itself. */
+/* * The container is focused programmatically on open; the visible focus ring belongs on the controls inside, not the dialog itself. */
 .modal:focus {
   outline: none;
 }

@@ -23,7 +23,7 @@ export function determineAuthRedirect(
   }
 
   const guestOnlyPages = ['/login', '/register', '/forgot-password'];
-  // Pages with dynamic segments, e.g. /password-reset/{token}
+  // * Pages with dynamic segments, e.g. /password-reset/{token}
   const guestOnlyPrefixes = ['/password-reset/'];
   const sharedPages = ['/home'];
   const isGuestOnlyPage =

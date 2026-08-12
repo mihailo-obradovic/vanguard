@@ -23,6 +23,10 @@ return Application::configure(basePath: dirname(__DIR__))
         // API-only backend: never redirect guests to a login page; the
         // exception handler returns a 401 JSON response instead.
         $middleware->redirectGuestsTo(fn () => null);
+
+        // The symmetric half: an authenticated request to a guest route
+        // gets a 403 JSON response instead of a redirect to '/'.
+        $middleware->redirectUsersTo(fn () => abort(403, 'Already authenticated.'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

@@ -98,7 +98,7 @@ const LETTERS: Record<string, string> = {
 };
 
 // * Words that stay in Latin script in a Cyrillic catalog, alongside the interpolation placeholders.
-const TRANSLITERATION_EXEMPT = ['Vanguard', 'ID'];
+const TRANSLITERATION_EXEMPT = ['Vanguard', 'GraphQL', 'REST', 'ID'];
 
 const PROTECTED = new RegExp(
   `\\{[^}]*\\}|${TRANSLITERATION_EXEMPT.join('|')}`,

@@ -39,7 +39,7 @@
             </v-btn>
 
             <v-btn
-              v-if="user.id !== currentUserId"
+              v-if="deletable && user.id !== currentUserId"
               icon
               variant="text"
               color="error"
@@ -67,10 +67,13 @@ withDefaults(
     users: User[];
     deletingId?: number | null;
     currentUserId?: number | null;
+    // * Off for transports that expose no delete operation, e.g. the GraphQL demo.
+    deletable?: boolean;
   }>(),
   {
     deletingId: null,
-    currentUserId: null
+    currentUserId: null,
+    deletable: true
   }
 );
 

@@ -103,6 +103,7 @@ import {
   mdiAccount,
   mdiAccountMultiple,
   mdiAccountPlus,
+  mdiGraphql,
   mdiHome,
   mdiLogin,
   mdiLogout,
@@ -138,7 +139,18 @@ const drawer = ref(true);
 const drawerItems = computed(() => [
   { title: t('common.nav.profile'), to: '/profile', icon: mdiAccount },
   ...(isAdmin.value
-    ? [{ title: t('common.nav.users'), to: '/users', icon: mdiAccountMultiple }]
+    ? [
+        {
+          title: t('common.nav.users'),
+          to: '/users',
+          icon: mdiAccountMultiple
+        },
+        {
+          title: t('common.nav.graphqlDemo'),
+          to: '/graphql-demo',
+          icon: mdiGraphql
+        }
+      ]
     : [])
 ]);
 

@@ -1,5 +1,7 @@
 export default defineNuxtConfig({
-  devtools: { enabled: ['local', 'development'].includes(process.env.APP_ENV ?? '') },
+  devtools: {
+    enabled: ['local', 'development'].includes(process.env.APP_ENV ?? '')
+  },
 
   srcDir: 'web/',
 
@@ -22,6 +24,13 @@ export default defineNuxtConfig({
   ],
 
   css: ['@/assets/styles/main.css'],
+
+  vite: {
+    optimizeDeps: {
+      // ! @regle/nuxt resolves its own raw copy of @regle/core at runtime while the app gets the pre-bundled one; the differing injection symbols trigger a bogus "Regle Devtools are not available" warning — excluding both keeps a single instance in dev.
+      exclude: ['@regle/core', '@regle/rules']
+    }
+  },
 
   components: {
     dirs: ['@/components/shared']

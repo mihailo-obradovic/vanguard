@@ -20,5 +20,6 @@ export function getErrorMessage(error: unknown): string {
     return message;
   }
 
-  return 'Something went wrong. Please try again.';
+  // * Resolved per call, never at module scope — the Nuxt app does not exist at import time.
+  return useNuxtApp().$i18n.t('errors.generic');
 }

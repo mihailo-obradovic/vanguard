@@ -160,6 +160,44 @@ const { data: user } = useFetchUser(computed(() => props.userId));
 </script>
 ```
 
+## Event and handler naming
+
+The emit is declared and listened for under the same camelCase name, and the parent's handler matches it.
+
+```vue
+<!-- child -->
+<script setup lang="ts">
+const emit = defineEmits<{
+  select: [user: User]; // ✅ imperative
+  updateItem: [id: number]; // ✅ camelCase, declared once
+  removalConfirmed: [id: number]; // ❌ names the outcome — `remove`
+}>();
+
+// ✅ no matching emit — named for intent, not for the input device
+function handleSearch(event: Event) {
+  term.value = (event.target as HTMLInputElement).value;
+}
+</script>
+```
+
+```vue
+<!-- parent -->
+<template>
+  <!-- ✅ same spelling as the declaration; handler matches the event -->
+  <UserCard
+    :user="user"
+    @select="handleSelect"
+    @updateItem="handleUpdateItem"
+  />
+
+  <!-- ✅ inline expression that only binds an argument -->
+  <v-btn @click="handleSelect(user)">Pick</v-btn>
+
+  <!-- ❌ kebab-case at the call site; ❌ logic inline -->
+  <UserCard @update-item="handleUpdateItem" @click="dirty ? save() : close()" />
+</template>
+```
+
 ## Template casing and `v-for` / `v-if`
 
 ```vue

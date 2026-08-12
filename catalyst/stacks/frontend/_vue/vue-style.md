@@ -13,7 +13,7 @@ The authoritative style rules for Vue code in any Catalyst Vue frontend (Vue 3 +
 - **Never put `v-if` and `v-for` on the same element** — filter in a `computed` and iterate the result.
 - `v-for` always has a stable, unique `:key`. Never the array index unless the list is static and never reordered.
 - Break complex trees into subcomponents; use slots for composition rather than passing render flags.
-- **Emit names** are the event, not the handler (`@save`, `@update:modelValue`); the parent's handler is `handleSave`. Declare every emit in `defineEmits`.
+- **Emit names** are the event, not the handler — naming rules in [Event and handler naming](#event-and-handler-naming).
 
 ## Script
 
@@ -46,6 +46,17 @@ Always `<script setup lang="ts">`. Use the **`@/` alias, never `~/`**.
 21. **Local composable definitions** — composables wrapping one feature's logic, used only in this component, at the bottom.
 
 **Grouping rule:** a feature's computed values, functions, and watchers stay together with that feature rather than scattering across sections 15–17. Only genuinely component-wide concerns belong in those sections.
+
+## Event and handler naming
+
+- **Emit names are imperative** — `save`, `select`, `updateItem`. The event names the action the child asks for, not the outcome. Past tense (`uploaded`) is reserved for a notification the parent cannot refuse.
+- **camelCase declared, camelCase listened** — `defineEmits<{ updateItem: [id: number] }>()` and `@updateItem="…"`. One spelling in both places; never kebab-case at the call site.
+- **Child → parent goes through emits**, every one of them declared in `defineEmits`. A component does not take a callback prop for it.
+- **The parent's handler is the matching `handle*`** — `@save` → `handleSave`, one handler per event.
+- **`defineModel` over a hand-rolled pair** — never declare a `modelValue` prop and emit `update:modelValue` by hand. A named model emits `update:<name>`.
+- **A handler with no matching emit is named for intent, not input device** — `handleSubmit`, not `handleButtonClick`. Add the subject only to separate two handlers of the same intent (`handleSearchInput`, `handleFilterInput`).
+- **An inline template expression only forwards or binds** — `@click="handleSelect(user.id)"`. A statement, a branch, or an `await` moves into a named `handle*` (section 16).
+- **The event parameter is `event`**, never `e`.
 
 ## Style
 

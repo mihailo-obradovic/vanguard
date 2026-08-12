@@ -32,6 +32,7 @@ Paths below are relative to the repo root. The `catalyst/` documents are normati
 
 - Validation and authorization live in FormRequests, not controllers; responses go through Resources.
 - A rule that both transports enforce has one implementation: the Resource for output, an `Actions/` class for the change, the policy for access. A GraphQL resolver that reimplements controller logic is a bug — see `catalyst/features/007_graphql-api.md`.
+- GraphQL resolvers return `ResourcePayload` arrays, not models — which means Lighthouse's relationship directives (`@hasMany`, `@belongsTo`) and N+1 batching cannot be used on those types. Do not add a nested relationship field without a new decision record; the exit path is priced in `catalyst/decisions/007_infra_graphql-alongside-rest.md`.
 - Editing `graphql/schema.graphql` outside the local environment needs `php artisan lighthouse:clear-cache`; the compiled schema is cached everywhere except `local` (tests disable it in `phpunit.xml`).
 - Async work (queued notifications) uses Laravel's built-in queue (database driver) — there is no separate worker deployable.
 - The public API surface, the session/auth contract, and the DB schema are protected areas — declared in `catalyst/architecture.md` (Protected Areas); state impact and get explicit agreement before touching them.

@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Implemented
 
 ## Type
 
@@ -45,7 +45,9 @@ One existing behavior contract is touched only by refactor: `UserController::upd
 - Adding a policy makes Laravel's gate auto-discovery active for `User`, which previously had none. No existing code calls `authorize()` on users, so REST behavior is unchanged — asserted by the existing suite.
 - GraphiQL is a dev-only dependency and must never be enabled in production; it is registered behind the local environment.
 - Anything the GraphQL layer wants that Pinia Colada cannot express (normalized caching, fragment colocation, persisted queries) is a new decision, not a small addition.
-- The stack-module documents that would let another project adopt this are deliberately not written here; porting the pattern into Catalyst as opt-in `graphql` addons for the `laravel` and `nuxt` modules is the follow-up to this record.
+- **What this is, for projects spawned from the template.** The right entry point for adding GraphQL to a REST-first app — and deliberately not a GraphQL-first architecture. The schema is intentionally poor by GraphQL standards (`role: String!` instead of a registered enum type, timestamps as plain strings, no relationship fields) because byte-parity with `UserResource` was the goal. A GraphQL-first spawn should invert the third decision from day one: resolvers return Eloquent models, enums register through `PhpEnumType`, dates use the `DateTime` scalar, relationships use `@hasMany`/`@belongsTo` — and the client then needs GraphQL-specific response schemas, since parity with REST is no longer what holds the two shapes together.
+- **Two priced exits, in order of likelihood.** (1) The first nested field (`user { posts … }`) cannot be added incrementally: `ResourcePayload` hands Lighthouse finished arrays, and relationship directives plus their N+1 batching only operate on Eloquent models flowing through the resolver tree. That change partially reverses this record and needs a new one. (2) The `gql` tag is an identity function, so a mistyped document fails at runtime, not at build time; adopt GraphQL code generation once the operation count makes that trade wrong — roughly, when the documents stop fitting in one review.
+- The stack-module documents that would let another project adopt this are deliberately not written here; porting the pattern into Catalyst as opt-in `graphql` addons for the `laravel` and `nuxt` modules is the follow-up to this record. Both the entry-point framing and the priced exits above belong in those addon documents verbatim — a spawn choosing the addon must know which pattern it is buying and where its edges are.
 
 ## Contracts Touched
 

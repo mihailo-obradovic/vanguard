@@ -10,9 +10,9 @@ Hard
 
 ## Purpose
 
-Demonstration contract: give the project a GraphQL transport whose call sites cost a component exactly what the REST transport costs it — a query composable, no manual loading state, no try/catch, inline field errors, one central toast — so that a project spawned from this pairing can adopt GraphQL without inventing a second data-layer idiom. The rationale and the rejected alternatives are in `decisions/007_infra_graphql-alongside-rest.md`.
+Demonstration contract: a GraphQL transport whose call sites cost a component exactly what REST costs it — a query composable, no manual loading state, no try/catch, inline field errors, one central toast — so a project spawned from this pairing adopts GraphQL without a second data-layer idiom. Rationale, rejected alternatives, and the pattern's edges (what a GraphQL-first project would do differently) live in `decisions/007_infra_graphql-alongside-rest.md`.
 
-The demonstrated slice is deliberately a mirror of an existing REST resource (users, feature 002) so the two paths can be read side by side. It is a template, not the primary path: the shipped pages keep using REST.
+The slice deliberately mirrors a REST resource (users, feature 002) so the two paths read side by side. It is a template, not the primary path: the shipped pages keep using REST.
 
 ## Inputs
 
@@ -24,37 +24,38 @@ The demonstrated slice is deliberately a mirror of an existing REST resource (us
 
 ## Outputs And Side Effects
 
-| Output / Side Effect      | Type                | Description                                                                                                       |
-| ------------------------- | ------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `data.users`              | `User[]`            | All users, newest first — the same objects `GET /api/users` returns, from the same `UserResource`                 |
-| `data.updateUser`         | `User`              | The updated user, same serialization                                                                              |
-| `errors[]`                | GraphQL error array | HTTP status stays 200; the client translates this into the REST-equivalent error (see Error Handling)             |
-| Email verification notice | queued notification | Sent when `updateUser` changes the email — identical to the REST path, because both call `App\Actions\UpdateUser` |
+| Output / Side Effect      | Type                | Description                                                                                              |
+| ------------------------- | ------------------- | -------------------------------------------------------------------------------------------------------- |
+| `data.users`              | `User[]`            | All users, newest first — the same objects `GET /api/users` returns, from the same `UserResource`        |
+| `data.updateUser`         | `User`              | The updated user, same serialization                                                                     |
+| `errors[]`                | GraphQL error array | HTTP status stays 200; the client translates this into the REST-equivalent error (see Error Handling)    |
+| Email verification notice | queued notification | Sent when `updateUser` changes the email — identical to REST, because both call `App\Actions\UpdateUser` |
 
 ## Scope And Non-Goals
 
 In scope:
 
-- A `/graphql` endpoint served by Lighthouse, authenticated by the same Sanctum session cookie as the REST API.
+- A Lighthouse `/graphql` endpoint on the same Sanctum session cookie as REST.
 - A `users` query and an `updateUser` mutation over the existing user domain.
-- The frontend wrapper layer: `gql` tag, `gqlFetcher`, a `.gql.ts` service file, a query-composable file, and a demo page consuming them.
-- Error translation from GraphQL's 200-with-`errors` envelope into the project's existing `FetchError` handling.
+- The wrapper layer: `gql` tag, `gqlFetcher`, a `.gql.ts` service, a query-composable file, and a demo page.
+- Error translation from the 200-with-`errors` envelope into the existing `FetchError` handling.
 - GraphiQL at `/graphiql`, local environment only.
 
 Non-goals:
 
-- Migrating any existing page or endpoint off REST. The REST surface of features 001–003 is unchanged.
-- Subscriptions, file uploads, batched or persisted queries, pagination directives, fragment colocation, normalized client caching, schema code generation.
-- A GraphQL equivalent of every REST endpoint. Create and delete stay REST-only; the pattern generalizes without them.
-- Publishing the pattern as Catalyst stack modules — that is the follow-up to ADR 007.
+- Migrating any existing page or endpoint off REST; the surfaces of features 001–003 are unchanged.
+- **Nested relationship fields.** Resolvers return finished `UserResource` arrays, and Lighthouse's relationship directives and N+1 batching operate only on Eloquent models flowing through the resolver tree — so a `user { posts … }`-style field cannot be added incrementally. That expansion is a new decision record, priced in ADR 007 (Consequences).
+- **Schema code generation.** `gql` is an identity tag: documents are validated at runtime and in GraphiQL, not at build time. Right at two operations; the revisit trigger is in ADR 007.
+- Subscriptions, file uploads, batched or persisted queries, pagination (`@paginate` exists when needed), fragment colocation, normalized client caching.
+- A GraphQL equivalent of every REST endpoint: create and delete stay REST-only; the pattern generalizes without them.
+- Publishing the pattern as Catalyst stack modules — the follow-up to ADR 007.
 
 ## User / System Behavior
 
 - When an admin's SPA session issues the `users` query, the system returns every user, newest first, serialized by `UserResource`.
-- When an admin issues `updateUser`, the system validates the arguments, applies the change through the shared update action, and returns the updated user. The demo page sends only the arguments whose values the admin changed — an omitted GraphQL variable never reaches the resolver, so untouched fields keep their values. This is deliberately sharper than the REST edit form (which sends the whole editable set): optional arguments as partial input is one of the GraphQL advantages the demo exists to show.
-- When `updateUser` changes the email address, the system clears `email_verified_at` and queues a verification notification — the same side effect the REST endpoint has.
-- When a guest issues any operation, the system reports an authentication failure and the client behaves exactly as it does on a REST 401: the auth store is cleared and the app redirects to login.
-- When a signed-in non-admin issues any operation, the system reports an authorization failure and the client behaves as on a REST 403.
+- When an admin issues `updateUser`, the system validates the arguments, applies the change through the shared update action, and returns the updated user. The demo page sends only the arguments the admin changed — an omitted variable never reaches the resolver, so untouched fields keep their values. Deliberately sharper than the REST edit form, which sends the whole editable set: partial input is one of the GraphQL advantages the demo exists to show.
+- When `updateUser` changes the email address, the system clears `email_verified_at` and queues a verification notification — the same side effect as REST.
+- When a guest issues any operation, the system reports an authentication failure and the client behaves as on a REST 401 (auth store cleared, redirect to login); a signed-in non-admin gets an authorization failure, handled as a REST 403.
 - When arguments fail validation, the system reports the failures keyed by argument name, and the client renders them inline on the matching form fields without a toast — the same path a REST 422 takes.
 - When a component consumes a GraphQL operation, it does so through a query composable built on `useAppQuery` / `useAppMutation`, never by calling `gqlFetcher` directly.
 
@@ -67,7 +68,7 @@ Non-goals:
 | `updateUser` mutation        | ✗     | ✗    | ✓     |
 | `/graphiql` (local env only) | ✓     | ✓    | ✓     |
 
-Per-role experience: a **guest** hitting any operation is bounced to login by the client's central 401 handling. A **user** reaching `/graphql-demo` sees the page shell, then the central 403 handling navigates them to `/home` — the same treatment `/users` gives them. An **admin** sees the user list and can edit a user inline.
+Per-role experience: a **guest** is bounced to login by the central 401 handling; a **user** reaching `/graphql-demo` sees the page shell, then the 403 handling sends them to `/home` (the same treatment `/users` gives); an **admin** sees the list and edits inline.
 
 Authorization is enforced per field by `UserPolicy` (`viewAny`, `update`), not by route middleware — the endpoint itself is only gated on being authenticated, because one endpoint serves fields with different requirements.
 
@@ -79,23 +80,23 @@ Authorization is enforced per field by `UserPolicy` (`viewAny`, `update`), not b
 | Admin: `updateUser(id: 3, name: "Ada")`                   | `data.updateUser` — user 3 with the new name                   | Untouched fields keep their values          |
 | Admin: `updateUser(id: 3, email: <another user's email>)` | `errors[0].extensions.validation.email` — "already been taken" | Client shows it inline on the email field   |
 | Admin: `updateUser(id: 3, email: "new@example.com")`      | `data.updateUser.email_verified_at` is `null`                  | Verification notification queued            |
-| Non-admin: `{ users { id } }`                             | `errors[0]` authorization failure, `data.users` null           | Client navigates to `/home`                 |
-| Guest: `{ users { id } }`                                 | `errors[0]` authentication failure                             | Client clears the auth store, redirects     |
 | `updateUser(id: 99999, name: "X")`                        | `errors[0]` — model not found                                  | `@canFind` fails closed before the resolver |
+
+Guest and non-admin refusals are the Roles And Access matrix; their client behavior is tabled under Error Handling.
 
 ## Business Rules
 
-- Both transports serve the same domain rules. Validation constraints mirror `UserRequest`; the update logic is one action used by both; the outward serialization is one `UserResource`.
-- GraphQL response payloads for a user are byte-identical to the REST ones, so one Zod schema (`UserSchema`) validates both.
+- Both transports serve the same domain rules: validation mirrors `UserRequest`, the update logic is one action used by both, the outward serialization is one `UserResource`.
+- GraphQL response payloads for a user are byte-identical to the REST ones, so one Zod schema (`UserSchema`) validates both. This parity — not GraphQL idiom — is why the schema uses plain `String`/`Int` scalars rather than registered enum and `DateTime` types (ADR 007).
 - The endpoint is stateful-session authenticated. It is never opened to token or unauthenticated access without a new decision record.
-- GraphiQL is registered only in the local environment. It must not be reachable in staging or production.
+- GraphiQL is registered only in the local environment; it must not be reachable in staging or production.
 - Introspection follows Lighthouse's default; disabling it in production is an operational choice, not a contract.
 
 ## Edge Cases
 
-- **Partial data.** A GraphQL response may carry both `data` and `errors`. The client treats the presence of `errors` as failure and never surfaces partial data, matching the all-or-nothing expectation the REST call sites are written against.
+- **Partial data.** A response may carry both `data` and `errors`; the client treats any `errors` entry as failure and never surfaces partial data — the all-or-nothing expectation REST call sites are written against.
 - **Expired CSRF token.** Handled below the GraphQL layer: `gqlFetcher` posts through `fetcher`, so a 419 refreshes the cookie and retries once.
-- **Transport-level failure** (500, network, HTML error page): surfaces as an ordinary `FetchError` and is handled centrally, unchanged.
+- **Transport-level failure** (500, network, HTML error page): surfaces as an ordinary `FetchError`, handled centrally, unchanged.
 - **Unknown validation key.** A validation error whose key matches no form field still toasts through the generic path rather than being silently dropped.
 - **`updateUser` with no changed fields** succeeds and returns the user unchanged; it is not an error.
 
@@ -121,42 +122,36 @@ Authorization is enforced per field by `UserPolicy` (`viewAny`, `update`), not b
 
 ## Entry Points
 
-- `graphql/schema.graphql`: the schema — the outward contract of this feature.
-- `app/GraphQL/Queries/Users.php`, `app/GraphQL/Mutations/UpdateUser.php`: resolvers; thin, returning `UserResource` output.
-- `app/GraphQL/Validators/UpdateUserValidator.php`: the FormRequest equivalent, including the dynamic `unique` rule.
-- `app/Policies/UserPolicy.php`: the authorization rule the `@can*` directives read.
+- `graphql/schema.graphql`: the outward contract of this feature.
+- `app/GraphQL/`: thin resolvers returning `UserResource` output, `Validators/UpdateUserValidator.php` (the FormRequest mirror), `ErrorHandlers/RestStatusHandler.php`.
+- `app/Policies/UserPolicy.php`: the rule the `@can*` directives read.
 - `app/Actions/UpdateUser.php`: the update logic shared with `UserController::update`.
-- `web/utils/gqlFetcher.ts`: the transport and the error translation.
-- `web/services/user.gql.ts` and `web/services/queries/useUserGqlQueries.ts`: the two-layer service contract, GraphQL flavor.
+- `web/utils/gqlFetcher.ts`: the transport and error translation.
+- `web/services/user.gql.ts` + `web/services/queries/useUserGqlQueries.ts`: the two-layer contract, GraphQL flavor.
 - `web/pages/graphql-demo.vue`: the worked call site.
 
 ## Dependencies
 
-- `nuwave/lighthouse`: the GraphQL server.
-- `mll-lab/laravel-graphiql` (dev): the local schema explorer.
-- Feature 001 (session auth): the endpoint authenticates on the same session cookie and CSRF flow.
-- Feature 002 (user management): supplies the domain this feature exposes; its REST contract is unchanged.
-- Feature 005 (client data layer): the wrapper conventions this feature extends rather than replaces.
-- Feature 006 (form validation UX): the inline-422 path the demo page's edit form reuses.
+- `nuwave/lighthouse` (server) and `mll-lab/laravel-graphiql` (dev-only explorer).
+- Feature 001: the session cookie and CSRF flow the endpoint authenticates on.
+- Feature 002: the domain exposed here; its REST contract is unchanged.
+- Features 005/006: the wrapper conventions and inline-422 path this extends.
 
 ## Open Questions
 
 ## Tests
 
-- `tests/Feature/GraphQL/UserQueryTest.php`: admin lists users newest first; non-admin refused; guest refused; payload matches the REST serialization.
-- `tests/Feature/GraphQL/UpdateUserMutationTest.php`: admin updates name/role; email change clears verification and queues the notification; duplicate email returns a validation error keyed `email`; non-admin and guest refused; unknown id fails.
-- `tests/Feature/UserManagementTest.php`: unchanged, and must stay green — it is the proof that extracting the update action did not alter the REST contract.
-- `web/utils/gqlFetcher.spec.ts`: each row of the Error Handling table, plus the success path returning `data`.
+- `tests/Feature/GraphQL/UserQueryTest.php`: admin list order; non-admin/guest refusal; payload matches the REST serialization field for field.
+- `tests/Feature/GraphQL/UpdateUserMutationTest.php`: updates; email-change side effect; duplicate-email validation keyed `email`; non-admin/guest refusal; unknown id.
+- `tests/Feature/GraphQL/QueryCacheConfigTest.php`: the query-cache mode stays compatible with `cache.serializable_classes` (see Verification).
+- `tests/Feature/UserManagementTest.php`: unchanged and green — the proof that extracting the update action did not alter the REST contract.
+- `web/utils/gqlFetcher.spec.ts`: each row of the Error Handling table, plus the success path.
 
 ## Verification
 
-`php artisan test` — 50 passing, including the 12 new GraphQL cases and the untouched REST user-management suite, which is the proof that extracting `App\Actions\UpdateUser` left the REST contract intact. A test compares the `users` GraphQL payload against `GET /api/users` field for field. Frontend: `pnpm test` (40 passing, `gqlFetcher.spec.ts` covering every row of the Error Handling table plus catalog parity for the new keys), `pnpm typecheck`, `pnpm lint`, `pnpm format`.
+Backend `php artisan test` (50 passing, including the payload-parity case and the untouched REST suite); frontend `pnpm test`/`typecheck`/`lint`/`format` green. Live walk at `/graphql-demo`: list loads, a duplicate email renders inline with no toast, a successful update closes the dialog and refetches, a non-admin lands on `/home`, a guest gets 401.
 
-Live walk at `/graphql-demo` against the running stack: the list loads over `POST /graphql`; a duplicate email renders inline on the field with no toast; a successful update closes the dialog and the list refetches through cache invalidation; a signed-in non-admin is navigated to `/home`; a guest gets `401` (verified directly against the endpoint). All GraphQL responses are HTTP 200, so the translation layer is what produces the REST-equivalent behavior.
-
-Two integration defects were found by the live walk and fixed, neither reachable from the test suite: Lighthouse's default `store` query-cache mode 500s on every cache hit under Laravel's hardened `cache.serializable_classes => false` (now `opcache` mode, guarded by `QueryCacheConfigTest`), and `/graphql` sits outside `api/*` so it needed adding to `config/cors.php` for the cross-origin SPA.
-
-Remaining risk: the client keys on `extensions.status`, which `RestStatusHandler` sets — a Lighthouse upgrade that changes how underlying exceptions are wrapped would silently degrade every error to a generic 500 toast. The Pest tests assert the status on each error class, so that regression fails the suite rather than reaching users.
+The live walk caught two defects the suite could not: Lighthouse's `store` query-cache mode 500s on warm hits under Laravel's hardened `cache.serializable_classes => false` (now `opcache`, guarded by `QueryCacheConfigTest`), and `/graphql` sits outside `api/*` so it needed adding to `config/cors.php`. Remaining risk: the client keys on `extensions.status` from `RestStatusHandler`; a Lighthouse upgrade changing exception wrapping would degrade errors to generic toasts — the Pest tests assert the status per error class, so that fails the suite instead.
 
 ## Agent Change Rules
 

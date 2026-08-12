@@ -120,14 +120,7 @@
 
 <script setup lang="ts">
 import { mdiCheck, mdiClose, mdiPencil } from '@mdi/js';
-import {
-  email,
-  maxLength,
-  minLength,
-  required,
-  requiredIf,
-  sameAs
-} from '@regle/rules';
+import { email, maxLength, required, requiredIf } from '@regle/rules';
 
 import { useResendEmailVerification } from '@/services/queries/useAuthQueries';
 
@@ -179,11 +172,7 @@ const { r$ } = useRegle(
     name: { required, maxLength: maxLength(255) },
     email: { required, email, maxLength: maxLength(255) },
     current_password: { requiredIf: requiredIf(() => !!form.value.password) },
-    password: { minLength: minLength(8) },
-    password_confirmation: {
-      requiredIf: requiredIf(() => !!form.value.password),
-      sameAs: sameAs(() => form.value.password, 'password')
-    }
+    ...newPasswordRules(() => form.value.password, true)
   },
   { externalErrors }
 );

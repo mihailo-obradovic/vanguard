@@ -43,14 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  email,
-  maxLength,
-  minLength,
-  required,
-  requiredIf,
-  sameAs
-} from '@regle/rules';
+import { email, maxLength, required } from '@regle/rules';
 
 import type { User } from '@/types/auth';
 import type { CreateUserForm } from '@/types/user';
@@ -117,13 +110,10 @@ function buildRules() {
   return {
     name: { required, maxLength: maxLength(255) },
     email: { required, email, maxLength: maxLength(255) },
-    password: props.editMode
-      ? { minLength: minLength(8) }
-      : { required, minLength: minLength(8) },
-    password_confirmation: {
-      requiredIf: requiredIf(() => !props.editMode || !!form.value.password),
-      sameAs: sameAs(() => form.value.password, 'password')
-    }
+    ...newPasswordRules(
+      () => form.value.password,
+      () => props.editMode
+    )
   };
 }
 

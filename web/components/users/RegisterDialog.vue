@@ -41,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import { email, maxLength, minLength, required, sameAs } from '@regle/rules';
+import { email, maxLength, required } from '@regle/rules';
 
 import type { RegistrationForm } from '@/types/auth';
 
@@ -75,11 +75,7 @@ const { r$ } = useRegle(
   {
     name: { required, maxLength: maxLength(255) },
     email: { required, email, maxLength: maxLength(255) },
-    password: { required, minLength: minLength(8) },
-    password_confirmation: {
-      required,
-      sameAs: sameAs(() => form.value.password, 'password')
-    }
+    ...newPasswordRules(() => form.value.password)
   },
   { externalErrors }
 );

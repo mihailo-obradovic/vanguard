@@ -40,5 +40,5 @@ export default defineNuxtConfig({
     dirs: ['services']
   },
 
-  compatibilityDate: '2025-03-01'
+  compatibilityDate: '2026-08-11'
 });

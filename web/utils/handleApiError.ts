@@ -6,9 +6,7 @@ export interface HandleApiErrorContext {
 }
 
 export interface ErrorHandlingOptions {
-  hideToast?: boolean;
-  // Suppresses 422 toasts for forms that display validation errors inline;
-  // other errors still toast.
+  // * Suppresses 422 toasts for forms that display validation errors inline; other errors still toast.
   hideValidationToast?: boolean;
 }
 
@@ -25,11 +23,8 @@ export function handleApiError(
 
   switch (error.statusCode) {
     case 401:
+      // * Only clears the user — the isLoggedIn watcher in app.vue redirects via the branch's own authRedirectLogic.
       resetUser();
-
-      if (routePath !== '/login') {
-        navigateTo('/login');
-      }
 
       break;
     case 403:
@@ -42,12 +37,7 @@ export function handleApiError(
       break;
   }
 
-  if (options?.hideToast) {
-    return;
-  }
-
-  // Validation failures list every field's message instead of Laravel's
-  // "(and N more errors)" summary.
+  // * Validation failures list every field's message instead of Laravel's "(and N more errors)" summary.
   const validationMessages =
     error.statusCode === 422 ? getValidationMessages(error) : [];
 

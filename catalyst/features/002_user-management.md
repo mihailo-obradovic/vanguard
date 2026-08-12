@@ -44,7 +44,7 @@ Non-goals: self-service editing (feature 003 — separate contract with `current
 - All five resource routes sit behind `auth:sanctum` (guests → 401 JSON) then `admin` (non-admins → 403 JSON `{"message":"Forbidden. Admin access required."}`); `UserRequest::authorize()` re-checks `isAdmin()` as a second gate.
 - Create assigns name/email/password then `role = $data['role'] ?? Role::User` by property assignment (deliberately bypassing the fillable list, which excludes `role`).
 - Update is a true partial update: only present keys apply; email goes through `changeEmail()` (same-email resubmission is a no-op — no verification reset, no mail); role changes only when the key is present. **No `current_password` challenge — an admin changes any password, including their own, with just a session** (deliberate asymmetry vs feature 003).
-- Delete: self-deletion is blocked with 422 `"You cannot delete your own account."`; deleting other users (including other admins) is permitted and hard.
+- Delete: self-deletion is blocked with 403 `"You cannot delete your own account."` (authenticated-but-not-allowed per the http-layer status table); deleting other users (including other admins) is permitted and hard.
 - SPA (`web/pages/users.vue`, self-contained page): table of all users with role/verification badges; create/edit modal (one form, password optional in edit — key omitted when blank); delete confirmation dialog; per-row in-flight state; success toasts; 422s inline via Regle external errors. Query invalidation runs in `onSettled` on the `users` keys.
 - Frontend access control is backend-driven: the nav link is hidden for non-admins (cosmetic), but the route has **no admin middleware** — a logged-in non-admin who navigates to `/users` mounts the page, gets 403 from the API, is toasted and bounced to `/home` by the central error handler.
 
@@ -55,7 +55,7 @@ Non-goals: self-service editing (feature 003 — separate contract with `current
 | `GET /api/users`, `GET /api/users/{id}`                                                | 401   | 403  | ✔                               |
 | `POST /api/users` (incl. `role: admin`)                                                | 401   | 403  | ✔                               |
 | `PUT/PATCH /api/users/{id}` (incl. role changes, passwords without `current_password`) | 401   | 403  | ✔                               |
-| `DELETE /api/users/{id}`                                                               | 401   | 403  | ✔ (404 unknown id; 422 on self) |
+| `DELETE /api/users/{id}`                                                               | 401   | 403  | ✔ (404 unknown id; 403 on self) |
 
 Walkthroughs — Admin: sees the Users nav entry, full table, all actions; may edit their own row (including demoting themselves — see Edge Cases). User: no nav entry; direct navigation to `/users` renders briefly, then 403 → toast + `/home`. Guest: `/users` → `/login` via default-deny route middleware (feature 001).
 
@@ -66,7 +66,7 @@ Walkthroughs — Admin: sees the Users nav entry, full table, all actions; may e
 | `POST /api/users` with `role: "admin"`    | 201, `data.role = "admin"`    | tested — admins mint admins                  |
 | `POST /api/users` without `role`          | 201, `data.role = "user"`     | tested — controller default                  |
 | `PUT /api/users/{id}` `{name, role}` only | 200, email/password untouched | tested — partial update                      |
-| `DELETE /api/users/{own-id}`              | 422, row intact               | tested — the only self-guard                 |
+| `DELETE /api/users/{own-id}`              | 403, row intact               | tested — the only self-guard                 |
 | `GET /api/users` as non-admin             | 403                           | tested (status only; body string unasserted) |
 
 ## Business Rules
@@ -109,12 +109,14 @@ Walkthroughs — Admin: sees the Users nav entry, full table, all actions; may e
 
 ## Tests
 
-- `tests/Feature/UserManagementTest.php` — 8 tests: list (count + `total`), non-admin 403, guest 401, create admin, create default role, partial update with role promotion, hard delete, self-delete 422. Plus 2 in `ProfileTest.php`: admin email change resets verification + sends mail; name-only edit doesn't.
+- `tests/Feature/UserManagementTest.php` — 8 tests: list (count + `total`), non-admin 403, guest 401, create admin, create default role, partial update with role promotion, hard delete, self-delete 403 (message asserted). Plus 2 in `ProfileTest.php`: admin email change resets verification + sends mail; name-only edit doesn't.
 - Known gaps (recorded): `show` wholly untested (incl. 404s); non-GET verbs untested for 401/403; the 403 body string unasserted; zero `UserRequest` validation-failure tests (duplicate/uppercase email, weak/mismatched password, invalid role); password-change-without-`current_password` asymmetry unasserted; self-demotion & last-admin scenarios untested; `latest()` ordering unasserted despite the test name; PATCH unexercised; post-delete orphan cleanup untested; frontend page/services/queries have no tests.
 
 ## Verification
 
 Backend suite green at adoption: `php artisan test` → 36 passed (98 assertions) including all 8 user-management tests. Endpoint behavior, validation pivot, and role semantics verified line-by-line against controller/request/middleware source; SPA flow traced through `users.vue` and the query layer (2026-08-02).
+
+2026-08-12: self-delete guard moved from 422 `{message}` (the only 422 without an `errors` key) to 403 via `abort_if`, aligning with the http-layer status table; test updated to assert 403 + message — 38 tests green.
 
 ## Agent Change Rules
 

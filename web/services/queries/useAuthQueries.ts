@@ -18,30 +18,24 @@ import type {
 } from '@/types/auth';
 import type { ProfileForm } from '@/types/user';
 
-export const authQueryKeys = {
-  register: ['auth', 'register'],
-  logIn: ['auth', 'logIn'],
-  logOut: ['auth', 'logOut'],
-  updateProfile: ['auth', 'updateProfile'],
-  resendEmailVerification: ['auth', 'resendEmailVerification'],
-  generatePasswordResetEmail: ['auth', 'generatePasswordResetEmail'],
-  resetPassword: ['auth', 'resetPassword']
-} as const;
-
 export function useRegister(
   options: Omit<
-    AppMutationOptions<void, RegistrationForm>,
+    AppMutationOptions<User, RegistrationForm>,
     'key' | 'mutation'
   > = {}
 ) {
   const { setUser } = useAuthStore();
 
   return useAppMutation({
-    key: authQueryKeys.register,
-    mutation: (credentials: RegistrationForm) => register(credentials),
+    // * The user fetch is part of the mutation so its failure lands on the mutation's error path.
+    mutation: async (credentials: RegistrationForm) => {
+      await register(credentials);
+
+      return fetchCurrentUser();
+    },
     ...options,
     onSuccess: async (data, vars, context) => {
-      setUser(await fetchCurrentUser());
+      setUser(data);
 
       await options.onSuccess?.(data, vars, context);
     }
@@ -49,16 +43,36 @@ export function useRegister(
 }
 
 export function useLogIn(
-  options: Omit<AppMutationOptions<void, Credentials>, 'key' | 'mutation'> = {}
+  options: Omit<AppMutationOptions<User, Credentials>, 'key' | 'mutation'> = {}
 ) {
   const { setUser } = useAuthStore();
 
   return useAppMutation({
-    key: authQueryKeys.logIn,
-    mutation: (credentials: Credentials) => logIn(credentials),
+    // * The user fetch is part of the mutation so its failure lands on the mutation's error path.
+    mutation: async (credentials: Credentials) => {
+      await logIn(credentials);
+
+      return fetchCurrentUser();
+    },
     ...options,
     onSuccess: async (data, vars, context) => {
-      setUser(await fetchCurrentUser());
+      setUser(data);
+
+      await options.onSuccess?.(data, vars, context);
+    }
+  });
+}
+
+export function useRefreshUser(
+  options: Omit<AppMutationOptions<User, void>, 'key' | 'mutation'> = {}
+) {
+  const { setUser } = useAuthStore();
+
+  return useAppMutation({
+    mutation: () => fetchCurrentUser(),
+    ...options,
+    onSuccess: async (data, vars, context) => {
+      setUser(data);
 
       await options.onSuccess?.(data, vars, context);
     }
@@ -71,7 +85,6 @@ export function useLogOut(
   const { resetUser } = useAuthStore();
 
   return useAppMutation({
-    key: authQueryKeys.logOut,
     mutation: () => logOut(),
     ...options,
     onSuccess: async (data, vars, context) => {
@@ -88,7 +101,6 @@ export function useUpdateProfile(
   const { setUser } = useAuthStore();
 
   return useAppMutation({
-    key: authQueryKeys.updateProfile,
     mutation: (form: ProfileForm) => updateProfile(form),
     ...options,
     onSuccess: async (data, vars, context) => {
@@ -103,7 +115,6 @@ export function useResendEmailVerification(
   options: Omit<AppMutationOptions<void, void>, 'key' | 'mutation'> = {}
 ) {
   return useAppMutation({
-    key: authQueryKeys.resendEmailVerification,
     mutation: () => resendEmailVerification(),
     ...options
   });
@@ -116,7 +127,6 @@ export function useGeneratePasswordResetEmail(
   > = {}
 ) {
   return useAppMutation({
-    key: authQueryKeys.generatePasswordResetEmail,
     mutation: (form: { email: string }) => generatePasswordResetEmail(form),
     ...options
   });
@@ -129,7 +139,6 @@ export function useResetPassword(
   > = {}
 ) {
   return useAppMutation({
-    key: authQueryKeys.resetPassword,
     mutation: (form: PasswordResetForm) => resetPassword(form),
     ...options
   });

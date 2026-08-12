@@ -81,7 +81,7 @@
       </div>
     </div>
 
-    <!-- Edit Profile Form -->
+    <!-- * Edit Profile Form -->
     <div v-if="showEditForm" class="modal-overlay" @click="closeEditForm">
       <div
         ref="editProfileModal"
@@ -207,23 +207,16 @@
 </template>
 
 <script setup lang="ts">
-import {
-  email,
-  maxLength,
-  minLength,
-  required,
-  requiredIf,
-  sameAs
-} from '@regle/rules';
+import { email, maxLength, required, requiredIf } from '@regle/rules';
 
-import { fetchCurrentUser } from '@/services/auth.api';
 import {
+  useRefreshUser,
   useUpdateProfile,
   useResendEmailVerification
 } from '@/services/queries/useAuthQueries';
 import type { ProfileForm } from '@/types/user';
 
-// Edit form state
+// * Edit form state
 const editProfileModal = useTemplateRef('editProfileModal');
 const showEditForm = ref(false);
 const profileForm = ref({
@@ -238,7 +231,13 @@ const route = useRoute();
 const router = useRouter();
 
 const { user } = storeToRefs(useAuthStore());
-const { setUser } = useAuthStore();
+
+const { mutate: refreshUser } = useRefreshUser({
+  onSuccess: () => {
+    $toast('Your email has been verified.', 'success');
+    router.replace({ query: {} });
+  }
+});
 
 const { mutate: resendVerification, isLoading: isResending } =
   useResendEmailVerification({
@@ -259,8 +258,7 @@ const {
   }
 });
 
-// Mirrors ProfileUpdateRequest: the current password is only needed when
-// setting a new one.
+// * Mirrors ProfileUpdateRequest: the current password is only needed when setting a new one.
 const { r$ } = useRegle(
   profileForm,
   {
@@ -269,11 +267,7 @@ const { r$ } = useRegle(
     current_password: {
       requiredIf: requiredIf(() => !!profileForm.value.password)
     },
-    password: { minLength: minLength(8) },
-    password_confirmation: {
-      requiredIf: requiredIf(() => !!profileForm.value.password),
-      sameAs: sameAs(() => profileForm.value.password, 'password')
-    }
+    ...newPasswordRules(() => profileForm.value.password, true)
   },
   { externalErrors: useExternalErrors(useValidationErrors(updateProfileError)) }
 );
@@ -317,7 +311,7 @@ async function handleSubmitProfile() {
     current_password: profileForm.value.current_password
   };
 
-  // Only include password if provided
+  // * Only include password if provided
   if (profileForm.value.password) {
     updateData.password = profileForm.value.password;
     updateData.password_confirmation = profileForm.value.password_confirmation;
@@ -326,8 +320,7 @@ async function handleSubmitProfile() {
   updateProfile(updateData);
 }
 
-// Move focus into the dialog so Escape and keyboard navigation work without
-// a pointer.
+// * Move focus into the dialog so Escape and keyboard navigation work without a pointer.
 watch(showEditForm, async (isOpen) => {
   if (isOpen) {
     await nextTick();
@@ -335,11 +328,9 @@ watch(showEditForm, async (isOpen) => {
   }
 });
 
-onMounted(async () => {
+onMounted(() => {
   if (route.query.verified === '1') {
-    setUser(await fetchCurrentUser());
-    $toast('Your email has been verified.', 'success');
-    router.replace({ query: {} });
+    refreshUser();
   }
 });
 </script>
@@ -517,7 +508,7 @@ onMounted(async () => {
   font-size: 18px;
 }
 
-/* Modal Styles */
+/* * Modal Styles */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -540,8 +531,7 @@ onMounted(async () => {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* The container is focused programmatically on open; the visible focus ring
-   belongs on the controls inside, not the dialog itself. */
+/* * The container is focused programmatically on open; the visible focus ring belongs on the controls inside, not the dialog itself. */
 .modal:focus {
   outline: none;
 }

@@ -4,7 +4,7 @@
 
 Active
 
-Retro-documented at brownfield adoption (2026-08-02) from code, tests, and the original design spec (`docs/superpowers/specs/2026-07-29-self-service-profile-design.md`, implemented 2026-07-29 in `c7cf4d6` + `d7e1934`). The backend matches the spec verbatim; the frontend exceeds it.
+Retro-documented at brownfield adoption (2026-08-02) from code, tests, and the original design spec (implemented 2026-07-29 in `c7cf4d6` + `d7e1934`). The backend matched that spec verbatim and the frontend exceeded it; this document has since superseded the spec, which was removed.
 
 ## Task Weight
 

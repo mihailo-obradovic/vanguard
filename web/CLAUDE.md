@@ -7,7 +7,7 @@ Paths below are relative to the repo root. The `catalyst/` documents are normati
 ## Structure
 
 - `app.vue` / `error.vue` — entry and error shells; `layouts/Default.vue` is the single layout.
-- `components/shared/` — auto-imported shared components (`components.dirs` in `nuxt.config.ts`); everything else is explicitly imported.
+- `components/_shared/` — auto-imported shared components (`components.dirs` in `nuxt.config.ts`); everything else is explicitly imported.
 - `composables/` — `useAppQuery` / `useAppMutation` (the only query/mutation wrappers components may use), `useValidationErrors` / `useExternalErrors` (server-422-to-Regle bridge), `useCookieConsent`.
 - `middleware/auth.global.ts` — the only route middleware; a thin wrapper over the pure, unit-tested `utils/authRedirectLogic.ts`.
 - `pages/` — file-based routes: `index`, `home`, `profile`, `users`, plus the auth pages (`login`, `register`, `forgot-password`, `password-reset/[token]`).

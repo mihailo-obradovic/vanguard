@@ -1,7 +1,6 @@
 import type { FetchError } from 'ofetch';
 
-// Extracts Laravel's 422 payload ({ errors: { field: [messages] } }) as a
-// field-keyed map, matching the shape Regle expects for external errors.
+// * Extracts Laravel's 422 payload ({ errors: { field: [messages] } }) as a field-keyed map, matching the shape Regle expects for external errors.
 export function getValidationErrors(
   error: FetchError
 ): Record<string, string[]> {

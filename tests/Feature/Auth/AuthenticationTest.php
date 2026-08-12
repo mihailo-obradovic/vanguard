@@ -44,6 +44,15 @@ test('login is rate limited after five failed attempts', function () {
     expect($response->json('message'))->toContain('seconds');
 });
 
+test('authenticated requests to guest routes return 403 instead of redirecting', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)->postJson('/login', [
+        'email' => $user->email,
+        'password' => 'password',
+    ])->assertForbidden();
+});
+
 test('authenticated users can fetch the current user', function () {
     $user = User::factory()->create();
 
@@ -60,7 +69,7 @@ test('guests cannot fetch the current user', function () {
 });
 
 test('unauthenticated api requests return 401 instead of redirecting to a login route', function () {
-    // A non-JSON request must not try to redirect to a (non-existent) login route.
+    // * A non-JSON request must not try to redirect to a (non-existent) login route.
     $this->get('/api/user')->assertUnauthorized();
 });
 

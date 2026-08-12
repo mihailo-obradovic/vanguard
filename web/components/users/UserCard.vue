@@ -9,7 +9,7 @@
         @keydown.enter="handleEnterKey"
       >
         <GapContainer class="justify-space-between align-center mb-2">
-          <h2>Profile</h2>
+          <h2>{{ $t('profile.title') }}</h2>
 
           <GapContainer>
             <v-btn
@@ -55,7 +55,7 @@
           <v-text-field
             v-model="form.name"
             :error-messages="r$.name.$errors"
-            label="Name"
+            :label="$t('common.fields.name')"
             variant="outlined"
             :readonly="!editMode"
           />
@@ -63,7 +63,7 @@
           <v-text-field
             v-model="form.email"
             :error-messages="r$.email.$errors"
-            label="Email"
+            :label="$t('common.fields.email')"
             variant="outlined"
             :readonly="!editMode"
           />
@@ -76,8 +76,8 @@
             >
               {{
                 user?.email_verified_at
-                  ? 'Email verified'
-                  : 'Email not verified'
+                  ? $t('profile.info.verified')
+                  : $t('profile.info.notVerified')
               }}
             </v-chip>
 
@@ -89,7 +89,7 @@
               :loading="isResending"
               @click="resendVerification()"
             >
-              Resend email
+              {{ $t('profile.info.resend') }}
             </v-btn>
           </GapContainer>
 
@@ -97,7 +97,7 @@
             <PasswordField
               v-model="form.current_password"
               :error-messages="r$.current_password.$errors"
-              label="Current password"
+              :label="$t('common.fields.currentPassword')"
               variant="outlined"
             />
 
@@ -105,7 +105,7 @@
               v-model="form.password"
               v-model:visible="showNewPassword"
               :error-messages="r$.password.$errors"
-              label="New password (optional)"
+              :label="$t('common.fields.newPassword')"
               variant="outlined"
             />
 
@@ -113,7 +113,7 @@
               v-model="form.password_confirmation"
               v-model:visible="showNewPassword"
               :error-messages="r$.password_confirmation.$errors"
-              label="Confirm new password"
+              :label="$t('common.fields.confirmNewPassword')"
               variant="outlined"
             />
           </template>
@@ -143,6 +143,8 @@ const emit = defineEmits<{
   update: [form: ProfileForm];
 }>();
 
+const { t } = useI18n();
+
 const { user } = storeToRefs(useAuthStore());
 
 const editMode = ref(false);
@@ -152,7 +154,7 @@ const showNewPassword = ref(false);
 const { mutate: resendVerification, isLoading: isResending } =
   useResendEmailVerification({
     onSuccess: () => {
-      $toast('Verification email sent. Check your inbox.', 'success');
+      $toast(t('profile.toasts.verificationSent'), 'success');
     }
   });
 

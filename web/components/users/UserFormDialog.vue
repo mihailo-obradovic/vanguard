@@ -3,32 +3,40 @@
     v-model="dialog"
     :confirm-disabled="r$.$invalid"
     :loading="loading"
-    :title="editMode ? 'Edit User' : 'Create User'"
+    :title="editMode ? $t('users.form.editTitle') : $t('users.create')"
     @cancel="handleCancel"
     @confirm="handleConfirm"
   >
     <v-text-field
       v-model="form.name"
       :error-messages="r$.name.$errors"
-      label="Name"
+      :label="$t('common.fields.name')"
       required
     />
 
     <v-text-field
       v-model="form.email"
       :error-messages="r$.email.$errors"
-      label="Email"
+      :label="$t('common.fields.email')"
       type="email"
       required
     />
 
-    <v-select v-model="form.role" :items="roleItems" label="Role" />
+    <v-select
+      v-model="form.role"
+      :items="roleItems"
+      :label="$t('common.fields.role')"
+    />
 
     <PasswordField
       v-model="form.password"
       v-model:visible="showPassword"
       :error-messages="r$.password.$errors"
-      :label="editMode ? 'New password (optional)' : 'Password'"
+      :label="
+        editMode
+          ? $t('common.fields.newPassword')
+          : $t('common.fields.password')
+      "
       :required="!editMode"
     />
 
@@ -36,7 +44,11 @@
       v-model="form.password_confirmation"
       v-model:visible="showPassword"
       :error-messages="r$.password_confirmation.$errors"
-      :label="editMode ? 'Confirm new password' : 'Confirm Password'"
+      :label="
+        editMode
+          ? $t('common.fields.confirmNewPassword')
+          : $t('common.fields.passwordConfirmation')
+      "
       :required="!editMode"
     />
   </CardDialog>
@@ -69,10 +81,12 @@ const emit = defineEmits<{
 
 const dialog = defineModel<boolean>({ required: true });
 
-const roleItems = [
-  { title: 'User', value: 'user' },
-  { title: 'Admin', value: 'admin' }
-];
+const { t } = useI18n();
+
+const roleItems = computed(() => [
+  { title: t('users.roles.user'), value: 'user' },
+  { title: t('users.roles.admin'), value: 'admin' }
+]);
 
 function emptyForm(): CreateUserForm {
   return {

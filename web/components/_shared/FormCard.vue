@@ -18,7 +18,7 @@
         <v-row no-gutters class="d-flex ga-4">
           <v-col>
             <v-btn block variant="outlined" @click="emit('cancel')">
-              Cancel
+              {{ $t('common.actions.cancel') }}
             </v-btn>
           </v-col>
 
@@ -31,7 +31,7 @@
               variant="flat"
               @click="emit('confirm')"
             >
-              Confirm
+              {{ $t('common.actions.confirm') }}
             </v-btn>
           </v-col>
         </v-row>

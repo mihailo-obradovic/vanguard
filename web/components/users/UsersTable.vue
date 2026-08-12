@@ -3,11 +3,13 @@
     <v-table fixed-header class="w-100 users-table">
       <thead>
         <tr>
-          <th class="font-weight-bold">ID</th>
-          <th class="font-weight-bold">Name</th>
-          <th class="font-weight-bold">Email</th>
-          <th class="font-weight-bold">Role</th>
-          <th class="font-weight-bold text-right">Actions</th>
+          <th class="font-weight-bold">{{ $t('users.columns.id') }}</th>
+          <th class="font-weight-bold">{{ $t('users.columns.name') }}</th>
+          <th class="font-weight-bold">{{ $t('users.columns.email') }}</th>
+          <th class="font-weight-bold">{{ $t('users.columns.role') }}</th>
+          <th class="font-weight-bold text-right">
+            {{ $t('users.columns.actions') }}
+          </th>
         </tr>
       </thead>
 
@@ -22,7 +24,7 @@
               variant="flat"
               size="small"
             >
-              {{ user.role }}
+              {{ $t(`users.roles.${user.role}`) }}
             </v-chip>
           </td>
           <td class="text-right">

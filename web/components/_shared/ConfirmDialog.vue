@@ -1,7 +1,7 @@
 <template>
   <CardDialog
     v-model="dialog"
-    :title="title"
+    :title="title ?? $t('common.confirmTitle')"
     :loading="loading"
     :fullscreen-on-mobile="false"
     :confirm-on-enter="false"
@@ -22,11 +22,7 @@ withDefaults(
     loading?: boolean;
     destructive?: boolean;
   }>(),
-  {
-    title: 'Are you sure?',
-    loading: false,
-    destructive: false
-  }
+  { loading: false, destructive: false }
 );
 
 const emit = defineEmits<{

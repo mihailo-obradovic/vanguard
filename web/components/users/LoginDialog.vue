@@ -3,7 +3,7 @@
     v-model="dialog"
     :confirm-disabled="r$.$invalid"
     :loading="loading"
-    title="Log In"
+    :title="$t('auth.login.title')"
     @cancel="handleCancel"
     @confirm="handleConfirm"
     @after-leave="handleAfterLeave"
@@ -11,7 +11,7 @@
     <v-text-field
       v-model="form.email"
       :error-messages="r$.email.$errors"
-      label="Email"
+      :label="$t('common.fields.email')"
       type="email"
       required
     />
@@ -19,7 +19,7 @@
     <PasswordField
       v-model="form.password"
       :error-messages="r$.password.$errors"
-      label="Password"
+      :label="$t('common.fields.password')"
       required
     />
 

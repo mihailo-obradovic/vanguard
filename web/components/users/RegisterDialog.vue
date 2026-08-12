@@ -3,7 +3,7 @@
     v-model="dialog"
     :confirm-disabled="r$.$invalid"
     :loading="loading"
-    title="Register"
+    :title="$t('auth.register.title')"
     @cancel="handleCancel"
     @confirm="handleConfirm"
     @after-leave="handleAfterLeave"
@@ -11,14 +11,14 @@
     <v-text-field
       v-model="form.name"
       :error-messages="r$.name.$errors"
-      label="Name"
+      :label="$t('common.fields.name')"
       required
     />
 
     <v-text-field
       v-model="form.email"
       :error-messages="r$.email.$errors"
-      label="Email"
+      :label="$t('common.fields.email')"
       type="email"
       required
     />
@@ -27,7 +27,7 @@
       v-model="form.password"
       v-model:visible="showPassword"
       :error-messages="r$.password.$errors"
-      label="Password"
+      :label="$t('common.fields.password')"
       required
     />
 
@@ -35,7 +35,7 @@
       v-model="form.password_confirmation"
       v-model:visible="showPassword"
       :error-messages="r$.password_confirmation.$errors"
-      label="Confirm Password"
+      :label="$t('common.fields.passwordConfirmation')"
       required
     />
 

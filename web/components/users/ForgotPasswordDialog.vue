@@ -3,7 +3,7 @@
     v-model="dialog"
     :confirm-disabled="r$.$invalid"
     :loading="loading"
-    title="Forgot Password"
+    :title="$t('auth.forgotPassword.title')"
     @cancel="handleCancel"
     @confirm="handleConfirm"
     @after-leave="handleAfterLeave"
@@ -15,12 +15,14 @@
     <v-text-field
       v-model="form.email"
       :error-messages="r$.email.$errors"
-      label="Email"
+      :label="$t('common.fields.email')"
       type="email"
       required
     />
 
-    <LinkButton @click="handleBackToLoginClick">Back to login?</LinkButton>
+    <LinkButton @click="handleBackToLoginClick">
+      {{ $t('auth.backToLogin') }}
+    </LinkButton>
   </CardDialog>
 </template>
 

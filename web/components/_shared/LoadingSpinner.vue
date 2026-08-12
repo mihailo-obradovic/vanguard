@@ -1,9 +1,13 @@
 <template>
-  <div class="spinner-wrapper">
+  <div
+    ref="wrapper"
+    class="d-flex justify-center align-center pa-4 w-100"
+    :style="wrapperStyle"
+  >
     <v-progress-circular
       :indeterminate="isLoading"
       color="primary"
-      :class="classList"
+      class="z-index-top"
     />
   </div>
 </template>
@@ -15,24 +19,14 @@ const props = defineProps<{
 
 const isLoading = defineModel<boolean>({ required: true });
 
-const classList = computed(() => {
-  return {
-    'z-index-top': true,
-    'fill-height': props.fillHeight
-  };
-});
+const wrapper = useTemplateRef('wrapper');
+
+// * Where the wrapper starts in the viewport, so fillHeight spans exactly the space below it (app bar and siblings included)
+const { top } = useElementBounding(wrapper, { windowScroll: false });
+
+const wrapperStyle = computed(() =>
+  props.fillHeight
+    ? { height: `calc(100dvh - ${top.value}px - var(--v-layout-bottom, 0px))` }
+    : undefined
+);
 </script>
-
-<style scoped lang="scss">
-.spinner-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 1rem;
-  width: 100%;
-}
-
-.fill-height {
-  height: calc(100vh); // TODO: Update with a dynamic value
-}
-</style>

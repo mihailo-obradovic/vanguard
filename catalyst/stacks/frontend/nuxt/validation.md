@@ -69,7 +69,7 @@ The module also auto-imports `useRegleSchema` and `inferSchema` from `@regle/sch
 - The form component keeps a plain `ref` form model and calls `useRegle(form, rules, { externalErrors })`.
 - Rules that depend on props (create mode vs edit mode) use a **rules getter** — `useRegle(form, () => ({ … }), …)` — so they re-evaluate when the props change.
 - Inputs bind the field's errors; confirm buttons bind `r$.$invalid`; submit handlers `await r$.$validate()` before mutating.
-- Dialogs call `r$.$reset()` when they close or reopen, so a cancelled edit does not leave errors behind.
+- Dialogs reset on open with `r$.$reset({ toInitialState: true, clearExternalErrors: true })` (or `toState` when the fresh state depends on props), so a cancelled edit does not leave values or errors behind — no manual `Object.assign` back to an initial-form copy.
 - **No manual `isFormValid` computed.** Regle owns validity.
 
 ## Server 422s appear inline, not as toasts

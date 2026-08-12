@@ -190,8 +190,7 @@ const { r$ } = useRegle(
 function resetForm() {
   editMode.value = false;
 
-  Object.assign(form.value, initialForm.value);
-  r$.$reset();
+  r$.$reset({ toState: { ...initialForm.value }, clearExternalErrors: true });
 }
 
 async function handleSubmit() {

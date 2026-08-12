@@ -54,12 +54,10 @@ const emit = defineEmits<{
 
 const dialog = defineModel<boolean>({ required: true });
 
-const initialForm = {
+const form = ref<Credentials>({
   email: 'test@example.com',
   password: 'gmaz1234'
-};
-
-const form = ref(Object.assign({}, initialForm));
+});
 
 const externalErrors = useExternalErrors(() => props.serverErrors);
 
@@ -90,10 +88,9 @@ function handleForgotPasswordClick() {
   emit('forgot-password-click');
 }
 
-watch(dialog, (value) => {
-  if (!value) {
-    Object.assign(form.value, initialForm);
-    r$.$reset();
+watch(dialog, (open) => {
+  if (open) {
+    r$.$reset({ toInitialState: true, clearExternalErrors: true });
   }
 });
 </script>

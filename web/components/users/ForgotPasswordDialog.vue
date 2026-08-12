@@ -38,11 +38,9 @@ const emit = defineEmits<{
 
 const dialog = defineModel<boolean>({ required: true });
 
-const initialForm = {
+const form = ref({
   email: ''
-};
-
-const form = ref(Object.assign({}, initialForm));
+});
 
 const externalErrors = useExternalErrors(() => props.serverErrors);
 
@@ -66,10 +64,9 @@ async function handleConfirm() {
   }
 }
 
-watch(dialog, (value) => {
-  if (!value) {
-    form.value = Object.assign({}, initialForm);
-    r$.$reset();
+watch(dialog, (open) => {
+  if (open) {
+    r$.$reset({ toInitialState: true, clearExternalErrors: true });
   }
 });
 </script>

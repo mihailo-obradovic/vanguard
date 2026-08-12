@@ -61,14 +61,12 @@ const dialog = defineModel<boolean>({ required: true });
 
 const showPassword = ref(false);
 
-const initialForm = {
+const form = ref<RegistrationForm>({
   name: '',
   email: '',
   password: '',
   password_confirmation: ''
-};
-
-const form = ref(Object.assign({}, initialForm));
+});
 
 const externalErrors = useExternalErrors(() => props.serverErrors);
 
@@ -98,11 +96,10 @@ async function handleConfirm() {
   }
 }
 
-watch(dialog, (value) => {
-  if (!value) {
-    Object.assign(form.value, initialForm);
+watch(dialog, (open) => {
+  if (open) {
     showPassword.value = false;
-    r$.$reset();
+    r$.$reset({ toInitialState: true, clearExternalErrors: true });
   }
 });
 </script>

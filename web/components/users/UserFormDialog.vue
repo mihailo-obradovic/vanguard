@@ -131,18 +131,20 @@ watch(dialog, (open) => {
     return;
   }
 
-  form.value =
-    props.editMode && props.user
-      ? {
-          name: props.user.name,
-          email: props.user.email,
-          password: '',
-          password_confirmation: '',
-          role: props.user.role
-        }
-      : emptyForm();
-
   showPassword.value = false;
-  r$.$reset();
+
+  r$.$reset({
+    toState:
+      props.editMode && props.user
+        ? {
+            name: props.user.name,
+            email: props.user.email,
+            password: '',
+            password_confirmation: '',
+            role: props.user.role
+          }
+        : emptyForm(),
+    clearExternalErrors: true
+  });
 });
 </script>

@@ -6,12 +6,12 @@
   >
     <v-card role="region" aria-label="Cookie consent" class="pa-4">
       <div class="d-flex flex-column flex-sm-row align-sm-center ga-4">
-        <p class="text-body-2 flex-grow-1">
+        <p class="text-body-2 grow">
           We use cookies to enhance your experience. You can accept or decline
           non-essential cookies.
         </p>
 
-        <div class="d-flex justify-end ga-2 flex-shrink-0">
+        <div class="d-flex justify-end ga-2 shrink-0">
           <v-btn variant="outlined" @click="decline">Decline</v-btn>
 
           <v-btn color="primary" variant="flat" @click="accept">Accept</v-btn>

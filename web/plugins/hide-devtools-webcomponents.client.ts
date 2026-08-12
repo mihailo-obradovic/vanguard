@@ -1,10 +1,4 @@
-/**
- * Nuxt DevTools mounts its floating panel as two custom elements
- * (`nuxt-devtools-frame`, `nuxt-devtools-inspect-panel`), each hosting its own
- * Vue app that clutters the Vue DevTools app selector as "VueElement" entries.
- * Tag their component definitions with `devtools: { hide: true }` so
- * @vue/devtools-kit skips them and only the main app registers. Dev-only.
- */
+// * Nuxt DevTools mounts its floating panel as two custom elements (`nuxt-devtools-frame`, `nuxt-devtools-inspect-panel`), each hosting its own Vue app that clutters the Vue DevTools app selector as "VueElement" entries. Tag their component definitions with `devtools: { hide: true }` so @vue/devtools-kit skips them and only the main app registers. Dev-only.
 export default defineNuxtPlugin({
   name: 'hide-devtools-webcomponents',
   enforce: 'pre',

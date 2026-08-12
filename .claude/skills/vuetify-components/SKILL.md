@@ -1,6 +1,6 @@
 ---
 name: vuetify-components
-description: Vuetify composition patterns for this project — when to extract a shared primitive, the dialog base, the layout skeleton, theme switching, and binding Regle's errors to Vuetify inputs. Use when building dialogs, layouts, or forms with Vuetify, or deciding whether to wrap a Vuetify component in a project component.
+description: Vuetify composition patterns for this project — when to extract a shared primitive, the dialog base (scrolling, fullscreen on phones, the Enter/Esc contract, after-leave cleanup), the layout skeleton, viewport-bounded sizing with measured heights, theme switching, and binding Regle's errors to Vuetify inputs. Use when building dialogs, layouts, or forms with Vuetify, capping a table or spinner at the available page height, or deciding whether to wrap a Vuetify component in a project component.
 ---
 
 <!-- catalyst:generated skill wrapper — the substance lives in the catalyst/ documents below; edit those, never this file. Regenerated on spawn and on every upgrade apply. -->

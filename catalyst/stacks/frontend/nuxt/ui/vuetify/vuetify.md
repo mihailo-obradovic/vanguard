@@ -12,10 +12,10 @@ The Material Design component library for the Nuxt module.
 
 ## Module Documents
 
-| Document                         | What it holds            | Load                                                                                                    |
-| -------------------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------- |
-| [`setup.md`](setup.md)           | Configuration and wiring | When installing Vuetify, changing the theme or iconset, or debugging why a component or icon is missing |
-| [`components.md`](components.md) | Composition patterns     | When building dialogs, layouts, or forms, or deciding whether to add a shared primitive                 |
+| Document                         | What it holds            | Load                                                                                                                       |
+| -------------------------------- | ------------------------ | -------------------------------------------------------------------------------------------------------------------------- |
+| [`setup.md`](setup.md)           | Configuration and wiring | When installing Vuetify, changing the theme or iconset, or debugging why a component or icon is missing                    |
+| [`components.md`](components.md) | Composition patterns     | When building dialogs, layouts, or forms, sizing an element to the viewport, or deciding whether to add a shared primitive |
 
 ## Avoid By Default
 

@@ -1,6 +1,6 @@
 ---
 name: vuetify-setup
-description: Vuetify wiring for this project — the Vite and Nuxt plugin setup, theme and colour tokens, the SVG icon set, and auto-import semantics. Use when installing or upgrading Vuetify, changing the theme or adding a colour, adding icons, or debugging an unstyled component, an unknown-component warning, or an icon that renders blank.
+description: Vuetify wiring for this project — the Vite and Nuxt plugin setup, theme and colour tokens, the SVG icon set, auto-import semantics, and the optional Vuetify documentation MCP server. Use when installing or upgrading Vuetify, changing the theme or adding a colour, adding icons, registering the Vuetify MCP, or debugging an unstyled component, an unknown-component warning, or an icon that renders blank.
 ---
 
 <!-- catalyst:generated skill wrapper — the substance lives in the catalyst/ documents below; edit those, never this file. Regenerated on spawn and on every upgrade apply. -->

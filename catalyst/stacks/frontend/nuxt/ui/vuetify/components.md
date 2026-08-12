@@ -24,7 +24,25 @@ Usually not worth it: a wrapper around `v-btn`, `v-text-field`, or `v-card` that
 
 Model the open state as `defineModel<boolean>({ required: true })` so a parent binds with `v-model` and never manages a separate ref. Give it `title`, `default`, and `actions` slots, a default Cancel/Confirm button row that the `actions` slot replaces, and props for `width`, `scrollable`, `loading`, and `confirmDisabled`. Emit `cancel` and `confirm` rather than taking callback props.
 
-A fullscreen variant is the same component with `fullscreen` and a `v-toolbar` instead of a card title — worth a separate component rather than a `fullscreen` prop, because the internal structure genuinely differs.
+A fullscreen variant is the same component with `fullscreen` and a `v-toolbar` instead of a card title — worth a separate component rather than a `fullscreen` prop, because the internal structure genuinely differs. Keep the toolbar outside the scrolling region (`v-card-text` scrolls, the toolbar does not) so the title and close affordance stay visible however long the content is.
+
+### Scrolling and phones
+
+- **`scrollable` on `v-dialog` is the scrolling mechanism** — it pins the card's title and actions and confines overflow to `v-card-text`. Hand-rolled `max-height`/`overflow` CSS on the card re-implements this worse.
+- **Scroll borders only while content actually overflows.** A permanent border above the actions reads as decoration; one that appears with overflow reads as "there is more". Watch both the scroll container and its content with `useResizeObserver` and compare `scrollHeight` to `clientHeight` — observing only the container misses slot content growing inside it.
+- **Snap dialogs to fullscreen below the `xs` breakpoint** (`useDisplay().xs` — not Vuetify's `mobile`, which flags everything under 1280px), with an opt-out prop for dialogs that should stay cards. The confirm dialog uses the opt-out: a two-button question does not earn the whole screen.
+
+### Keyboard contract
+
+- **Enter confirms, Esc cancels.** `v-dialog` owns Esc already; bind Enter on the card (`@keydown.enter`) and skip it when the confirm is disabled or loading, and when the event target is an interactive element (`button, a, textarea, .v-select`) — those handle Enter themselves, and confirming as well would double-fire.
+- **Destructive confirms opt out of Enter** and color the confirm button `error`. A delete should take a pointed click, not a stray keypress — the confirm dialog exposes a `destructive` prop that sets both.
+
+### Closing is a transition, not an event
+
+`v-dialog` fades out; the dialog's content is visible the whole time. Two rules follow:
+
+- **State the dialog renders outlives the open flag.** A delete confirmation whose message derives from the record being deleted keeps its own snapshot ref; clearing it when the open flag flips empties the message mid-fade.
+- **Re-emit `after-leave`** from `v-dialog` — it fires once the close transition finishes and is the safe moment for owners to clear that snapshot, and for constant-initial-state forms to reset (`../../validation.md`, the dialog reset rule).
 
 ## Forms: Regle needs no adapter
 
@@ -76,6 +94,40 @@ Wrap this in a local composable at the bottom of the layout file (`../../../_vue
 `v-layout` wraps the app; `v-app-bar` and `v-navigation-drawer` register themselves with it and reserve their space automatically, which is why `v-main` needs no manual offsets. Navigation items belong in a `computed` so role-conditional entries filter in one place rather than through `v-if` on each item.
 
 Keep a second, near-empty layout for standalone pages — a centred `v-layout` with no chrome (`../../routing.md`, Layouts).
+
+## Sizing to the viewport
+
+**Measure, don't assume.** An element capped with hardcoded `calc(100vh - 64px - …)` math encodes the app bar's height, its own offset, and every sibling above it — and silently breaks when any of them changes. Measure instead:
+
+```ts
+const { top } = useElementBounding(root, { windowScroll: false });
+
+const maxHeight = computed(
+  () => `calc(100dvh - ${top.value}px - var(--v-layout-bottom, 0px))`
+);
+```
+
+- `useElementBounding` (VueUse) gives the element's actual top, whatever ended up above it; `windowScroll: false` stops the value from tracking page scroll.
+- **`100dvh`, not `100vh`** — mobile browser chrome makes `100vh` overflow the visible viewport.
+- **`var(--v-layout-bottom)`** is Vuetify's own accounting for layout-registered footers and bottom bars — read it rather than restating a footer height.
+- Apply the result in a scoped style via `v-bind(maxHeight)` when the target is inside a Vuetify component's internals (e.g. `:deep(.v-table__wrapper)`) — a justified exception to the deep-selector caution in [`vuetify.md`](vuetify.md), since `v-table` exposes no height prop.
+
+**The layout publishes the spacing it applies.** A descendant must not guess the page container's bottom gap (or find "some" container with `closest('.v-container')`). The layout defines a CSS variable on its page container and derives the actual padding from it, so the applied gap and the published value can never disagree:
+
+```scss
+.page-container {
+  --page-padding-bottom: #{settings.$container-padding-x};
+
+  padding-bottom: var(--page-padding-bottom);
+}
+```
+
+Descendants then subtract `var(--page-padding-bottom, 0px)` — the fallback keeps them usable outside that layout.
+
+Two compositions this pays for:
+
+- **A table capped at the page**: `v-table fixed-header` plus the measured `max-height` on `.v-table__wrapper` gives a sticky header over a body that scrolls within the page, with no page-level scrollbar.
+- **The loading indicator's `fillHeight`**: the same formula spans exactly the space below wherever the spinner landed, instead of a full-viewport overlay that centres relative to content it does not cover.
 
 ## On borrowing compositions from a reference implementation
 

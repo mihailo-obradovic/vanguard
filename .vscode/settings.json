@@ -3,6 +3,9 @@
   "i18n-ally.localesPaths": ["web/i18n/locales"],
   "i18n-ally.keystyle": "nested",
   "i18n-ally.dirStructure": "file",
+  "i18n-ally.namespace": false,
+  // ! Pinned empty on purpose: a non-empty defaultNamespace inherited from the user-level settings.json is prefixed onto every key found in source, so t('common.nav.login') is looked up as '<ns>.common.nav.login' and reported missing.
+  "i18n-ally.defaultNamespace": "",
   "i18n-ally.sourceLanguage": "en",
   "i18n-ally.displayLanguage": "en",
   "i18n-ally.enabledFrameworks": ["vue"],

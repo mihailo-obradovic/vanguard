@@ -19,6 +19,8 @@
       type="email"
       required
     />
+
+    <LinkButton @click="handleBackToLoginClick">Back to login?</LinkButton>
   </CardDialog>
 </template>
 
@@ -35,6 +37,7 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   confirm: [form: { email: string }];
+  'back-to-login-click': [];
 }>();
 
 const dialog = defineModel<boolean>({ required: true });
@@ -63,6 +66,12 @@ async function handleConfirm() {
   if (valid) {
     emit('confirm', form.value);
   }
+}
+
+function handleBackToLoginClick() {
+  dialog.value = false;
+
+  emit('back-to-login-click');
 }
 
 function handleAfterLeave() {

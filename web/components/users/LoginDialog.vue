@@ -23,15 +23,15 @@
       required
     />
 
-    <v-btn
-      class="text-none"
-      color="link"
-      size="small"
-      variant="text"
-      @click="handleForgotPasswordClick"
-    >
-      Forgot password?
-    </v-btn>
+    <GapContainer column gap="1">
+      <LinkButton @click="handleForgotPasswordClick">
+        Forgot password?
+      </LinkButton>
+
+      <LinkButton @click="handleRegisterClick">
+        Don't have an account? Register
+      </LinkButton>
+    </GapContainer>
   </CardDialog>
 </template>
 
@@ -51,6 +51,7 @@ const props = withDefaults(
 const emit = defineEmits<{
   confirm: [form: Credentials];
   'forgot-password-click': [];
+  'register-click': [];
 }>();
 
 const dialog = defineModel<boolean>({ required: true });
@@ -87,6 +88,12 @@ function handleForgotPasswordClick() {
   dialog.value = false;
 
   emit('forgot-password-click');
+}
+
+function handleRegisterClick() {
+  dialog.value = false;
+
+  emit('register-click');
 }
 
 function handleAfterLeave() {

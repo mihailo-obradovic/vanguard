@@ -38,6 +38,10 @@
       label="Confirm Password"
       required
     />
+
+    <LinkButton @click="handleLogInClick">
+      Already have an account? Log in
+    </LinkButton>
   </CardDialog>
 </template>
 
@@ -56,6 +60,7 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   confirm: [form: RegistrationForm];
+  'log-in-click': [];
 }>();
 
 const dialog = defineModel<boolean>({ required: true });
@@ -91,6 +96,12 @@ async function handleConfirm() {
   if (valid) {
     emit('confirm', form.value);
   }
+}
+
+function handleLogInClick() {
+  dialog.value = false;
+
+  emit('log-in-click');
 }
 
 function handleAfterLeave() {

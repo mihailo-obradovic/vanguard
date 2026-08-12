@@ -71,6 +71,7 @@
       :loading="isRegistering"
       :server-errors="registerErrors"
       @confirm="handleRegister"
+      @log-in-click="handleOpenLoginDialog"
     />
 
     <LoginDialog
@@ -78,7 +79,8 @@
       :loading="isLoggingIn"
       :server-errors="loginErrors"
       @confirm="handleLogin"
-      @forgot-password-click="forgotPasswordDialog = true"
+      @forgot-password-click="handleOpenForgotPasswordDialog"
+      @register-click="handleOpenRegisterDialog"
     />
 
     <ForgotPasswordDialog
@@ -86,6 +88,7 @@
       :loading="isSendingResetEmail"
       :server-errors="forgotPasswordErrors"
       @confirm="handleForgotPassword"
+      @back-to-login-click="handleOpenLoginDialog"
     />
   </v-layout>
 </template>
@@ -146,6 +149,9 @@ const {
   handleRegister,
   handleLogin,
   handleForgotPassword,
+  handleOpenRegisterDialog,
+  handleOpenLoginDialog,
+  handleOpenForgotPasswordDialog,
   isRegistering,
   isLoggingIn,
   isSendingResetEmail,
@@ -221,6 +227,19 @@ function useUserDialogs() {
 
   const forgotPasswordErrors = useValidationErrors(forgotPasswordError);
 
+  // * The dialogs are mutually exclusive: each one closes itself before emitting, so the opener here only has to raise its own flag
+  function handleOpenRegisterDialog() {
+    registerDialog.value = true;
+  }
+
+  function handleOpenLoginDialog() {
+    loginDialog.value = true;
+  }
+
+  function handleOpenForgotPasswordDialog() {
+    forgotPasswordDialog.value = true;
+  }
+
   return {
     registerDialog,
     loginDialog,
@@ -228,6 +247,9 @@ function useUserDialogs() {
     handleRegister,
     handleLogin,
     handleForgotPassword,
+    handleOpenRegisterDialog,
+    handleOpenLoginDialog,
+    handleOpenForgotPasswordDialog,
     isRegistering,
     isLoggingIn,
     isSendingResetEmail,

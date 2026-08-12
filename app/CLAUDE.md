@@ -8,13 +8,16 @@ Paths below are relative to the repo root. The `catalyst/` documents are normati
 
 ## Structure
 
+- `Actions/` — domain operations shared by more than one transport; each is a single invokable class taking already-validated data.
 - `Enums/Role.php` — persisted user roles (backed enum); values are stored in the database.
+- `GraphQL/` — the Lighthouse layer: `Queries/` and `Mutations/` resolvers (thin, named after their schema field), `Validators/` (the FormRequest equivalent), `ErrorHandlers/`, and `ResourcePayload.php`, which renders an API Resource to the same array REST sends. The schema itself is `graphql/schema.graphql` at the repo root.
 - `Http/Controllers/` — thin controllers; `Auth/` holds the Breeze-style session controllers (register, login, logout, password reset, email verification).
 - `Http/Middleware/EnsureUserIsAdmin.php` — the `admin` route alias.
 - `Http/Requests/` — FormRequests own validation and authorization.
-- `Http/Resources/UserResource.php` — API response shaping.
+- `Http/Resources/UserResource.php` — API response shaping, for both transports.
 - `Models/User.php` — Eloquent model using PHP attribute casts.
 - `Notifications/` — password-reset and email-verification notifications, queued.
+- `Policies/UserPolicy.php` — the admin rule the GraphQL `@can*` directives authorize against.
 - `Providers/AppServiceProvider.php` — app-level bindings.
 
 ## Governing documents
@@ -28,5 +31,7 @@ Paths below are relative to the repo root. The `catalyst/` documents are normati
 ## Local invariants
 
 - Validation and authorization live in FormRequests, not controllers; responses go through Resources.
+- A rule that both transports enforce has one implementation: the Resource for output, an `Actions/` class for the change, the policy for access. A GraphQL resolver that reimplements controller logic is a bug — see `catalyst/features/007_graphql-api.md`.
+- Editing `graphql/schema.graphql` outside the local environment needs `php artisan lighthouse:clear-cache`; the compiled schema is cached everywhere except `local` (tests disable it in `phpunit.xml`).
 - Async work (queued notifications) uses Laravel's built-in queue (database driver) — there is no separate worker deployable.
 - The public API surface, the session/auth contract, and the DB schema are protected areas — declared in `catalyst/architecture.md` (Protected Areas); state impact and get explicit agreement before touching them.

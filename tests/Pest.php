@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Nuwave\Lighthouse\Testing\MakesGraphQLRequests;
 use Tests\TestCase;
 
 /*
@@ -14,3 +15,6 @@ use Tests\TestCase;
 */
 
 uses(TestCase::class, RefreshDatabase::class)->in('Feature');
+
+// * GraphQL tests additionally get Lighthouse's graphQL() helper and response assertions.
+uses(MakesGraphQLRequests::class)->in('Feature/GraphQL');

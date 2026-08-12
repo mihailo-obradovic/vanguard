@@ -1,0 +1,54 @@
+# * The GraphQL surface of the application. Behavior contract: catalyst/features/007_graphql-api.md.
+# *
+# * Every type here is serialized by the same API Resource the REST API uses, so a field is
+# * spelled and shaped identically on both transports and one client-side schema validates both.
+# * That is why the scalars below are plain String/Int rather than Lighthouse's DateTime: the
+# * resolvers hand back the exact array Laravel would have sent over REST, already rendered,
+# * and GraphQL passes it through untouched.
+
+"A user account. Mirrors App\\Http\\Resources\\UserResource field for field."
+type User {
+  id: Int!
+  name: String!
+  email: String!
+  "Either `user` or `admin` — the backing value of App\\Enums\\Role."
+  role: String!
+  "ISO-8601, or null while the address is unverified."
+  email_verified_at: String
+  "ISO-8601."
+  created_at: String!
+  "ISO-8601."
+  updated_at: String!
+}
+
+type Query {
+  """
+  Every user, newest first — the REST `GET /api/users` list without its `total` envelope.
+  Admin only, via UserPolicy::viewAny.
+  """
+  users: [User!]!
+    @guard
+    @canModel(ability: "viewAny", model: "App\\Models\\User")
+}
+
+type Mutation {
+  """
+  Update a user and return it.
+
+  Admin only, via UserPolicy::update. Arguments are optional so a caller sends only what it
+  changes; validation mirrors App\\Http\\Requests\\UserRequest through UpdateUserValidator,
+  and the change itself runs through the same App\\Actions\\UpdateUser the REST endpoint
+  uses — including resetting verification and queueing the notice when the email changes.
+  """
+  updateUser(
+    id: Int!
+    name: String
+    email: String
+    password: String
+    password_confirmation: String
+    role: String
+  ): User!
+    @guard
+    @canFind(ability: "update", find: "id", model: "App\\Models\\User")
+    @validator(class: "UpdateUserValidator")
+}

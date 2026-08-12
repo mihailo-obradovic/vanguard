@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\UpdateUser;
 use App\Enums\Role;
 use App\Http\Requests\UserRequest;
 use App\Http\Resources\UserResource;
@@ -56,25 +57,9 @@ class UserController extends Controller
     /**
      * Update the specified user.
      */
-    public function update(UserRequest $request, User $user): JsonResource
+    public function update(UserRequest $request, User $user, UpdateUser $updateUser): JsonResource
     {
-        $data = $request->validated();
-
-        $emailChanged = array_key_exists('email', $data) && $user->changeEmail($data['email']);
-
-        $user->fill($request->safe()->only(['name', 'password']));
-
-        if (array_key_exists('role', $data)) {
-            $user->role = $data['role'];
-        }
-
-        $user->save();
-
-        if ($emailChanged) {
-            $user->sendEmailVerificationNotification();
-        }
-
-        return UserResource::make($user);
+        return UserResource::make($updateUser($user, $request->validated()));
     }
 
     /**

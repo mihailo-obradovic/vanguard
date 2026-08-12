@@ -16,6 +16,7 @@ export function useAppQuery<T>(options: AppQueryOptions<T>) {
     ...queryOptions
   });
 
+  // ! Outside a component instance the watcher would leak, so error handling is skipped — such callers handle errors themselves.
   if (getCurrentInstance()) {
     setupQueryErrorHandling(query.error, errorHandling);
   }

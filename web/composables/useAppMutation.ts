@@ -17,6 +17,7 @@ export function useAppMutation<TData, TVars = void>(
 
   const mutation = useMutation(mutationOptions);
 
+  // ! Outside a component instance the watcher would leak, so error handling is skipped — such callers handle errors themselves.
   if (getCurrentInstance()) {
     setupQueryErrorHandling(mutation.error, errorHandling);
   }

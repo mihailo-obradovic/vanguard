@@ -1,27 +1,27 @@
 <template>
   <div class="users-container">
     <div class="users-header">
-      <h1 class="users-title">Users Management</h1>
+      <h1 class="users-title">{{ $t('users.title') }}</h1>
 
       <div class="actions-bar">
         <button class="create-btn" @click="openCreateForm">
-          Create New User
+          {{ $t('users.create') }}
         </button>
       </div>
     </div>
 
     <div v-if="isLoading" class="loading-state">
-      <p>Loading users...</p>
+      <p>{{ $t('users.loading') }}</p>
     </div>
 
     <div v-else-if="error" class="error-state">
-      <p>Error loading users: {{ getErrorMessage(error) }}</p>
+      <p>{{ $t('errors.usersLoad', { message: getErrorMessage(error) }) }}</p>
     </div>
 
     <div v-else class="users-content">
       <div class="users-stats">
         <p>
-          Total users:
+          {{ $t('users.total') }}
           <span class="stats-number">{{ users.length }}</span>
         </p>
       </div>
@@ -30,13 +30,13 @@
         <table class="users-table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Email Verified</th>
-              <th>Created At</th>
-              <th>Actions</th>
+              <th>{{ $t('users.columns.id') }}</th>
+              <th>{{ $t('users.columns.name') }}</th>
+              <th>{{ $t('users.columns.email') }}</th>
+              <th>{{ $t('users.columns.role') }}</th>
+              <th>{{ $t('users.columns.emailVerified') }}</th>
+              <th>{{ $t('users.columns.createdAt') }}</th>
+              <th>{{ $t('users.columns.actions') }}</th>
             </tr>
           </thead>
 
@@ -47,7 +47,7 @@
               <td class="user-email">{{ user.email }}</td>
               <td>
                 <span class="role-badge" :class="user.role">
-                  {{ user.role }}
+                  {{ $t(`users.roles.${user.role}`) }}
                 </span>
               </td>
               <td>
@@ -55,7 +55,11 @@
                   class="verification-badge"
                   :class="{ verified: user.email_verified_at }"
                 >
-                  {{ user.email_verified_at ? 'Yes' : 'No' }}
+                  {{
+                    user.email_verified_at
+                      ? $t('users.verified.yes')
+                      : $t('users.verified.no')
+                  }}
                 </span>
               </td>
               <td class="created-date">{{ formatDate(user.created_at) }}</td>
@@ -65,7 +69,7 @@
                   :disabled="isDeletingUser === user.id"
                   @click="openEditForm(user)"
                 >
-                  Edit
+                  {{ $t('common.actions.edit') }}
                 </button>
 
                 <button
@@ -73,7 +77,11 @@
                   :disabled="isDeletingUser === user.id"
                   @click="confirmDelete(user)"
                 >
-                  {{ isDeletingUser === user.id ? 'Deleting...' : 'Delete' }}
+                  {{
+                    isDeletingUser === user.id
+                      ? $t('common.actions.deleting')
+                      : $t('common.actions.delete')
+                  }}
                 </button>
               </td>
             </tr>
@@ -96,13 +104,15 @@
       >
         <div class="modal-header">
           <h3 id="user-form-title" class="modal-title">
-            {{ isEditMode ? 'Edit User' : 'Create New User' }}
+            {{ isEditMode ? $t('users.form.editTitle') : $t('users.create') }}
           </h3>
         </div>
 
         <form class="user-form" novalidate @submit.prevent="handleSubmitUser">
           <div class="form-group">
-            <label for="name" class="form-label">Name</label>
+            <label for="name" class="form-label">
+              {{ $t('common.fields.name') }}
+            </label>
 
             <input
               id="name"
@@ -117,7 +127,9 @@
           </div>
 
           <div class="form-group">
-            <label for="email" class="form-label">Email</label>
+            <label for="email" class="form-label">
+              {{ $t('common.fields.email') }}
+            </label>
 
             <input
               id="email"
@@ -133,7 +145,8 @@
 
           <div class="form-group">
             <label for="password" class="form-label">
-              Password {{ isEditMode ? '(leave empty to keep current)' : '' }}
+              {{ $t('common.fields.password') }}
+              {{ isEditMode ? $t('users.form.passwordHint') : '' }}
             </label>
 
             <input
@@ -150,8 +163,8 @@
 
           <div class="form-group">
             <label for="password_confirmation" class="form-label">
-              Password Confirmation
-              {{ isEditMode ? '(required if changing password)' : '' }}
+              {{ $t('common.fields.passwordConfirmation') }}
+              {{ isEditMode ? $t('users.form.passwordConfirmationHint') : '' }}
             </label>
 
             <input
@@ -167,7 +180,9 @@
           </div>
 
           <div class="form-group">
-            <label for="role" class="form-label">Role</label>
+            <label for="role" class="form-label">
+              {{ $t('common.fields.role') }}
+            </label>
 
             <select
               id="role"
@@ -176,8 +191,8 @@
               required
               :disabled="isSubmittingUser"
             >
-              <option value="user">User</option>
-              <option value="admin">Admin</option>
+              <option value="user">{{ $t('users.roles.user') }}</option>
+              <option value="admin">{{ $t('users.roles.admin') }}</option>
             </select>
           </div>
 
@@ -188,7 +203,7 @@
               :disabled="isSubmittingUser"
               @click="closeUserForm"
             >
-              Cancel
+              {{ $t('common.actions.cancel') }}
             </button>
 
             <button
@@ -198,10 +213,10 @@
             >
               {{
                 isSubmittingUser
-                  ? 'Saving...'
+                  ? $t('common.actions.saving')
                   : isEditMode
-                    ? 'Update User'
-                    : 'Create User'
+                    ? $t('users.form.submitUpdate')
+                    : $t('users.form.submitCreate')
               }}
             </button>
           </div>
@@ -223,18 +238,18 @@
       >
         <div class="modal-header">
           <h3 id="confirm-delete-title" class="modal-title danger">
-            Confirm Delete
+            {{ $t('users.delete.title') }}
           </h3>
         </div>
 
         <div class="modal-content">
-          <p>
-            Are you sure you want to delete user
-            <strong>"{{ userToDelete.name }}"</strong>
-            ?
-          </p>
+          <i18n-t keypath="users.delete.confirm" tag="p">
+            <template #name>
+              <strong>"{{ userToDelete.name }}"</strong>
+            </template>
+          </i18n-t>
 
-          <p class="warning-text">This action cannot be undone.</p>
+          <p class="warning-text">{{ $t('users.delete.warning') }}</p>
         </div>
 
         <div class="modal-actions">
@@ -243,7 +258,7 @@
             :disabled="isDeleting"
             @click="cancelDelete"
           >
-            Cancel
+            {{ $t('common.actions.cancel') }}
           </button>
 
           <button
@@ -251,7 +266,11 @@
             :disabled="isDeleting"
             @click="handleDelete"
           >
-            {{ isDeleting ? 'Deleting...' : 'Delete User' }}
+            {{
+              isDeleting
+                ? $t('common.actions.deleting')
+                : $t('users.delete.submit')
+            }}
           </button>
         </div>
       </div>
@@ -270,6 +289,8 @@ import {
 } from '@/services/queries/useUserQueries';
 import type { User } from '@/types/auth';
 import type { CreateUserForm, UpdateUserForm } from '@/types/user';
+
+const { t } = useI18n();
 
 const userFormModal = useTemplateRef('userFormModal');
 const confirmDeleteModal = useTemplateRef('confirmDeleteModal');
@@ -297,7 +318,7 @@ const {
 } = useCreateUser({
   errorHandling: { hideValidationToast: true },
   onSuccess: (newUser) => {
-    $toast(`User "${newUser.name}" created successfully`, 'success');
+    $toast(t('users.toasts.created', { name: newUser.name }), 'success');
     closeUserForm();
   }
 });
@@ -309,7 +330,7 @@ const {
 } = useUpdateUser({
   errorHandling: { hideValidationToast: true },
   onSuccess: (updatedUser) => {
-    $toast(`User "${updatedUser.name}" updated successfully`, 'success');
+    $toast(t('users.toasts.updated', { name: updatedUser.name }), 'success');
     closeUserForm();
   }
 });
@@ -321,7 +342,7 @@ const {
 } = useDeleteUser({
   onSuccess: () => {
     $toast(
-      `User "${userToDelete.value?.name}" deleted successfully`,
+      t('users.toasts.deleted', { name: userToDelete.value?.name ?? '' }),
       'success'
     );
   },

@@ -2,45 +2,53 @@
   <div class="profile-container">
     <div class="profile-card">
       <div class="profile-header">
-        <h1 class="profile-title">My Profile</h1>
+        <h1 class="profile-title">{{ $t('profile.title') }}</h1>
       </div>
 
       <div v-if="user" class="profile-content">
         <div class="profile-section">
-          <h2 class="section-title">Personal Information</h2>
+          <h2 class="section-title">
+            {{ $t('profile.info.personalInformation') }}
+          </h2>
 
           <div class="info-grid">
             <div class="info-item">
-              <div class="info-label">Name</div>
+              <div class="info-label">{{ $t('common.fields.name') }}</div>
 
               <div class="info-value">{{ user.name }}</div>
             </div>
 
             <div class="info-item">
-              <div class="info-label">Email</div>
+              <div class="info-label">{{ $t('common.fields.email') }}</div>
 
               <div class="info-value">{{ user.email }}</div>
             </div>
 
             <div class="info-item">
-              <div class="info-label">Role</div>
+              <div class="info-label">{{ $t('common.fields.role') }}</div>
 
               <div class="info-value">
                 <span class="role-badge" :class="user.role">
-                  {{ user.role }}
+                  {{ $t(`users.roles.${user.role}`) }}
                 </span>
               </div>
             </div>
 
             <div class="info-item">
-              <div class="info-label">Email Verified</div>
+              <div class="info-label">
+                {{ $t('profile.info.emailVerified') }}
+              </div>
 
               <div class="info-value verification-value">
                 <span
                   class="verification-badge"
                   :class="{ verified: user.email_verified_at }"
                 >
-                  {{ user.email_verified_at ? 'Verified' : 'Not Verified' }}
+                  {{
+                    user.email_verified_at
+                      ? $t('profile.info.verified')
+                      : $t('profile.info.notVerified')
+                  }}
                 </span>
 
                 <button
@@ -50,19 +58,23 @@
                   :disabled="isResending"
                   @click="resendVerification()"
                 >
-                  {{ isResending ? 'Sending...' : 'Resend email' }}
+                  {{
+                    isResending
+                      ? $t('profile.info.resending')
+                      : $t('profile.info.resend')
+                  }}
                 </button>
               </div>
             </div>
 
             <div class="info-item">
-              <div class="info-label">Member Since</div>
+              <div class="info-label">{{ $t('profile.info.memberSince') }}</div>
 
               <div class="info-value">{{ formatDate(user.created_at) }}</div>
             </div>
 
             <div class="info-item">
-              <div class="info-label">Last Updated</div>
+              <div class="info-label">{{ $t('profile.info.lastUpdated') }}</div>
 
               <div class="info-value">{{ formatDate(user.updated_at) }}</div>
             </div>
@@ -71,13 +83,13 @@
 
         <div class="profile-actions">
           <button class="edit-profile-btn" @click="openEditForm">
-            Edit Profile
+            {{ $t('profile.edit') }}
           </button>
         </div>
       </div>
 
       <div v-else class="loading-state">
-        <p>Loading profile...</p>
+        <p>{{ $t('profile.loading') }}</p>
       </div>
     </div>
 
@@ -94,7 +106,9 @@
         @keydown.esc="closeEditForm"
       >
         <div class="modal-header">
-          <h3 id="edit-profile-title" class="modal-title">Edit Profile</h3>
+          <h3 id="edit-profile-title" class="modal-title">
+            {{ $t('profile.edit') }}
+          </h3>
         </div>
 
         <form
@@ -103,7 +117,9 @@
           @submit.prevent="handleSubmitProfile"
         >
           <div class="form-group">
-            <label for="name" class="form-label">Name</label>
+            <label for="name" class="form-label">
+              {{ $t('common.fields.name') }}
+            </label>
 
             <input
               id="name"
@@ -118,7 +134,9 @@
           </div>
 
           <div class="form-group">
-            <label for="email" class="form-label">Email</label>
+            <label for="email" class="form-label">
+              {{ $t('common.fields.email') }}
+            </label>
 
             <input
               id="email"
@@ -134,7 +152,7 @@
 
           <div class="form-group">
             <label for="current_password" class="form-label">
-              Current Password (required when changing password)
+              {{ $t('profile.form.currentPassword') }}
             </label>
 
             <input
@@ -151,7 +169,7 @@
 
           <div class="form-group">
             <label for="password" class="form-label">
-              New Password (leave empty to keep current)
+              {{ $t('profile.form.newPassword') }}
             </label>
 
             <input
@@ -167,7 +185,7 @@
 
           <div class="form-group">
             <label for="password_confirmation" class="form-label">
-              Confirm New Password (required if changing password)
+              {{ $t('profile.form.confirmNewPassword') }}
             </label>
 
             <input
@@ -189,7 +207,7 @@
               :disabled="isSubmittingProfile"
               @click="closeEditForm"
             >
-              Cancel
+              {{ $t('common.actions.cancel') }}
             </button>
 
             <button
@@ -197,7 +215,11 @@
               class="submit-btn"
               :disabled="isSubmittingProfile || r$.$invalid"
             >
-              {{ isSubmittingProfile ? 'Saving...' : 'Update Profile' }}
+              {{
+                isSubmittingProfile
+                  ? $t('common.actions.saving')
+                  : $t('profile.form.submit')
+              }}
             </button>
           </div>
         </form>
@@ -215,6 +237,8 @@ import {
   useResendEmailVerification
 } from '@/services/queries/useAuthQueries';
 import type { ProfileForm } from '@/types/user';
+
+const { t } = useI18n();
 
 // * Edit form state
 const editProfileModal = useTemplateRef('editProfileModal');
@@ -234,7 +258,7 @@ const { user } = storeToRefs(useAuthStore());
 
 const { mutate: refreshUser } = useRefreshUser({
   onSuccess: () => {
-    $toast('Your email has been verified.', 'success');
+    $toast(t('profile.toasts.emailVerified'), 'success');
     router.replace({ query: {} });
   }
 });
@@ -242,7 +266,7 @@ const { mutate: refreshUser } = useRefreshUser({
 const { mutate: resendVerification, isLoading: isResending } =
   useResendEmailVerification({
     onSuccess: () => {
-      $toast('Verification email sent. Check your inbox.', 'success');
+      $toast(t('profile.toasts.verificationSent'), 'success');
     }
   });
 
@@ -253,7 +277,7 @@ const {
 } = useUpdateProfile({
   errorHandling: { hideValidationToast: true },
   onSuccess: () => {
-    $toast('Profile updated successfully', 'success');
+    $toast(t('profile.toasts.updated'), 'success');
     closeEditForm();
   }
 });

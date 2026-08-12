@@ -1,10 +1,12 @@
 <template>
   <div class="forgot-password-container">
     <div class="forgot-password-card">
-      <h1 class="forgot-password-title">Forgot Password</h1>
+      <h1 class="forgot-password-title">
+        {{ $t('auth.forgotPassword.title') }}
+      </h1>
 
       <p class="forgot-password-hint">
-        Enter your email address and we'll send you a password reset link.
+        {{ $t('auth.forgotPassword.hint') }}
       </p>
 
       <form
@@ -13,7 +15,9 @@
         @submit.prevent="handleSubmit"
       >
         <div class="form-group">
-          <label for="email" class="form-label">Email</label>
+          <label for="email" class="form-label">
+            {{ $t('common.fields.email') }}
+          </label>
 
           <input
             id="email"
@@ -32,14 +36,20 @@
           class="submit-btn"
           :disabled="isSending || r$.$invalid"
         >
-          {{ isSending ? 'Sending...' : 'Send Reset Link' }}
+          {{
+            isSending
+              ? $t('auth.forgotPassword.submitting')
+              : $t('auth.forgotPassword.submit')
+          }}
         </button>
       </form>
 
       <div class="auth-footer">
         <p>
-          Remembered your password?
-          <NuxtLink to="/login" class="auth-link">Login here</NuxtLink>
+          {{ $t('auth.rememberedPassword') }}
+          <NuxtLink to="/login" class="auth-link">
+            {{ $t('auth.loginLink') }}
+          </NuxtLink>
         </p>
       </div>
     </div>

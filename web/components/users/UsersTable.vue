@@ -1,6 +1,6 @@
 <template>
-  <GapContainer type="VSheet" elevation="1" class="rounded-lg">
-    <v-table class="w-100">
+  <GapContainer ref="root" type="VSheet" elevation="1" class="rounded-lg">
+    <v-table fixed-header class="w-100 users-table">
       <thead>
         <tr>
           <th class="font-weight-bold">ID</th>
@@ -57,6 +57,7 @@
 <script setup lang="ts">
 import { mdiDelete, mdiPencil } from '@mdi/js';
 
+import type { ComponentPublicInstance } from 'vue';
 import type { User } from '@/types/auth';
 
 withDefaults(
@@ -75,4 +76,35 @@ const emit = defineEmits<{
   edit: [user: User];
   delete: [user: User];
 }>();
+
+const root = useTemplateRef<ComponentPublicInstance>('root');
+
+// * Where the table starts in the viewport, so it can cap at the space below it (footer and page padding included)
+const { top } = useElementBounding(root, { windowScroll: false });
+
+// * The page gap below the table is the v-container's own padding, which no Vuetify API exposes — measure it
+const containerPaddingBottom = ref(0);
+
+onMounted(() => {
+  const container = (root.value?.$el as HTMLElement | undefined)?.closest(
+    '.v-container'
+  );
+
+  if (container) {
+    containerPaddingBottom.value =
+      Number.parseFloat(getComputedStyle(container).paddingBottom) || 0;
+  }
+});
+
+const maxHeight = computed(
+  () =>
+    `calc(100dvh - ${top.value}px - var(--v-layout-bottom, 0px) - ${containerPaddingBottom.value}px)`
+);
 </script>
+
+<style scoped>
+/* * Cap the body at the available page height; fixed-header keeps the thead visible while it scrolls */
+.users-table :deep(.v-table__wrapper) {
+  max-height: v-bind(maxHeight);
+}
+</style>

@@ -60,7 +60,6 @@ Every failed request lands here. It decides navigation and messaging in one plac
 
 **Opt-outs** are per call, passed through the query composable's `errorHandling` option:
 
-- `hideToast` — the caller renders the failure itself.
 - `hideValidationToast` — 422s only; the form shows them inline (`validation.md`). Every other status still toasts.
 
 ## Deduplicating handled errors

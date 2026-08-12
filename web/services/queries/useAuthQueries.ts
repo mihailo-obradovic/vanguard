@@ -20,17 +20,22 @@ import type { ProfileForm } from '@/types/user';
 
 export function useRegister(
   options: Omit<
-    AppMutationOptions<void, RegistrationForm>,
+    AppMutationOptions<User, RegistrationForm>,
     'key' | 'mutation'
   > = {}
 ) {
   const { setUser } = useAuthStore();
 
   return useAppMutation({
-    mutation: (credentials: RegistrationForm) => register(credentials),
+    // * The user fetch is part of the mutation so its failure lands on the mutation's error path.
+    mutation: async (credentials: RegistrationForm) => {
+      await register(credentials);
+
+      return fetchCurrentUser();
+    },
     ...options,
     onSuccess: async (data, vars, context) => {
-      setUser(await fetchCurrentUser());
+      setUser(data);
 
       await options.onSuccess?.(data, vars, context);
     }
@@ -38,15 +43,36 @@ export function useRegister(
 }
 
 export function useLogIn(
-  options: Omit<AppMutationOptions<void, Credentials>, 'key' | 'mutation'> = {}
+  options: Omit<AppMutationOptions<User, Credentials>, 'key' | 'mutation'> = {}
 ) {
   const { setUser } = useAuthStore();
 
   return useAppMutation({
-    mutation: (credentials: Credentials) => logIn(credentials),
+    // * The user fetch is part of the mutation so its failure lands on the mutation's error path.
+    mutation: async (credentials: Credentials) => {
+      await logIn(credentials);
+
+      return fetchCurrentUser();
+    },
     ...options,
     onSuccess: async (data, vars, context) => {
-      setUser(await fetchCurrentUser());
+      setUser(data);
+
+      await options.onSuccess?.(data, vars, context);
+    }
+  });
+}
+
+export function useRefreshUser(
+  options: Omit<AppMutationOptions<User, void>, 'key' | 'mutation'> = {}
+) {
+  const { setUser } = useAuthStore();
+
+  return useAppMutation({
+    mutation: () => fetchCurrentUser(),
+    ...options,
+    onSuccess: async (data, vars, context) => {
+      setUser(data);
 
       await options.onSuccess?.(data, vars, context);
     }

@@ -13,22 +13,28 @@
 <script setup lang="ts">
 import UserCard from '@/components/users/UserCard.vue';
 
-import { fetchCurrentUser } from '@/services/auth.api';
-import { useUpdateProfile } from '@/services/queries/useAuthQueries';
+import {
+  useRefreshUser,
+  useUpdateProfile
+} from '@/services/queries/useAuthQueries';
 
 import type { ProfileForm } from '@/types/user';
 
 const { user } = storeToRefs(useAuthStore());
-const { setUser } = useAuthStore();
 
 const route = useRoute();
 const router = useRouter();
 
-onMounted(async () => {
-  if (route.query.verified === '1') {
-    setUser(await fetchCurrentUser());
+const { mutate: refreshUser } = useRefreshUser({
+  onSuccess: () => {
     $toast('Your email has been verified.', 'success');
     router.replace({ query: {} });
+  }
+});
+
+onMounted(() => {
+  if (route.query.verified === '1') {
+    refreshUser();
   }
 });
 

@@ -91,16 +91,30 @@ function emptyForm(): CreateUserForm {
   };
 }
 
+// * What the form should hold when the dialog opens: the edited user's snapshot, or a blank slate
+function initialFormState(): CreateUserForm {
+  if (!props.editMode || !props.user) {
+    return emptyForm();
+  }
+
+  return {
+    name: props.user.name,
+    email: props.user.email,
+    password: '',
+    password_confirmation: '',
+    role: props.user.role
+  };
+}
+
 const form = ref<CreateUserForm>(emptyForm());
 
 const showPassword = ref(false);
 
 const externalErrors = useExternalErrors(() => props.serverErrors);
 
-// * Create requires a password; edit only validates one when entered.
-const { r$ } = useRegle(
-  form,
-  () => ({
+// * Create requires a password; edit only validates one when entered. Stays a getter so mode changes re-evaluate.
+function buildRules() {
+  return {
     name: { required, maxLength: maxLength(255) },
     email: { required, email, maxLength: maxLength(255) },
     password: props.editMode
@@ -110,9 +124,10 @@ const { r$ } = useRegle(
       requiredIf: requiredIf(() => !props.editMode || !!form.value.password),
       sameAs: sameAs(() => form.value.password, 'password')
     }
-  }),
-  { externalErrors }
-);
+  };
+}
+
+const { r$ } = useRegle(form, buildRules, { externalErrors });
 
 function handleCancel() {
   dialog.value = false;
@@ -133,18 +148,6 @@ watch(dialog, (open) => {
 
   showPassword.value = false;
 
-  r$.$reset({
-    toState:
-      props.editMode && props.user
-        ? {
-            name: props.user.name,
-            email: props.user.email,
-            password: '',
-            password_confirmation: '',
-            role: props.user.role
-          }
-        : emptyForm(),
-    clearExternalErrors: true
-  });
+  r$.$reset({ toState: initialFormState(), clearExternalErrors: true });
 });
 </script>

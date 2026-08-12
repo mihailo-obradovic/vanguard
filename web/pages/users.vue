@@ -1,5 +1,5 @@
 <template>
-  <LoadingSpinner v-if="isLoading" :model-value="true" fill-height />
+  <LoadingSpinner v-if="isPending" :model-value="true" fill-height />
 
   <template v-else>
     <GapContainer class="justify-space-between align-center mb-4">
@@ -61,7 +61,8 @@ import type { CreateUserForm, UpdateUserForm } from '@/types/user';
 
 const { user: currentUser } = storeToRefs(useAuthStore());
 
-const { data, isLoading } = useFetchUsers();
+// * isPending covers only the first load — invalidation refetches keep the table mounted instead of flashing the spinner
+const { data, isPending } = useFetchUsers();
 
 const users = computed(() => data.value?.data ?? []);
 

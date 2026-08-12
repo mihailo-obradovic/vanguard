@@ -109,7 +109,7 @@ Every account type gets the same profile page; admins additionally manage others
 ## Tests
 
 - `tests/Feature/ProfileTest.php` — 13 tests: name update, password change happy/wrong/missing current password, `confirmed`-mismatch 422, email uniqueness collision and malformed-email 422s, email change resets + resends, same-email no-op, role-escalation blocked, guest 401, plus the two admin-path email tests. `tests/Unit/UserTest.php` unit-tests `changeEmail()` (same-address no-op; change resets verification) and the role helpers; the response field set is pinned in `UserManagementTest.php` (same `UserResource`).
-- Known gaps (recorded, not smoothed over): no tests for the `lowercase` rule or password min-length 422s, or the empty-body no-op; the frontend half (profile.vue, `useUpdateProfile`, Regle schema, store update) has zero tests.
+- Known gaps (recorded, not smoothed over): no tests for the `lowercase` rule or password min-length 422s, or the empty-body no-op; on the frontend, `profile.vue` and its Regle schema have no component test. `updateProfile` and `useUpdateProfile` — including the store update on success — are covered by `web/services/_tests/auth.api.spec.ts` and `web/services/queries/_tests/useAuthQueries.spec.ts`.
 
 ## Verification
 

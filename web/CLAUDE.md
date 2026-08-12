@@ -17,7 +17,9 @@ Paths below are relative to the repo root. The `catalyst/` documents are normati
 - `services/` — one `<resource>.api.ts` per resource (auto-imported via `imports.dirs`); `services/queries/` holds the `use<Resource>Queries.ts` composables. Two-layer rule: every resource has both files. A resource served over GraphQL instead uses `<resource>.gql.ts` + `use<Resource>GqlQueries.ts` — the same two layers, the same wrappers, only the transport differs.
 - `stores/useAuthStore.ts` — the only Pinia store.
 - `types/` — shared domain types and Zod schemas (`auth.ts`, `user.ts`) plus ambient declarations.
-- `utils/` — `fetcher.ts` (CSRF cookie + 419-retry), `gqlFetcher.ts` / `gql.ts` (GraphQL over the same fetcher, translating GraphQL errors into the REST-equivalent `FetchError`), `handleApiError.ts` / `setupQueryErrorHandling.ts` (central error handling), `parseResponse.ts` (Zod), `toast.ts`, `authRedirectLogic.ts`. Tests live in the `_tests/` subdirectory.
+- `utils/` — `fetcher.ts` (CSRF cookie + 419-retry), `gqlFetcher.ts` / `gql.ts` (GraphQL over the same fetcher, translating GraphQL errors into the REST-equivalent `FetchError`), `handleApiError.ts` / `setupQueryErrorHandling.ts` (central error handling), `parseResponse.ts` (Zod), `toast.ts`, `authRedirectLogic.ts`.
+
+Tests live in a `_tests/` subdirectory of the directory holding the code under test — `utils/_tests/`, `services/_tests/`, `services/queries/_tests/`, `composables/_tests/`, `stores/_tests/`, `i18n/_tests/` — one spec per source file, same base name (`catalyst/stacks/frontend/nuxt/testing.md`).
 
 ## Governing documents
 

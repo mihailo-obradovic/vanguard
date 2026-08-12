@@ -99,12 +99,18 @@ No protected area of its own — the backend contracts this layer calls are prot
 
 ## Tests
 
-- `web/utils/_tests/parseResponse.spec.ts`, `getValidationErrors` / `getErrorMessage` specs — the pure helpers.
-- Known gaps (recorded): the api services, the query composables, `useAppQuery`/`useAppMutation`, and the `fetcher` 419-retry path have no specs.
+- `web/utils/_tests/` — `fetcher.spec.ts` (the CSRF header on state-changing methods only; the 419 re-prime and single retry; a 419 from the CSRF endpoint itself not recovered), `handleApiError.spec.ts` (401/403/422 routing and the inline-validation suppression), `setupQueryErrorHandling.spec.ts` (the watcher and its per-error-object dedupe across components), plus `parseResponse`, `getValidationErrors`, `getErrorMessage`, and `toast`.
+- `web/services/_tests/` — `auth.api`, `user.api`, `user.gql` against a mocked fetcher: the endpoint, method and body each function sends, the envelope unwrapping, and a response failing its schema rejecting rather than returning a malformed object.
+- `web/services/queries/_tests/` — `useAuthQueries` (the store side effects and their ordering against caller callbacks; the user fetch living inside the login/register mutation), `useUserQueries` and `useUserGqlQueries` (which keys each mutation invalidates, including when the write fails, and the two namespaces staying separate).
+- `web/composables/_tests/` — `useAppQuery` (previous data held mid-flight by `placeholderData`) and `useAppMutation`; both cover error handling being wired only inside a component instance.
+- `web/stores/_tests/useAuthStore.spec.ts` — `isLoggedIn`/`isAdmin` derivation and the readonly exposure.
+- The layer is at 100% statements and lines. The remaining frontend gaps are outside it — pages and logic-bearing components (`decisions/008`).
 
 ## Verification
 
-Traced against source on 2026-08-04: the two-layer chain in `services/` + `services/queries/`, wrapper behavior in `useAppQuery`/`useAppMutation` (placeholderData, conditional error wiring), and `onSettled` invalidation in `useUserQueries.ts`. Frontend unit suite green at adoption (utils specs). Composable/service test gaps stand as recorded.
+Traced against source on 2026-08-04: the two-layer chain in `services/` + `services/queries/`, wrapper behavior in `useAppQuery`/`useAppMutation` (placeholderData, conditional error wiring), and `onSettled` invalidation in `useUserQueries.ts`.
+
+Test gaps closed on 2026-08-13: every Examples row now has a spec — the Zod-parse guard, the 419 retry, `placeholderData`, and `['users','fetch']` invalidation on create. Each behavior was mutation-checked (the source broken deliberately) to confirm the spec fails without it; that pass found one real hole, `useCreateUser` having no failing-write case, which is now covered. Frontend suite green at 161 tests; overall frontend coverage 17.4% → 43.2% statements, with this layer at 100%.
 
 ## Agent Change Rules
 

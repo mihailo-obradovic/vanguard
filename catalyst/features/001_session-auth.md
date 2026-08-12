@@ -107,8 +107,8 @@ Not role-specific — no auth endpoint is role-gated; registration cannot set a 
 ## Tests
 
 - Backend: `tests/Feature/Auth/` — 22 tests: authentication (8 — login happy/invalid/throttle, authed-on-guest-route 403, current-user envelope shape, guest 401 ×2, logout), registration (2, incl. default role), email verification (5), password reset (7 — both happy paths, unknown-email 422, link-request throttle, invalid token, confirmation mismatch, and the reset link resolving to the front-end page, which also exercises the `AppServiceProvider` URL closure).
-- Frontend: `web/utils/_tests/authRedirectLogic.spec.ts` (5 cases: guest redirects, reset-prefix match, authed on `/login`, default-deny, root alias).
-- Known gaps (recorded): untested — CSRF/419 path (Laravel skips CSRF in tests), `auth-loader`, session rotation beyond auth state, verification-resend throttle, `remember` flag; frontend store/fetcher/error-handling/query composables have no specs; hardcoded dev credentials in `login.vue` (cleanup candidate). Note: the unknown-email 422 asserts the current enumeration-friendly behavior — hardening it is a product decision, not a test gap.
+- Frontend: `web/utils/_tests/authRedirectLogic.spec.ts` (5 cases: guest redirects, reset-prefix match, authed on `/login`, default-deny, root alias); `web/services/_tests/auth.api.spec.ts` (every session endpoint, including the web-route paths the stateful posture depends on); `web/services/queries/_tests/useAuthQueries.spec.ts` (the store side effects of login, register, refresh, logout); `web/stores/_tests/useAuthStore.spec.ts`; `web/utils/_tests/fetcher.spec.ts` covers the client half of the 419 recovery.
+- Known gaps (recorded): untested — the server-side CSRF/419 path (Laravel skips CSRF in tests), `auth-loader`, session rotation beyond auth state, verification-resend throttle, `remember` flag; the auth pages themselves have no component tests; hardcoded dev credentials in `login.vue` (cleanup candidate). Note: the unknown-email 422 asserts the current enumeration-friendly behavior — hardening it is a product decision, not a test gap.
 
 ## Verification
 

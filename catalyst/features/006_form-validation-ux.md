@@ -100,6 +100,8 @@ No protected area of its own — the backend validation contracts are owned by f
 ## Tests
 
 - `web/utils/_tests/getValidationErrors.spec.ts` — the 422-to-field-map extraction.
+- `web/utils/_tests/newPasswordRules.spec.ts` — the shared password/confirmation rules driven through a real Regle instance, asserting validity per mode (required, optional, and the runtime create/edit switch) rather than the rule objects.
+- `web/utils/_tests/handleApiError.spec.ts` — the `hideValidationToast` path that keeps a 422 inline instead of toasting it, including the fallback when a 422 carries no field errors.
 - Known gaps (recorded): the per-form Regle schemas, `useExternalErrors` watch behavior, and `FieldErrors.vue` rendering have no component tests.
 
 ## Verification

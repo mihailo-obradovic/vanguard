@@ -2,7 +2,7 @@
   <FormCard
     :confirm-disabled="r$.$invalid"
     :loading="isResetting"
-    title="Generate new password"
+    :title="$t('auth.passwordReset.title')"
     width="450px"
     @cancel="handleCancel"
     @confirm="handleConfirm"
@@ -12,7 +12,7 @@
     <v-text-field
       v-model="form.email"
       :error-messages="r$.email.$errors"
-      label="Email"
+      :label="$t('common.fields.email')"
       type="email"
       readonly
     />
@@ -21,7 +21,7 @@
       v-model="form.password"
       v-model:visible="showPassword"
       :error-messages="r$.password.$errors"
-      label="Password"
+      :label="$t('common.fields.password')"
       required
     />
 
@@ -29,7 +29,7 @@
       v-model="form.password_confirmation"
       v-model:visible="showPassword"
       :error-messages="r$.password_confirmation.$errors"
-      label="Confirm Password"
+      :label="$t('common.fields.passwordConfirmation')"
       required
     />
   </FormCard>

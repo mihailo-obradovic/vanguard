@@ -1,0 +1,149 @@
+{
+  "auth": {
+    "forgotPassword": {
+      "hint": "Enter your email address and we'll send you a password reset link.",
+      "submit": "Send Reset Link",
+      "submitting": "Sending...",
+      "title": "Forgot Password"
+    },
+    "login": {
+      "forgotPasswordLink": "Forgot your password?",
+      "noAccount": "Don't have an account?",
+      "registerLink": "Register here",
+      "submit": "Login",
+      "submitting": "Logging in...",
+      "title": "Welcome Back"
+    },
+    "loginLink": "Login here",
+    "passwordReset": {
+      "confirmNewPassword": "Confirm New Password",
+      "newPassword": "New Password",
+      "submit": "Reset Password",
+      "submitting": "Resetting...",
+      "title": "Reset Password"
+    },
+    "register": {
+      "haveAccount": "Already have an account?",
+      "submit": "Register",
+      "submitting": "Registering...",
+      "title": "Create Account"
+    },
+    "rememberedPassword": "Remembered your password?"
+  },
+  "common": {
+    "actions": {
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "deleting": "Deleting...",
+      "edit": "Edit",
+      "saving": "Saving..."
+    },
+    "cookieConsent": {
+      "accept": "Accept",
+      "decline": "Decline",
+      "label": "Cookie consent",
+      "message": "We use cookies to enhance your experience. You can accept or decline non-essential cookies."
+    },
+    "fields": {
+      "email": "Email",
+      "name": "Name",
+      "password": "Password",
+      "passwordConfirmation": "Password Confirmation",
+      "role": "Role"
+    },
+    "footer": {
+      "copyright": "Copyright ©, Vanguard {year}"
+    },
+    "greeting": "Hello, world!",
+    "language": "Language",
+    "nav": {
+      "home": "Home",
+      "login": "Login",
+      "logout": "Logout",
+      "logoutPending": "Logging out...",
+      "register": "Register",
+      "users": "Users"
+    },
+    "notAvailable": "N/A",
+    "skipToContent": "Skip to main content"
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "unexpectedResponse": "Unexpected response from the server.",
+    "usersLoad": "Error loading users: {message}"
+  },
+  "profile": {
+    "edit": "Edit Profile",
+    "form": {
+      "confirmNewPassword": "Confirm New Password (required if changing password)",
+      "currentPassword": "Current Password (required when changing password)",
+      "newPassword": "New Password (leave empty to keep current)",
+      "submit": "Update Profile"
+    },
+    "info": {
+      "emailVerified": "Email Verified",
+      "lastUpdated": "Last Updated",
+      "memberSince": "Member Since",
+      "notVerified": "Not Verified",
+      "personalInformation": "Personal Information",
+      "resend": "Resend email",
+      "resending": "Sending...",
+      "verified": "Verified"
+    },
+    "loading": "Loading profile...",
+    "title": "My Profile",
+    "toasts": {
+      "emailVerified": "Your email has been verified.",
+      "updated": "Profile updated successfully",
+      "verificationSent": "Verification email sent. Check your inbox."
+    }
+  },
+  "users": {
+    "columns": {
+      "actions": "Actions",
+      "createdAt": "Created At",
+      "email": "Email",
+      "emailVerified": "Email Verified",
+      "id": "ID",
+      "name": "Name",
+      "role": "Role"
+    },
+    "create": "Create New User",
+    "delete": {
+      "confirm": "Are you sure you want to delete user {name}?",
+      "submit": "Delete User",
+      "title": "Confirm Delete",
+      "warning": "This action cannot be undone."
+    },
+    "form": {
+      "editTitle": "Edit User",
+      "passwordConfirmationHint": "(required if changing password)",
+      "passwordHint": "(leave empty to keep current)",
+      "submitCreate": "Create User",
+      "submitUpdate": "Update User"
+    },
+    "loading": "Loading users...",
+    "roles": {
+      "admin": "Admin",
+      "user": "User"
+    },
+    "title": "Users Management",
+    "toasts": {
+      "created": "User \"{name}\" created successfully",
+      "deleted": "User \"{name}\" deleted successfully",
+      "updated": "User \"{name}\" updated successfully"
+    },
+    "total": "Total users:",
+    "verified": {
+      "no": "No",
+      "yes": "Yes"
+    }
+  },
+  "validation": {
+    "email": "Please enter a valid email address.",
+    "maxLength": "This field must be at most {max} characters.",
+    "minLength": "This field must be at least {min} characters.",
+    "required": "This field is required.",
+    "sameAs": "The values do not match."
+  }
+}

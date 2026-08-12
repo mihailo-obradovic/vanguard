@@ -27,7 +27,7 @@
               :disabled="confirmDisabled"
               :loading="loading"
               block
-              color="primary"
+              :color="confirmColor"
               variant="flat"
               @click="emit('confirm')"
             >
@@ -51,12 +51,14 @@ const props = withDefaults(
     confirmDisabled?: boolean;
     loading?: boolean;
     confirmOnEnter?: boolean;
+    confirmColor?: string;
   }>(),
   {
     width: undefined,
     confirmDisabled: false,
     loading: false,
-    confirmOnEnter: true
+    confirmOnEnter: true,
+    confirmColor: 'primary'
   }
 );
 

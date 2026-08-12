@@ -5,6 +5,7 @@
     :loading="loading"
     :fullscreen-on-mobile="false"
     :confirm-on-enter="false"
+    :confirm-color="destructive ? 'error' : 'primary'"
     @cancel="emit('cancel')"
     @confirm="emit('confirm')"
   >
@@ -18,10 +19,12 @@ withDefaults(
     title?: string;
     message: string;
     loading?: boolean;
+    destructive?: boolean;
   }>(),
   {
     title: 'Are you sure?',
-    loading: false
+    loading: false,
+    destructive: false
   }
 );
 

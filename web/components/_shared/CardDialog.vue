@@ -10,6 +10,7 @@
       :confirm-disabled="confirmDisabled"
       :loading="loading"
       :confirm-on-enter="confirmOnEnter"
+      :confirm-color="confirmColor"
       @cancel="emit('cancel')"
       @confirm="emit('confirm')"
     >
@@ -38,13 +39,15 @@ withDefaults(
     loading?: boolean;
     fullscreenOnMobile?: boolean;
     confirmOnEnter?: boolean;
+    confirmColor?: string;
   }>(),
   {
     width: '450px',
     confirmDisabled: false,
     loading: false,
     fullscreenOnMobile: true,
-    confirmOnEnter: true
+    confirmOnEnter: true,
+    confirmColor: 'primary'
   }
 );
 

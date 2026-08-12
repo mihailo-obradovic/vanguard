@@ -36,6 +36,7 @@
       title="Delete user"
       :message="deleteMessage"
       :loading="isDeleting"
+      destructive
       @cancel="cancelDelete"
       @confirm="handleDelete"
     />

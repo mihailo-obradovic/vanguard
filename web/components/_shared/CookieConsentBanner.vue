@@ -4,12 +4,11 @@
       v-if="isMounted && !isDecided"
       class="cookie-banner"
       role="region"
-      aria-label="Cookie consent"
+      :aria-label="$t('common.cookieConsent.label')"
     >
       <div class="cookie-content">
         <p class="cookie-message">
-          We use cookies to enhance your experience. You can accept or decline
-          non-essential cookies.
+          {{ $t('common.cookieConsent.message') }}
         </p>
 
         <div class="cookie-actions">
@@ -18,7 +17,7 @@
             class="cookie-btn cookie-btn--decline"
             @click="decline"
           >
-            Decline
+            {{ $t('common.cookieConsent.decline') }}
           </button>
 
           <button
@@ -26,7 +25,7 @@
             class="cookie-btn cookie-btn--accept"
             @click="accept"
           >
-            Accept
+            {{ $t('common.cookieConsent.accept') }}
           </button>
         </div>
       </div>

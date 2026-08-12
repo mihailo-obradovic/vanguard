@@ -1,3 +1,3 @@
 <template>
-  <pre>Hello, world!</pre>
+  <pre>{{ $t('common.greeting') }}</pre>
 </template>

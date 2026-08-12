@@ -1,5 +1,7 @@
 <template>
-  <footer class="footer">Copyright ©, Vanguard {{ currentYear }}</footer>
+  <footer class="footer">
+    {{ $t('common.footer.copyright', { year: currentYear }) }}
+  </footer>
 </template>
 
 <script setup lang="ts">

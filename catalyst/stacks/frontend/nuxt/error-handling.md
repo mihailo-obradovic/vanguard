@@ -53,14 +53,13 @@ Every failed request lands here. It decides navigation and messaging in one plac
 
 | Status        | Action                                                                          |
 | ------------- | ------------------------------------------------------------------------------- |
-| **401**       | Clear the local user, then redirect to the login route — unless already there   |
+| **401**       | Clear the local user; the `isLoggedIn` watcher redirects via the routing logic  |
 | **403**       | Redirect to the authenticated landing route — unless already there              |
 | **422**       | Surface every field message rather than the API's "(and N more errors)" summary |
 | anything else | One toast carrying the API's message                                            |
 
 **Opt-outs** are per call, passed through the query composable's `errorHandling` option:
 
-- `hideToast` — the caller renders the failure itself.
 - `hideValidationToast` — 422s only; the form shows them inline (`validation.md`). Every other status still toasts.
 
 ## Deduplicating handled errors

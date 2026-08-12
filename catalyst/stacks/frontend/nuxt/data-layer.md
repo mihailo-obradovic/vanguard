@@ -18,15 +18,12 @@ Pure async functions over `fetcher<T>()`, one per endpoint. Named `fetchItems` /
 
 Named after the service file, one per service file. It holds three things:
 
-**A query-key const.** Hierarchical keys for every operation, declared `as const`:
+**A query-key const.** Hierarchical keys for every query, declared `as const`. Queries only — mutations take no `key`: in Pinia Colada it is optional and exists solely for mutation-cache introspection, which nothing in this project uses.
 
 ```ts
 export const usersQueryKeys = {
   fetchUsers: ['users', 'fetch'],
-  fetchUser: ['users', 'get'],
-  createUser: ['users', 'create'],
-  updateUser: ['users', 'update'],
-  deleteUser: ['users', 'delete']
+  fetchUser: ['users', 'get']
 } as const;
 ```
 
@@ -61,7 +58,6 @@ export function useUpdateUser(options: /* … */ = {}) {
   const queryCache = useQueryCache();
 
   return useAppMutation({
-    key: usersQueryKeys.updateUser,
     mutation: ({ id, userData }) => updateUser(id, userData),
     ...options,
     onSettled: async (data, error, vars, context) => {
@@ -99,6 +95,41 @@ declare module '@pinia/colada' {
   }
 }
 ```
+
+## Pinia Colada semantics
+
+What the library's surface actually means, so state is read and caches are managed correctly.
+
+### Query state
+
+A query exposes two orthogonal statuses — one about the **data**, one about the **request**:
+
+- `status` (`'pending' | 'success' | 'error'`) describes the data: `pending` means no data has ever arrived. `data` and `error` are its companions.
+- `asyncStatus` (`'idle' | 'loading'`) describes the request: `loading` means a fetch is in flight right now, including background refetches.
+
+The derived flags follow from that split: `isPending` (no data yet — first load) vs `isLoading` (a request is running — any load). A first-visit skeleton keys off `isPending`; a background-refresh indicator keys off `isLoading`. Because the wrappers set `placeholderData`, a query showing the previous page's data is `success` with `isPlaceholderData: true` — check that flag when stale-but-visible needs different treatment.
+
+For TypeScript narrowing, read through the grouped `state` object: inside `state.status === 'error'` the type of `state.error` excludes `null`, and in the success branch `state.data` excludes `undefined`.
+
+### Freshness and refetching
+
+- A query is **stale** once `staleTime` (default 5 s) has passed since its last fetch. Stale queries refetch automatically when a component mounts them or their key changes; fresh ones are served from cache.
+- `refresh()` fetches **only if stale** — prefer it. `refetch()` fetches unconditionally — reserve it for an explicit "reload" affordance.
+- `gcTime` (default 5 min) is how long an **unused** entry stays cached after the last component unmounts it. Override either per query only with a reason (e.g. long `staleTime` for near-static reference data).
+
+### Dependent queries
+
+When a query's params aren't available yet (route not resolved, parent query still pending), pass a reactive `enabled` instead of guarding at the call site: `enabled: () => id.value != null`. A disabled query holds `pending` and fires as soon as the condition turns true.
+
+### Invalidation semantics
+
+`invalidateQueries({ key })` matches the key **and all its children** — `['users']` hits `['users', 'fetch']` and every `['users', 'get', id]`. Pass `exact: true` to match a single entry. Invalidation marks matching entries stale and refetches the **active** ones (currently mounted); inactive entries refetch when next used. That is why mutations can invalidate broadly without triggering a request storm.
+
+### Mutation state and cache writes
+
+- `mutate` catches the mutation's error itself (it lands in `error` and the central handler); `mutateAsync` also **rethrows**, so an un-caught `mutateAsync` call is an unhandled rejection — another reason the component rules default to `mutate`.
+- A mutation exposes `isLoading`, `error`, `data`, and `reset()` (clears error and data back to the initial state — useful when a dialog reopens).
+- The cache is directly writable — `queryCache.getQueryData(key)` / `setQueryData(key, data)` — which is how optimistic updates are built. The project's default is **invalidation, not manual cache writes**; reach for `setQueryData` only deliberately, and never from a component (the query layer owns the cache).
 
 ## Component rules
 

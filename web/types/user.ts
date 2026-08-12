@@ -9,6 +9,20 @@ export const UsersResponseSchema = z.object({
 
 export type UsersResponse = z.infer<typeof UsersResponseSchema>;
 
+// * GraphQL returns the same user objects as REST — both transports serialize through
+// * UserResource — so these schemas wrap the shared UserSchema rather than redeclaring it.
+export const UsersGqlResponseSchema = z.object({
+  users: z.array(UserSchema)
+});
+
+export const UpdateUserGqlResponseSchema = z.object({
+  updateUser: UserSchema
+});
+
+export type UpdateUserGqlInput = {
+  id: number;
+} & UpdateUserForm;
+
 export type CreateUserForm = {
   name: string;
   email: string;

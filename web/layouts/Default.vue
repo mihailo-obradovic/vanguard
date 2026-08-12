@@ -12,6 +12,10 @@
           <NuxtLink v-if="isAdmin" to="/users" class="nav-link">
             {{ $t('common.nav.users') }}
           </NuxtLink>
+
+          <NuxtLink v-if="isAdmin" to="/graphql-demo" class="nav-link">
+            {{ $t('common.nav.graphqlDemo') }}
+          </NuxtLink>
         </div>
 
         <div class="nav-auth">

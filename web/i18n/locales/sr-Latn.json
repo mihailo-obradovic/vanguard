@@ -57,6 +57,7 @@
     "greeting": "Zdravo, svete!",
     "language": "Jezik",
     "nav": {
+      "graphqlDemo": "GraphQL demo",
       "home": "Početna",
       "login": "Prijava",
       "logout": "Odjava",
@@ -71,6 +72,11 @@
     "generic": "Nešto je pošlo naopako. Pokušajte ponovo.",
     "unexpectedResponse": "Neočekivan odgovor servera.",
     "usersLoad": "Greška pri učitavanju korisnika: {message}"
+  },
+  "graphqlDemo": {
+    "editTitle": "Izmena korisnika {name}",
+    "intro": "Isti spisak korisnika i forma za izmenu kao na stranici Korisnici, samo preko GraphQL-a. Stranica je napisana isto kao REST stranice — razlikuje se samo ono što uvozi.",
+    "title": "GraphQL demo"
   },
   "profile": {
     "edit": "Izmeni profil",

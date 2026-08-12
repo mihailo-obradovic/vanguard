@@ -57,6 +57,7 @@
     "greeting": "Hello, world!",
     "language": "Language",
     "nav": {
+      "graphqlDemo": "GraphQL Demo",
       "home": "Home",
       "login": "Login",
       "logout": "Logout",
@@ -71,6 +72,11 @@
     "generic": "Something went wrong. Please try again.",
     "unexpectedResponse": "Unexpected response from the server.",
     "usersLoad": "Error loading users: {message}"
+  },
+  "graphqlDemo": {
+    "editTitle": "Edit {name}",
+    "intro": "The same user list and edit form as the Users page, served over GraphQL. The page is written exactly like the REST pages — only what it imports differs.",
+    "title": "GraphQL Demo"
   },
   "profile": {
     "edit": "Edit Profile",

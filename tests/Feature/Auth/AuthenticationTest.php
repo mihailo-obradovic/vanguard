@@ -44,6 +44,15 @@ test('login is rate limited after five failed attempts', function () {
     expect($response->json('message'))->toContain('seconds');
 });
 
+test('authenticated requests to guest routes return 403 instead of redirecting', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)->postJson('/login', [
+        'email' => $user->email,
+        'password' => 'password',
+    ])->assertForbidden();
+});
+
 test('authenticated users can fetch the current user', function () {
     $user = User::factory()->create();
 

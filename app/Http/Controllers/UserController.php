@@ -80,13 +80,9 @@ class UserController extends Controller
     /**
      * Remove the specified user.
      */
-    public function destroy(Request $request, User $user): Response|JsonResponse
+    public function destroy(Request $request, User $user): Response
     {
-        if ($user->is($request->user())) {
-            return response()->json([
-                'message' => 'You cannot delete your own account.',
-            ], Response::HTTP_UNPROCESSABLE_ENTITY);
-        }
+        abort_if($user->is($request->user()), Response::HTTP_FORBIDDEN, 'You cannot delete your own account.');
 
         $user->delete();
 

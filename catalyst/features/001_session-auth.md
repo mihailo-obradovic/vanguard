@@ -60,6 +60,7 @@ Not role-specific — no auth endpoint is role-gated; registration cannot set a 
 | `POST /login` valid creds                           | 204, session regenerated             | tested; SPA follows with `GET /api/user`                    |
 | `POST /login` wrong password ×6                     | 422 ×5 on `email`, then throttle 422 | tested                                                      |
 | `GET /api/user` as guest (even without JSON Accept) | 401 JSON, never a redirect           | tested — `redirectGuestsTo(null)` + forced JSON for `api/*` |
+| `POST /login` while already authenticated           | 403 JSON, never a redirect           | tested — `redirectUsersTo(abort(403))`                      |
 | `GET /verify-email/{id}/{bad-hash}`                 | 403, still unverified                | tested                                                      |
 | `POST /forgot-password` unknown email               | 422 on `email`                       | **leaks account existence** — recorded, not smoothed over   |
 
@@ -71,7 +72,7 @@ Not role-specific — no auth endpoint is role-gated; registration cannot set a 
 
 ## Edge Cases
 
-- An authenticated `POST /login` hits the `guest` middleware → 302 to `/`, which 404s since B3 removed the welcome route. Untested.
+- An authenticated request to any `guest` route (e.g. `POST /login`) gets 403 JSON via `redirectUsersTo(abort(403))` — never `RedirectIfAuthenticated`'s default 302 to `/`. Tested.
 - Resend-verification toast in the SPA is unconditional — an already-verified user is still told "Verification email sent" (server said `already-verified`; the status is discarded client-side).
 - The `auth-loader` plugin catches only the user-fetch failure; an unreachable API at boot rejects the CSRF call uncaught.
 
@@ -80,7 +81,7 @@ Not role-specific — no auth endpoint is role-gated; registration cannot set a 
 - Auth state lives in the session cookie; the SPA store is memory-only and rehydrated from `GET /api/user` on every boot.
 - Register/login/logout return `204 No Content` — no body for the SPA to parse.
 - Every user-returning endpoint, `GET /api/user` included, wraps in `UserResource` — one `{ data: ... }` envelope for the whole API; the SPA parses user payloads with `UserEnvelopeSchema`.
-- Unauthenticated API requests always get 401 JSON, never a login redirect.
+- Unauthenticated API requests always get 401 JSON, never a login redirect; authenticated requests to guest routes always get 403 JSON, never a home redirect.
 - Session ID rotates on login/register; session invalidates on logout.
 
 **Protected area (declared here, indexed in `project-summary.md`):** the endpoint set and response contracts above (`routes/web.php` auth routes + `GET /api/user`), and the session/auth mechanics (cookie + CSRF flow, stateful domains, database sessions, JSON-only/no-redirect posture in `bootstrap/app.php`). The SPA's fetcher, store, and middleware all assume them.
@@ -105,15 +106,17 @@ Not role-specific — no auth endpoint is role-gated; registration cannot set a 
 
 ## Tests
 
-- Backend: `tests/Feature/Auth/` — 16 tests: authentication (7 — login happy/invalid/throttle, current-user envelope shape, guest 401 ×2, logout), registration (2, incl. default role), email verification (5), password reset (2 happy paths).
+- Backend: `tests/Feature/Auth/` — 17 tests: authentication (8 — login happy/invalid/throttle, authed-on-guest-route 403, current-user envelope shape, guest 401 ×2, logout), registration (2, incl. default role), email verification (5), password reset (2 happy paths).
 - Frontend: `web/utils/authRedirectLogic.spec.ts` (5 cases: guest redirects, reset-prefix match, authed on `/login`, default-deny, root alias).
-- Known gaps (recorded): untested — CSRF/419 path (Laravel skips CSRF in tests), `auth-loader`, session rotation beyond auth state, authed `POST /login` 302, verification throttle, reset negative paths, forgot-password enumeration, `remember` flag; frontend store/fetcher/error-handling/query composables have no specs; hardcoded dev credentials in `login.vue` (cleanup candidate).
+- Known gaps (recorded): untested — CSRF/419 path (Laravel skips CSRF in tests), `auth-loader`, session rotation beyond auth state, verification throttle, reset negative paths, forgot-password enumeration, `remember` flag; frontend store/fetcher/error-handling/query composables have no specs; hardcoded dev credentials in `login.vue` (cleanup candidate).
 
 ## Verification
 
 Backend suite green at adoption: 36 passed including all 16 auth tests; frontend 14 passed including the 5 redirect cases. Endpoint table, config values, and redirect rules verified line-by-line against the source (2026-08-02).
 
 B3 (2026-08-02): `GET /api/user` moved to the `UserResource` envelope (backend + SPA parser + test in one change); stock example tests removed with the welcome route — 34 tests green on MySQL, `route:cache` succeeds.
+
+2026-08-12: authenticated requests to guest routes now return 403 JSON (`redirectUsersTo(abort(403))` in `bootstrap/app.php`), closing the recorded 302-to-`/` edge case — 38 tests green.
 
 ## Agent Change Rules
 

@@ -112,7 +112,8 @@ test('admins cannot delete their own account', function () {
 
     $this->actingAs($admin)
         ->deleteJson("/api/users/{$admin->id}")
-        ->assertStatus(422);
+        ->assertForbidden()
+        ->assertJsonPath('message', 'You cannot delete your own account.');
 
     $this->assertDatabaseHas('users', ['id' => $admin->id]);
 });

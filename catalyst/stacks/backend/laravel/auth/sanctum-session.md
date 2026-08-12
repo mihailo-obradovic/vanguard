@@ -11,7 +11,7 @@ The default authentication choice. The browser holds an encrypted session cookie
 
 ## The bootstrap
 
-Three lines in `bootstrap/app.php`, each closing a specific failure:
+Four lines in `bootstrap/app.php`, each closing a specific failure:
 
 ```php
 ->withMiddleware(function (Middleware $middleware): void {
@@ -20,6 +20,10 @@ Three lines in `bootstrap/app.php`, each closing a specific failure:
     // API-only backend: never redirect guests to a login page; the
     // exception handler returns a 401 JSON response instead.
     $middleware->redirectGuestsTo(fn () => null);
+
+    // The symmetric half: an authenticated request to a guest route
+    // gets a 403 JSON response instead of a redirect to '/'.
+    $middleware->redirectUsersTo(fn () => abort(403, 'Already authenticated.'));
 })
 ->withExceptions(function (Exceptions $exceptions): void {
     $exceptions->shouldRenderJsonWhen(
@@ -30,6 +34,7 @@ Three lines in `bootstrap/app.php`, each closing a specific failure:
 
 - **`statefulApi()`** prepends Sanctum's stateful middleware to the `api` group. Without it, cookie authentication on `/api/*` does nothing and every request is a guest.
 - **`redirectGuestsTo(fn () => null)`** — a headless app has no `login` named route, so an unauthenticated request that is not marked as JSON would throw a `RouteNotFoundException` while trying to redirect. Returning null means the handler produces a 401 instead. Worth a regression test; it fails in a way that looks unrelated to auth.
+- **`redirectUsersTo(fn () => abort(403, ...))`** — without it, `RedirectIfAuthenticated` on the `guest` routes probes for a `dashboard`/`home` named route and falls back to a **302 to `/`** — an HTML redirect the SPA's error handling has no case for. Aborting inside the callback turns it into the 403 the frontend already routes (its "authenticated, not allowed" branch).
 - **`shouldRenderJsonWhen(...)`** forces JSON error bodies rather than an HTML error page the frontend cannot parse.
 
 ## CORS
@@ -112,6 +117,7 @@ That **419** is this module's: Laravel returns it when the CSRF token expired bu
 - `$this->postJson('/login', [...])` then `assertNoContent()` and `assertAuthenticatedAs($user)`.
 - `actingAs($user)` for everything behind the guard — do not log in through HTTP in every test.
 - Cover the 401-not-a-redirect behavior explicitly: `$this->get('/api/user')->assertUnauthorized()` with a plain `get`, not `getJson`. That is the request shape `redirectGuestsTo` exists for, and a JSON request would pass either way.
+- Cover the mirror image: `actingAs($user)` then `postJson('/login', ...)` asserts 403, not a 302 — the request shape `redirectUsersTo` exists for.
 - Cover login rate limiting — the throttle is part of the auth contract.
 
 ## Notes

@@ -24,11 +24,8 @@ export function handleApiError(
 
   switch (error.statusCode) {
     case 401:
+      // * Only clears the user — the isLoggedIn watcher in app.vue redirects via the branch's own authRedirectLogic.
       resetUser();
-
-      if (routePath !== '/login') {
-        navigateTo('/login');
-      }
 
       break;
     case 403:

@@ -53,7 +53,7 @@ Every failed request lands here. It decides navigation and messaging in one plac
 
 | Status        | Action                                                                          |
 | ------------- | ------------------------------------------------------------------------------- |
-| **401**       | Clear the local user, then redirect to the login route — unless already there   |
+| **401**       | Clear the local user; the `isLoggedIn` watcher redirects via the routing logic  |
 | **403**       | Redirect to the authenticated landing route — unless already there              |
 | **422**       | Surface every field message rather than the API's "(and N more errors)" summary |
 | anything else | One toast carrying the API's message                                            |

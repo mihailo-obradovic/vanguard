@@ -145,7 +145,7 @@ Guest and non-admin refusals are the Roles And Access matrix; their client behav
 - `tests/Feature/GraphQL/UpdateUserMutationTest.php`: updates; email-change side effect; duplicate-email validation keyed `email`; non-admin/guest refusal; unknown id.
 - `tests/Feature/GraphQL/QueryCacheConfigTest.php`: the query-cache mode stays compatible with `cache.serializable_classes` (see Verification).
 - `tests/Feature/UserManagementTest.php`: unchanged and green — the proof that extracting the update action did not alter the REST contract.
-- `web/utils/gqlFetcher.spec.ts`: each row of the Error Handling table, plus the success path.
+- `web/utils/_tests/gqlFetcher.spec.ts`: each row of the Error Handling table, plus the success path.
 
 ## Verification
 

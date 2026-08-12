@@ -3,7 +3,7 @@ import { describe, it, expect } from 'vitest';
 import { mockNuxtImport } from '@nuxt/test-utils/runtime';
 import { ref } from 'vue';
 
-import { determineAuthRedirect } from './authRedirectLogic';
+import { determineAuthRedirect } from '../authRedirectLogic';
 
 const isLoggedIn = ref(false);
 

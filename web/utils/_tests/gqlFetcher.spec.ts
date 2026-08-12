@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { mockNuxtImport } from '@nuxt/test-utils/runtime';
 import { FetchError } from 'ofetch';
 
-import { gqlFetcher } from './gqlFetcher';
+import { gqlFetcher } from '../gqlFetcher';
 
 // * `fetcher` is auto-imported, so it is replaced through Nuxt's import mocking rather than
 // * a module mock. `vi.hoisted` is required: mockNuxtImport is hoisted above the declaration.

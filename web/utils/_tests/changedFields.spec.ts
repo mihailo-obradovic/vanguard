@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 
-import { changedFields } from './changedFields';
+import { changedFields } from '../changedFields';
 
 describe('changedFields', () => {
   it('returns only the entries whose values differ', () => {

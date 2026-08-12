@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 
-import { getErrorMessage } from './getErrorMessage';
+import { getErrorMessage } from '../getErrorMessage';
 
 // * The fallback goes through the catalog, so the test asserts the key rather than a copy of the English copy. `#app/nuxt` is where the auto-imported `useNuxtApp` resolves from.
 vi.mock('#app/nuxt', () => ({

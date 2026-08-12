@@ -99,7 +99,7 @@ No protected area of its own — the backend contracts this layer calls are prot
 
 ## Tests
 
-- `web/utils/parseResponse.spec.ts`, `getValidationErrors` / `getErrorMessage` specs — the pure helpers.
+- `web/utils/_tests/parseResponse.spec.ts`, `getValidationErrors` / `getErrorMessage` specs — the pure helpers.
 - Known gaps (recorded): the api services, the query composables, `useAppQuery`/`useAppMutation`, and the `fetcher` 419-retry path have no specs.
 
 ## Verification

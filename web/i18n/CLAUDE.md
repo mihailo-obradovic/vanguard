@@ -4,7 +4,7 @@ The locale catalogs and the Vue I18n build-time config for `@nuxtjs/i18n`. The m
 
 - `locales/<locale>.json` — one catalog per locale, namespaces as top-level keys. The locale set is `en` (authored first), `sr-Latn`, and `sr-Cyrl`.
 - `i18n.config.ts` — `fallbackLocale` and the Serbian plural rule.
-- `locales.spec.ts` — the parity test: key parity, alphabetical ordering, interpolation parity, plural-branch counts, and the Latin→Cyrillic transliteration. Run it after every catalog edit.
+- `_tests/locales.spec.ts` — the parity test: key parity, alphabetical ordering, interpolation parity, plural-branch counts, and the Latin→Cyrillic transliteration. Run it after every catalog edit.
 
 ## Governing document
 

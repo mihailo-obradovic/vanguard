@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { formatDate } from './formatDate';
+import { formatDate } from '../formatDate';
 
 const locale = { value: 'en' };
 

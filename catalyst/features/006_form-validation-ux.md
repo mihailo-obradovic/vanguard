@@ -99,7 +99,7 @@ No protected area of its own — the backend validation contracts are owned by f
 
 ## Tests
 
-- `web/utils/getValidationErrors.spec.ts` — the 422-to-field-map extraction.
+- `web/utils/_tests/getValidationErrors.spec.ts` — the 422-to-field-map extraction.
 - Known gaps (recorded): the per-form Regle schemas, `useExternalErrors` watch behavior, and `FieldErrors.vue` rendering have no component tests.
 
 ## Verification

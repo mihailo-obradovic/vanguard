@@ -6,6 +6,7 @@
     title="Log In"
     @cancel="handleCancel"
     @confirm="handleConfirm"
+    @after-leave="handleAfterLeave"
   >
     <v-text-field
       v-model="form.email"
@@ -88,9 +89,7 @@ function handleForgotPasswordClick() {
   emit('forgot-password-click');
 }
 
-watch(dialog, (open) => {
-  if (open) {
-    r$.$reset({ toInitialState: true, clearExternalErrors: true });
-  }
-});
+function handleAfterLeave() {
+  r$.$reset({ toInitialState: true, clearExternalErrors: true });
+}
 </script>

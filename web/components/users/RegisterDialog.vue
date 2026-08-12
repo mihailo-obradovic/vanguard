@@ -6,6 +6,7 @@
     title="Register"
     @cancel="handleCancel"
     @confirm="handleConfirm"
+    @after-leave="handleAfterLeave"
   >
     <v-text-field
       v-model="form.name"
@@ -92,10 +93,9 @@ async function handleConfirm() {
   }
 }
 
-watch(dialog, (open) => {
-  if (open) {
-    showPassword.value = false;
-    r$.$reset({ toInitialState: true, clearExternalErrors: true });
-  }
-});
+function handleAfterLeave() {
+  showPassword.value = false;
+
+  r$.$reset({ toInitialState: true, clearExternalErrors: true });
+}
 </script>

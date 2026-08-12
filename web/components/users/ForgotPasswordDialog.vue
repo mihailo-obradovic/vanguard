@@ -6,6 +6,7 @@
     title="Forgot Password"
     @cancel="handleCancel"
     @confirm="handleConfirm"
+    @after-leave="handleAfterLeave"
   >
     <p class="mb-4 text-body-2">
       A link for resetting your password will be sent to your email.
@@ -64,9 +65,7 @@ async function handleConfirm() {
   }
 }
 
-watch(dialog, (open) => {
-  if (open) {
-    r$.$reset({ toInitialState: true, clearExternalErrors: true });
-  }
-});
+function handleAfterLeave() {
+  r$.$reset({ toInitialState: true, clearExternalErrors: true });
+}
 </script>

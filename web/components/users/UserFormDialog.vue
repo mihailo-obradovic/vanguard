@@ -131,6 +131,7 @@ async function handleConfirm() {
   }
 }
 
+// ! Resets on open, not after-leave: the target state depends on editMode/user, which the parent assigns right before opening — at close time those props still describe the previous session
 watch(dialog, (open) => {
   if (!open) {
     return;

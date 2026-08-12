@@ -137,17 +137,10 @@ function handleSubmitUser(form: CreateUserForm) {
   }
 }
 
-// * Delete state
+// * Delete state. userToDelete is kept after closing so the message doesn't empty out mid fade-out; the next delete overwrites it.
 const userToDelete = ref<User | null>(null);
 
-const showDeleteDialog = computed({
-  get: () => userToDelete.value !== null,
-  set: (value) => {
-    if (!value) {
-      userToDelete.value = null;
-    }
-  }
-});
+const showDeleteDialog = ref(false);
 
 const deleteMessage = computed(() =>
   userToDelete.value
@@ -162,10 +155,11 @@ function confirmDelete(user: User) {
   }
 
   userToDelete.value = user;
+  showDeleteDialog.value = true;
 }
 
 function cancelDelete() {
-  userToDelete.value = null;
+  showDeleteDialog.value = false;
 }
 
 const {
@@ -180,7 +174,7 @@ const {
     );
   },
   onSettled: () => {
-    userToDelete.value = null;
+    showDeleteDialog.value = false;
   }
 });
 

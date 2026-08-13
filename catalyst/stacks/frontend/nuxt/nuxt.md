@@ -35,7 +35,7 @@ The shared tiers `_lang/typescript`, `frontend/_vue`, and `frontend/_common` tra
 - Pinia and `@pinia/colada` (with `@pinia/colada-nuxt`) — client state and server state respectively.
 - Zod (response schemas); `@regle/core` + `@regle/rules` (with `@regle/nuxt`) — form validation.
 - `@vueuse/core`.
-- Vitest, `@nuxt/test-utils`, `@vue/test-utils`, `@vitest/coverage-v8`.
+- Vitest, `@nuxt/test-utils`, `@vue/test-utils`, `@vitest/coverage-v8`; `msw` and `@testing-library/vue` (approved for the wire-mocking and component-test doctrine in `testing.md`, installed when first used).
 - pnpm as the package manager.
 
 ## Avoid By Default

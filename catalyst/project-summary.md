@@ -34,6 +34,7 @@ One line per record: type, status, title, link.
 | 006 | infra       | Accepted    | Adopt the i18n addon (`@nuxtjs/i18n`) with en / sr-Latn / sr-Cyrl  | [decisions/006_infra_i18n-adoption.md](decisions/006_infra_i18n-adoption.md)                         |
 | 007 | infra       | Implemented | Serve GraphQL alongside REST (Lighthouse + a fetcher-based client) | [decisions/007_infra_graphql-alongside-rest.md](decisions/007_infra_graphql-alongside-rest.md)       |
 | 008 | process     | Implemented | Testing strategy: coverage measured not gated, `_tests/` placement | [decisions/008_process_testing-strategy.md](decisions/008_process_testing-strategy.md)               |
+| 009 | process     | Implemented | Test-quality doctrine (Khorikov), MSW at the wire, mutation audits | [decisions/009_process_test-quality-doctrine.md](decisions/009_process_test-quality-doctrine.md)     |
 
 ## Domain Decision Index
 

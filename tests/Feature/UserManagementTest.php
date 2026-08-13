@@ -128,6 +128,48 @@ test('creating a user rejects an overlong name and an uppercase email', function
         ->assertJsonValidationErrors(['name', 'email']);
 });
 
+test('creating a user rejects a non-string name and an overlong email', function () {
+    $admin = User::factory()->admin()->create();
+
+    $this->actingAs($admin)
+        ->postJson('/api/users', [
+            'name' => ['Array', 'Name'],
+            // * 264 characters and structurally valid, so only max:255 can reject it.
+            'email' => str_repeat('a', 60).'@'.str_repeat('b.', 100).'com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['name', 'email']);
+});
+
+test('creating a user rejects a password below the minimum length', function () {
+    $admin = User::factory()->admin()->create();
+
+    $this->actingAs($admin)
+        ->postJson('/api/users', [
+            'name' => 'Short Password',
+            'email' => 'short@example.com',
+            'password' => 'short',
+            'password_confirmation' => 'short',
+        ])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors('password');
+});
+
+test('updating a user rejects a password below the minimum length', function () {
+    $admin = User::factory()->admin()->create();
+    $user = User::factory()->create();
+
+    $this->actingAs($admin)
+        ->putJson("/api/users/{$user->id}", [
+            'password' => 'short',
+            'password_confirmation' => 'short',
+        ])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors('password');
+});
+
 test('creating a user rejects an email that is already taken', function () {
     $admin = User::factory()->admin()->create();
     User::factory()->create(['email' => 'taken@example.com']);

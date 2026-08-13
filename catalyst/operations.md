@@ -95,6 +95,16 @@ Four config choices are load-bearing and easy to undo by accident:
 - **`ignoreStatic: true`** — `web/mocks/setup.ts` swaps `globalThis.$fetch` at module scope, and a static mutant forces a full environment reload per mutant against that load-order-sensitive capture.
 - **`vitest.related: false`** — related-file resolution across Nuxt's vite pipeline can silently fail to find the covering tests, which surfaces as a whole file reported `Survived`. Per-test coverage already selects the right specs.
 
+First audit (2026-08-13): 84.38% baseline → **92.19%** total, and 90.00% → **97.64%** on covered code (448 mutants, 42 surviving, all triaged below; `services` and `stores` reach 100%). Stryker reports several mutants per line, so before writing a test against a survivor, read its `replacement` in `reports/mutation/frontend.json` — a guard's outer condition and its inner operand are separate mutants, and sabotaging the wrong one proves nothing. Accepted surviving mutants — recheck when touching the code they live in:
+
+- **The `typeof x !== 'object'` operand** in `getValidationErrors` and `gqlFetcher`'s `toValidationBody` — reachable only for a truthy non-object, and every such value already yields `{}` through the string-array message filter below it. The guard is defense-in-depth the filter provides anyway.
+- **`RedirectDecision.reason`** (all three strings) — written and never read anywhere in `web/`; diagnostic metadata, not behavior. The day something displays or logs it, its test kills these.
+- **`.some` → `.every` on `guestOnlyPrefixes`** — the list holds one prefix, so the two are equivalent; a second prefix makes this killable and should arrive with the test that adds it.
+- **`credentials: 'include'` in `fetcher`** — MSW intercepts below the point where credentials mode is observable, so no test at this layer can see it. The browser enforces it, and the session feature covers the effect.
+- **The empty `default:` branch** in `handleApiError` — a Stryker artifact on a `break` with no behavior.
+- **`sameAs(password, 'password')`'s second argument** — the field label inside the message, not a contract; same reasoning as the backend's lockout-copy mutants.
+- **`parseResponse`'s `console.error` text** — `conventions/testing.md` prohibits asserting on logs.
+
 ### Quirks
 
 - The SPA and API must run on the exact origins in `SANCTUM_STATEFUL_DOMAINS` / `FRONTEND_URL` (`localhost:3000`/`3001` + `localhost:8000`) or auth silently fails on cookies/CORS.

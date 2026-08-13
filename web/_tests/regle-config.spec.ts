@@ -2,9 +2,16 @@
 import { describe, it, expect } from 'vitest';
 import { mountSuspended } from '@nuxt/test-utils/runtime';
 import { defineComponent, ref } from 'vue';
-import { maxLength, minLength, required, requiredIf } from '@regle/rules';
+import {
+  email,
+  maxLength,
+  minLength,
+  required,
+  requiredIf,
+  sameAs
+} from '@regle/rules';
 
-type Field = 'nickname' | 'motto' | 'handle' | 'bio';
+type Field = 'nickname' | 'motto' | 'handle' | 'bio' | 'contact' | 'repeated';
 
 // * The setup file replaces the English messages @regle/rules ships with. Fields wrapped in labeledRules carry their own copy; these are the fallbacks a bare rule gets. `requiredIf` matters here: messages are matched by the declared rule key, so without its own entry it would fall back to the library's hardcoded English instead of the catalog.
 async function setupForm() {
@@ -12,7 +19,9 @@ async function setupForm() {
     nickname: '',
     motto: '',
     handle: 'ab',
-    bio: 'x'.repeat(9)
+    bio: 'x'.repeat(9),
+    contact: 'not-an-address',
+    repeated: 'something else'
   });
 
   let validate!: () => Promise<boolean>;
@@ -25,7 +34,9 @@ async function setupForm() {
           motto: { requiredIf: requiredIf(() => true) },
           nickname: { required },
           handle: { minLength: minLength(5) },
-          bio: { maxLength: maxLength(8) }
+          bio: { maxLength: maxLength(8) },
+          contact: { email },
+          repeated: { sameAs: sameAs(() => 'the original') }
         });
 
         validate = async () => (await r$.$validate()).valid;
@@ -75,5 +86,23 @@ describe('regle-config', () => {
     await validate();
 
     expect(errors('bio')).toContain('This field must be at most 8 characters.');
+  });
+
+  // * The labelled variants of these two are covered through `labeledRules` and
+  // * `newPasswordRules`; these are the bare fallbacks, which nothing else reaches.
+  it('gives a bare email rule the catalog message', async () => {
+    const { validate, errors } = await setupForm();
+
+    await validate();
+
+    expect(errors('contact')).toContain('Please enter a valid email address.');
+  });
+
+  it('gives a bare sameAs rule the catalog message', async () => {
+    const { validate, errors } = await setupForm();
+
+    await validate();
+
+    expect(errors('repeated')).toContain('The values do not match.');
   });
 });

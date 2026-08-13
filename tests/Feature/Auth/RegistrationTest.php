@@ -20,6 +20,20 @@ test('new users can register', function () {
     ]);
 });
 
+test('registration requires a name, an email, and a password', function () {
+    $this->postJson('/register', [])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['name', 'email', 'password']);
+});
+
+test('registration rejects an overlong name, an uppercase email, and an unconfirmed password', function () {
+    $this->postJson('/register', [
+        'name' => str_repeat('a', 256),
+        'email' => 'UPPER@EXAMPLE.COM',
+        'password' => 'password',
+    ])->assertStatus(422)->assertJsonValidationErrors(['name', 'email', 'password']);
+});
+
 test('registration requires a unique email', function () {
     User::factory()->create(['email' => 'taken@example.com']);
 

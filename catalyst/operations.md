@@ -70,7 +70,20 @@ composer run dev    # serve (localhost:8000) + queue:listen + pail + pnpm run de
 php artisan serve   # API alone
 pnpm dev            # SPA alone (localhost:3000)
 php artisan test && pnpm test   # both suites
+composer test:coverage          # backend coverage (sets XDEBUG_MODE=coverage; needs the Xdebug extension)
+pnpm test:coverage              # frontend coverage (text + html + lcov into coverage/, gitignored)
+XDEBUG_MODE=coverage vendor/bin/pest --mutate --everything --covered-only   # backend mutation audit (below)
 ```
+
+Mutation audit (ADR 009; run after a test-writing push, not on a schedule): the command above mutates `app/` (Pest's built-in mutation testing; `--everything` because classes carry no `covers()` annotations, `--covered-only` to skip mutations no test executes) and reruns the covering tests per mutant. **Do not add `--parallel`** — mutant processes share the `vanguard_testing` database and would trample each other. Every listed _untested_ mutation is a change no test noticed — fix the test it exposes or record here why the mutant is acceptable. Score is a measurement, never a gate.
+
+First audit (2026-08-13): 60.69% baseline → **70.61%** after the survivor-driven test fixes (262 mutations, 77 surviving, all triaged below). Accepted surviving mutants — recheck when touching the code they live in:
+
+- **Events with no listeners** — removing `event(PasswordReset|Verified|Lockout)` is unobservable because nothing consumes them yet; the day a listener lands, its tests kill these.
+- **Throttle-key composition and lockout copy** (`LoginRequest::throttleKey` concat order, the `seconds`/`minutes` message params, `ceil` variants) — per-email-vs-IP lockout scoping and message wording are not contractual; the threshold itself (5) and the throttle response are pinned.
+- **`remember_token` rotation details** (`Str::random(60)` length, the array item on reset) — the `remember` flow is a recorded feature-doc gap; length is trivia.
+- **Rule-list residue**: `'string'` on fields whose format rule subsumes it, `'sometimes'` items whose removal only changes empty-body no-ops, and the mirrored GraphQL validator's remaining single-rule removals — the meaningful rules (required sets, unique, confirmed, lowercase, max, enum) are all covered.
+- **Defensive code unreachable through routes**: `UserRequest::authorize()`'s `&&` (route middleware guarantees a user), `datetime` cast on `email_verified_at` (type trivia), `ResourcePayload`'s JSON flag integers, `!=` → `!==` on the password-broker status strings (equivalent for string constants), `array_intersect_key` unwrap in `UpdateUser` (inputs pre-filtered by both transports' validators).
 
 ### Quirks
 
@@ -78,4 +91,4 @@ php artisan test && pnpm test   # both suites
 
 ## CI
 
-GitHub Actions (`.github/workflows/ci.yml`), on push to `master`/`variant/**` and on PRs. Two jobs: frontend (oxlint, oxfmt check, typecheck, vitest — Node 24 + pnpm) and backend (pint check + Pest against a `mysql:8` service container whose `MYSQL_DATABASE` is `vanguard_testing`; job-level `DB_*` env vars override the phpunit/.env values). No deploy step — deployment remains an honest gap (ADR 001).
+GitHub Actions (`.github/workflows/ci.yml`), on push to `master`/`variant/**` and on PRs. Two jobs: frontend (oxlint, oxfmt check, typecheck, vitest with coverage — Node 24 + pnpm) and backend (pint check + Pest with coverage against a `mysql:8` service container whose `MYSQL_DATABASE` is `vanguard_testing`; job-level `DB_*` env vars override the phpunit/.env values). Coverage is printed, never gated (ADR 008); CI's driver is PCOV via `setup-php`, while local runs use Xdebug. No deploy step — deployment remains an honest gap (ADR 001).

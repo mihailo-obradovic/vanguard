@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { z } from 'zod';
 
-import { parseResponse } from './parseResponse';
+import { parseResponse } from '../parseResponse';
 
 const schema = z.object({ id: z.number(), name: z.string() });
 

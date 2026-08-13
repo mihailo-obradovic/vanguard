@@ -14,7 +14,7 @@ Medium
 
 ## Context
 
-Decision 008 set up measurement, placement, and level boundaries but said little about what makes an individual test _reliable_ — most of the suite was written after the code it covers, so nothing proved a green test could ever be red, and the mocking guidance ("mock at the service/fetcher boundary") predated any real data-layer tests. The user supplied a distillation of Khorikov's _Unit Testing: Principles, Practices, and Patterns_ to be merged with the reliability practices (red-first regressions, sabotage spot-checks, mutation testing) into standing doctrine. The frontend data-layer specs landed in parallel with this record, mocking at the fetcher boundary — the seam this record supersedes; they stand as a recorded deviation until migrated.
+Decision 008 set up measurement, placement, and level boundaries but said little about what makes an individual test _reliable_ — most of the suite was written after the code it covers, so nothing proved a green test could ever be red, and the mocking guidance ("mock at the service/fetcher boundary") predated any real data-layer tests. The user supplied a distillation of Khorikov's _Unit Testing: Principles, Practices, and Patterns_ to be merged with the reliability practices (red-first regressions, sabotage spot-checks, mutation testing) into standing doctrine. The frontend data-layer specs landed in parallel with this record, mocking at the fetcher boundary — the seam this record supersedes; they stood as a deviation until migrated (see Consequences).
 
 ## Decision
 
@@ -32,7 +32,8 @@ Rejected: adopting the guide as one monolithic file (Catalyst loads context per 
 ## Consequences
 
 - Tests are now judged by written criteria — reviewers can point at a rule instead of taste; agents and future contributors inherit the same bar.
-- The existing data-layer specs (services, query composables, wrappers, store — written against `mockNuxtImport('fetcher', …)`) are a **known deviation**: kept green as-is, migrated to MSW handlers as a filed follow-up rather than rewritten now. New data-layer tests are written against MSW from the start. Handler shapes must track the backend contract — that drift risk is the known cost of wire mocking; a shared fixture or contract check is the recorded mitigation once handlers exist.
+- The `mockNuxtImport('fetcher', …)` deviation is **closed**: the whole data layer runs against MSW handlers in `web/mocks/`, with the recorded drift mitigation in place (fixtures parsed through their Zod schema). Getting there meant solving two Nuxt-environment quirks that leave a suite green while testing nothing — documented in `stacks/frontend/nuxt/testing.md`, since the next person will hit them.
+- Invalidation is asserted through the refetch it causes, and the auth store runs for real: neither is out-of-process, so neither is doubled.
 - Mutation runs cost minutes and only on demand; the audit is only as good as its cadence (runbook suggests after each test-writing push).
 - 008's mocking line is superseded by this record; readers of 008 are pointed here.
 

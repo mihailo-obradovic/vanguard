@@ -5,6 +5,7 @@ import {
   maxLength,
   minLength,
   required,
+  requiredIf,
   sameAs,
   withMessage
 } from '@regle/rules';
@@ -24,6 +25,8 @@ export default defineRegleNuxtPlugin(() =>
           t('validation.minLength', { min })
         ),
         required: withMessage(required, () => t('validation.required')),
+        // ! Messages are matched by the key a form declares a rule under, not by the rule's internal type — a field declaring `requiredIf` skips the `required` entry, so it needs its own.
+        requiredIf: withMessage(requiredIf, () => t('validation.required')),
         sameAs: withMessage(sameAs, () => t('validation.sameAs'))
       };
     }

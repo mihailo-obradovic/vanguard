@@ -45,6 +45,7 @@
       "message": "We use cookies to enhance your experience. You can accept or decline non-essential cookies."
     },
     "fields": {
+      "currentPassword": "Current Password",
       "email": "Email",
       "name": "Name",
       "password": "Password",
@@ -147,6 +148,13 @@
   },
   "validation": {
     "email": "Please enter a valid email address.",
+    "field": {
+      "email": "The {field} field must be a valid email address.",
+      "maxLength": "The {field} field must be at most {max} characters.",
+      "minLength": "The {field} field must be at least {min} characters.",
+      "required": "The {field} field is required.",
+      "sameAs": "The {field} field does not match."
+    },
     "maxLength": "This field must be at most {max} characters.",
     "minLength": "This field must be at least {min} characters.",
     "required": "This field is required.",

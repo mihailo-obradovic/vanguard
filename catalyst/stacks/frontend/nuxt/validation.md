@@ -54,6 +54,11 @@ Installing the plugin by hand (`app.use(RegleVuePlugin)`) is what a plain Vue ap
 
 Where a project needs custom rules or shared error messages, the module injects them from one setup file — `regle: { setupFile: '~/regle-config.ts' }` alongside the `modules` entry. Not the default: a project with neither has no reason to own the file.
 
+Two things to know about that message layer:
+
+- **Messages match on the key a form declares a rule under, not the rule's internal type.** A field declaring `requiredIf` is not covered by a `required` entry — every rule name forms actually use needs its own entry, or it falls back to the library's hardcoded English.
+- **The setup file cannot name the field** — Regle's message context (`$value`, `$params`, rule state) carries no field name. Copy that names the field ("The Email field is required.") is attached where the field is known: a small helper (`utils/labeledRules.ts` here) wraps one field's rules with `withMessage`, resolving the field's label and the message lazily inside the getter so open forms follow locale changes. The setup file's generic messages remain the fallback for any unwrapped rule.
+
 ### The auto-import boundary
 
 The module auto-imports the `@regle/core` composables — `useRegle`, `inferRules`, `useScopedRegle`, `useCollectScope` — so do not import them explicitly (`../_vue/vue-style.md`, auto-import boundary).

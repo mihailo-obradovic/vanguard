@@ -113,7 +113,7 @@ const {
 const { r$ } = useRegle(
   form,
   {
-    email: { required, email },
+    email: labeledRules('common.fields.email', { required, email }),
     ...newPasswordRules(() => form.value.password)
   },
   { externalErrors: useExternalErrors(useValidationErrors(resetError)) }

@@ -7,13 +7,13 @@ export function newPasswordRules(
   optional: MaybeRefOrGetter<boolean> = false
 ) {
   return {
-    password: {
+    password: labeledRules('common.fields.password', {
       required: requiredIf(() => !toValue(optional)),
       minLength: minLength(8)
-    },
-    password_confirmation: {
+    }),
+    password_confirmation: labeledRules('common.fields.passwordConfirmation', {
       requiredIf: requiredIf(() => !toValue(optional) || !!password()),
       sameAs: sameAs(password, 'password')
-    }
+    })
   };
 }

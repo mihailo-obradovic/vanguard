@@ -286,11 +286,18 @@ const {
 const { r$ } = useRegle(
   profileForm,
   {
-    name: { required, maxLength: maxLength(255) },
-    email: { required, email, maxLength: maxLength(255) },
-    current_password: {
+    name: labeledRules('common.fields.name', {
+      required,
+      maxLength: maxLength(255)
+    }),
+    email: labeledRules('common.fields.email', {
+      required,
+      email,
+      maxLength: maxLength(255)
+    }),
+    current_password: labeledRules('common.fields.currentPassword', {
       requiredIf: requiredIf(() => !!profileForm.value.password)
-    },
+    }),
     ...newPasswordRules(() => profileForm.value.password, true)
   },
   { externalErrors: useExternalErrors(useValidationErrors(updateProfileError)) }

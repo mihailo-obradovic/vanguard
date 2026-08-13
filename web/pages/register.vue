@@ -121,8 +121,15 @@ const {
 const { r$ } = useRegle(
   form,
   {
-    name: { required, maxLength: maxLength(255) },
-    email: { required, email, maxLength: maxLength(255) },
+    name: labeledRules('common.fields.name', {
+      required,
+      maxLength: maxLength(255)
+    }),
+    email: labeledRules('common.fields.email', {
+      required,
+      email,
+      maxLength: maxLength(255)
+    }),
     ...newPasswordRules(() => form.value.password)
   },
   { externalErrors: useExternalErrors(useValidationErrors(registerError)) }

@@ -20,6 +20,7 @@ async function setupForm(optional?: MaybeRefOrGetter<boolean>) {
 
   let validate!: () => Promise<boolean>;
   let passwordErrors!: () => string[];
+  let confirmationErrors!: () => string[];
 
   await mountSuspended(
     defineComponent({
@@ -30,13 +31,14 @@ async function setupForm(optional?: MaybeRefOrGetter<boolean>) {
 
         validate = async () => (await r$.$validate()).valid;
         passwordErrors = () => r$.password.$errors;
+        confirmationErrors = () => r$.password_confirmation.$errors;
 
         return () => null;
       }
     })
   );
 
-  return { form, validate, passwordErrors };
+  return { form, validate, passwordErrors, confirmationErrors };
 }
 
 describe('newPasswordRules', () => {
@@ -93,6 +95,18 @@ describe('newPasswordRules', () => {
       form.value = { password: 'correct-horse', password_confirmation: '' };
 
       expect(await validate()).toBe(false);
+    });
+
+    it('names the confirmation field in its missing-value message', async () => {
+      // * The generic fallback would say "This field is required." — the labeled copy names the field, which is what the forms render.
+      const { form, validate, confirmationErrors } = await setupForm();
+
+      form.value = { password: 'correct-horse', password_confirmation: '' };
+      await validate();
+
+      expect(confirmationErrors()).toContain(
+        'The Password Confirmation field is required.'
+      );
     });
   });
 

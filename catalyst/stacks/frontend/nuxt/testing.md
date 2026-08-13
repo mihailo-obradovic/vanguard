@@ -48,7 +48,7 @@ The backend API is this app's **unmanaged dependency** — the only thing tests 
 
 - Assert on the outgoing request (method, URL, body) when making the call _is_ the behavior — "submitting the form sends the update to the API".
 - Handler response shapes must track the backend contract. Drift here is the main way a wire-mocked suite goes quietly false-green; keep handlers next to the Zod schemas they must satisfy, and treat a schema change without a handler change as a red flag in review.
-- `msw` and `@testing-library/vue` are approved dependencies (`nuxt.md`); `msw` is installed.
+- `msw` and `@testing-library/vue` are approved dependencies (`nuxt.md`); both are installed.
 
 ### The mock module — `web/mocks/`
 

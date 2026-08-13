@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 test('admins can list users newest first', function () {
     $admin = User::factory()->admin()->create();
@@ -218,6 +219,20 @@ test('admins can update a user', function () {
         'name' => 'Updated Name',
         'role' => 'admin',
     ]);
+});
+
+test('an admin-set password replaces the old one', function () {
+    $admin = User::factory()->admin()->create();
+    $user = User::factory()->create();
+
+    $this->actingAs($admin)
+        ->putJson("/api/users/{$user->id}", [
+            'password' => 'replaced-password',
+            'password_confirmation' => 'replaced-password',
+        ])
+        ->assertOk();
+
+    expect(Hash::check('replaced-password', $user->fresh()->password))->toBeTrue();
 });
 
 test('admins can delete a user', function () {

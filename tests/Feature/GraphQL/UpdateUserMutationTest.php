@@ -2,11 +2,12 @@
 
 use App\Models\User;
 use App\Notifications\VerifyEmailNotification;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 
 const UPDATE_USER = /** @lang GraphQL */ '
-    mutation ($id: Int!, $name: String, $email: String, $role: String) {
-        updateUser(id: $id, name: $name, email: $email, role: $role) {
+    mutation ($id: Int!, $name: String, $email: String, $password: String, $password_confirmation: String, $role: String) {
+        updateUser(id: $id, name: $name, email: $email, password: $password, password_confirmation: $password_confirmation, role: $role) {
             id
             name
             email
@@ -53,6 +54,21 @@ test('changing the email resets verification and queues the notice', function ()
         ->assertJsonPath('data.updateUser.email_verified_at', null);
 
     Notification::assertSentTo($user->fresh(), VerifyEmailNotification::class);
+});
+
+test('an admin-set password replaces the old one', function () {
+    $admin = User::factory()->admin()->create();
+    $user = User::factory()->create();
+
+    $this->actingAs($admin)
+        ->graphQL(UPDATE_USER, [
+            'id' => $user->id,
+            'password' => 'replaced-password',
+            'password_confirmation' => 'replaced-password',
+        ])
+        ->assertGraphQLErrorFree();
+
+    expect(Hash::check('replaced-password', $user->fresh()->password))->toBeTrue();
 });
 
 test('a duplicate email is reported as a validation error keyed by field', function () {

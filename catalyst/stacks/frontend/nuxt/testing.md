@@ -73,7 +73,7 @@ Mount the query alongside the mutation and assert **the refetch that invalidatio
 
 ## Coverage
 
-`@vitest/coverage-v8` (the v8 provider: native, no instrumentation pass; istanbul remains the documented alternative if per-branch precision ever matters more than speed). Configured in `vitest.config.ts` to measure the whole `web/` tree — `include: ['web/**']` — so unimported files count as uncovered instead of invisible; locale catalogs are excluded as data.
+`@vitest/coverage-v8` (the v8 provider: native, no instrumentation pass; istanbul remains the documented alternative if per-branch precision ever matters more than speed). Configured in `vitest.config.ts` to measure the whole `web/` tree — `include: ['web/**/*.{ts,vue}']` — so unimported files count as uncovered instead of invisible; locale catalogs are excluded as data. The extension filter is load-bearing: a bare `web/**` feeds the folder `CLAUDE.md` files to rolldown, which logs a `PARSE_ERROR` for each one.
 
 Coverage is **measured, not gated**: CI prints the report but enforces no threshold while recorded gaps are still being closed (`decisions/008`). A number that only ever ratchets by honest test-writing is a signal; a gate over a known-incomplete suite just teaches people to test what is cheap. Revisit gating when the recorded gaps are closed.
 

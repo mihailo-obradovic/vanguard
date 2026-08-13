@@ -9,8 +9,10 @@ export default defineVitestConfig({
     setupFiles: ['web/mocks/setup.ts'],
     coverage: {
       provider: 'v8',
-      // * Measure the whole frontend source tree, not just files a test happens to import
-      include: ['web/**'],
+      // * Measure the whole frontend source tree, not just files a test happens to import.
+      // ! Extension-filtered on purpose: a bare `web/**` hands the docs to rolldown, which
+      // ! fails to parse them as source and logs a PARSE_ERROR per file.
+      include: ['web/**/*.{ts,vue}'],
       // * Locale catalogs are data, not code; measuring them only dilutes the numbers.
       // * `mocks/` is test infrastructure, not shipped code.
       exclude: ['web/i18n/locales/**', 'web/mocks/**'],

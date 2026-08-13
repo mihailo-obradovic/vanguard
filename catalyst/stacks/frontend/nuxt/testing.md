@@ -15,7 +15,7 @@ The levels, concretely:
 
 - **Unit** — the frontend's domain layer: utils, validators, formatters, parsers, store getters and the pure logic inside actions, pure composables (no fetching, no lifecycle, no router). Output-based wherever possible; the default level and the bulk of the suite. Logic embedded in a component's `<script setup>` that cannot be tested without mounting gets extracted first.
 - **Data layer** — services, query composables, the fetcher chain — tested against **MSW at the wire** (below), not with module mocks.
-- **Component** — `@testing-library/vue` preferred (its queries are behavior-oriented by construction) over raw `@vue/test-utils` assertions; `mountSuspended` from `@nuxt/test-utils` when the component needs the Nuxt runtime. Used sparingly, per the rule above.
+- **Component** — `@testing-library/vue` preferred (its queries are behavior-oriented by construction) over raw `@vue/test-utils` assertions; `renderSuspended` from `@nuxt/test-utils` is the Testing Library form of `mountSuspended`, for a component that needs the Nuxt runtime. Used sparingly, per the rule above. `renderSuspended` supplies the Nuxt runtime but **not** the Vue plugins that Nuxt plugins register, so anything a plugin installs on the Vue app has to be passed in `global.plugins`; and Testing Library's `cleanup` only owns its own container, so a component that renders outside it (a teleport, a fixed overlay) needs `document.body` cleared between tests or the previous test's markup answers the next test's query.
 - **End-to-end** — deliberately absent. A browser-automation layer (Playwright) becomes worth its runtime and flake budget when the app has enough flows that walking them manually stops scaling; until then the per-feature live browser walk covers it. Adding E2E is a dependency decision — a new record, not a default.
 - **Snapshots** — rejected. A snapshot asserts implementation output, not behavior: it goes stale on every markup tweak, and the habitual update-on-red erases the only signal it ever had. Assert what the user observes — rendered text, emitted events, aria state — never serialized trees.
 
@@ -48,7 +48,7 @@ The backend API is this app's **unmanaged dependency** — the only thing tests 
 
 - Assert on the outgoing request (method, URL, body) when making the call _is_ the behavior — "submitting the form sends the update to the API".
 - Handler response shapes must track the backend contract. Drift here is the main way a wire-mocked suite goes quietly false-green; keep handlers next to the Zod schemas they must satisfy, and treat a schema change without a handler change as a red flag in review.
-- `msw` and `@testing-library/vue` are approved dependencies (`nuxt.md`); `msw` is installed.
+- `msw` and `@testing-library/vue` are approved dependencies (`nuxt.md`); both are installed.
 
 ### The mock module — `web/mocks/`
 

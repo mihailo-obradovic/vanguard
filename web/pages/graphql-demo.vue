@@ -179,8 +179,15 @@ const formErrors = useValidationErrors(updateError);
 const { r$ } = useRegle(
   userForm,
   {
-    name: { required, maxLength: maxLength(255) },
-    email: { required, email, maxLength: maxLength(255) }
+    name: labeledRules('common.fields.name', {
+      required,
+      maxLength: maxLength(255)
+    }),
+    email: labeledRules('common.fields.email', {
+      required,
+      email,
+      maxLength: maxLength(255)
+    })
   },
   { externalErrors: useExternalErrors(() => formErrors.value) }
 );

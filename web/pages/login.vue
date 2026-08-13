@@ -89,8 +89,8 @@ const {
 const { r$ } = useRegle(
   form,
   {
-    email: { required, email },
-    password: { required }
+    email: labeledRules('common.fields.email', { required, email }),
+    password: labeledRules('common.fields.password', { required })
   },
   { externalErrors: useExternalErrors(useValidationErrors(loginError)) }
 );

@@ -87,10 +87,65 @@ test('an overlong name and an uppercase email are rejected', function () {
     $admin = User::factory()->admin()->create();
     $user = User::factory()->create();
 
+    // * Keyed per field, not just by status — one 422 cannot show that both rules fired.
     $this->actingAs($admin)
         ->graphQL(UPDATE_USER, ['id' => $user->id, 'name' => str_repeat('a', 256), 'email' => 'UPPER@EXAMPLE.COM'])
         ->assertOk()
+        ->assertGraphQLValidationKeys(['name', 'email'])
         ->assertJsonPath('errors.0.extensions.status', 422);
+});
+
+test('a malformed email is rejected', function () {
+    $admin = User::factory()->admin()->create();
+    $user = User::factory()->create();
+
+    $this->actingAs($admin)
+        ->graphQL(UPDATE_USER, ['id' => $user->id, 'email' => 'not-an-email'])
+        ->assertGraphQLValidationKeys(['email'])
+        ->assertJsonPath('errors.0.extensions.status', 422);
+});
+
+test('an overlong email is rejected', function () {
+    $admin = User::factory()->admin()->create();
+    $user = User::factory()->create();
+
+    // * 264 characters and structurally valid, so only max:255 can reject it.
+    $this->actingAs($admin)
+        ->graphQL(UPDATE_USER, ['id' => $user->id, 'email' => str_repeat('a', 60).'@'.str_repeat('b.', 100).'com'])
+        ->assertGraphQLValidationKeys(['email'])
+        ->assertJsonPath('errors.0.extensions.status', 422);
+});
+
+test('an unconfirmed password is rejected', function () {
+    $admin = User::factory()->admin()->create();
+    $user = User::factory()->create();
+
+    $this->actingAs($admin)
+        ->graphQL(UPDATE_USER, [
+            'id' => $user->id,
+            'password' => 'new-password',
+            'password_confirmation' => 'different-password',
+        ])
+        ->assertGraphQLValidationKeys(['password'])
+        ->assertJsonPath('errors.0.extensions.status', 422);
+
+    expect(Hash::check('password', $user->fresh()->password))->toBeTrue();
+});
+
+test('a password below the minimum length is rejected', function () {
+    $admin = User::factory()->admin()->create();
+    $user = User::factory()->create();
+
+    $this->actingAs($admin)
+        ->graphQL(UPDATE_USER, [
+            'id' => $user->id,
+            'password' => 'short',
+            'password_confirmation' => 'short',
+        ])
+        ->assertGraphQLValidationKeys(['password'])
+        ->assertJsonPath('errors.0.extensions.status', 422);
+
+    expect(Hash::check('password', $user->fresh()->password))->toBeTrue();
 });
 
 test('an invalid role is rejected', function () {

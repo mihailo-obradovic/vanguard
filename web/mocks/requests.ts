@@ -31,7 +31,9 @@ export function recordRequests(): RequestRecorder {
   });
 
   async function toRecord(request: Request): Promise<RecordedRequest> {
-    const text = await request.text();
+    // * Cloned again per read so `at()` stays idempotent — a body can only be consumed once,
+    // * and a spec may inspect the same request from more than one assertion.
+    const text = await request.clone().text();
 
     return {
       method: request.method,

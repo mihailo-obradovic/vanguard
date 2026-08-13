@@ -92,6 +92,17 @@ test('user responses expose exactly the documented fields', function () {
         ->toBe(['id', 'name', 'email', 'role', 'email_verified_at', 'created_at', 'updated_at']);
 });
 
+test('a verification timestamp is serialized as ISO-8601', function () {
+    $admin = User::factory()->admin()->create();
+    // * Without the datetime cast this reaches the client as the raw "2026-01-15 08:30:00".
+    $user = User::factory()->create(['email_verified_at' => '2026-01-15 08:30:00']);
+
+    $this->actingAs($admin)
+        ->getJson("/api/users/{$user->id}")
+        ->assertOk()
+        ->assertJsonPath('data.email_verified_at', '2026-01-15T08:30:00.000000Z');
+});
+
 test('creating a user requires name, email, and password', function () {
     $admin = User::factory()->admin()->create();
 

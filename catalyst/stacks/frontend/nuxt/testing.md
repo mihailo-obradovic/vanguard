@@ -48,7 +48,28 @@ The backend API is this app's **unmanaged dependency** — the only thing tests 
 
 - Assert on the outgoing request (method, URL, body) when making the call _is_ the behavior — "submitting the form sends the update to the API".
 - Handler response shapes must track the backend contract. Drift here is the main way a wire-mocked suite goes quietly false-green; keep handlers next to the Zod schemas they must satisfy, and treat a schema change without a handler change as a red flag in review.
-- `msw` and `@testing-library/vue` are approved dependencies (`nuxt.md`), installed when the first test needing them lands.
+- `msw` and `@testing-library/vue` are approved dependencies (`nuxt.md`); `msw` is installed.
+
+### The mock module — `web/mocks/`
+
+Everything wire-related lives in one directory, excluded from coverage as test infrastructure:
+
+- `server.ts` — the `setupServer()` singleton; `setup.ts` — the lifecycle, registered as Vitest's `setupFiles`.
+- `api.ts` — `apiUrl(path)` over the test origin. Requests must be absolute for MSW to intercept them in Node, so `vitest.config.ts` pins `NUXT_PUBLIC_API_BASE_URL` and both the app and the handlers read it from there.
+- `requests.ts` — `recordRequests()`, the recorder specs assert against: `trace()` for the call sequence, `at(i)` for method, path, headers and body.
+- `fixtures.ts` — `buildUser()`, **parsed through its Zod schema on the way out**, so a fixture that drifts from the contract fails where it is written rather than satisfying a spec that mocks it.
+- `handlers/` — the happy path per resource, shaped like the controllers answer (201 on create, 204 on delete and the session routes). A spec overrides one entry with `server.use(...)` for a failure.
+
+Unhandled requests **fail the run** (`onUnhandledRequest: 'error'`) — a request the handlers do not describe is a test lying about what it exercises.
+
+Two things are load-bearing in `setup.ts` and easy to lose in a refactor:
+
+- **The `$fetch` replacement runs at module scope, not in a hook.** The Nuxt test environment builds `$fetch` over its own in-memory h3 app, and `#build/fetch.mjs` — what app code's auto-imported `$fetch` resolves to — captures `globalThis.$fetch` when first imported. Setup files evaluate before the spec's import graph; assigning in `beforeAll` lands after the binding was taken, and requests escape to the real network. This takes the h3 app out of the path, so `registerEndpoint` no longer works — MSW replaces it.
+- **Outgoing headers are flattened to a plain record.** The DOM environment's `Headers` class and Node's `fetch` come from different realms, and the foreign instance is dropped silently rather than rejected — erasing `Accept` and `X-XSRF-TOKEN` from every request while the suite stays green.
+
+### Asserting cache invalidation
+
+Mount the query alongside the mutation and assert **the refetch that invalidation causes**, not a spy on `invalidateQueries`: a missing invalidation shows up as a missing request. Mount a query that must _not_ refresh in the same test to pin what a key does not reach.
 
 ## Coverage
 

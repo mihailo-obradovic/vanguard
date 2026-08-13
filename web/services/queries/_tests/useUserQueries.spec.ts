@@ -1,18 +1,17 @@
 // @vitest-environment nuxt
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { mockNuxtImport } from '@nuxt/test-utils/runtime';
 import { mount, flushPromises } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { PiniaColada } from '@pinia/colada';
+import { http, HttpResponse } from 'msw';
 import { defineComponent, ref } from 'vue';
 
-import {
-  fetchUsers,
-  fetchUser,
-  createUser,
-  updateUser,
-  deleteUser
-} from '@/services/user.api';
+import { server } from '@/mocks/server';
+import { apiUrl } from '@/mocks/api';
+import { recordRequests } from '@/mocks/requests';
+import { buildUser } from '@/mocks/fixtures';
+import { userHandlers } from '@/mocks/handlers/user';
 
 import {
   usersQueryKeys,
@@ -23,72 +22,55 @@ import {
   useDeleteUser
 } from '../useUserQueries';
 
-// * The services are explicitly imported here, so they mock as a module. This is the boundary
-// * the doctrine names: what the composable does around the call, never the call itself.
-vi.mock('@/services/user.api', () => ({
-  fetchUsers: vi.fn<() => Promise<unknown>>(),
-  fetchUser: vi.fn<() => Promise<unknown>>(),
-  createUser: vi.fn<() => Promise<unknown>>(),
-  updateUser: vi.fn<() => Promise<unknown>>(),
-  deleteUser: vi.fn<() => Promise<unknown>>()
-}));
-
-const { invalidateQueries } = vi.hoisted(() => ({
-  invalidateQueries: vi.fn<(...args: unknown[]) => Promise<void>>()
-}));
-
+// * Stubbed because it reaches for the router and the toast plugin, neither of which this spec
+// * is about; its own behaviour is covered in setupQueryErrorHandling.spec.ts.
 mockNuxtImport('setupQueryErrorHandling', () => () => {});
 
-const user = {
-  id: 7,
+const requests = recordRequests();
+
+const user = buildUser({ id: 7, role: 'admin' });
+
+const form = {
   name: 'Mihailo',
   email: 'mihailo@example.com',
-  role: 'admin' as const,
-  email_verified_at: null,
-  created_at: '2026-08-01T00:00:00.000000Z',
-  updated_at: '2026-08-01T00:00:00.000000Z'
+  password: 'correct-horse',
+  password_confirmation: 'correct-horse'
 };
 
-function withQueryCache<T>(use: () => T) {
+function mountQueries<T extends Record<string, unknown>>(use: () => T): T {
+  const pinia = createPinia();
+
+  setActivePinia(pinia);
+
   const wrapper = mount(
     defineComponent({
       setup() {
-        const queryCache = useQueryCache();
-
-        // * Spying on the real cache rather than stubbing it: invalidation is the behaviour
-        // * under test, and Colada stays real per the testing doctrine.
-        vi.spyOn(queryCache, 'invalidateQueries').mockImplementation(
-          invalidateQueries
-        );
-
         return { result: use() };
       },
       template: '<div />'
     }),
-    { global: { plugins: [createPinia(), PiniaColada] } }
+    { global: { plugins: [pinia, PiniaColada] } }
   );
 
-  return wrapper.vm.result;
+  return wrapper.vm.result as T;
 }
 
-function invalidatedKeys() {
-  return invalidateQueries.mock.calls.map(
-    ([options]) => (options as { key: unknown }).key
-  );
+/** Mount the composables, let the queries settle, then start recording from a clean slate. */
+async function mountSettled<T extends Record<string, unknown>>(
+  use: () => T
+): Promise<T> {
+  const result = mountQueries(use);
+
+  await flushPromises();
+  requests.reset();
+
+  return result;
 }
 
 describe('useUserQueries', () => {
   beforeEach(() => {
-    // * Implementations are re-stated below; this only drops the call history, which would
-    // * otherwise leak between cases.
-    vi.clearAllMocks();
-    setActivePinia(createPinia());
-    invalidateQueries.mockResolvedValue(undefined);
-    vi.mocked(fetchUsers).mockResolvedValue({ data: [user], total: 1 });
-    vi.mocked(fetchUser).mockResolvedValue(user);
-    vi.mocked(createUser).mockResolvedValue(user);
-    vi.mocked(updateUser).mockResolvedValue(user);
-    vi.mocked(deleteUser).mockResolvedValue(undefined);
+    requests.reset();
+    server.use(...userHandlers(user));
   });
 
   describe('the query keys', () => {
@@ -101,137 +83,157 @@ describe('useUserQueries', () => {
   });
 
   describe('useFetchUsers', () => {
-    it('reads the collection through the service', async () => {
-      const query = withQueryCache(() => useFetchUsers());
+    it('reads the collection', async () => {
+      const { list } = mountQueries(() => ({ list: useFetchUsers() }));
 
       await flushPromises();
 
-      expect(fetchUsers).toHaveBeenCalledOnce();
-      expect(query.data.value).toEqual({ data: [user], total: 1 });
+      expect(requests.trace()).toEqual(['GET /api/users']);
+      expect(list.data.value).toEqual({ data: [user], total: 1 });
     });
   });
 
   describe('useFetchUser', () => {
     it('reads the user the id points at', async () => {
       const id = ref(7);
-
-      withQueryCache(() => useFetchUser(id));
+      const { one } = mountQueries(() => ({ one: useFetchUser(id) }));
 
       await flushPromises();
 
-      expect(fetchUser).toHaveBeenCalledWith(7);
+      expect(requests.trace()).toEqual(['GET /api/users/7']);
+      expect(one.data.value).toEqual(user);
     });
 
     it('refetches when the id changes', async () => {
       const id = ref(7);
 
-      withQueryCache(() => useFetchUser(id));
-      await flushPromises();
+      await mountSettled(() => ({ one: useFetchUser(id) }));
 
       id.value = 8;
       await flushPromises();
 
       // * The key is a getter for exactly this reason — a static key would serve id 7 forever.
-      expect(fetchUser).toHaveBeenLastCalledWith(8);
+      expect(requests.trace()).toEqual(['GET /api/users/8']);
     });
   });
 
   describe('useCreateUser', () => {
-    it('creates through the service and refreshes the list', async () => {
-      const mutation = withQueryCache(() => useCreateUser());
+    it('creates the user and refreshes the list', async () => {
+      const { create } = await mountSettled(() => ({
+        list: useFetchUsers(),
+        create: useCreateUser()
+      }));
 
-      await mutation.mutateAsync({
-        name: 'Mihailo',
-        email: 'mihailo@example.com',
-        password: 'correct-horse',
-        password_confirmation: 'correct-horse'
-      });
+      await create.mutateAsync(form);
+      await flushPromises();
 
-      expect(createUser).toHaveBeenCalledOnce();
-      expect(invalidatedKeys()).toEqual([usersQueryKeys.fetchUsers]);
+      // * The refetch is the point: the list a component is showing must not stay stale.
+      expect(requests.trace()).toEqual(['POST /api/users', 'GET /api/users']);
     });
 
-    it('runs the caller onSettled after the invalidation', async () => {
-      const order: string[] = [];
+    it('runs the caller onSettled after the list has been refreshed', async () => {
+      let traceWhenCallerRan: string[] = [];
 
-      invalidateQueries.mockImplementation(async () => {
-        order.push('invalidate');
-      });
-
-      const mutation = withQueryCache(() =>
-        useCreateUser({
+      const { create } = await mountSettled(() => ({
+        list: useFetchUsers(),
+        create: useCreateUser({
           onSettled: () => {
-            order.push('caller');
+            traceWhenCallerRan = requests.trace();
           }
         })
-      );
+      }));
 
-      await mutation.mutateAsync({
-        name: 'Mihailo',
-        email: 'mihailo@example.com',
-        password: 'correct-horse',
-        password_confirmation: 'correct-horse'
-      });
+      await create.mutateAsync(form);
 
-      expect(order).toEqual(['invalidate', 'caller']);
+      expect(traceWhenCallerRan).toEqual(['POST /api/users', 'GET /api/users']);
     });
 
-    it('invalidates even when the create fails', async () => {
-      vi.mocked(createUser).mockRejectedValue(new Error('Request failed'));
+    it('refreshes the list even when the create fails', async () => {
+      server.use(
+        http.post(apiUrl('/api/users'), () =>
+          HttpResponse.json({ message: 'Request failed' }, { status: 500 })
+        )
+      );
 
-      const mutation = withQueryCache(() => useCreateUser());
+      const { create } = await mountSettled(() => ({
+        list: useFetchUsers(),
+        create: useCreateUser()
+      }));
 
-      await expect(
-        mutation.mutateAsync({
-          name: 'Mihailo',
-          email: 'mihailo@example.com',
-          password: 'correct-horse',
-          password_confirmation: 'correct-horse'
-        })
-      ).rejects.toBeInstanceOf(Error);
+      await expect(create.mutateAsync(form)).rejects.toBeInstanceOf(Error);
+      await flushPromises();
 
       // * onSettled, not onSuccess: a rejected write may still have reached the server.
-      expect(invalidatedKeys()).toEqual([usersQueryKeys.fetchUsers]);
+      expect(requests.trace()).toEqual(['POST /api/users', 'GET /api/users']);
     });
   });
 
   describe('useUpdateUser', () => {
-    it('updates through the service and refreshes the list and that user', async () => {
-      const mutation = withQueryCache(() => useUpdateUser());
+    it('updates the user and refreshes the list and that user', async () => {
+      const id = ref(7);
 
-      await mutation.mutateAsync({ id: 7, userData: { name: 'Renamed' } });
+      const { update } = await mountSettled(() => ({
+        list: useFetchUsers(),
+        one: useFetchUser(id),
+        update: useUpdateUser()
+      }));
 
-      expect(updateUser).toHaveBeenCalledWith(7, { name: 'Renamed' });
-      expect(invalidatedKeys()).toEqual([
-        usersQueryKeys.fetchUsers,
-        [...usersQueryKeys.fetchUser, 7]
+      await update.mutateAsync({ id: 7, userData: { name: 'Renamed' } });
+      await flushPromises();
+
+      expect(requests.trace()).toEqual([
+        'PUT /api/users/7',
+        'GET /api/users',
+        'GET /api/users/7'
       ]);
     });
 
-    it('invalidates even when the update fails', async () => {
-      vi.mocked(updateUser).mockRejectedValue(new Error('Request failed'));
+    it('refreshes both even when the update fails', async () => {
+      server.use(
+        http.put(apiUrl('/api/users/:id'), () =>
+          HttpResponse.json({ message: 'Request failed' }, { status: 500 })
+        )
+      );
 
-      const mutation = withQueryCache(() => useUpdateUser());
+      const id = ref(7);
+
+      const { update } = await mountSettled(() => ({
+        list: useFetchUsers(),
+        one: useFetchUser(id),
+        update: useUpdateUser()
+      }));
 
       await expect(
-        mutation.mutateAsync({ id: 7, userData: { name: 'Renamed' } })
+        update.mutateAsync({ id: 7, userData: { name: 'Renamed' } })
       ).rejects.toBeInstanceOf(Error);
+      await flushPromises();
 
       // * onSettled, not onSuccess: a failed write may still have changed the server.
-      expect(invalidatedKeys()).toHaveLength(2);
+      expect(requests.trace()).toEqual([
+        'PUT /api/users/7',
+        'GET /api/users',
+        'GET /api/users/7'
+      ]);
     });
   });
 
   describe('useDeleteUser', () => {
-    it('deletes through the service and refreshes the list and that user', async () => {
-      const mutation = withQueryCache(() => useDeleteUser());
+    it('deletes the user and refreshes the list and that user', async () => {
+      const id = ref(7);
 
-      await mutation.mutateAsync(7);
+      const { remove } = await mountSettled(() => ({
+        list: useFetchUsers(),
+        one: useFetchUser(id),
+        remove: useDeleteUser()
+      }));
 
-      expect(deleteUser).toHaveBeenCalledWith(7);
-      expect(invalidatedKeys()).toEqual([
-        usersQueryKeys.fetchUsers,
-        [...usersQueryKeys.fetchUser, 7]
+      await remove.mutateAsync(7);
+      await flushPromises();
+
+      expect(requests.trace()).toEqual([
+        'DELETE /api/users/7',
+        'GET /api/users',
+        'GET /api/users/7'
       ]);
     });
   });

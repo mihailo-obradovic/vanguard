@@ -1,21 +1,18 @@
 // @vitest-environment nuxt
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { mockNuxtImport } from '@nuxt/test-utils/runtime';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { PiniaColada } from '@pinia/colada';
+import { http, HttpResponse } from 'msw';
 import { defineComponent } from 'vue';
 
-import {
-  register,
-  logIn,
-  logOut,
-  updateProfile,
-  fetchCurrentUser,
-  generatePasswordResetEmail,
-  resetPassword,
-  resendEmailVerification
-} from '@/services/auth.api';
+import { server } from '@/mocks/server';
+import { apiUrl } from '@/mocks/api';
+import { recordRequests } from '@/mocks/requests';
+import { buildUser } from '@/mocks/fixtures';
+import { authHandlers } from '@/mocks/handlers/auth';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 import {
   useRegister,
@@ -28,41 +25,36 @@ import {
   useResetPassword
 } from '../useAuthQueries';
 
-vi.mock('@/services/auth.api', () => ({
-  register: vi.fn<() => Promise<unknown>>(),
-  logIn: vi.fn<() => Promise<unknown>>(),
-  logOut: vi.fn<() => Promise<unknown>>(),
-  updateProfile: vi.fn<() => Promise<unknown>>(),
-  fetchCurrentUser: vi.fn<() => Promise<unknown>>(),
-  generatePasswordResetEmail: vi.fn<() => Promise<unknown>>(),
-  resetPassword: vi.fn<() => Promise<unknown>>(),
-  resendEmailVerification: vi.fn<() => Promise<unknown>>()
-}));
-
-const { setUser, resetUser } = vi.hoisted(() => ({
-  setUser: vi.fn<(...args: unknown[]) => void>(),
-  resetUser: vi.fn<() => void>()
-}));
-
-mockNuxtImport('useAuthStore', () => () => ({ setUser, resetUser }));
+// * Stubbed because it reaches for the router and the toast plugin, neither of which this spec
+// * is about; its own behaviour is covered in setupQueryErrorHandling.spec.ts.
 mockNuxtImport('setupQueryErrorHandling', () => () => {});
 
-const user = {
-  id: 1,
-  name: 'Mihailo',
-  email: 'mihailo@example.com',
-  role: 'user' as const,
-  email_verified_at: null,
-  created_at: '2026-08-01T00:00:00.000000Z',
-  updated_at: '2026-08-01T00:00:00.000000Z'
-};
+const requests = recordRequests();
+
+const user = buildUser();
 
 const credentials = {
   email: 'mihailo@example.com',
   password: 'correct-horse'
 };
 
+const registration = {
+  ...credentials,
+  name: 'Mihailo',
+  password_confirmation: 'correct-horse'
+};
+
+/**
+ * Mount a mutation against the real auth store.
+ *
+ * * One pinia for both the component and the spec, so what the composable writes is what the
+ * * assertions read — the store is in-process state this app owns, not a mocked collaborator.
+ */
 function mountMutation<T>(use: () => T) {
+  const pinia = createPinia();
+
+  setActivePinia(pinia);
+
   const wrapper = mount(
     defineComponent({
       setup() {
@@ -70,83 +62,63 @@ function mountMutation<T>(use: () => T) {
       },
       template: '<div />'
     }),
-    { global: { plugins: [createPinia(), PiniaColada] } }
+    { global: { plugins: [pinia, PiniaColada] } }
   );
 
-  return wrapper.vm.result;
+  return { mutation: wrapper.vm.result as T, store: useAuthStore(pinia) };
 }
 
 describe('useAuthQueries', () => {
   beforeEach(() => {
-    // * Implementations are re-stated below; this only drops the call history, which would
-    // * otherwise leak between cases.
-    vi.clearAllMocks();
-    setActivePinia(createPinia());
-    vi.mocked(fetchCurrentUser).mockResolvedValue(user);
-    vi.mocked(register).mockResolvedValue(undefined);
-    vi.mocked(logIn).mockResolvedValue(undefined);
-    vi.mocked(logOut).mockResolvedValue(undefined);
-    vi.mocked(updateProfile).mockResolvedValue(user);
-    vi.mocked(resendEmailVerification).mockResolvedValue(undefined);
-    vi.mocked(generatePasswordResetEmail).mockResolvedValue({ status: 'sent' });
-    vi.mocked(resetPassword).mockResolvedValue({ status: 'reset' });
+    requests.reset();
+    server.use(...authHandlers(user));
   });
 
   describe('useRegister', () => {
-    it('registers, then loads the session user and stores it', async () => {
-      const mutation = mountMutation(() => useRegister());
+    it('registers, then loads the session user into the store', async () => {
+      const { mutation, store } = mountMutation(() => useRegister());
 
-      await mutation.mutateAsync({
-        ...credentials,
-        name: 'Mihailo',
-        password_confirmation: 'correct-horse'
-      });
+      await mutation.mutateAsync(registration);
 
-      expect(register).toHaveBeenCalledOnce();
-      expect(fetchCurrentUser).toHaveBeenCalledOnce();
-      expect(setUser).toHaveBeenCalledWith(user);
+      expect(requests.trace()).toEqual(['POST /register', 'GET /api/user']);
+      expect(store.user).toEqual(user);
     });
 
     it('fails the mutation when the follow-up user fetch fails', async () => {
-      vi.mocked(fetchCurrentUser).mockRejectedValue(new Error('Unauthorized'));
+      server.use(
+        http.get(apiUrl('/api/user'), () =>
+          HttpResponse.json({ message: 'Unauthenticated.' }, { status: 401 })
+        )
+      );
 
-      const mutation = mountMutation(() => useRegister());
+      const { mutation, store } = mountMutation(() => useRegister());
 
       // * The fetch lives inside the mutation so its failure lands on the mutation's error
       // * path rather than leaving a half-registered session behind.
-      await expect(
-        mutation.mutateAsync({
-          ...credentials,
-          name: 'Mihailo',
-          password_confirmation: 'correct-horse'
-        })
-      ).rejects.toBeInstanceOf(Error);
-      expect(setUser).not.toHaveBeenCalled();
+      await expect(mutation.mutateAsync(registration)).rejects.toBeInstanceOf(
+        Error
+      );
+      expect(store.user).toBeNull();
     });
   });
 
   describe('useLogIn', () => {
-    it('logs in, then loads the session user and stores it', async () => {
-      const mutation = mountMutation(() => useLogIn());
+    it('logs in, then loads the session user into the store', async () => {
+      const { mutation, store } = mountMutation(() => useLogIn());
 
       await mutation.mutateAsync(credentials);
 
-      expect(logIn).toHaveBeenCalledWith(credentials);
-      expect(fetchCurrentUser).toHaveBeenCalledOnce();
-      expect(setUser).toHaveBeenCalledWith(user);
+      expect(requests.trace()).toEqual(['POST /login', 'GET /api/user']);
+      expect(store.user).toEqual(user);
     });
 
     it('runs the caller onSuccess after the store is populated', async () => {
-      const order: string[] = [];
+      let userWhenCallerRan: unknown = 'never ran';
 
-      setUser.mockImplementation(() => {
-        order.push('setUser');
-      });
-
-      const mutation = mountMutation(() =>
+      const { mutation, store } = mountMutation(() =>
         useLogIn({
           onSuccess: () => {
-            order.push('caller');
+            userWhenCallerRan = store.user;
           }
         })
       );
@@ -154,56 +126,72 @@ describe('useAuthQueries', () => {
       await mutation.mutateAsync(credentials);
 
       // * A caller redirecting on success must find the store already populated.
-      expect(order).toEqual(['setUser', 'caller']);
+      expect(userWhenCallerRan).toEqual(user);
     });
 
     it('leaves the store untouched when the credentials are refused', async () => {
-      vi.mocked(logIn).mockRejectedValue(new Error('Invalid credentials'));
+      server.use(
+        http.post(apiUrl('/login'), () =>
+          HttpResponse.json(
+            { message: 'These credentials do not match our records.' },
+            { status: 422 }
+          )
+        )
+      );
 
-      const mutation = mountMutation(() => useLogIn());
+      const { mutation, store } = mountMutation(() => useLogIn());
 
       await expect(mutation.mutateAsync(credentials)).rejects.toBeInstanceOf(
         Error
       );
-      expect(fetchCurrentUser).not.toHaveBeenCalled();
-      expect(setUser).not.toHaveBeenCalled();
+      // * No user fetch either — the session was never established.
+      expect(requests.trace()).toEqual(['POST /login']);
+      expect(store.user).toBeNull();
     });
   });
 
   describe('useRefreshUser', () => {
     it('reloads the session user into the store', async () => {
-      const mutation = mountMutation(() => useRefreshUser());
+      const { mutation, store } = mountMutation(() => useRefreshUser());
 
       await mutation.mutateAsync();
 
-      expect(fetchCurrentUser).toHaveBeenCalledOnce();
-      expect(setUser).toHaveBeenCalledWith(user);
+      expect(requests.trace()).toEqual(['GET /api/user']);
+      expect(store.user).toEqual(user);
     });
   });
 
   describe('useLogOut', () => {
     it('clears the store once the server has ended the session', async () => {
-      const mutation = mountMutation(() => useLogOut());
+      const { mutation, store } = mountMutation(() => useLogOut());
+
+      store.setUser(user);
 
       await mutation.mutateAsync();
 
-      expect(logOut).toHaveBeenCalledOnce();
-      expect(resetUser).toHaveBeenCalledOnce();
+      expect(requests.trace()).toEqual(['POST /logout']);
+      expect(store.user).toBeNull();
     });
 
     it('keeps the user signed in when the logout request fails', async () => {
-      vi.mocked(logOut).mockRejectedValue(new Error('Request failed'));
+      server.use(
+        http.post(apiUrl('/logout'), () =>
+          HttpResponse.json({ message: 'Request failed' }, { status: 500 })
+        )
+      );
 
-      const mutation = mountMutation(() => useLogOut());
+      const { mutation, store } = mountMutation(() => useLogOut());
+
+      store.setUser(user);
 
       await expect(mutation.mutateAsync()).rejects.toBeInstanceOf(Error);
-      expect(resetUser).not.toHaveBeenCalled();
+      expect(store.user).toEqual(user);
     });
   });
 
   describe('useUpdateProfile', () => {
     it('stores the updated user so the header reflects the change', async () => {
-      const mutation = mountMutation(() => useUpdateProfile());
+      const { mutation, store } = mountMutation(() => useUpdateProfile());
 
       const form = {
         name: 'Renamed',
@@ -213,33 +201,40 @@ describe('useAuthQueries', () => {
 
       await mutation.mutateAsync(form);
 
-      expect(updateProfile).toHaveBeenCalledWith(form);
-      expect(setUser).toHaveBeenCalledWith(user);
+      expect((await requests.at(0)).body).toEqual(form);
+      expect(store.user?.name).toBe('Renamed');
     });
   });
 
   describe('the mutations with no session side effect', () => {
     it('resends the verification mail without touching the store', async () => {
-      const mutation = mountMutation(() => useResendEmailVerification());
+      const { mutation, store } = mountMutation(() =>
+        useResendEmailVerification()
+      );
 
       await mutation.mutateAsync();
 
-      expect(resendEmailVerification).toHaveBeenCalledOnce();
-      expect(setUser).not.toHaveBeenCalled();
-      expect(resetUser).not.toHaveBeenCalled();
+      expect(requests.trace()).toEqual([
+        'POST /email/verification-notification'
+      ]);
+      expect(store.user).toBeNull();
     });
 
     it('requests a reset link and returns its status', async () => {
-      const mutation = mountMutation(() => useGeneratePasswordResetEmail());
+      const { mutation, store } = mountMutation(() =>
+        useGeneratePasswordResetEmail()
+      );
 
       await expect(
         mutation.mutateAsync({ email: credentials.email })
-      ).resolves.toEqual({ status: 'sent' });
-      expect(setUser).not.toHaveBeenCalled();
+      ).resolves.toEqual({
+        status: 'We have emailed your password reset link.'
+      });
+      expect(store.user).toBeNull();
     });
 
     it('resets the password without signing the user in', async () => {
-      const mutation = mountMutation(() => useResetPassword());
+      const { mutation, store } = mountMutation(() => useResetPassword());
 
       await expect(
         mutation.mutateAsync({
@@ -247,9 +242,9 @@ describe('useAuthQueries', () => {
           token: 'reset-token',
           password_confirmation: 'correct-horse'
         })
-      ).resolves.toEqual({ status: 'reset' });
+      ).resolves.toEqual({ status: 'Your password has been reset.' });
       // * The reset flow ends on the login page; it never establishes a session itself.
-      expect(setUser).not.toHaveBeenCalled();
+      expect(store.user).toBeNull();
     });
   });
 });

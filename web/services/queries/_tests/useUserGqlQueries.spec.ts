@@ -1,76 +1,103 @@
 // @vitest-environment nuxt
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { mockNuxtImport } from '@nuxt/test-utils/runtime';
 import { mount, flushPromises } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { PiniaColada } from '@pinia/colada';
+import { http, HttpResponse } from 'msw';
 import { defineComponent } from 'vue';
 
-import { fetchUsersGql, updateUserGql } from '@/services/user.gql';
+import { server } from '@/mocks/server';
+import { apiUrl } from '@/mocks/api';
+import { recordRequests } from '@/mocks/requests';
+import { buildUser } from '@/mocks/fixtures';
+import { userHandlers } from '@/mocks/handlers/user';
+import { GRAPHQL_PATH } from '@/mocks/graphql';
 
-import { usersQueryKeys } from '../useUserQueries';
+import { usersQueryKeys, useFetchUsers } from '../useUserQueries';
 import {
   usersGqlQueryKeys,
   useFetchUsersGql,
   useUpdateUserGql
 } from '../useUserGqlQueries';
 
-vi.mock('@/services/user.gql', () => ({
-  fetchUsersGql: vi.fn<() => Promise<unknown>>(),
-  updateUserGql: vi.fn<() => Promise<unknown>>()
-}));
-
-const { invalidateQueries } = vi.hoisted(() => ({
-  invalidateQueries: vi.fn<(...args: unknown[]) => Promise<void>>()
-}));
-
+// * Stubbed because it reaches for the router and the toast plugin, neither of which this spec
+// * is about; its own behaviour is covered in setupQueryErrorHandling.spec.ts.
 mockNuxtImport('setupQueryErrorHandling', () => () => {});
 
-const user = {
-  id: 7,
-  name: 'Mihailo',
-  email: 'mihailo@example.com',
-  role: 'admin' as const,
-  email_verified_at: null,
-  created_at: '2026-08-01T00:00:00.000000Z',
-  updated_at: '2026-08-01T00:00:00.000000Z'
-};
+const requests = recordRequests();
 
-function withQueryCache<T>(use: () => T) {
+const user = buildUser({ id: 7, role: 'admin' });
+
+/** Both operations post to the same path, so the trace names them by document instead. */
+async function trace(): Promise<string[]> {
+  const out: string[] = [];
+
+  for (let index = 0; index < requests.count(); index += 1) {
+    const request = await requests.at(index);
+
+    if (request.path !== GRAPHQL_PATH) {
+      out.push(`${request.method} ${request.path}`);
+      continue;
+    }
+
+    const { query } = request.body as { query: string };
+
+    out.push(
+      query.includes('mutation UpdateUser') ? 'gql UpdateUser' : 'gql Users'
+    );
+  }
+
+  return out;
+}
+
+function graphqlHandlers() {
+  return [
+    http.post(apiUrl(GRAPHQL_PATH), async ({ request }) => {
+      const { query } = (await request.json()) as { query: string };
+
+      return HttpResponse.json({
+        data: query.includes('mutation UpdateUser')
+          ? { updateUser: { ...user, name: 'Renamed' } }
+          : { users: [user] }
+      });
+    })
+  ];
+}
+
+function mountQueries<T extends Record<string, unknown>>(use: () => T): T {
+  const pinia = createPinia();
+
+  setActivePinia(pinia);
+
   const wrapper = mount(
     defineComponent({
       setup() {
-        const queryCache = useQueryCache();
-
-        vi.spyOn(queryCache, 'invalidateQueries').mockImplementation(
-          invalidateQueries
-        );
-
         return { result: use() };
       },
       template: '<div />'
     }),
-    { global: { plugins: [createPinia(), PiniaColada] } }
+    { global: { plugins: [pinia, PiniaColada] } }
   );
 
-  return wrapper.vm.result;
+  return wrapper.vm.result as T;
 }
 
-function invalidatedKeys() {
-  return invalidateQueries.mock.calls.map(
-    ([options]) => (options as { key: unknown }).key
-  );
+async function mountSettled<T extends Record<string, unknown>>(
+  use: () => T
+): Promise<T> {
+  const result = mountQueries(use);
+
+  await flushPromises();
+  requests.reset();
+
+  return result;
 }
 
 describe('useUserGqlQueries', () => {
   beforeEach(() => {
-    // * Implementations are re-stated below; this only drops the call history, which would
-    // * otherwise leak between cases.
-    vi.clearAllMocks();
-    setActivePinia(createPinia());
-    invalidateQueries.mockResolvedValue(undefined);
-    vi.mocked(fetchUsersGql).mockResolvedValue([user]);
-    vi.mocked(updateUserGql).mockResolvedValue(user);
+    requests.reset();
+    server.use(...graphqlHandlers(), ...userHandlers(user));
   });
 
   describe('the query keys', () => {
@@ -86,62 +113,90 @@ describe('useUserGqlQueries', () => {
 
   describe('useFetchUsersGql', () => {
     it('reads the users through the GraphQL service', async () => {
-      const query = withQueryCache(() => useFetchUsersGql());
+      const { list } = mountQueries(() => ({ list: useFetchUsersGql() }));
 
       await flushPromises();
 
-      expect(fetchUsersGql).toHaveBeenCalledOnce();
-      expect(query.data.value).toEqual([user]);
+      expect(await trace()).toEqual(['gql Users']);
+      expect(list.data.value).toEqual([user]);
     });
   });
 
   describe('useUpdateUserGql', () => {
-    it('updates through the GraphQL service and refreshes its own list', async () => {
-      const mutation = withQueryCache(() => useUpdateUserGql());
+    it('updates through GraphQL and refreshes its own list', async () => {
+      const { update } = await mountSettled(() => ({
+        list: useFetchUsersGql(),
+        update: useUpdateUserGql()
+      }));
 
-      await mutation.mutateAsync({ id: 7, name: 'Renamed' });
+      await update.mutateAsync({ id: 7, name: 'Renamed' });
+      await flushPromises();
 
-      expect(updateUserGql).toHaveBeenCalledWith({ id: 7, name: 'Renamed' });
-      expect(invalidatedKeys()).toEqual([usersGqlQueryKeys.fetchUsers]);
-    });
-
-    it('leaves the REST users cache alone', async () => {
-      const mutation = withQueryCache(() => useUpdateUserGql());
-
-      await mutation.mutateAsync({ id: 7, name: 'Renamed' });
-
-      expect(invalidatedKeys()).not.toContainEqual(usersQueryKeys.fetchUsers);
-    });
-
-    it('runs the caller onSettled after the invalidation', async () => {
-      const order: string[] = [];
-
-      invalidateQueries.mockImplementation(async () => {
-        order.push('invalidate');
+      expect(await trace()).toEqual(['gql UpdateUser', 'gql Users']);
+      expect((await requests.at(0)).body).toMatchObject({
+        variables: { id: 7, name: 'Renamed' }
       });
+    });
 
-      const mutation = withQueryCache(() =>
-        useUpdateUserGql({
+    it('leaves the REST users list alone', async () => {
+      const { update } = await mountSettled(() => ({
+        gqlList: useFetchUsersGql(),
+        restList: useFetchUsers(),
+        update: useUpdateUserGql()
+      }));
+
+      await update.mutateAsync({ id: 7, name: 'Renamed' });
+      await flushPromises();
+
+      // * The REST list is mounted and would refetch if its key had been invalidated.
+      expect(await trace()).not.toContain('GET /api/users');
+    });
+
+    it('runs the caller onSettled after the list has been refreshed', async () => {
+      let countWhenCallerRan = 0;
+
+      const { update } = await mountSettled(() => ({
+        list: useFetchUsersGql(),
+        update: useUpdateUserGql({
           onSettled: () => {
-            order.push('caller');
+            countWhenCallerRan = requests.count();
           }
+        })
+      }));
+
+      await update.mutateAsync({ id: 7, name: 'Renamed' });
+
+      // * The mutation and the refetch it triggered, both before the caller's hook.
+      expect(countWhenCallerRan).toBe(2);
+    });
+
+    it('refreshes the list even when the update fails', async () => {
+      server.use(
+        http.post(apiUrl(GRAPHQL_PATH), async ({ request }) => {
+          const { query } = (await request.json()) as { query: string };
+
+          return query.includes('mutation UpdateUser')
+            ? HttpResponse.json({
+                data: null,
+                errors: [
+                  { message: 'Request failed', extensions: { status: 500 } }
+                ]
+              })
+            : HttpResponse.json({ data: { users: [user] } });
         })
       );
 
-      await mutation.mutateAsync({ id: 7, name: 'Renamed' });
-
-      expect(order).toEqual(['invalidate', 'caller']);
-    });
-
-    it('invalidates even when the update fails', async () => {
-      vi.mocked(updateUserGql).mockRejectedValue(new Error('Request failed'));
-
-      const mutation = withQueryCache(() => useUpdateUserGql());
+      const { update } = await mountSettled(() => ({
+        list: useFetchUsersGql(),
+        update: useUpdateUserGql()
+      }));
 
       await expect(
-        mutation.mutateAsync({ id: 7, name: 'Renamed' })
+        update.mutateAsync({ id: 7, name: 'Renamed' })
       ).rejects.toBeInstanceOf(Error);
-      expect(invalidatedKeys()).toEqual([usersGqlQueryKeys.fetchUsers]);
+      await flushPromises();
+
+      expect(await trace()).toEqual(['gql UpdateUser', 'gql Users']);
     });
   });
 });

@@ -8,4 +8,7 @@ overrides:
 allowBuilds:
   '@parcel/watcher': true
   esbuild: true
+  # * Only msw/node (setupServer) is used; the postinstall exists to place the browser
+  # * service-worker script, which nothing here needs.
+  msw: false
   unrs-resolver: true

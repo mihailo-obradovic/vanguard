@@ -50,6 +50,8 @@ Product decisions of this branch, not module prescriptions (the module's compone
 
 B4 claim-by-claim pass (2026-08-02): every wiring, dependency, icon, dialog-base, form, and layout claim in the vuetify documents checked against this branch's code — two upstream doc corrections came out of it and are mirrored here (`theme.global.current` + `theme.toggle()`, custom-token paragraph). Skill wrappers diffed byte-identical against `write_skill_wrappers()` output; `validate.py` green; post-sync suites green (Pest 35, Vitest 12, oxlint, oxfmt, typecheck).
 
+2026-08-13: `web/plugins/_tests/vuetify.spec.ts` pins the two wiring claims that fail silently — the locale adapter reading through `{ global: app.$i18n }` (handing it the Composer directly leaves Vuetify's own strings unresolved) and the forced white on success surfaces. The colour assertion runs against `theme.computedThemes`, not the declared themes: removing the override does not leave a hole, it yields black. Both were confirmed by sabotage before being recorded.
+
 ## Contracts Touched
 
 - `project-summary.md` — Technical Stack row (`frontend/ui | vuetify`), ADR Index row for this record.

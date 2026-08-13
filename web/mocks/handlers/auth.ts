@@ -9,12 +9,14 @@ import type { User } from '@/types/auth';
  * The happy path for the session and password endpoints.
  *
  * * The session routes answer 204 and live outside `/api`, exactly as the web routes do —
- * * the stateful Sanctum posture depends on that split.
+ * * the stateful Sanctum posture depends on that split. `/sanctum/csrf-cookie` is one of them:
+ * * Sanctum answers it with an empty body and the cookie in a header the SPA never reads.
  */
 export function authHandlers(user: User = buildUser()) {
   const noContent = () => new HttpResponse(null, { status: 204 });
 
   return [
+    http.get(apiUrl('/sanctum/csrf-cookie'), noContent),
     http.post(apiUrl('/register'), noContent),
     http.post(apiUrl('/login'), noContent),
     http.post(apiUrl('/logout'), noContent),

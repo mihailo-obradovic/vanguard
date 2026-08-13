@@ -39,6 +39,7 @@ Non-goals: the backend validation rules themselves (FormRequests, owned by featu
 ## User / System Behavior
 
 - Each form declares Regle rules that mirror the backend (e.g. `required`, `email`, `minLength(8)`, `sameAs`, `requiredIf`) so the user gets feedback before a round-trip.
+- Client messages are localized and name the field: a field's rules are wrapped by `labeledRules(labelKey, rules)`, which resolves `validation.field.*` copy with the field's `common.fields.*` label ("The Email field is required."). `web/regle-config.ts` overrides the library's built-in messages with generic `validation.*` catalog copy as the fallback for any unwrapped rule — including a `requiredIf` entry, because Regle matches messages by the declared rule key, not the rule's type. Both layers resolve `t` lazily, so an open form's errors follow a locale switch.
 - On submit, an invalid form is blocked client-side; a valid form calls its mutation.
 - When the server returns 422, `useValidationErrors` derives a field-keyed map from the mutation's `error` ref; `useExternalErrors` copies that map into a ref Regle owns as its `externalErrors` modifier. Regle clears each entry as the user edits that field — which is why the source is copied, not shared.
 - `FieldErrors.vue` renders the combined Regle + external errors under the field. The validation toast is suppressed for forms that opt into inline handling; non-422 errors still toast centrally (feature 005).
@@ -84,6 +85,8 @@ No protected area of its own — the backend validation contracts are owned by f
 
 ## Entry Points
 
+- `web/regle-config.ts`: the `@regle/nuxt` setup file — localized fallback messages for the built-in rules.
+- `web/utils/labeledRules.ts`: wraps one field's rules with copy naming that field; forms pass it a `common.fields.*` label key.
 - `web/composables/useValidationErrors.ts`: derives a field-keyed map from a mutation's `error` ref.
 - `web/composables/useExternalErrors.ts`: mirrors that map into a Regle-owned `externalErrors` ref.
 - `web/components/shared/FieldErrors.vue`: renders combined Regle + server errors under a field.
@@ -99,12 +102,18 @@ No protected area of its own — the backend validation contracts are owned by f
 
 ## Tests
 
-- `web/utils/getValidationErrors.spec.ts` — the 422-to-field-map extraction.
-- Known gaps (recorded): the per-form Regle schemas, `useExternalErrors` watch behavior, and `FieldErrors.vue` rendering have no component tests.
+- `web/utils/_tests/getValidationErrors.spec.ts` — the 422-to-field-map extraction.
+- `web/utils/_tests/newPasswordRules.spec.ts` — the shared password/confirmation rules driven through a real Regle instance, asserting validity per mode (required, optional, and the runtime create/edit switch) rather than the rule objects; also pins the confirmation's field-named message.
+- `web/utils/_tests/labeledRules.spec.ts` — field-named copy, parameterized messages, locale switching on an open form, and the pass-through for rules it has no message for.
+- `web/_tests/regle-config.spec.ts` — the generic catalog fallbacks bare rules get, including the `requiredIf` key that would otherwise fall back to the library's hardcoded English.
+- `web/utils/_tests/handleApiError.spec.ts` — the `hideValidationToast` path that keeps a 422 inline instead of toasting it, including the fallback when a 422 carries no field errors.
+- Known gaps (recorded): the per-form Regle schemas and `useExternalErrors` watch behavior have no component tests. On this branch only the password pair reaches `labeledRules`, through `newPasswordRules`; every other field still shows the generic `validation.*` copy until each form passes its `common.fields.*` label — deferred with the rest of the component work.
 
 ## Verification
 
 Traced against source on 2026-08-04: the bridge chain (`useValidationErrors` → `useExternalErrors`, copied-not-shared so Regle can clear on edit) and `FieldErrors.vue`; the stricter-client asymmetry cross-checked against feature 003. Frontend unit suite green at adoption (`getValidationErrors` spec). Component-level test gaps stand as recorded.
+
+2026-08-13, field-named localized messages (walked on `master`'s UI; this branch shares the helpers, not the forms): register form walked live — email/minLength/sameAs errors render with field labels and re-render across en / sr-Latn / sr-Cyrl on a locale switch with the form open; suite green (labeledRules, newPasswordRules, regle-config, locales specs).
 
 ## Agent Change Rules
 

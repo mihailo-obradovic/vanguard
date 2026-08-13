@@ -1,0 +1,30 @@
+{
+  "$schema": "./node_modules/@stryker-mutator/core/schema/stryker-schema.json",
+  "testRunner": "vitest",
+  "plugins": ["@stryker-mutator/vitest-runner"],
+  "vitest": {
+    "configFile": "vitest.config.ts",
+    "related": false
+  },
+  "mutate": [
+    "web/utils/**/*.ts",
+    "web/services/**/*.ts",
+    "web/stores/**/*.ts",
+    "web/composables/**/*.ts",
+    "!web/**/_tests/**"
+  ],
+  "ignorePatterns": ["!.nuxt"],
+  "ignoreStatic": true,
+  "concurrency": 4,
+  "timeoutMS": 15000,
+  "tempDirName": ".stryker-tmp",
+  "cleanTempDir": "always",
+  "incremental": false,
+  "reporters": ["clear-text", "progress", "html", "json"],
+  "htmlReporter": {
+    "fileName": "reports/mutation/frontend.html"
+  },
+  "jsonReporter": {
+    "fileName": "reports/mutation/frontend.json"
+  }
+}

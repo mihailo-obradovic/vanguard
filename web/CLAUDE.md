@@ -10,6 +10,7 @@ Paths below are relative to the repo root. The `catalyst/` documents are normati
 - `components/_shared/` — auto-imported shared components (`components.dirs` in `nuxt.config.ts`); everything else is explicitly imported.
 - `composables/` — `useAppQuery` / `useAppMutation` (the only query/mutation wrappers components may use), `useValidationErrors` / `useExternalErrors` (server-422-to-Regle bridge), `useCookieConsent`.
 - `i18n/` — message catalogs and the Vue I18n config; has its own `CLAUDE.md`.
+- `mocks/` — test-only: the MSW server, its lifecycle setup file, the request recorder, schema-parsed fixtures, and per-resource handlers. Never imported by shipped code.
 - `middleware/auth.global.ts` — the only route middleware; a thin wrapper over the pure, unit-tested `utils/authRedirectLogic.ts`.
 - `pages/` — file-based routes: `index`, `home`, `profile`, `users`, `graphql-demo`, `password-reset` (reads `?token=&email=` from the query string). There are no auth pages — login, registration, and forgot-password are dialogs (`components/users/`) mounted from `layouts/Default.vue`.
 - `plugins/` — `auth-loader.ts` (restores the session before first render), `vuetify.ts` (Vuetify instance, theme, SVG icons, the Vue I18n locale adapter), `vue-toastification.ts`.
@@ -17,7 +18,9 @@ Paths below are relative to the repo root. The `catalyst/` documents are normati
 - `services/` — one `<resource>.api.ts` per resource (auto-imported via `imports.dirs`); `services/queries/` holds the `use<Resource>Queries.ts` composables. Two-layer rule: every resource has both files. A resource served over GraphQL instead uses `<resource>.gql.ts` + `use<Resource>GqlQueries.ts` — the same two layers, the same wrappers, only the transport differs.
 - `stores/useAuthStore.ts` — the only Pinia store.
 - `types/` — shared domain types and Zod schemas (`auth.ts`, `user.ts`) plus ambient declarations.
-- `utils/` — `fetcher.ts` (CSRF cookie + 419-retry), `gqlFetcher.ts` / `gql.ts` (GraphQL over the same fetcher, translating GraphQL errors into the REST-equivalent `FetchError`), `handleApiError.ts` / `setupQueryErrorHandling.ts` (central error handling), `parseResponse.ts` (Zod), `toast.ts`, `authRedirectLogic.ts`. Tests are colocated `*.spec.ts`.
+- `utils/` — `fetcher.ts` (CSRF cookie + 419-retry), `gqlFetcher.ts` / `gql.ts` (GraphQL over the same fetcher, translating GraphQL errors into the REST-equivalent `FetchError`), `handleApiError.ts` / `setupQueryErrorHandling.ts` (central error handling), `parseResponse.ts` (Zod), `toast.ts`, `authRedirectLogic.ts`.
+
+Tests live in a `_tests/` subdirectory of the directory holding the code under test — `utils/_tests/`, `services/_tests/`, `services/queries/_tests/`, `composables/_tests/`, `stores/_tests/`, `i18n/_tests/` — one spec per source file, same base name. The API is mocked at the wire with MSW, never by stubbing the fetcher or a service module (`catalyst/stacks/frontend/nuxt/testing.md`).
 
 ## Governing documents
 

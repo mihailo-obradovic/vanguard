@@ -3,13 +3,23 @@
 **Layer:** Backend
 **Tool:** Pest 5 · `pestphp/pest-plugin-laravel`
 
-How this module tests. Read this when adding tests, or when deciding what level a piece of behavior should be tested at.
+How this module tests. Read this when adding tests, or when deciding what level a piece of behavior should be tested at. The universal quality rules — what to assert, when doubles are allowed, proving a test can fail — live in `conventions/testing.md`; this document binds them to Laravel.
 
 ## Shape
 
-Feature tests drive the HTTP surface and are the primary coverage — a Laravel endpoint is mostly framework wiring. A unit test that mocks Eloquent tests the mock.
+Three layers, tested differently:
 
-Unit tests earn their place for logic that stands on its own: a domain method with branches, a calculation, a value object. `changeEmail()` returning false for an unchanged address is a unit test; "an admin can update another user's email" is a feature test.
+| Layer          | Contents                                                                                     | Tested by                                       |
+| -------------- | -------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| Domain         | Plain PHP with the rules: model methods with branches, policies, value objects, calculations | Unit tests (`tests/Unit`) — no framework, no DB |
+| Application    | Controllers, FormRequests, actions, resolvers — load → delegate → persist → respond          | Feature tests over real HTTP                    |
+| Infrastructure | Eloquent wiring, mailers, queue adapters                                                     | Through feature tests, never directly           |
+
+Feature tests drive the HTTP surface and are the primary coverage — a Laravel endpoint is mostly framework wiring, and the route, middleware, FormRequest, and Resource are part of the behavior under test, so act through `postJson()`/`getJson()`, never by calling a controller or service directly. A unit test that mocks Eloquent tests the mock.
+
+Unit tests earn their place for logic that stands on its own: a domain method with branches, a calculation, a policy, a value object. `changeEmail()` returning false for an unchanged address is a unit test; "an admin can update another user's email" is a feature test. A rule stuck inside a controller or an I/O-bound service is not tested where it lies — it moves into the domain layer first, then gets its unit test.
+
+`tests/Unit` files are plain Pest — they do not boot the framework. A file may opt into the base `TestCase` (`uses(TestCase::class)`) when the unit under test is framework-coupled, e.g. an Eloquent cast that resolves through the connection; that stays the documented exception, still without `RefreshDatabase`.
 
 `tests/Pest.php` binds the base case and the database refresh once:
 
@@ -21,11 +31,23 @@ Applied to the directory, not repeated per file.
 
 ## Conventions
 
-- **`test()`, not `it()`** — one form throughout, so the suite reads consistently.
+- **`test()`, not `it()`** — one form throughout, so the suite reads consistently. A deliberate deviation from Khorikov's naming examples; consistency wins over matching the book.
 - **Descriptions are sentences about behavior**, lowercase, present tense, subject first: `test('admins can list users newest first', ...)`, `test('a password change fails with the wrong current password', ...)`. The failure output is then a readable statement of what broke.
 - **Factories, never seeders** (`models.md`), with named states: `User::factory()->admin()->create()`.
 - **Assert the contract, not the implementation.** `assertJsonPath('data.role', 'admin')` pins the shape a client depends on; counting queries does not.
-- **`Notification::fake()` / `Queue::fake()`** for side effects, with an explicit assertion in both directions — `assertSentTo(...)` where mail is expected, `assertNothingSent()` where it is not. The second is the one that catches a regression nobody was looking for.
+
+## Test doubles
+
+Fakes follow the managed/unmanaged rule (`conventions/testing.md`) — mail leaving the system is observable behavior, your own database is not:
+
+| Target                                              | Allowed?                 | Rule                                                                                                                                                                                         |
+| --------------------------------------------------- | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Mail::fake()` / `Notification::fake()`             | Yes                      | SMTP is unmanaged. Assert **both directions** — `assertSentTo(...)` where mail is expected, `assertNothingSent()` where it is not; the second catches the regression nobody was looking for. |
+| `Http::fake()`                                      | Yes                      | Third-party APIs are unmanaged; assert the outgoing call with `Http::assertSent()`.                                                                                                          |
+| `Queue::fake()` / `Event::fake()` / `Bus::fake()`   | Not for internal work    | Internal jobs and events are implementation details — run them sync and assert the outcome. Fake only when the dispatch itself is a contract another system consumes.                        |
+| `Storage::fake()`                                   | Own storage: prefer real | Your storage is managed; a real local disk beats the fake.                                                                                                                                   |
+| Mocking Eloquent, repositories, in-process services | Never                    | The database is managed and in-process collaborators are used for real.                                                                                                                      |
+| `travelTo()` / `Carbon::setTestNow()`               | Feature tests only       | Domain code takes time as a parameter and should never need it.                                                                                                                              |
 
 ```php
 test('users can authenticate', function () {
@@ -69,3 +91,5 @@ If a project decides the tradeoff is worth taking anyway, that is a decision rec
 - `php artisan test` (or `vendor/bin/pest`), with `--filter` while iterating.
 - `laravel/pao` reformats the output when an agent is running the suite — failures come back as something readable rather than a wall of stack frames.
 - The full suite is green before a merge; a failing test is never left for later without saying so.
+- **Mutation audit**: Pest's built-in mutation testing (`pest --mutate`) runs periodically per the project runbook (`operations.md`) — every surviving mutant is a change no test noticed; fix the test or record why the mutant is acceptable. A measurement, never a CI gate.
+- `--parallel` stays unprovisioned until suite duration demands it (per-process databases are the cost; the runbook notes what provisioning would take).

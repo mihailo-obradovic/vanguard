@@ -32,6 +32,14 @@ node_modules
 logs
 *.log
 
+# Test coverage reports
+/coverage
+
+# Mutation testing (StrykerJS)
+/.stryker-tmp
+/reports
+/stryker.log
+
 # Misc
 .DS_Store
 .fleet
@@ -46,3 +54,6 @@ logs
 __pycache__/
 .claude/settings.local.json
 # catalyst:end
+
+# Agent git worktrees
+.claude/worktrees/

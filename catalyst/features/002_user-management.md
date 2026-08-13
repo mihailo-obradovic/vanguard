@@ -57,7 +57,7 @@ Non-goals: self-service editing (feature 003 — separate contract with `current
 | `PUT/PATCH /api/users/{id}` (incl. role changes, passwords without `current_password`) | 401   | 403  | ✔                               |
 | `DELETE /api/users/{id}`                                                               | 401   | 403  | ✔ (404 unknown id; 403 on self) |
 
-Walkthroughs — Admin: sees the Users nav entry, full table, all actions; may edit their own row (including demoting themselves — see Edge Cases). User: no nav entry; direct navigation to `/users` renders briefly, then 403 → toast + `/home`. Guest: `/users` → `/login` via default-deny route middleware (feature 001).
+Walkthroughs — Admin: sees the Users nav entry, full table, all actions; may edit their own row (including demoting themselves — see Edge Cases). User: no nav entry; direct navigation to `/users` renders briefly, then 403 → toast + `/home`. Guest: `/users` → `/home` via default-deny route middleware (feature 001).
 
 ## Examples
 
@@ -111,8 +111,8 @@ Walkthroughs — Admin: sees the Users nav entry, full table, all actions; may e
 
 ## Tests
 
-- `tests/Feature/UserManagementTest.php` — 8 tests: list (count + `total`), non-admin 403, guest 401, create admin, create default role, partial update with role promotion, hard delete, self-delete 403 (message asserted). Plus 2 in `ProfileTest.php`: admin email change resets verification + sends mail; name-only edit doesn't.
-- Known gaps (recorded): `show` wholly untested (incl. 404s); non-GET verbs untested for 401/403; the 403 body string unasserted; zero `UserRequest` validation-failure tests (duplicate/uppercase email, weak/mismatched password, invalid role); password-change-without-`current_password` asymmetry unasserted; self-demotion & last-admin scenarios untested; `latest()` ordering unasserted despite the test name; PATCH unexercised; post-delete orphan cleanup untested; frontend page/services/queries have no tests.
+- `tests/Feature/UserManagementTest.php` — 14 tests: list (count + `total`), non-admin 403 (middleware message asserted), guest 401, show (happy + non-admin 403), create admin, create default role, partial update with role promotion, hard delete, self-delete 403 (message asserted), the exact response field set (`id, name, email, role, email_verified_at, created_at, updated_at` — field-leakage guard), and the `UserRequest` matrix (missing name/email/password, malformed email + unconfirmed password + unknown role, overlong name + uppercase email, duplicate email on store, duplicate-vs-own email on update). Plus 2 in `ProfileTest.php`: admin email change resets verification + sends mail; name-only edit doesn't. `tests/Unit/UserPolicyTest.php` covers all four policy arms incl. the self-delete refusal.
+- Known gaps (recorded): `show`/update/delete 404s untested; non-GET verbs untested for 401/403; self-demotion & last-admin scenarios untested; `latest()` ordering unasserted despite the test name; PATCH unexercised; post-delete orphan cleanup untested; `users.vue` itself has no component test. The frontend data layer behind it is covered — `web/services/_tests/user.api.spec.ts` and `web/services/queries/_tests/useUserQueries.spec.ts` (per-mutation cache invalidation).
 
 ## Verification
 

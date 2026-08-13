@@ -26,13 +26,13 @@ Authenticate the Nuxt SPA against the Laravel API with Sanctum's stateful cookie
 
 ## Outputs And Side Effects
 
-| Output / Side Effect             | Type         | Description                                                                                                                                                    |
-| -------------------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `204 No Content`                 | HTTP         | register, login, logout — no body; session rotation per Invariants                                                                                             |
-| `200 {"status": ...}`            | JSON         | forgot/reset password, resend verification (`verification-link-sent` / `already-verified`)                                                                     |
-| `GET /api/user` → `UserResource` | JSON         | `{ "data": ... }` envelope — `id, name, email, role, email_verified_at, created_at, updated_at` (password/remember_token hidden)                               |
-| Verify redirect                  | 302          | signed mail link hits the API, then bounces to `FRONTEND_URL/profile?verified=1`                                                                               |
-| Queued mail                      | notification | `VerifyEmailNotification` (register + resend); `ResetPasswordNotification` — link points directly at the SPA (`FRONTEND_URL/password-reset/{token}?email=...`) |
+| Output / Side Effect             | Type         | Description                                                                                                                                                      |
+| -------------------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `204 No Content`                 | HTTP         | register, login, logout — no body; session rotation per Invariants                                                                                               |
+| `200 {"status": ...}`            | JSON         | forgot/reset password, resend verification (`verification-link-sent` / `already-verified`)                                                                       |
+| `GET /api/user` → `UserResource` | JSON         | `{ "data": ... }` envelope — `id, name, email, role, email_verified_at, created_at, updated_at` (password/remember_token hidden)                                 |
+| Verify redirect                  | 302          | signed mail link hits the API, then bounces to `FRONTEND_URL/profile?verified=1`                                                                                 |
+| Queued mail                      | notification | `VerifyEmailNotification` (register + resend); `ResetPasswordNotification` — link points directly at the SPA (`FRONTEND_URL/password-reset?token=...&email=...`) |
 
 ## Scope And Non-Goals
 
@@ -45,9 +45,9 @@ Non-goals: role gating (feature 002 owns the only `admin` gate); profile editing
 - Registration creates the user, fires `Registered` (→ queued verification mail), and logs the user in.
 - Login validates via the web guard; the SPA follows success with `GET /api/user` into the store (two-request flow). Failure is a 422 on `email`; the 6th failure in the window 422s with the throttle message. On logout the SPA resets the store.
 - SPA boot (`auth-loader` plugin, awaited): `GET /sanctum/csrf-cookie` first, then `GET /api/user` into the store (failure → guest). Route middleware runs only after this settles.
-- Route decisions (`authRedirectLogic`, default-deny): `/` → `/home` always; guests on any page not in the guest-only/shared lists → `/login`; logged-in users on guest-only pages (`/login`, `/register`, `/forgot-password`, `/password-reset/*`) → `/home`. No return-URL preservation.
+- Route decisions (`authRedirectLogic`, default-deny): `/` → `/home` always; guests on any page not in the guest-only/shared lists → `/home`, where the layout offers the login dialog; logged-in users on the one guest-only page (`/password-reset`) → `/home`. No return-URL preservation. This branch has no auth pages to redirect to — login, registration, and forgot-password are dialogs.
 - Fetcher: every request `credentials: 'include'` + JSON Accept; `X-XSRF-TOKEN` on state-changing methods; on 419 it re-primes the CSRF cookie and retries exactly once (central error handling below).
-- Email verification: signed mail link hits the API, marks verified, bounces to `/profile?verified=1`; the profile page refetches and toasts. Password reset: SPA seeds email from the query, posts token+password, `/login` on success; a bad token 422s on `email`.
+- Email verification: signed mail link hits the API, marks verified, bounces to `/profile?verified=1`; the profile page refetches and toasts. Password reset: SPA seeds token and email from the query, posts token+password, `/` (→ `/home`) on success; a bad token 422s on `email`.
 
 ## Roles And Access
 
@@ -88,13 +88,13 @@ Not role-specific — no auth endpoint is role-gated; registration cannot set a 
 
 ## Error Handling
 
-- 401 → JSON `{"message":"Unauthenticated."}`; SPA resets store + `/login`. 403 → SPA navigates `/home`. 419 → fetcher retries once after re-priming CSRF. 422 → inline in opted-in forms, toast otherwise.
+- 401 → JSON `{"message":"Unauthenticated."}`; SPA resets the store and the `isLoggedIn` watcher in `app.vue` re-runs the redirect logic, landing a guest on `/home`. 403 → SPA navigates `/home`. 419 → fetcher retries once after re-priming CSRF. 422 → inline in opted-in forms, toast otherwise.
 - Login throttle: 422 with `auth.throttle` message; limiter clears on success.
 
 ## Entry Points
 
 - Backend: `routes/web.php` (guest + auth groups), `routes/api.php` (`GET /api/user` via `AuthenticatedUserController`), `app/Http/Controllers/Auth/*`, `app/Http/Requests/Auth/LoginRequest.php` (rate limiting), `bootstrap/app.php` (statefulApi, no guest redirects, JSON rendering), `config/{sanctum,session,cors}.php`, `app/Notifications/*` (queued), `app/Providers/AppServiceProvider.php` (SPA reset-URL builder).
-- SPA: `web/plugins/auth-loader.ts`, `web/middleware/auth.global.ts` + `web/utils/authRedirectLogic.ts`, `web/utils/{fetcher,handleApiError}.ts`, `web/stores/useAuthStore.ts`, `web/services/auth.api.ts` + `web/services/queries/useAuthQueries.ts`, pages `login`, `register`, `forgot-password`, `password-reset/[token]`.
+- SPA: `web/plugins/auth-loader.ts`, `web/middleware/auth.global.ts` + `web/utils/authRedirectLogic.ts`, `web/utils/{fetcher,handleApiError}.ts`, `web/stores/useAuthStore.ts`, `web/services/auth.api.ts` + `web/services/queries/useAuthQueries.ts`, the `password-reset` page, and the `LoginDialog` / `RegisterDialog` / `ForgotPasswordDialog` components mounted from `layouts/Default.vue`.
 
 ## Dependencies
 
@@ -106,9 +106,9 @@ Not role-specific — no auth endpoint is role-gated; registration cannot set a 
 
 ## Tests
 
-- Backend: `tests/Feature/Auth/` — 17 tests: authentication (8 — login happy/invalid/throttle, authed-on-guest-route 403, current-user envelope shape, guest 401 ×2, logout), registration (2, incl. default role), email verification (5), password reset (2 happy paths).
-- Frontend: `web/utils/authRedirectLogic.spec.ts` (5 cases: guest redirects, reset-prefix match, authed on `/login`, default-deny, root alias).
-- Known gaps (recorded): untested — CSRF/419 path (Laravel skips CSRF in tests), `auth-loader`, session rotation beyond auth state, verification throttle, reset negative paths, forgot-password enumeration, `remember` flag; frontend store/fetcher/error-handling/query composables have no specs; hardcoded dev credentials in `login.vue` (cleanup candidate).
+- Backend: `tests/Feature/Auth/` — 29 tests: authentication (11 — login happy/invalid/required-fields, throttle pinned at exactly five attempts, session-id regeneration on login and logout, authed-on-guest-route 403, current-user envelope shape, guest 401 ×2, logout), registration (4 — happy incl. default role, required trio, overlong name/uppercase email/unconfirmed password, unique email), email verification (5), password reset (9 — both happy paths incl. the new password verified and the `status` payload, empty-body 422s for both endpoints, unknown-email 422, link-request throttle, invalid token, confirmation mismatch, and the reset link resolving to the front-end page with token and email in the query string, which also exercises the `AppServiceProvider` URL closure).
+- Frontend: `web/utils/_tests/authRedirectLogic.spec.ts` (6 cases: guest reaches `/password-reset`, authed pushed off it, default-deny to `/home`, the shared home page, query-string-insensitive classification, root alias); `web/services/_tests/auth.api.spec.ts` (every session endpoint, including the web-route paths the stateful posture depends on); `web/services/queries/_tests/useAuthQueries.spec.ts` (the store side effects of login, register, refresh, logout); `web/stores/_tests/useAuthStore.spec.ts`; `web/utils/_tests/fetcher.spec.ts` covers the client half of the 419 recovery.
+- Known gaps (recorded): untested — the server-side CSRF/419 path (Laravel skips CSRF in tests), `auth-loader`, session rotation beyond auth state, verification-resend throttle, `remember` flag; the auth dialogs themselves have no component tests; hardcoded dev credentials in `LoginDialog.vue` (intentional, kept for local development). Note: the unknown-email 422 asserts the current enumeration-friendly behavior — hardening it is a product decision, not a test gap.
 
 ## Verification
 

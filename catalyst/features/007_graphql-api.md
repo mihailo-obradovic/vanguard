@@ -44,16 +44,16 @@ In scope:
 Non-goals:
 
 - Migrating any existing page or endpoint off REST; the surfaces of features 001–003 are unchanged.
-- **Nested relationship fields.** Resolvers return finished `UserResource` arrays, and Lighthouse's relationship directives and N+1 batching operate only on Eloquent models flowing through the resolver tree — so a `user { posts … }`-style field cannot be added incrementally. That expansion is a new decision record, priced in ADR 007 (Consequences).
-- **Schema code generation.** `gql` is an identity tag: documents are validated at runtime and in GraphiQL, not at build time. Right at two operations; the revisit trigger is in ADR 007.
+- **Nested relationship fields.** Resolvers return finished `UserResource` arrays, while Lighthouse's relationship directives and N+1 batching need Eloquent models in the resolver tree — so `user { posts … }` cannot be added incrementally. That expansion is its own decision record, priced in ADR 007.
+- **Schema code generation.** `gql` is an identity tag: documents are validated at runtime and in GraphiQL, not at build time. The revisit trigger is in ADR 007.
 - Subscriptions, file uploads, batched or persisted queries, pagination (`@paginate` exists when needed), fragment colocation, normalized client caching.
 - A GraphQL equivalent of every REST endpoint: create and delete stay REST-only; the pattern generalizes without them.
-- Publishing the pattern as Catalyst stack modules — the follow-up to ADR 007.
+- Publishing the pattern as Catalyst stack modules (an ADR 007 follow-up).
 
 ## User / System Behavior
 
 - When an admin's SPA session issues the `users` query, the system returns every user, newest first, serialized by `UserResource`.
-- When an admin issues `updateUser`, the system validates the arguments, applies the change through the shared update action, and returns the updated user. The demo page sends only the arguments the admin changed — an omitted variable never reaches the resolver, so untouched fields keep their values. Deliberately sharper than the REST edit form, which sends the whole editable set: partial input is one of the GraphQL advantages the demo exists to show.
+- When an admin issues `updateUser`, the system validates the arguments, applies the change through the shared update action, and returns the updated user. The demo page sends only the arguments the admin changed — an omitted variable never reaches the resolver, so untouched fields keep their values (partial input is a GraphQL advantage the demo exists to show).
 - When `updateUser` changes the email address, the system clears `email_verified_at` and queues a verification notification — the same side effect as REST.
 - When a guest issues any operation, the system reports an authentication failure and the client behaves as on a REST 401 (auth store cleared, redirect to login); a signed-in non-admin gets an authorization failure, handled as a REST 403.
 - When arguments fail validation, the system reports the failures keyed by argument name, and the client renders them inline on the matching form fields without a toast — the same path a REST 422 takes.
@@ -82,7 +82,7 @@ Authorization is enforced per field by `UserPolicy` (`viewAny`, `update`), not b
 | Admin: `updateUser(id: 3, email: "new@example.com")`      | `data.updateUser.email_verified_at` is `null`                  | Verification notification queued            |
 | `updateUser(id: 99999, name: "X")`                        | `errors[0]` — model not found                                  | `@canFind` fails closed before the resolver |
 
-Guest and non-admin refusals are the Roles And Access matrix; their client behavior is tabled under Error Handling.
+Guest and non-admin refusals: see Roles And Access; client behavior is under Error Handling.
 
 ## Business Rules
 
@@ -110,7 +110,7 @@ Guest and non-admin refusals are the Roles And Access matrix; their client behav
 
 ## Error Handling
 
-`gqlFetcher` translates the GraphQL error envelope into the shape the existing pipeline consumes, then throws it, so `setupQueryErrorHandling` → `handleApiError` runs untouched:
+`gqlFetcher` translates the GraphQL error envelope into the shape the existing pipeline consumes and throws it, so `handleApiError` runs untouched:
 
 | GraphQL signal                  | Translated to                                         | Resulting behavior                      |
 | ------------------------------- | ----------------------------------------------------- | --------------------------------------- |
@@ -145,11 +145,12 @@ Guest and non-admin refusals are the Roles And Access matrix; their client behav
 - `tests/Feature/GraphQL/UpdateUserMutationTest.php`: updates; email-change side effect; duplicate-email validation keyed `email`; non-admin/guest refusal; unknown id.
 - `tests/Feature/GraphQL/QueryCacheConfigTest.php`: the query-cache mode stays compatible with `cache.serializable_classes` (see Verification).
 - `tests/Feature/UserManagementTest.php`: unchanged and green — the proof that extracting the update action did not alter the REST contract.
-- `web/utils/gqlFetcher.spec.ts`: each row of the Error Handling table, plus the success path.
+- `web/utils/_tests/gqlFetcher.spec.ts`: each row of the Error Handling table, plus the success path.
+- `web/services/_tests/user.gql.spec.ts` and `queries/_tests/useUserGqlQueries.spec.ts`: operation naming, REST field parity, `id` as a variable, schema mismatches rejecting, and `users-gql` refreshing only itself.
 
 ## Verification
 
-Backend `php artisan test` (50 passing, including the payload-parity case and the untouched REST suite); frontend `pnpm test`/`typecheck`/`lint`/`format` green. Live walk at `/graphql-demo`: list loads, a duplicate email renders inline with no toast, a successful update closes the dialog and refetches, a non-admin lands on `/home`, a guest gets 401.
+Backend `php artisan test` green, including the payload-parity case and the untouched REST suite; frontend `pnpm test`/`typecheck`/`lint`/`format` green. Live walk at `/graphql-demo`: list loads, a duplicate email renders inline with no toast, a successful update closes the dialog and refetches, a non-admin lands on `/home`, a guest gets 401.
 
 The live walk caught two defects the suite could not: Lighthouse's `store` query-cache mode 500s on warm hits under Laravel's hardened `cache.serializable_classes => false` (now `opcache`, guarded by `QueryCacheConfigTest`), and `/graphql` sits outside `api/*` so it needed adding to `config/cors.php`. Remaining risk: the client keys on `extensions.status` from `RestStatusHandler`; a Lighthouse upgrade changing exception wrapping would degrade errors to generic toasts — the Pest tests assert the status per error class, so that fails the suite instead.
 

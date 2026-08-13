@@ -67,6 +67,16 @@ test('a duplicate email is reported as a validation error keyed by field', funct
         ->assertJsonPath('errors.0.extensions.status', 422);
 });
 
+test('an overlong name and an uppercase email are rejected', function () {
+    $admin = User::factory()->admin()->create();
+    $user = User::factory()->create();
+
+    $this->actingAs($admin)
+        ->graphQL(UPDATE_USER, ['id' => $user->id, 'name' => str_repeat('a', 256), 'email' => 'UPPER@EXAMPLE.COM'])
+        ->assertOk()
+        ->assertJsonPath('errors.0.extensions.status', 422);
+});
+
 test('an invalid role is rejected', function () {
     $admin = User::factory()->admin()->create();
     $user = User::factory()->create();

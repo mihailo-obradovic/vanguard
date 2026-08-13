@@ -55,4 +55,4 @@ No API shapes or behavior contracts change. Strings the backend returns already 
 
 ## Verification
 
-Catalog parity test (`web/i18n/locales.spec.ts`: key parity, alphabetical ordering, interpolation parity, Latin→Cyrillic transliteration) plus the existing Vitest suite, `vue-tsc`, and oxlint/oxfmt. Verified in the browser on both variants: switching locale updates page copy, toasts, validation messages, and formatted dates; the choice survives a reload via the cookie. On `variant/vuetify`, Vuetify's own strings switch through the Vue I18n adapter.
+Catalog parity test (`web/i18n/_tests/locales.spec.ts`: key parity, alphabetical ordering, interpolation parity, Latin→Cyrillic transliteration) plus the existing Vitest suite, `vue-tsc`, and oxlint/oxfmt. Verified in the browser on both variants: switching locale updates page copy, toasts, validation messages, and formatted dates; the choice survives a reload via the cookie. On `variant/vuetify`, Vuetify's own strings switch through the Vue I18n adapter.

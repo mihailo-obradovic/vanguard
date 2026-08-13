@@ -12,7 +12,7 @@ The Vue-side frontend module: a Nuxt 4 app running **as an SPA** (`ssr: false`) 
 - Errors are handled centrally, once, at the query layer — components carry no try-catch and no manual loading flags.
 - Client state is Pinia, and only what no server owns (`client-state.md`); server-owned data stays in Pinia Colada rather than being mirrored into a store.
 - Styling and component primitives are the `frontend/ui` choice.
-- Tests: Vitest with `@nuxt/test-utils` and Vue Test Utils.
+- Tests: Vitest with `@nuxt/test-utils` and Vue Test Utils — levels, placement, and coverage in `testing.md`.
 
 ## Module Documents
 
@@ -25,6 +25,7 @@ The Vue-side frontend module: a Nuxt 4 app running **as an SPA** (`ssr: false`) 
 | `error-handling.md` | The fetcher, CSRF retry, and the central error policy                                      | When adding a fetcher call, or changing how failures surface |
 | `routing.md`        | Pages, layouts, and middleware-as-thin-adapter                                             | When adding or changing pages, layouts, or middleware        |
 | `design-system.md`  | Design-system template — instantiated into a project-owned convention annex at Init Design | At Init Design, and when the project's design annex changes  |
+| `testing.md`        | Test levels and boundaries, `_tests/` placement, environments, coverage                    | When adding a test, or deciding what level covers a behavior |
 
 The shared tiers `_lang/typescript`, `frontend/_vue`, and `frontend/_common` travel with this module and hold the language-level, Vue-general, and framework-agnostic frontend conventions; the style guide `../_vue/vue-style.md` is the authoritative Vue style rules.
 
@@ -34,7 +35,8 @@ The shared tiers `_lang/typescript`, `frontend/_vue`, and `frontend/_common` tra
 - Pinia and `@pinia/colada` (with `@pinia/colada-nuxt`) — client state and server state respectively.
 - Zod (response schemas); `@regle/core` + `@regle/rules` (with `@regle/nuxt`) — form validation.
 - `@vueuse/core`.
-- Vitest, `@nuxt/test-utils`, `@vue/test-utils`.
+- Vitest, `@nuxt/test-utils`, `@vue/test-utils`, `@vitest/coverage-v8`; `msw` (installed, mocking the API at the wire) and `@testing-library/vue` (approved for the component-test doctrine in `testing.md`, installed when first used).
+- `@stryker-mutator/core` + `@stryker-mutator/vitest-runner` — the mutation audit `decisions/009` prescribed, installed once the data-layer tests it was gated on existed (Dependency Change Rule). Dev-only, run by hand, never in CI.
 - pnpm as the package manager.
 
 ## Avoid By Default

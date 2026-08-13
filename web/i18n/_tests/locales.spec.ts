@@ -8,7 +8,7 @@ type Catalog = { [key: string]: string | Catalog };
 // * Read from disk rather than imported: the i18n module precompiles catalog JSON into message ASTs, and these rules are about the source files.
 function load(locale: string): Catalog {
   const path = fileURLToPath(
-    new URL(`./locales/${locale}.json`, import.meta.url)
+    new URL(`../locales/${locale}.json`, import.meta.url)
   );
 
   return JSON.parse(readFileSync(path, 'utf8')) as Catalog;

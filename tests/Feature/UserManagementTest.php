@@ -16,7 +16,10 @@ test('admins can list users newest first', function () {
 test('non-admins cannot access user management', function () {
     $user = User::factory()->create();
 
-    $this->actingAs($user)->getJson('/api/users')->assertForbidden();
+    $this->actingAs($user)
+        ->getJson('/api/users')
+        ->assertForbidden()
+        ->assertJsonPath('message', 'Forbidden. Admin access required.');
 });
 
 test('guests cannot access user management', function () {
@@ -74,6 +77,85 @@ test('a created user defaults to the user role', function () {
         ])
         ->assertCreated()
         ->assertJsonPath('data.role', 'user');
+});
+
+test('user responses expose exactly the documented fields', function () {
+    $admin = User::factory()->admin()->create();
+    $user = User::factory()->create();
+
+    $response = $this->actingAs($admin)
+        ->getJson("/api/users/{$user->id}")
+        ->assertOk();
+
+    expect(array_keys($response->json('data')))
+        ->toBe(['id', 'name', 'email', 'role', 'email_verified_at', 'created_at', 'updated_at']);
+});
+
+test('creating a user requires name, email, and password', function () {
+    $admin = User::factory()->admin()->create();
+
+    $this->actingAs($admin)
+        ->postJson('/api/users', [])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['name', 'email', 'password']);
+});
+
+test('creating a user rejects a malformed email, an unconfirmed password, and an unknown role', function () {
+    $admin = User::factory()->admin()->create();
+
+    $this->actingAs($admin)
+        ->postJson('/api/users', [
+            'name' => 'Broken',
+            'email' => 'not-an-email',
+            'password' => 'password',
+            'role' => 'superuser',
+        ])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['email', 'password', 'role']);
+});
+
+test('creating a user rejects an overlong name and an uppercase email', function () {
+    $admin = User::factory()->admin()->create();
+
+    $this->actingAs($admin)
+        ->postJson('/api/users', [
+            'name' => str_repeat('a', 256),
+            'email' => 'UPPER@EXAMPLE.COM',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['name', 'email']);
+});
+
+test('creating a user rejects an email that is already taken', function () {
+    $admin = User::factory()->admin()->create();
+    User::factory()->create(['email' => 'taken@example.com']);
+
+    $this->actingAs($admin)
+        ->postJson('/api/users', [
+            'name' => 'Duplicate',
+            'email' => 'taken@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors('email');
+});
+
+test('updating a user rejects another user\'s email but accepts their own', function () {
+    $admin = User::factory()->admin()->create();
+    $user = User::factory()->create();
+    User::factory()->create(['email' => 'taken@example.com']);
+
+    $this->actingAs($admin)
+        ->putJson("/api/users/{$user->id}", ['email' => 'taken@example.com'])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors('email');
+
+    $this->actingAs($admin)
+        ->putJson("/api/users/{$user->id}", ['email' => $user->email])
+        ->assertOk();
 });
 
 test('admins can update a user', function () {

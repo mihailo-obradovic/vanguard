@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 
-import { getValidationErrors } from './getValidationErrors';
+import { getValidationErrors } from '../getValidationErrors';
 
 import type { FetchError } from 'ofetch';
 
@@ -33,6 +33,18 @@ describe('getValidationErrors', () => {
     expect(
       getValidationErrors({ data: { message: 'Server error' } } as FetchError)
     ).toEqual({});
+  });
+
+  it('returns an empty object when errors arrives as null', () => {
+    const error = { data: { errors: null } } as unknown as FetchError;
+
+    expect(getValidationErrors(error)).toEqual({});
+  });
+
+  it('returns an empty object when errors is not an object', () => {
+    const error = { data: { errors: 'nope' } } as unknown as FetchError;
+
+    expect(getValidationErrors(error)).toEqual({});
   });
 
   it('drops non-string messages and fields left without any', () => {

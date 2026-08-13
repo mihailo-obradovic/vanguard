@@ -26,13 +26,13 @@ Give forms immediate, inline validation feedback and render backend validation e
 
 | Output / Side Effect        | Type | Description                                                                              |
 | --------------------------- | ---- | ---------------------------------------------------------------------------------------- |
-| Inline field errors         | UI   | Regle messages + server errors rendered under each field via `FieldErrors.vue`           |
+| Inline field errors         | UI   | Regle messages + server errors rendered under each field by Vuetify's `error-messages`   |
 | Suppressed validation toast | UX   | 422s handled inline are not also toasted (opted-in per form); non-422 errors still toast |
 | Submit gating               | UX   | invalid forms block submission; a field clears its server error as the user edits it     |
 
 ## Scope And Non-Goals
 
-In scope: Regle rules on each form mirroring backend constraints; the server-422-to-Regle bridge (`useValidationErrors` → `useExternalErrors` → `FieldErrors.vue`); Zod's response-only role; the per-form suppression of the validation toast.
+In scope: Regle rules on each form mirroring backend constraints; the server-422-to-Regle bridge (`useValidationErrors` → `useExternalErrors` → the field's `error-messages`); Zod's response-only role; the per-form suppression of the validation toast.
 
 Non-goals: the backend validation rules themselves (FormRequests, owned by features 001–003); the transport/error-routing layer (feature 005); using Zod for form validation (Zod validates responses only here); restating the stack-module rules.
 
@@ -42,7 +42,7 @@ Non-goals: the backend validation rules themselves (FormRequests, owned by featu
 - Client messages are localized and name the field: a field's rules are wrapped by `labeledRules(labelKey, rules)`, which resolves `validation.field.*` copy with the field's `common.fields.*` label ("The Email field is required."). `web/regle-config.ts` overrides the library's built-in messages with generic `validation.*` catalog copy as the fallback for any unwrapped rule — including a `requiredIf` entry, because Regle matches messages by the declared rule key, not the rule's type. Both layers resolve `t` lazily, so an open form's errors follow a locale switch.
 - On submit, an invalid form is blocked client-side; a valid form calls its mutation.
 - When the server returns 422, `useValidationErrors` derives a field-keyed map from the mutation's `error` ref; `useExternalErrors` copies that map into a ref Regle owns as its `externalErrors` modifier. Regle clears each entry as the user edits that field — which is why the source is copied, not shared.
-- `FieldErrors.vue` renders the combined Regle + external errors under the field. The validation toast is suppressed for forms that opt into inline handling; non-422 errors still toast centrally (feature 005).
+- Every field binds `:error-messages="r$.<field>.$errors"`, so Vuetify renders the combined Regle + external messages under the input itself — this branch has no shared error component. The validation toast is suppressed for forms that opt into inline handling; non-422 errors still toast centrally (feature 005).
 - Client rules may be **stricter** than the server (deliberate): e.g. the profile form marks `name`/`email` required, so the UI never issues a true partial update even though `PUT /api/profile` allows one (recorded in feature 003).
 
 ## Roles And Access
@@ -89,8 +89,7 @@ No protected area of its own — the backend validation contracts are owned by f
 - `web/utils/labeledRules.ts`: wraps one field's rules with copy naming that field; forms pass it a `common.fields.*` label key.
 - `web/composables/useValidationErrors.ts`: derives a field-keyed map from a mutation's `error` ref.
 - `web/composables/useExternalErrors.ts`: mirrors that map into a Regle-owned `externalErrors` ref.
-- `web/components/shared/FieldErrors.vue`: renders combined Regle + server errors under a field.
-- Per-form Regle schemas in the auth/profile/users pages; `web/utils/getValidationErrors.ts`; `web/types/*` Zod schemas (response validation).
+- Per-form Regle schemas in the auth dialogs (`web/components/users/`) and the profile/users/password-reset pages; `web/utils/getValidationErrors.ts`; `web/types/*` Zod schemas (response validation). Rendering is Vuetify's: each input takes the field's `$errors` on its `error-messages` prop.
 
 ## Dependencies
 
@@ -111,7 +110,7 @@ No protected area of its own — the backend validation contracts are owned by f
 
 ## Verification
 
-Traced against source on 2026-08-04: the bridge chain (`useValidationErrors` → `useExternalErrors`, copied-not-shared so Regle can clear on edit) and `FieldErrors.vue`; the stricter-client asymmetry cross-checked against feature 003. Frontend unit suite green at adoption (`getValidationErrors` spec). Component-level test gaps stand as recorded.
+Traced against source on 2026-08-04: the bridge chain (`useValidationErrors` → `useExternalErrors`, copied-not-shared so Regle can clear on edit) and the `error-messages` binding on each field; the stricter-client asymmetry cross-checked against feature 003. Frontend unit suite green at adoption (`getValidationErrors` spec). Component-level test gaps stand as recorded.
 
 2026-08-13, field-named localized messages (walked on `master`'s UI; this branch shares the helpers, not the forms): register form walked live — email/minLength/sameAs errors render with field labels and re-render across en / sr-Latn / sr-Cyrl on a locale switch with the form open; suite green (labeledRules, newPasswordRules, regle-config, locales specs).
 

@@ -103,6 +103,27 @@ test('the password cannot be reset with an invalid token', function () {
     expect(Hash::check('password', $user->fresh()->password))->toBeTrue();
 });
 
+test('a reset rejects a password below the minimum length', function () {
+    Notification::fake();
+
+    $user = User::factory()->create();
+
+    $this->postJson('/forgot-password', ['email' => $user->email]);
+
+    Notification::assertSentTo($user, ResetPasswordNotification::class, function (ResetPasswordNotification $notification) use ($user) {
+        $this->postJson('/reset-password', [
+            'token' => $notification->token,
+            'email' => $user->email,
+            'password' => 'short',
+            'password_confirmation' => 'short',
+        ])->assertStatus(422)->assertJsonValidationErrors('password');
+
+        return true;
+    });
+
+    expect(Hash::check('password', $user->fresh()->password))->toBeTrue();
+});
+
 test('a reset fails when the confirmation does not match', function () {
     Notification::fake();
 

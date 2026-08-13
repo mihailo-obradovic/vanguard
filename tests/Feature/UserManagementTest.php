@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 test('admins can list users newest first', function () {
     $admin = User::factory()->admin()->create();
@@ -91,6 +92,17 @@ test('user responses expose exactly the documented fields', function () {
         ->toBe(['id', 'name', 'email', 'role', 'email_verified_at', 'created_at', 'updated_at']);
 });
 
+test('a verification timestamp is serialized as ISO-8601', function () {
+    $admin = User::factory()->admin()->create();
+    // * Without the datetime cast this reaches the client as the raw "2026-01-15 08:30:00".
+    $user = User::factory()->create(['email_verified_at' => '2026-01-15 08:30:00']);
+
+    $this->actingAs($admin)
+        ->getJson("/api/users/{$user->id}")
+        ->assertOk()
+        ->assertJsonPath('data.email_verified_at', '2026-01-15T08:30:00.000000Z');
+});
+
 test('creating a user requires name, email, and password', function () {
     $admin = User::factory()->admin()->create();
 
@@ -126,6 +138,48 @@ test('creating a user rejects an overlong name and an uppercase email', function
         ])
         ->assertStatus(422)
         ->assertJsonValidationErrors(['name', 'email']);
+});
+
+test('creating a user rejects a non-string name and an overlong email', function () {
+    $admin = User::factory()->admin()->create();
+
+    $this->actingAs($admin)
+        ->postJson('/api/users', [
+            'name' => ['Array', 'Name'],
+            // * 264 characters and structurally valid, so only max:255 can reject it.
+            'email' => str_repeat('a', 60).'@'.str_repeat('b.', 100).'com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['name', 'email']);
+});
+
+test('creating a user rejects a password below the minimum length', function () {
+    $admin = User::factory()->admin()->create();
+
+    $this->actingAs($admin)
+        ->postJson('/api/users', [
+            'name' => 'Short Password',
+            'email' => 'short@example.com',
+            'password' => 'short',
+            'password_confirmation' => 'short',
+        ])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors('password');
+});
+
+test('updating a user rejects a password below the minimum length', function () {
+    $admin = User::factory()->admin()->create();
+    $user = User::factory()->create();
+
+    $this->actingAs($admin)
+        ->putJson("/api/users/{$user->id}", [
+            'password' => 'short',
+            'password_confirmation' => 'short',
+        ])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors('password');
 });
 
 test('creating a user rejects an email that is already taken', function () {
@@ -176,6 +230,20 @@ test('admins can update a user', function () {
         'name' => 'Updated Name',
         'role' => 'admin',
     ]);
+});
+
+test('an admin-set password replaces the old one', function () {
+    $admin = User::factory()->admin()->create();
+    $user = User::factory()->create();
+
+    $this->actingAs($admin)
+        ->putJson("/api/users/{$user->id}", [
+            'password' => 'replaced-password',
+            'password_confirmation' => 'replaced-password',
+        ])
+        ->assertOk();
+
+    expect(Hash::check('replaced-password', $user->fresh()->password))->toBeTrue();
 });
 
 test('admins can delete a user', function () {

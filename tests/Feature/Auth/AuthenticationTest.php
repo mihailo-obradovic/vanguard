@@ -14,20 +14,6 @@ test('users can authenticate', function () {
     $this->assertAuthenticatedAs($user);
 });
 
-test('logging in regenerates the session id', function () {
-    $user = User::factory()->create();
-
-    $this->session([]);
-    $originalId = session()->getId();
-
-    $this->postJson('/login', [
-        'email' => $user->email,
-        'password' => 'password',
-    ])->assertNoContent();
-
-    expect(session()->getId())->not->toBe($originalId);
-});
-
 test('login requires an email and a password', function () {
     $this->postJson('/login', [])
         ->assertStatus(422)
@@ -63,6 +49,70 @@ test('login is rate limited after five failed attempts', function () {
 
     $response->assertStatus(422);
     expect($response->json('message'))->toContain('seconds');
+});
+
+test('login rejects a non-string password', function () {
+    $user = User::factory()->create();
+
+    // * Without the string rule this reaches Hash::check() as an array and the endpoint 500s.
+    $this->postJson('/login', [
+        'email' => $user->email,
+        'password' => ['array', 'password'],
+    ])->assertStatus(422)->assertJsonValidationErrors('password');
+});
+
+test('the lockout response reports the seconds remaining', function () {
+    $user = User::factory()->create();
+
+    foreach (range(1, 5) as $ignored) {
+        $this->postJson('/login', ['email' => $user->email, 'password' => 'wrong-password']);
+    }
+
+    $response = $this->postJson('/login', ['email' => $user->email, 'password' => 'wrong-password']);
+
+    $response->assertStatus(422);
+    expect($response->json('errors.email.0'))->toMatch('/try again in \d+ seconds/');
+});
+
+test('a successful login clears the failed attempt counter', function () {
+    $user = User::factory()->create();
+
+    // * Four failures, then a success that must reset the count — otherwise the four below lock out.
+    foreach (range(1, 4) as $ignored) {
+        $this->postJson('/login', ['email' => $user->email, 'password' => 'wrong-password']);
+    }
+
+    $this->postJson('/login', ['email' => $user->email, 'password' => 'password'])->assertNoContent();
+    $this->postJson('/logout');
+
+    foreach (range(1, 4) as $ignored) {
+        $this->postJson('/login', ['email' => $user->email, 'password' => 'wrong-password'])
+            ->assertJsonPath('errors.email.0', 'These credentials do not match our records.');
+    }
+});
+
+test('the lockout is scoped to the email address', function () {
+    $locked = User::factory()->create();
+    $other = User::factory()->create();
+
+    foreach (range(1, 5) as $ignored) {
+        $this->postJson('/login', ['email' => $locked->email, 'password' => 'wrong-password']);
+    }
+
+    $this->postJson('/login', ['email' => $other->email, 'password' => 'wrong-password'])
+        ->assertJsonPath('errors.email.0', 'These credentials do not match our records.');
+});
+
+test('the lockout is scoped to the client address', function () {
+    $user = User::factory()->create();
+
+    foreach (range(1, 5) as $ignored) {
+        $this->postJson('/login', ['email' => $user->email, 'password' => 'wrong-password']);
+    }
+
+    $this->withServerVariables(['REMOTE_ADDR' => '198.51.100.7'])
+        ->postJson('/login', ['email' => $user->email, 'password' => 'wrong-password'])
+        ->assertJsonPath('errors.email.0', 'These credentials do not match our records.');
 });
 
 test('authenticated requests to guest routes return 403 instead of redirecting', function () {
@@ -102,13 +152,15 @@ test('users can logout', function () {
     $this->assertGuest();
 });
 
-test('logging out invalidates the session', function () {
+test('logging out flushes the session and issues a fresh CSRF token', function () {
     $user = User::factory()->create();
 
-    $this->actingAs($user)->session([]);
-    $originalId = session()->getId();
+    // * Comparing session ids proves nothing here — a test request carries no session cookie, so
+    // * the id differs either way. Flushed data and a reissued token are the observable effects.
+    $this->actingAs($user)->session(['locale' => 'sr-Latn']);
 
     $this->postJson('/logout')->assertNoContent();
 
-    expect(session()->getId())->not->toBe($originalId);
+    expect(session()->has('locale'))->toBeFalse();
+    expect(session()->has('_token'))->toBeTrue();
 });

@@ -2,11 +2,12 @@
 
 use App\Models\User;
 use App\Notifications\VerifyEmailNotification;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 
 const UPDATE_USER = /** @lang GraphQL */ '
-    mutation ($id: Int!, $name: String, $email: String, $role: String) {
-        updateUser(id: $id, name: $name, email: $email, role: $role) {
+    mutation ($id: Int!, $name: String, $email: String, $password: String, $password_confirmation: String, $role: String) {
+        updateUser(id: $id, name: $name, email: $email, password: $password, password_confirmation: $password_confirmation, role: $role) {
             id
             name
             email
@@ -55,6 +56,21 @@ test('changing the email resets verification and queues the notice', function ()
     Notification::assertSentTo($user->fresh(), VerifyEmailNotification::class);
 });
 
+test('an admin-set password replaces the old one', function () {
+    $admin = User::factory()->admin()->create();
+    $user = User::factory()->create();
+
+    $this->actingAs($admin)
+        ->graphQL(UPDATE_USER, [
+            'id' => $user->id,
+            'password' => 'replaced-password',
+            'password_confirmation' => 'replaced-password',
+        ])
+        ->assertGraphQLErrorFree();
+
+    expect(Hash::check('replaced-password', $user->fresh()->password))->toBeTrue();
+});
+
 test('a duplicate email is reported as a validation error keyed by field', function () {
     $admin = User::factory()->admin()->create();
     $user = User::factory()->create();
@@ -71,10 +87,65 @@ test('an overlong name and an uppercase email are rejected', function () {
     $admin = User::factory()->admin()->create();
     $user = User::factory()->create();
 
+    // * Keyed per field, not just by status — one 422 cannot show that both rules fired.
     $this->actingAs($admin)
         ->graphQL(UPDATE_USER, ['id' => $user->id, 'name' => str_repeat('a', 256), 'email' => 'UPPER@EXAMPLE.COM'])
         ->assertOk()
+        ->assertGraphQLValidationKeys(['name', 'email'])
         ->assertJsonPath('errors.0.extensions.status', 422);
+});
+
+test('a malformed email is rejected', function () {
+    $admin = User::factory()->admin()->create();
+    $user = User::factory()->create();
+
+    $this->actingAs($admin)
+        ->graphQL(UPDATE_USER, ['id' => $user->id, 'email' => 'not-an-email'])
+        ->assertGraphQLValidationKeys(['email'])
+        ->assertJsonPath('errors.0.extensions.status', 422);
+});
+
+test('an overlong email is rejected', function () {
+    $admin = User::factory()->admin()->create();
+    $user = User::factory()->create();
+
+    // * 264 characters and structurally valid, so only max:255 can reject it.
+    $this->actingAs($admin)
+        ->graphQL(UPDATE_USER, ['id' => $user->id, 'email' => str_repeat('a', 60).'@'.str_repeat('b.', 100).'com'])
+        ->assertGraphQLValidationKeys(['email'])
+        ->assertJsonPath('errors.0.extensions.status', 422);
+});
+
+test('an unconfirmed password is rejected', function () {
+    $admin = User::factory()->admin()->create();
+    $user = User::factory()->create();
+
+    $this->actingAs($admin)
+        ->graphQL(UPDATE_USER, [
+            'id' => $user->id,
+            'password' => 'new-password',
+            'password_confirmation' => 'different-password',
+        ])
+        ->assertGraphQLValidationKeys(['password'])
+        ->assertJsonPath('errors.0.extensions.status', 422);
+
+    expect(Hash::check('password', $user->fresh()->password))->toBeTrue();
+});
+
+test('a password below the minimum length is rejected', function () {
+    $admin = User::factory()->admin()->create();
+    $user = User::factory()->create();
+
+    $this->actingAs($admin)
+        ->graphQL(UPDATE_USER, [
+            'id' => $user->id,
+            'password' => 'short',
+            'password_confirmation' => 'short',
+        ])
+        ->assertGraphQLValidationKeys(['password'])
+        ->assertJsonPath('errors.0.extensions.status', 422);
+
+    expect(Hash::check('password', $user->fresh()->password))->toBeTrue();
 });
 
 test('an invalid role is rejected', function () {

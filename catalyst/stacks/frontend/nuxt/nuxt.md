@@ -36,6 +36,7 @@ The shared tiers `_lang/typescript`, `frontend/_vue`, and `frontend/_common` tra
 - Zod (response schemas); `@regle/core` + `@regle/rules` (with `@regle/nuxt`) — form validation.
 - `@vueuse/core`.
 - Vitest, `@nuxt/test-utils`, `@vue/test-utils`, `@vitest/coverage-v8`; `msw` (installed, mocking the API at the wire) and `@testing-library/vue` (approved for the component-test doctrine in `testing.md`, installed when first used).
+- `@stryker-mutator/core` + `@stryker-mutator/vitest-runner` — the mutation audit `decisions/009` prescribed, installed once the data-layer tests it was gated on existed (Dependency Change Rule). Dev-only, run by hand, never in CI.
 - pnpm as the package manager.
 
 ## Avoid By Default

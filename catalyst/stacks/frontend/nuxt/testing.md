@@ -82,4 +82,4 @@ Coverage is **measured, not gated**: CI prints the report but enforces no thresh
 - `pnpm test` — the suite once; `pnpm test:watch` while iterating.
 - `pnpm test:coverage` — with the coverage report (`text` to the terminal, `html` + `lcov` into `coverage/`, gitignored).
 - The full suite is green before a merge; a failing test is never left for later without saying so.
-- **Mutation audit**: Stryker, once the data-layer tests exist — same triage rule as the backend's Infection runs (`conventions/testing.md`), never a CI gate.
+- `pnpm test:mutation` — the Stryker mutation audit over the data layer. Same triage rule as the backend's Pest runs (`conventions/testing.md`), never a CI gate; scope, config rationale, and the standing survivor list live in `operations.md`.

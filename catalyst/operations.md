@@ -73,6 +73,7 @@ php artisan test && pnpm test   # both suites
 composer test:coverage          # backend coverage (sets XDEBUG_MODE=coverage; needs the Xdebug extension)
 pnpm test:coverage              # frontend coverage (text + html + lcov into coverage/, gitignored)
 XDEBUG_MODE=coverage vendor/bin/pest --mutate --everything --covered-only   # backend mutation audit (below)
+pnpm test:mutation              # frontend mutation audit (below)
 ```
 
 Mutation audit (ADR 009; run after a test-writing push, not on a schedule): the command above mutates `app/` (Pest's built-in mutation testing; `--everything` because classes carry no `covers()` annotations, `--covered-only` to skip mutations no test executes) and reruns the covering tests per mutant. **Do not add `--parallel`** — mutant processes share the `vanguard_testing` database and would trample each other. Every listed _untested_ mutation is a change no test noticed — fix the test it exposes or record here why the mutant is acceptable. Score is a measurement, never a gate.
@@ -84,6 +85,15 @@ First audit (2026-08-13): 60.69% baseline → **70.61%** after the survivor-driv
 - **`remember_token` rotation details** (`Str::random(60)` length, the array item on reset) — the `remember` flow is a recorded feature-doc gap; length is trivia.
 - **Rule-list residue**: `'string'` on fields whose format rule subsumes it, `'sometimes'` items whose removal only changes empty-body no-ops, and the mirrored GraphQL validator's remaining single-rule removals — the meaningful rules (required sets, unique, confirmed, lowercase, max, enum) are all covered.
 - **Defensive code unreachable through routes**: `UserRequest::authorize()`'s `&&` (route middleware guarantees a user), `datetime` cast on `email_verified_at` (type trivia), `ResourcePayload`'s JSON flag integers, `!=` → `!==` on the password-broker status strings (equivalent for string constants), `array_intersect_key` unwrap in `UpdateUser` (inputs pre-filtered by both transports' validators).
+
+Frontend mutation audit (ADR 009; `stryker.config.json`, same cadence and triage rule as the backend's). Scope is the data layer — `web/utils`, `web/services`, `web/stores`, `web/composables`. Components, pages, layouts, plugins, and middleware are out because nothing tests them yet; every mutant there would report as noise rather than signal. The untested composables stay in scope on purpose: Stryker separates `NoCoverage` from `Survived` and prints a covered-code score beside the total, which is the honest analogue of the backend's `--covered-only` without a hand-maintained exclusion list that rots.
+
+Four config choices are load-bearing and easy to undo by accident:
+
+- **`ignorePatterns` ends with `!.nuxt`.** Stryker honors `.gitignore`, so `.nuxt` is not copied into the sandbox by default; the partial tree that `buildNuxt` regenerates there has no `tsconfig.app.json`, the root `tsconfig.json` references it, and every spec then dies in oxc with `TSCONFIG_ERROR`. Stryker reports that as a bare "No tests were found".
+- **No `packageManager` key.** Setting it makes Stryker run `pnpm install` inside the sandbox, where `node_modules` is a symlink back to the real one — pnpm rewrites the real `node_modules/.modules.yaml` to point `virtualStoreDir` at the sandbox, and every later pnpm command in the project demands to purge `node_modules`. Never run pnpm with a working directory inside `.stryker-tmp` either; the recovery is `CI=true pnpm install --frozen-lockfile` from the project root.
+- **`ignoreStatic: true`** — `web/mocks/setup.ts` swaps `globalThis.$fetch` at module scope, and a static mutant forces a full environment reload per mutant against that load-order-sensitive capture.
+- **`vitest.related: false`** — related-file resolution across Nuxt's vite pipeline can silently fail to find the covering tests, which surfaces as a whole file reported `Survived`. Per-test coverage already selects the right specs.
 
 ### Quirks
 

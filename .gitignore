@@ -35,6 +35,11 @@ logs
 # Test coverage reports
 /coverage
 
+# Mutation testing (StrykerJS)
+/.stryker-tmp
+/reports
+/stryker.log
+
 # Misc
 .DS_Store
 .fleet

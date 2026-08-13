@@ -94,6 +94,35 @@ test('a profile update rejects an overlong name and an uppercase email', functio
         ->assertJsonValidationErrors(['name', 'email']);
 });
 
+test('a profile update rejects a non-string name and an overlong email', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->putJson('/api/profile', [
+            'name' => ['Array', 'Name'],
+            // * 264 characters and structurally valid, so only max:255 can reject it.
+            'email' => str_repeat('a', 60).'@'.str_repeat('b.', 100).'com',
+        ])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['name', 'email']);
+});
+
+test('a password change rejects a password below the minimum length', function () {
+    $user = User::factory()->create();
+
+    // * The current password is correct, so the only rule left to reject this is the length minimum.
+    $this->actingAs($user)
+        ->putJson('/api/profile', [
+            'current_password' => 'password',
+            'password' => 'short',
+            'password_confirmation' => 'short',
+        ])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors('password');
+
+    expect(Hash::check('password', $user->fresh()->password))->toBeTrue();
+});
+
 test('a profile update rejects a malformed email', function () {
     $user = User::factory()->create();
 

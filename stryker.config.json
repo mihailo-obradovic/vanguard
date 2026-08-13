@@ -11,6 +11,9 @@
     "web/services/**/*.ts",
     "web/stores/**/*.ts",
     "web/composables/**/*.ts",
+    "web/plugins/**/*.ts",
+    "web/regle-config.ts",
+    "web/i18n/i18n.config.ts",
     "!web/**/_tests/**"
   ],
   "ignorePatterns": ["!.nuxt"],

@@ -7,7 +7,7 @@ export function useExternalErrors(
   const externalErrors = ref<Record<string, string[]>>({});
 
   watch(source, (errors) => {
-    externalErrors.value = errors;
+    externalErrors.value = { ...errors };
   });
 
   return externalErrors;

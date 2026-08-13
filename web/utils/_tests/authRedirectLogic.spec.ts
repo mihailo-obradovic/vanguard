@@ -47,6 +47,23 @@ describe('determineAuthRedirect', () => {
     expect(decision.redirectTo).toBe('/login');
   });
 
+  it('lets unauthenticated users reach the shared home page', () => {
+    isLoggedIn.value = false;
+
+    expect(determineAuthRedirect('/home', {})).toEqual({
+      shouldRedirect: false
+    });
+  });
+
+  it('ignores the query string when classifying a page', () => {
+    isLoggedIn.value = true;
+
+    const decision = determineAuthRedirect('/login?redirect=/users', {});
+
+    expect(decision.shouldRedirect).toBe(true);
+    expect(decision.redirectTo).toBe('/home');
+  });
+
   it('aliases the root path to home', () => {
     isLoggedIn.value = false;
 

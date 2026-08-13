@@ -131,6 +131,21 @@ describe('useUserQueries', () => {
       expect(requests.trace()).toEqual(['POST /api/users', 'GET /api/users']);
     });
 
+    it('leaves a single-user query alone', async () => {
+      // * Pins what the key does not reach: invalidating the whole cache would also refetch
+      // * this one, and the list assertion above cannot tell the difference.
+      const { create } = await mountSettled(() => ({
+        list: useFetchUsers(),
+        one: useFetchUser(ref(7)),
+        create: useCreateUser()
+      }));
+
+      await create.mutateAsync(form);
+      await flushPromises();
+
+      expect(requests.trace()).toEqual(['POST /api/users', 'GET /api/users']);
+    });
+
     it('runs the caller onSettled after the list has been refreshed', async () => {
       let traceWhenCallerRan: string[] = [];
 

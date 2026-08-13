@@ -35,6 +35,18 @@ describe('getValidationErrors', () => {
     ).toEqual({});
   });
 
+  it('returns an empty object when errors arrives as null', () => {
+    const error = { data: { errors: null } } as unknown as FetchError;
+
+    expect(getValidationErrors(error)).toEqual({});
+  });
+
+  it('returns an empty object when errors is not an object', () => {
+    const error = { data: { errors: 'nope' } } as unknown as FetchError;
+
+    expect(getValidationErrors(error)).toEqual({});
+  });
+
   it('drops non-string messages and fields left without any', () => {
     const error = {
       data: {

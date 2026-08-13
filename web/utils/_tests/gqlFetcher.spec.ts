@@ -63,6 +63,81 @@ describe('gqlFetcher', () => {
     });
   });
 
+  it('returns the data payload when the errors array is present but empty', async () => {
+    server.use(graphqlHandler({ data: { users: [] }, errors: [] }));
+
+    const data = await gqlFetcher('{ users { id } }');
+
+    expect(data).toEqual({ users: [] });
+  });
+
+  it('falls back to a generic message when the error message is blank', async () => {
+    server.use(graphqlHandler(graphqlError('   ', { status: 500 })));
+
+    const error = await expectRejection(gqlFetcher('{ users { id } }'));
+
+    expect(error.data.message).toBe('GraphQL request failed.');
+  });
+
+  it('falls back to a generic message when the error carries no message', async () => {
+    server.use(
+      graphqlHandler({ data: null, errors: [{ extensions: { status: 500 } }] })
+    );
+
+    const error = await expectRejection(gqlFetcher('{ users { id } }'));
+
+    expect(error.data.message).toBe('GraphQL request failed.');
+  });
+
+  it('defaults to 500 when the error carries no extensions at all', async () => {
+    server.use(graphqlHandler({ data: null, errors: [{ message: 'Boom' }] }));
+
+    const error = await expectRejection(gqlFetcher('{ users { id } }'));
+
+    expect(error).toBeInstanceOf(FetchError);
+    expect(error.statusCode).toBe(500);
+  });
+
+  it('ignores a validation payload that arrives as null', async () => {
+    server.use(
+      graphqlHandler(
+        graphqlError('Validation failed.', { status: 422, validation: null })
+      )
+    );
+
+    const error = await expectRejection(gqlFetcher('mutation {}'));
+
+    expect(error.statusCode).toBe(422);
+    expect(error.data.errors).toBeUndefined();
+  });
+
+  it('ignores a validation payload that is not an object', async () => {
+    server.use(
+      graphqlHandler(
+        graphqlError('Validation failed.', { status: 422, validation: 'nope' })
+      )
+    );
+
+    const error = await expectRejection(gqlFetcher('mutation {}'));
+
+    expect(error.data.errors).toBeUndefined();
+  });
+
+  it('drops validation messages that are not string arrays', async () => {
+    server.use(
+      graphqlHandler(
+        graphqlError('Validation failed.', {
+          status: 422,
+          validation: { email: ['Taken.', 7], name: 'not-an-array' }
+        })
+      )
+    );
+
+    const error = await expectRejection(gqlFetcher('mutation {}'));
+
+    expect(error.data.errors).toEqual({ email: ['Taken.'] });
+  });
+
   it('translates a validation error into a 422 with field-keyed messages', async () => {
     server.use(
       graphqlHandler(

@@ -25,6 +25,28 @@ describe('getErrorMessage', () => {
     expect(getErrorMessage(error)).toBe('Failed to fetch');
   });
 
+  it('falls back when the body message is only whitespace', () => {
+    const error = { message: 'Failed to fetch', data: { message: '   ' } };
+
+    expect(getErrorMessage(error)).toBe('Failed to fetch');
+  });
+
+  it('falls back when the body message is not a string', () => {
+    const error = { message: 'Failed to fetch', data: { message: 42 } };
+
+    expect(getErrorMessage(error)).toBe('Failed to fetch');
+  });
+
+  it('returns a generic message when both messages are blank', () => {
+    const error = { message: '  ', data: { message: '' } };
+
+    expect(getErrorMessage(error)).toBe('errors.generic');
+  });
+
+  it('returns a generic message when there is no error object at all', () => {
+    expect(getErrorMessage(null)).toBe('errors.generic');
+  });
+
   it('returns a generic message for unrecognised errors', () => {
     expect(getErrorMessage({})).toBe('errors.generic');
   });

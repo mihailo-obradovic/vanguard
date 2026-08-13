@@ -34,6 +34,10 @@ function toastedMessages() {
   return $toast.mock.calls.map(([message]) => message);
 }
 
+function toastedSeverities() {
+  return $toast.mock.calls.map(([, severity]) => severity);
+}
+
 describe('handleApiError', () => {
   beforeEach(() => {
     $toast.mockClear();
@@ -118,6 +122,37 @@ describe('handleApiError', () => {
     // * Suppression covers field messages only — a 422 with nothing to render inline would
     // * otherwise fail silently.
     expect(toastedMessages()).toEqual(['The given data was invalid.']);
+  });
+
+  it('ignores field errors on a status other than 422', () => {
+    // * Only a 422 states a validation failure; an `errors` bag on anything else is not one,
+    // * and listing it would bury the message that actually explains the failure.
+    handleApiError(
+      apiError(500, {
+        message: 'Server error',
+        errors: { email: ['The email has already been taken.'] }
+      }),
+      context()
+    );
+
+    expect(toastedMessages()).toEqual(['Server error']);
+  });
+
+  it('raises field messages at error severity', () => {
+    handleApiError(
+      apiError(422, {
+        errors: { email: ['The email has already been taken.'] }
+      }),
+      context()
+    );
+
+    expect(toastedSeverities()).toEqual(['error']);
+  });
+
+  it('raises the fallback message at error severity', () => {
+    handleApiError(apiError(500, { message: 'Server error' }), context());
+
+    expect(toastedSeverities()).toEqual(['error']);
   });
 
   it('toasts anything else without touching the session or the route', () => {

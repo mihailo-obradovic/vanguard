@@ -19,6 +19,7 @@ async function setupForm(optional?: MaybeRefOrGetter<boolean>) {
   });
 
   let validate!: () => Promise<boolean>;
+  let passwordErrors!: () => string[];
 
   await mountSuspended(
     defineComponent({
@@ -28,13 +29,14 @@ async function setupForm(optional?: MaybeRefOrGetter<boolean>) {
         }));
 
         validate = async () => (await r$.$validate()).valid;
+        passwordErrors = () => r$.password.$errors;
 
         return () => null;
       }
     })
   );
 
-  return { form, validate };
+  return { form, validate, passwordErrors };
 }
 
 describe('newPasswordRules', () => {
@@ -43,6 +45,16 @@ describe('newPasswordRules', () => {
       const { validate } = await setupForm();
 
       expect(await validate()).toBe(false);
+    });
+
+    it('flags the password field itself, not only the confirmation', async () => {
+      // * The pair is invalid either way; what this pins is which field carries the error,
+      // * because that is the field the form renders it under.
+      const { validate, passwordErrors } = await setupForm();
+
+      await validate();
+
+      expect(passwordErrors()).not.toEqual([]);
     });
 
     it('accepts a long enough matching pair', async () => {

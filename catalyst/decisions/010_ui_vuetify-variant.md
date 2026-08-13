@@ -35,6 +35,7 @@ Product decisions of this branch, not module prescriptions (the module's compone
 - `CookieConsentBanner.vue` is hand-rolled HTML/CSS with hardcoded colours that ignore the theme (arrived from master unconverted).
 - `LoginDialog.vue` ships hardcoded dev credentials in `initialForm`.
 - `FullScreenDialog.vue` is referenced by no page.
+- `useThemeSwitching()` and `useUserDialogs()` are declared inside `layouts/Default.vue` rather than in `composables/`. Both are pure logic — cookie-backed theme persistence, and the three auth dialogs with their mutations and validation wiring — so both are testable the moment they move, and untestable where they are. Extracting them is deferred with the rest of the component work, not blocked by it.
 
 ## Scope
 

@@ -65,4 +65,16 @@ describe('determineAuthRedirect', () => {
     expect(decision.shouldRedirect).toBe(true);
     expect(decision.redirectTo).toBe('/home');
   });
+
+  // ! Signed in is the case that proves the alias exists. Signed out, `/` also lands on `/home` as
+  // ! a protected page under default-deny, so dropping the alias entirely would go unnoticed —
+  // ! on this branch both arms redirect to the same place.
+  it('aliases the root path to home for signed-in users too', () => {
+    isLoggedIn.value = true;
+
+    const decision = determineAuthRedirect('/', {});
+
+    expect(decision.shouldRedirect).toBe(true);
+    expect(decision.redirectTo).toBe('/home');
+  });
 });

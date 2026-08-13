@@ -108,6 +108,14 @@ describe('newPasswordRules', () => {
         'The Password Confirmation field is required.'
       );
     });
+
+    it('names the password field in its missing-value message', async () => {
+      const { validate, passwordErrors } = await setupForm();
+
+      await validate();
+
+      expect(passwordErrors()).toContain('The Password field is required.');
+    });
   });
 
   describe('when the password is optional', () => {

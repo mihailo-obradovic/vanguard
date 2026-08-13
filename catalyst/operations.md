@@ -103,11 +103,18 @@ First audit (2026-08-13): 84.38% baseline → **92.19%** total, and 90.00% → *
 
 - **The `typeof x !== 'object'` operand** in `getValidationErrors` and `gqlFetcher`'s `toValidationBody` — reachable only for a truthy non-object, and every such value already yields `{}` through the string-array message filter below it. The guard is defense-in-depth the filter provides anyway.
 - **`RedirectDecision.reason`** (all three strings) — written and never read anywhere in `web/`; diagnostic metadata, not behavior. The day something displays or logs it, its test kills these.
-- **`.some` → `.every` on `guestOnlyPrefixes`** — the list holds one prefix, so the two are equivalent; a second prefix makes this killable and should arrive with the test that adds it.
+- **`.some` → `.every` on `guestOnlyPrefixes`** — the list holds one prefix, so the two are equivalent; a second prefix makes this killable and should arrive with the test that adds it. (Master only — this branch has no prefix list.)
 - **`credentials: 'include'` in `fetcher`** — MSW intercepts below the point where credentials mode is observable, so no test at this layer can see it. The browser enforces it, and the session feature covers the effect.
 - **The empty `default:` branch** in `handleApiError` — a Stryker artifact on a `break` with no behavior.
 - **`sameAs(password, 'password')`'s second argument** — the field label inside the message, not a contract; same reasoning as the backend's lockout-copy mutants.
 - **`parseResponse`'s `console.error` text** — `conventions/testing.md` prohibits asserting on logs.
+
+First audit on `variant/vuetify` (2026-08-13, run straight after master's testing work merged in): 89.53% → **92.09%** total, 95.06% → **97.78%** on covered code (443 mutants, 9 surviving; `services`, `services/queries` and `stores` at 100%). Every remaining survivor is one of master's accepted categories above. Two were killed rather than accepted:
+
+- **The root-path alias in `authRedirectLogic`** — three mutants (the condition, the `'/'` literal, the whole block) survived because this branch redirects both arms to `/home`: a signed-out user hitting `/` lands there as a protected page under default-deny, so deleting the alias outright changed nothing observable. Master's spec catches it for free, since its default-deny goes to `/login` instead. Killed by asserting `/` while **signed in**, the one case the alias alone explains.
+- **`newPasswordRules`'s `common.fields.password` label key** — the confirmation field's labeled message was pinned, the password field's was not. Killed by asserting the message names its field, symmetrically with the existing confirmation case.
+
+Coverage at the same point: 30.15% statements / 32.73% lines overall, with `utils`, `services`, `services/queries`, `stores`, `types`, `middleware` and `i18n` all at 100% lines and `plugins/vuetify.ts` at 100%. The overall number sits below master's because this branch carries far more component code — the auth dialogs, the shared dialog bases, and the Vuetify pages are ~470 uncovered lines, and component tests are deferred on both branches (`decisions/008`).
 
 ### Quirks
 

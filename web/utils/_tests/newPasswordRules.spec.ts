@@ -20,6 +20,8 @@ async function setupForm(optional?: MaybeRefOrGetter<boolean>) {
 
   let validate!: () => Promise<boolean>;
   let passwordErrors!: () => string[];
+  let confirmationErrors!: () => string[];
+  let t!: (key: string) => string;
 
   await mountSuspended(
     defineComponent({
@@ -30,13 +32,15 @@ async function setupForm(optional?: MaybeRefOrGetter<boolean>) {
 
         validate = async () => (await r$.$validate()).valid;
         passwordErrors = () => r$.password.$errors;
+        confirmationErrors = () => r$.password_confirmation.$errors;
+        t = useI18n().t;
 
         return () => null;
       }
     })
   );
 
-  return { form, validate, passwordErrors };
+  return { form, validate, passwordErrors, confirmationErrors, t };
 }
 
 describe('newPasswordRules', () => {
@@ -93,6 +97,16 @@ describe('newPasswordRules', () => {
       form.value = { password: 'correct-horse', password_confirmation: '' };
 
       expect(await validate()).toBe(false);
+    });
+
+    it('reports the missing confirmation with the catalog message, not the built-in English one', async () => {
+      // * `requiredIf` needs its own entry in regle-config.ts — the `required` override does not reach it. The catalog string differs from Regle's built-in fallback, so this fails if that entry is lost.
+      const { form, validate, confirmationErrors, t } = await setupForm();
+
+      form.value = { password: 'correct-horse', password_confirmation: '' };
+      await validate();
+
+      expect(confirmationErrors()).toContain(t('validation.required'));
     });
   });
 

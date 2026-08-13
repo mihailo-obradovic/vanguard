@@ -11,9 +11,22 @@ test('a reset link can be requested', function () {
     $user = User::factory()->create();
 
     $this->postJson('/forgot-password', ['email' => $user->email])
-        ->assertOk();
+        ->assertOk()
+        ->assertJsonStructure(['status']);
 
     Notification::assertSentTo($user, ResetPasswordNotification::class);
+});
+
+test('a reset link request requires an email', function () {
+    $this->postJson('/forgot-password', [])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors('email');
+});
+
+test('a reset requires a token, an email, and a password', function () {
+    $this->postJson('/reset-password', [])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['token', 'email', 'password']);
 });
 
 test('a reset link request for an unknown email reports the email field', function () {
@@ -68,10 +81,12 @@ test('the password can be reset with a valid token', function () {
             'email' => $user->email,
             'password' => 'new-password',
             'password_confirmation' => 'new-password',
-        ])->assertOk();
+        ])->assertOk()->assertJsonStructure(['status']);
 
         return true;
     });
+
+    expect(Hash::check('new-password', $user->fresh()->password))->toBeTrue();
 });
 
 test('the password cannot be reset with an invalid token', function () {

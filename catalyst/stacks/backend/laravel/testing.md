@@ -91,5 +91,5 @@ If a project decides the tradeoff is worth taking anyway, that is a decision rec
 - `php artisan test` (or `vendor/bin/pest`), with `--filter` while iterating.
 - `laravel/pao` reformats the output when an agent is running the suite — failures come back as something readable rather than a wall of stack frames.
 - The full suite is green before a merge; a failing test is never left for later without saying so.
-- **Mutation audit**: Infection runs periodically per the project runbook (`operations.md`) — every surviving mutant is a change no test noticed; fix the test or record why the mutant is acceptable. A measurement, never a CI gate.
+- **Mutation audit**: Pest's built-in mutation testing (`pest --mutate`) runs periodically per the project runbook (`operations.md`) — every surviving mutant is a change no test noticed; fix the test or record why the mutant is acceptable. A measurement, never a CI gate.
 - `--parallel` stays unprovisioned until suite duration demands it (per-process databases are the cost; the runbook notes what provisioning would take).

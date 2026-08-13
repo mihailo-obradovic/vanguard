@@ -82,6 +82,18 @@ test('a profile update rejects an email belonging to another user', function () 
         ->assertJsonValidationErrors('email');
 });
 
+test('a profile update rejects an overlong name and an uppercase email', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->putJson('/api/profile', [
+            'name' => str_repeat('a', 256),
+            'email' => 'UPPER@EXAMPLE.COM',
+        ])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['name', 'email']);
+});
+
 test('a profile update rejects a malformed email', function () {
     $user = User::factory()->create();
 

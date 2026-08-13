@@ -63,7 +63,7 @@ Green only means something if the test could have been red. Three tiers, cheapes
 
 1. **Regression tests fail before the fix** — prime-directive law, restated here only to complete the list.
 2. **Sabotage spot-check** — for an after-the-fact test with non-trivial setup (notification callbacks, transport plumbing), briefly break the code or flip the assertion, confirm red, restore. Judgment call; pointless for one-line pure assertions.
-3. **Mutation testing as a periodic audit** — the automated version of tier 2: mutate the code, rerun the suite, and every _surviving mutant_ is a change no test noticed. Backend: Infection; frontend: Stryker once the data-layer tests exist. Run per the operations runbook, triage every survivor (fix the test or record why the mutant is acceptable), no CI gate — like coverage, it is a measurement, not a target.
+3. **Mutation testing as a periodic audit** — the automated version of tier 2: mutate the code, rerun the suite, and every _surviving mutant_ is a change no test noticed. Backend: Pest's built-in mutation testing (`pest --mutate`); frontend: Stryker once the data-layer tests exist. Run per the operations runbook, triage every survivor (fix the test or record why the mutant is acceptable), no CI gate — like coverage, it is a measurement, not a target.
 
 ## End-to-end tests
 

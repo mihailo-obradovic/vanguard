@@ -16,7 +16,10 @@ test('admins can list users newest first', function () {
 test('non-admins cannot access user management', function () {
     $user = User::factory()->create();
 
-    $this->actingAs($user)->getJson('/api/users')->assertForbidden();
+    $this->actingAs($user)
+        ->getJson('/api/users')
+        ->assertForbidden()
+        ->assertJsonPath('message', 'Forbidden. Admin access required.');
 });
 
 test('guests cannot access user management', function () {
@@ -109,6 +112,20 @@ test('creating a user rejects a malformed email, an unconfirmed password, and an
         ])
         ->assertStatus(422)
         ->assertJsonValidationErrors(['email', 'password', 'role']);
+});
+
+test('creating a user rejects an overlong name and an uppercase email', function () {
+    $admin = User::factory()->admin()->create();
+
+    $this->actingAs($admin)
+        ->postJson('/api/users', [
+            'name' => str_repeat('a', 256),
+            'email' => 'UPPER@EXAMPLE.COM',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['name', 'email']);
 });
 
 test('creating a user rejects an email that is already taken', function () {

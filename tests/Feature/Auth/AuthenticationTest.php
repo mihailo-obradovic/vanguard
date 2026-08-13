@@ -14,6 +14,26 @@ test('users can authenticate', function () {
     $this->assertAuthenticatedAs($user);
 });
 
+test('logging in regenerates the session id', function () {
+    $user = User::factory()->create();
+
+    $this->session([]);
+    $originalId = session()->getId();
+
+    $this->postJson('/login', [
+        'email' => $user->email,
+        'password' => 'password',
+    ])->assertNoContent();
+
+    expect(session()->getId())->not->toBe($originalId);
+});
+
+test('login requires an email and a password', function () {
+    $this->postJson('/login', [])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['email', 'password']);
+});
+
 test('users cannot authenticate with an invalid password', function () {
     $user = User::factory()->create();
 
@@ -28,11 +48,12 @@ test('users cannot authenticate with an invalid password', function () {
 test('login is rate limited after five failed attempts', function () {
     $user = User::factory()->create();
 
+    // * Each of the first five attempts must fail on credentials, not on the limiter — this pins the threshold at exactly five.
     foreach (range(1, 5) as $ignored) {
         $this->postJson('/login', [
             'email' => $user->email,
             'password' => 'wrong-password',
-        ])->assertStatus(422);
+        ])->assertStatus(422)->assertJsonPath('errors.email.0', 'These credentials do not match our records.');
     }
 
     $response = $this->postJson('/login', [
@@ -79,4 +100,15 @@ test('users can logout', function () {
     $this->actingAs($user)->postJson('/logout')->assertNoContent();
 
     $this->assertGuest();
+});
+
+test('logging out invalidates the session', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)->session([]);
+    $originalId = session()->getId();
+
+    $this->postJson('/logout')->assertNoContent();
+
+    expect(session()->getId())->not->toBe($originalId);
 });

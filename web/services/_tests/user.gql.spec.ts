@@ -1,77 +1,72 @@
 // @vitest-environment nuxt
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { mockNuxtImport } from '@nuxt/test-utils/runtime';
+
+import { server } from '@/mocks/server';
+import { recordRequests } from '@/mocks/requests';
+import { graphqlHandler } from '@/mocks/graphql';
+import { buildUser } from '@/mocks/fixtures';
 
 import { fetchUsersGql, updateUserGql } from '../user.gql';
 
-// * Mocked at `gqlFetcher`, one layer above `fetcher`: the translation from GraphQL errors to
-// * FetchErrors is gqlFetcher.spec's subject, and these services sit on top of it.
-const { gqlFetcher } = vi.hoisted(() => ({
-  gqlFetcher: vi.fn<(...args: unknown[]) => Promise<unknown>>()
-}));
+const requests = recordRequests();
 
-mockNuxtImport('gqlFetcher', () => gqlFetcher);
-
-const user = {
-  id: 1,
-  name: 'Mihailo',
-  email: 'mihailo@example.com',
+const user = buildUser({
   role: 'admin',
-  email_verified_at: '2026-08-01T00:00:00.000000Z',
-  created_at: '2026-08-01T00:00:00.000000Z',
-  updated_at: '2026-08-01T00:00:00.000000Z'
-} as const;
+  email_verified_at: '2026-08-01T00:00:00.000000Z'
+});
 
-function sentDocument() {
-  return String(gqlFetcher.mock.calls[0]?.[0]);
-}
+type GqlRequestBody = { query: string; variables: Record<string, unknown> };
 
-function sentVariables() {
-  return gqlFetcher.mock.calls[0]?.[1];
+async function sentBody(): Promise<GqlRequestBody> {
+  return (await requests.at(0)).body as GqlRequestBody;
 }
 
 describe('user.gql', () => {
   beforeEach(() => {
+    requests.reset();
     // * parseResponse logs the Zod error by design; the mismatch cases would flood stderr.
     vi.spyOn(console, 'error').mockImplementation(() => {});
-    gqlFetcher.mockReset();
   });
 
   describe('fetchUsersGql', () => {
     it('returns the users out of the query payload', async () => {
-      gqlFetcher.mockResolvedValue({ users: [user] });
+      server.use(graphqlHandler({ data: { users: [user] } }));
 
       await expect(fetchUsersGql()).resolves.toEqual([user]);
     });
 
     it('sends a named query and no variables', async () => {
-      gqlFetcher.mockResolvedValue({ users: [] });
+      server.use(graphqlHandler({ data: { users: [] } }));
 
       await fetchUsersGql();
 
+      const body = await sentBody();
+
       // * Named so the operation is recognisable in logs and request mocks.
-      expect(sentDocument()).toContain('query Users');
-      expect(sentVariables()).toBeUndefined();
+      expect(body.query).toContain('query Users');
+      expect(body.variables).toEqual({});
     });
 
     it('asks for every field the REST serialization returns', async () => {
-      gqlFetcher.mockResolvedValue({ users: [] });
+      server.use(graphqlHandler({ data: { users: [] } }));
 
       await fetchUsersGql();
 
+      const body = await sentBody();
+
       for (const field of Object.keys(user)) {
-        expect(sentDocument()).toContain(field);
+        expect(body.query).toContain(field);
       }
     });
 
     it('rejects a payload that does not match the schema', async () => {
-      gqlFetcher.mockResolvedValue({ users: [{ ...user, id: 'one' }] });
+      server.use(graphqlHandler({ data: { users: [{ ...user, id: 'one' }] } }));
 
       await expect(fetchUsersGql()).rejects.toBeInstanceOf(Error);
     });
 
     it('rejects a payload missing the users field entirely', async () => {
-      gqlFetcher.mockResolvedValue({});
+      server.use(graphqlHandler({ data: {} }));
 
       await expect(fetchUsersGql()).rejects.toBeInstanceOf(Error);
     });
@@ -79,7 +74,7 @@ describe('user.gql', () => {
 
   describe('updateUserGql', () => {
     it('returns the user out of the mutation payload', async () => {
-      gqlFetcher.mockResolvedValue({ updateUser: user });
+      server.use(graphqlHandler({ data: { updateUser: user } }));
 
       await expect(updateUserGql({ id: 1, name: 'Renamed' })).resolves.toEqual(
         user
@@ -87,14 +82,16 @@ describe('user.gql', () => {
     });
 
     it('sends a named mutation with the id alongside the changed fields', async () => {
-      gqlFetcher.mockResolvedValue({ updateUser: user });
+      server.use(graphqlHandler({ data: { updateUser: user } }));
 
       await updateUserGql({ id: 7, name: 'Renamed', role: 'admin' });
 
-      expect(sentDocument()).toContain('mutation UpdateUser');
+      const body = await sentBody();
+
+      expect(body.query).toContain('mutation UpdateUser');
       // * The id is destructured out and put back as a variable — sending only what changed
       // * is what keeps an edit form from overwriting untouched fields.
-      expect(sentVariables()).toEqual({
+      expect(body.variables).toEqual({
         id: 7,
         name: 'Renamed',
         role: 'admin'
@@ -102,7 +99,9 @@ describe('user.gql', () => {
     });
 
     it('rejects a payload that does not match the schema', async () => {
-      gqlFetcher.mockResolvedValue({ updateUser: { ...user, role: 'owner' } });
+      server.use(
+        graphqlHandler({ data: { updateUser: { ...user, role: 'owner' } } })
+      );
 
       await expect(updateUserGql({ id: 1 })).rejects.toBeInstanceOf(Error);
     });

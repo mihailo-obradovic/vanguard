@@ -13,19 +13,7 @@
     "web/composables/**/*.ts",
     "!web/**/_tests/**"
   ],
-  "ignorePatterns": [
-    "app",
-    "bootstrap",
-    "config",
-    "database",
-    "routes",
-    "tests",
-    "graphql",
-    "public",
-    ".claude",
-    ".github",
-    "!.nuxt"
-  ],
+  "ignorePatterns": ["!.nuxt"],
   "ignoreStatic": true,
   "concurrency": 4,
   "timeoutMS": 15000,

@@ -54,3 +54,6 @@ logs
 __pycache__/
 .claude/settings.local.json
 # catalyst:end
+
+# Agent git worktrees
+.claude/worktrees/

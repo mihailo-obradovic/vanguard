@@ -13,6 +13,8 @@ export type RequestRecorder = {
   trace: () => string[];
   count: () => number;
   at: (index: number) => Promise<RecordedRequest>;
+  /** Wait until a full macrotask turn passes with no new request — see the implementation. */
+  settle: () => Promise<void>;
   reset: () => void;
 };
 
@@ -61,6 +63,20 @@ export function recordRequests(): RequestRecorder {
       }
 
       return toRecord(request);
+    },
+    // ! `flushPromises()` alone drains microtasks, which is enough on an idle machine but lands
+    // ! mid-refetch when the box is loaded — the refetch a cache invalidation triggers crosses a
+    // ! timer, not only a promise chain. Waiting for the recorder to go quiet instead of for a
+    // ! fixed number of ticks also strengthens the negative assertions: a request that should
+    // ! never have been sent has had its chance to arrive before the trace is read.
+    settle: async () => {
+      let previous = -1;
+
+      while (captured.length !== previous) {
+        previous = captured.length;
+
+        await new Promise((resolve) => setTimeout(resolve, 0));
+      }
     },
     reset: () => {
       captured.length = 0;

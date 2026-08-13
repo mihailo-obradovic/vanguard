@@ -88,7 +88,7 @@ async function mountSettled<T extends Record<string, unknown>>(
 ): Promise<T> {
   const result = mountQueries(use);
 
-  await flushPromises();
+  await requests.settle();
   requests.reset();
 
   return result;
@@ -130,7 +130,7 @@ describe('useUserGqlQueries', () => {
       }));
 
       await update.mutateAsync({ id: 7, name: 'Renamed' });
-      await flushPromises();
+      await requests.settle();
 
       expect(await trace()).toEqual(['gql UpdateUser', 'gql Users']);
       expect((await requests.at(0)).body).toMatchObject({
@@ -146,7 +146,7 @@ describe('useUserGqlQueries', () => {
       }));
 
       await update.mutateAsync({ id: 7, name: 'Renamed' });
-      await flushPromises();
+      await requests.settle();
 
       // * The REST list is mounted and would refetch if its key had been invalidated.
       expect(await trace()).not.toContain('GET /api/users');
@@ -194,7 +194,7 @@ describe('useUserGqlQueries', () => {
       await expect(
         update.mutateAsync({ id: 7, name: 'Renamed' })
       ).rejects.toBeInstanceOf(Error);
-      await flushPromises();
+      await requests.settle();
 
       expect(await trace()).toEqual(['gql UpdateUser', 'gql Users']);
     });

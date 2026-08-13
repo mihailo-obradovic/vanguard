@@ -8,9 +8,14 @@ process.env.NUXT_PUBLIC_API_BASE_URL = 'http://api.test';
 export default defineVitestConfig({
   test: {
     setupFiles: ['web/mocks/setup.ts'],
-    // ! A crashed Stryker run leaves its sandbox behind, and vitest's defaults do not skip it —
-    // ! the next `pnpm test` would collect every spec a second time from inside the copy.
-    exclude: [...defaultExclude, '**/.stryker-tmp/**'],
+    // ! Nested checkouts of this repo are collected as if they were part of it, and every spec
+    // ! then runs twice — once against the wrong tree. A crashed Stryker run leaves its sandbox
+    // ! behind, and `.claude/worktrees/` holds agent worktrees; vitest's defaults skip neither.
+    exclude: [
+      ...defaultExclude,
+      '**/.stryker-tmp/**',
+      '**/.claude/worktrees/**'
+    ],
     coverage: {
       provider: 'v8',
       // * Measure the whole frontend source tree, not just files a test happens to import.

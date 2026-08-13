@@ -61,7 +61,7 @@ async function mountSettled<T extends Record<string, unknown>>(
 ): Promise<T> {
   const result = mountQueries(use);
 
-  await flushPromises();
+  await requests.settle();
   requests.reset();
 
   return result;
@@ -125,7 +125,7 @@ describe('useUserQueries', () => {
       }));
 
       await create.mutateAsync(form);
-      await flushPromises();
+      await requests.settle();
 
       // * The refetch is the point: the list a component is showing must not stay stale.
       expect(requests.trace()).toEqual(['POST /api/users', 'GET /api/users']);
@@ -141,7 +141,7 @@ describe('useUserQueries', () => {
       }));
 
       await create.mutateAsync(form);
-      await flushPromises();
+      await requests.settle();
 
       expect(requests.trace()).toEqual(['POST /api/users', 'GET /api/users']);
     });
@@ -176,7 +176,7 @@ describe('useUserQueries', () => {
       }));
 
       await expect(create.mutateAsync(form)).rejects.toBeInstanceOf(Error);
-      await flushPromises();
+      await requests.settle();
 
       // * onSettled, not onSuccess: a rejected write may still have reached the server.
       expect(requests.trace()).toEqual(['POST /api/users', 'GET /api/users']);
@@ -194,7 +194,7 @@ describe('useUserQueries', () => {
       }));
 
       await update.mutateAsync({ id: 7, userData: { name: 'Renamed' } });
-      await flushPromises();
+      await requests.settle();
 
       expect(requests.trace()).toEqual([
         'PUT /api/users/7',
@@ -221,7 +221,7 @@ describe('useUserQueries', () => {
       await expect(
         update.mutateAsync({ id: 7, userData: { name: 'Renamed' } })
       ).rejects.toBeInstanceOf(Error);
-      await flushPromises();
+      await requests.settle();
 
       // * onSettled, not onSuccess: a failed write may still have changed the server.
       expect(requests.trace()).toEqual([
@@ -243,7 +243,7 @@ describe('useUserQueries', () => {
       }));
 
       await remove.mutateAsync(7);
-      await flushPromises();
+      await requests.settle();
 
       expect(requests.trace()).toEqual([
         'DELETE /api/users/7',

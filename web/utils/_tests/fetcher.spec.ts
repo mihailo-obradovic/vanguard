@@ -1,81 +1,22 @@
 // @vitest-environment nuxt
 import { describe, it, expect, beforeEach } from 'vitest';
-import { registerEndpoint } from '@nuxt/test-utils/runtime';
-import { readBody } from 'h3';
+import { http, HttpResponse } from 'msw';
 import { FetchError } from 'ofetch';
+
+import { server } from '@/mocks/server';
+import { apiUrl } from '@/mocks/api';
+import { recordRequests } from '@/mocks/requests';
 
 import { fetcher } from '../fetcher';
 
-import type { H3Event } from 'h3';
 import type { FetcherOptions } from '../fetcher';
 
-// * `$fetch` inside the Nuxt test environment is the harness's own instance, so a stub never
-// * intercepts it. Driving real registered endpoints is also the better test: the assertions
-// * describe what actually reached the server rather than restating the call arguments.
-type RecordedRequest = {
-  path: string;
-  method: string;
-  headers: Record<string, string | undefined>;
-  body: unknown;
-};
+const requests = recordRequests();
 
-const requests: RecordedRequest[] = [];
-
-// * How many more times /api/things answers 419. Set per test; the endpoint counts down, so
+// * How many more times /api/things answers 419. Set per test; the handler counts down, so
 // * `1` reproduces a single expired token and `2` an expiry that survives the re-prime.
 let expiredTokenResponses = 0;
 let csrfCookieStatus = 200;
-
-async function record(event: H3Event, path: string): Promise<RecordedRequest> {
-  const request = {
-    path,
-    method: event.method,
-    // * The harness forwards headers with their original casing; lower-casing here keeps the
-    // * assertions from depending on how the fetcher happened to spell them.
-    headers: Object.fromEntries(
-      Object.entries(event.node.req.headers).map(([name, value]) => [
-        name.toLowerCase(),
-        String(value)
-      ])
-    ),
-    body: await readBody(event).catch(() => undefined)
-  };
-
-  requests.push(request);
-
-  return request;
-}
-
-registerEndpoint('/api/things', async (event) => {
-  await record(event, '/api/things');
-
-  if (expiredTokenResponses > 0) {
-    expiredTokenResponses -= 1;
-    event.node.res.statusCode = 419;
-
-    return { message: 'CSRF token mismatch.' };
-  }
-
-  return { ok: true };
-});
-
-registerEndpoint('/api/broken', (event) => {
-  event.node.res.statusCode = 500;
-
-  return { message: 'Server error' };
-});
-
-registerEndpoint('/sanctum/csrf-cookie', async (event) => {
-  await record(event, '/sanctum/csrf-cookie');
-
-  if (csrfCookieStatus !== 200) {
-    event.node.res.statusCode = csrfCookieStatus;
-
-    return { message: 'CSRF token mismatch.' };
-  }
-
-  return '';
-});
 
 function setXsrfCookie(value: string | null) {
   document.cookie =
@@ -93,22 +34,46 @@ async function expectRejection(promise: Promise<unknown>) {
   );
 }
 
-function trace() {
-  return requests.map((request) => `${request.method} ${request.path}`);
-}
-
 describe('fetcher', () => {
   beforeEach(() => {
-    requests.length = 0;
+    requests.reset();
     expiredTokenResponses = 0;
     csrfCookieStatus = 200;
     setXsrfCookie('token-from-cookie');
+
+    server.use(
+      http.all(apiUrl('/api/things'), () => {
+        if (expiredTokenResponses > 0) {
+          expiredTokenResponses -= 1;
+
+          return HttpResponse.json(
+            { message: 'CSRF token mismatch.' },
+            { status: 419 }
+          );
+        }
+
+        return HttpResponse.json({ ok: true });
+      }),
+      http.all(apiUrl('/api/broken'), () =>
+        HttpResponse.json({ message: 'Server error' }, { status: 500 })
+      ),
+      http.all(apiUrl('/sanctum/csrf-cookie'), () => {
+        if (csrfCookieStatus !== 200) {
+          return HttpResponse.json(
+            { message: 'CSRF token mismatch.' },
+            { status: csrfCookieStatus }
+          );
+        }
+
+        return new HttpResponse(null, { status: 204 });
+      })
+    );
   });
 
   it('asks for JSON on every request', async () => {
     await fetcher('/api/things');
 
-    expect(requests[0]?.headers.accept).toBe('application/json');
+    expect((await requests.at(0)).headers.accept).toBe('application/json');
   });
 
   it('attaches the CSRF header on requests that alter server state', async () => {
@@ -123,17 +88,19 @@ describe('fetcher', () => {
       await fetcher('/api/things', { method });
     }
 
-    expect(requests).toHaveLength(methods.length);
+    expect(requests.count()).toBe(methods.length);
 
-    for (const request of requests) {
-      expect(request.headers['x-xsrf-token']).toBe('token-from-cookie');
+    for (let index = 0; index < methods.length; index += 1) {
+      expect((await requests.at(index)).headers['x-xsrf-token']).toBe(
+        'token-from-cookie'
+      );
     }
   });
 
   it('omits the CSRF header on reads', async () => {
     await fetcher('/api/things');
 
-    expect(requests[0]?.headers['x-xsrf-token']).toBeUndefined();
+    expect((await requests.at(0)).headers['x-xsrf-token']).toBeUndefined();
   });
 
   it('omits the CSRF header when no token cookie has been issued', async () => {
@@ -141,14 +108,16 @@ describe('fetcher', () => {
 
     await fetcher('/api/things', { method: 'POST' });
 
-    expect(requests[0]?.headers['x-xsrf-token']).toBeUndefined();
+    expect((await requests.at(0)).headers['x-xsrf-token']).toBeUndefined();
   });
 
   it('sends the caller method and body through unchanged', async () => {
     await fetcher('/api/things', { method: 'POST', body: { name: 'Mihailo' } });
 
-    expect(requests[0]?.method).toBe('POST');
-    expect(requests[0]?.body).toEqual({ name: 'Mihailo' });
+    const request = await requests.at(0);
+
+    expect(request.method).toBe('POST');
+    expect(request.body).toEqual({ name: 'Mihailo' });
   });
 
   it('keeps caller headers but never lets them displace its own', async () => {
@@ -157,8 +126,10 @@ describe('fetcher', () => {
       headers: { 'X-Custom': 'kept', Accept: 'text/html' }
     });
 
-    expect(requests[0]?.headers['x-custom']).toBe('kept');
-    expect(requests[0]?.headers.accept).toBe('application/json');
+    const request = await requests.at(0);
+
+    expect(request.headers['x-custom']).toBe('kept');
+    expect(request.headers.accept).toBe('application/json');
   });
 
   it('returns the response body', async () => {
@@ -171,7 +142,7 @@ describe('fetcher', () => {
     const result = await fetcher('/api/things', { method: 'PUT' });
 
     expect(result).toEqual({ ok: true });
-    expect(trace()).toEqual([
+    expect(requests.trace()).toEqual([
       'PUT /api/things',
       'GET /sanctum/csrf-cookie',
       'PUT /api/things'
@@ -187,7 +158,7 @@ describe('fetcher', () => {
 
     expect(error.statusCode).toBe(419);
     // * Two attempts and a single re-prime — the recovery never loops.
-    expect(trace()).toEqual([
+    expect(requests.trace()).toEqual([
       'POST /api/things',
       'GET /sanctum/csrf-cookie',
       'POST /api/things'
@@ -201,7 +172,7 @@ describe('fetcher', () => {
 
     expect(error.statusCode).toBe(419);
     // * One call only — re-priming the re-prime would recurse.
-    expect(trace()).toEqual(['GET /sanctum/csrf-cookie']);
+    expect(requests.trace()).toEqual(['GET /sanctum/csrf-cookie']);
   });
 
   it('lets any other failure through untouched', async () => {

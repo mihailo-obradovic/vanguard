@@ -107,7 +107,8 @@ No protected area of its own — the backend validation contracts are owned by f
 - `web/utils/_tests/labeledRules.spec.ts` — field-named copy, parameterized messages, locale switching on an open form, and the pass-through for rules it has no message for.
 - `web/_tests/regle-config.spec.ts` — the generic catalog fallbacks bare rules get, including the `requiredIf` key that would otherwise fall back to the library's hardcoded English.
 - `web/utils/_tests/handleApiError.spec.ts` — the `hideValidationToast` path that keeps a 422 inline instead of toasting it, including the fallback when a 422 carries no field errors.
-- Known gaps (recorded): the per-form Regle schemas, `useExternalErrors` watch behavior, and `FieldErrors.vue` rendering have no component tests.
+- `web/composables/_tests/useExternalErrors.spec.ts` and `useValidationErrors.spec.ts` — the bridge itself: the empty map a form binds to before anything has failed, the server errors arriving, the copy-not-share that lets Regle clear an entry without reaching back into the source, replacement on a differently-failing submit, and a getter source.
+- Known gaps (recorded): the per-form Regle schemas have no component tests — they live in pages, which stay on the live browser walk per `decisions/008`. `FieldErrors.vue` is deliberately untested (it renders `errors[0]` of a prop array and holds no logic); both decisions are recorded per-file in `operations.md`.
 
 ## Verification
 

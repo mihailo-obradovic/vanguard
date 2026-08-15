@@ -16,12 +16,12 @@ Let any authenticated user update their own name, email, and password without ad
 
 ## Inputs
 
-| Input              | Type   | Source                  | Constraints                                                              |
-| ------------------ | ------ | ----------------------- | ------------------------------------------------------------------------ |
-| `name`             | string | `PUT /api/profile` body | `sometimes`, max 255                                                     |
-| `email`            | string | body                    | `sometimes`, lowercase, valid email, max 255, unique ignoring self       |
-| `password`         | string | body                    | `sometimes`, `confirmed`, Laravel `Password::defaults()` (min 8)         |
-| `current_password` | string | body                    | `required_with:password`, must match session user's password (web guard) |
+| Input              | Type   | Source                  | Constraints                                                                   |
+| ------------------ | ------ | ----------------------- | ----------------------------------------------------------------------------- |
+| `name`             | string | `PUT /api/profile` body | `sometimes`, max 255                                                          |
+| `email`            | string | body                    | `sometimes`, lowercase, valid email, max 255, unique ignoring self            |
+| `password`         | string | body                    | `sometimes`, `confirmed`, Laravel `Password::defaults()` (8–255, feature 001) |
+| `current_password` | string | body                    | `required_with:password`, must match session user's password (web guard)      |
 
 All fields optional (`sometimes`) — partial updates are valid; `{}` is a 200 no-op. `role` is not accepted: absent from the rules and from `User`'s fillable set — sent values are silently ignored (tested).
 

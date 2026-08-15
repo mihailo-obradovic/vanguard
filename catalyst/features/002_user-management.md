@@ -20,7 +20,7 @@ Give admins full user lifecycle control — list, inspect, create (including min
 | ----------------------------- | ----------- | ------------------------------------ | ---------------------------------------------------------------------------------------------------- |
 | `name`                        | string      | `POST/PUT/PATCH /api/users[/{user}]` | required on create, `sometimes` on update; max 255                                                   |
 | `email`                       | string      | body                                 | required on create, `sometimes` on update; lowercase, valid, max 255, unique ignoring the bound user |
-| `password` (+`_confirmation`) | string      | body                                 | required on create, optional on update; `confirmed`, min 8; omit key to keep current                 |
+| `password` (+`_confirmation`) | string      | body                                 | required on create, optional on update; `confirmed`, 8–255 (feature 001); omit key to keep current   |
 | `role`                        | string      | body                                 | `sometimes`; enum `user`/`admin`; create default `user`, update omission keeps current               |
 | `{user}`                      | route param | URL                                  | implicit model binding → 404 JSON on unknown id                                                      |
 

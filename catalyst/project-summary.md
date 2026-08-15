@@ -19,6 +19,7 @@ Context documents: `context/product-description.md` (`references/context-documen
 | 005 | Client Data Layer    | Active | Demonstration contract: two-layer `services` → `queries` composables (Pinia Colada), one fetcher, Zod response parsing, central error routing.                             | [features/005_client-data-layer.md](features/005_client-data-layer.md)       |
 | 006 | Form Validation UX   | Active | Demonstration contract: Regle rules mirror the backend, Zod validates responses only, server 422s bridge to inline field errors (no toast).                                | [features/006_form-validation-ux.md](features/006_form-validation-ux.md)     |
 | 007 | GraphQL API          | Active | Demonstration contract: a Lighthouse `/graphql` endpoint (users query + updateUser mutation) and the client wrappers that make a GraphQL call cost what a REST call costs. | [features/007_graphql-api.md](features/007_graphql-api.md)                   |
+| 008 | Email Availability   | Active | Public `GET /api/email-availability` + a debounced async Regle rule: "already taken" while typing, failing open so the backend `unique` rules stay authoritative.          | [features/008_email-availability.md](features/008_email-availability.md)     |
 
 ## Architecture Decision Record (ADR) Index
 

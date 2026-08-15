@@ -53,13 +53,52 @@ test('registration rejects a non-string name and an overlong email', function ()
     ])->assertStatus(422)->assertJsonValidationErrors(['name', 'email']);
 });
 
+// * Seven characters, not an arbitrary short string: paired with the eight-character case below it
+// * pins the minimum at exactly 8, which a five-character literal would leave free to drift to 6 or 7.
 test('registration rejects a password below the minimum length', function () {
     $this->postJson('/register', [
         'name' => 'Test User',
         'email' => 'short@example.com',
-        'password' => 'short',
-        'password_confirmation' => 'short',
+        'password' => 'shortpw',
+        'password_confirmation' => 'shortpw',
     ])->assertStatus(422)->assertJsonValidationErrors('password');
+});
+
+test('registration accepts a password of exactly the minimum length', function () {
+    $this->postJson('/register', [
+        'name' => 'Test User',
+        'email' => 'eight@example.com',
+        'password' => 'password',
+        'password_confirmation' => 'password',
+    ])->assertNoContent();
+
+    $this->assertDatabaseHas('users', ['email' => 'eight@example.com']);
+});
+
+// * bcrypt truncates past 72 bytes, so an unbounded password would be accepted and then only
+// * partly honoured. The max makes that refusal explicit rather than silent.
+test('registration rejects a password above the maximum length', function () {
+    $password = str_repeat('a', 256);
+
+    $this->postJson('/register', [
+        'name' => 'Test User',
+        'email' => 'long@example.com',
+        'password' => $password,
+        'password_confirmation' => $password,
+    ])->assertStatus(422)->assertJsonValidationErrors('password');
+});
+
+test('registration accepts a password of exactly the maximum length', function () {
+    $password = str_repeat('a', 255);
+
+    $this->postJson('/register', [
+        'name' => 'Test User',
+        'email' => 'max@example.com',
+        'password' => $password,
+        'password_confirmation' => $password,
+    ])->assertNoContent();
+
+    $this->assertDatabaseHas('users', ['email' => 'max@example.com']);
 });
 
 test('registration requires a unique email', function () {

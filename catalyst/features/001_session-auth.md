@@ -18,10 +18,10 @@ Authenticate the Nuxt SPA against the Laravel API with Sanctum's stateful cookie
 
 | Input                                          | Type       | Source                          | Constraints                                                             |
 | ---------------------------------------------- | ---------- | ------------------------------- | ----------------------------------------------------------------------- |
-| `name`, `email`, `password`(+`_confirmation`)  | strings    | `POST /register`                | name max 255; email lowercase/unique/max 255; password confirmed, min 8 |
+| `name`, `email`, `password`(+`_confirmation`)  | strings    | `POST /register`                | name max 255; email lowercase/unique/max 255; password confirmed, 8–255 |
 | `email`, `password`                            | strings    | `POST /login`                   | required; 5 attempts per email+IP, then throttled                       |
 | `email`                                        | string     | `POST /forgot-password`         | required, valid email                                                   |
-| `token`, `email`, `password`(+`_confirmation`) | strings    | `POST /reset-password`          | token required; password confirmed, min 8                               |
+| `token`, `email`, `password`(+`_confirmation`) | strings    | `POST /reset-password`          | token required; password confirmed, 8–255                               |
 | `id`, `hash` + signature                       | URL params | `GET /verify-email/{id}/{hash}` | signed URL (60 min), `throttle:6,1`, hash = sha1 of user email          |
 
 ## Outputs And Side Effects
@@ -66,6 +66,7 @@ Not role-specific — no auth endpoint is role-gated; registration cannot set a 
 
 ## Business Rules
 
+- **The password policy is stated once**, as `Password::defaults()` in `AppServiceProvider::boot()`; every rule set in features 001–003 and the GraphQL validator defers to it. Length 8–255 — the ceiling is bcrypt's 72-byte truncation made explicit — no composition rules (NIST 800-63B), plus `uncompromised()` **in production only**, so nothing else depends on Have I Been Pwned.
 - Stateful domains: `SANCTUM_STATEFUL_DOMAINS=localhost:3000,localhost:3001`; Sanctum guard `web`; sessions in the database (`SESSION_DRIVER=database`, lifetime 120 min, `SameSite=lax`, `SESSION_DOMAIN=localhost`).
 - CORS (`config/cors.php`): credentialed, origins = `FRONTEND_URL` (+ `localhost:3001` in local/testing), fails closed when `FRONTEND_URL` unset; `verify-email/*` deliberately absent (browser navigation, not XHR).
 - Same-site-lax works only because both origins share `localhost`; a cross-domain production split would need `SameSite=None; Secure`.
@@ -106,9 +107,9 @@ Not role-specific — no auth endpoint is role-gated; registration cannot set a 
 
 ## Tests
 
-- Backend: `tests/Feature/Auth/` — 37 tests: authentication (15 — login happy/invalid/required-fields/non-string password, throttle pinned at exactly five attempts, the lockout message reporting the seconds remaining, the counter clearing on a successful login, the lockout scoped to both the email and the client address, logout flushing the session and reissuing the CSRF token, authed-on-guest-route 403, current-user envelope shape, guest 401 ×2, logout), registration (7 — happy incl. default role, required trio, overlong name/uppercase email/unconfirmed password, malformed email, non-string name + overlong email, password minimum, unique email), email verification (5), password reset (10 — both happy paths incl. the new password verified and the `status` payload, empty-body 422s for both endpoints, unknown-email 422, link-request throttle, invalid token, confirmation mismatch, password minimum, and the reset link resolving to the front-end page with token and email in the query string, which also exercises the `AppServiceProvider` URL closure).
-- Frontend: `web/utils/_tests/authRedirectLogic.spec.ts` (7 cases covering every arm of the table above, the spec being the readable enumeration); `web/services/_tests/auth.api.spec.ts` (every session endpoint, including the web-route paths the stateful posture depends on); `web/services/queries/_tests/useAuthQueries.spec.ts` (the store side effects of login, register, refresh, logout); `web/stores/_tests/useAuthStore.spec.ts`; `web/utils/_tests/fetcher.spec.ts` covers the client half of the 419 recovery; `web/plugins/_tests/auth-loader.spec.ts` (5 cases: the CSRF cookie awaited before the session read, the user restored from it, an expired session and a schema-violating user each leaving nobody signed in, and an unprimeable cookie failing the boot).
-- Known gaps (recorded): untested — the server-side CSRF/419 path (Laravel skips CSRF in tests), verification-resend throttle, `remember` flag; **session-id rotation itself is untestable here** — a test request carries no session cookie, so the id differs before and after any request and an id comparison passes no matter what the controller does (two such tests were removed in the mutation audit; login's rotation is `SessionGuard::updateSession()`'s doing, not the controller's); hardcoded dev credentials in `LoginDialog.vue` (intentional, kept for local development). Note: the unknown-email 422 asserts the current enumeration-friendly behavior — hardening it is a product decision, not a test gap.
+- Backend: `tests/Feature/Auth/` — 44 tests (authentication 17, registration 10, password reset 12, email verification 5). The ones pinning a decision rather than a happy path: the throttle firing at exactly five attempts, its message reporting the seconds left, its counter clearing on success, its scope covering email _and_ client address; logout flushing the session and reissuing the CSRF token; a guest-route request while authenticated returning 403, not a redirect; mixed-case sign-in accepted (no `lowercase` on the read path); the password-length bounds at 7/8 and 256/255; the reset link resolving to the front-end page (also exercising the `AppServiceProvider` URL closure).
+- Frontend: `authRedirectLogic.spec.ts` (7 cases, one per arm of the redirect table above — the spec is the readable enumeration); `auth.api.spec.ts` (every session endpoint, web-route paths included, since the stateful posture depends on them); `useAuthQueries.spec.ts` (store side effects of login, register, refresh, logout); `useAuthStore.spec.ts`; `fetcher.spec.ts` (the client half of the 419 recovery); `auth-loader.spec.ts` (5 cases: boot ordering, and each way priming leaves nobody signed in); the auth dialogs' specs.
+- Known gaps (recorded): untested — the server-side CSRF/419 path (Laravel skips CSRF in tests), verification-resend throttle, `remember` flag; **the production-only `uncompromised()` arm** (testing it means calling Have I Been Pwned from the suite); **session-id rotation itself is untestable here** — a test request carries no session cookie, so the id differs before and after any request and the comparison passes whatever the controller does (two such tests were removed in the mutation audit; login's rotation is `SessionGuard::updateSession()`'s, not the controller's); hardcoded dev credentials in `LoginDialog.vue` (intentional, kept for local development). Note: the unknown-email 422 asserts the current enumeration-friendly behavior — hardening it is a product decision, not a test gap.
 
 ## Verification
 
@@ -119,6 +120,8 @@ B3 (2026-08-02): `GET /api/user` moved to the `UserResource` envelope (backend +
 2026-08-12: authenticated requests to guest routes now return 403 JSON (`redirectUsersTo(abort(403))` in `bootstrap/app.php`), closing the recorded 302-to-`/` edge case — 38 tests green.
 
 2026-08-15, the auth dialogs' own specs: 25 sabotage-proven cases. Writing them exposed a hardcoded English hint in `ForgotPasswordDialog` (`auth.forgotPassword.hint` was in every catalog, never wired), so a Serbian visitor read it in English. Walked live: signed out, opened login → forgot-password, hint rendered in Cyrillic. Detail in `operations.md`.
+
+2026-08-15, merged from master: the password policy now lives in `Password::defaults()`, and login/forgot/reset gained `max:255` on email — 122 backend tests green. The client-side mirrors still need porting to this branch's dialogs.
 
 ## Agent Change Rules
 

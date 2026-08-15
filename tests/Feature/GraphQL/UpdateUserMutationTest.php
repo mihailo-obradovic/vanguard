@@ -139,8 +139,8 @@ test('a password below the minimum length is rejected', function () {
     $this->actingAs($admin)
         ->graphQL(UPDATE_USER, [
             'id' => $user->id,
-            'password' => 'short',
-            'password_confirmation' => 'short',
+            'password' => 'shortpw',
+            'password_confirmation' => 'shortpw',
         ])
         ->assertGraphQLValidationKeys(['password'])
         ->assertJsonPath('errors.0.extensions.status', 422);

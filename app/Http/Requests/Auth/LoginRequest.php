@@ -28,7 +28,10 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
+            // ! No `lowercase` here, unlike the endpoints that write a user: the column collates
+            // ! case-insensitively, so a mixed-case address signs in today and rejecting it would
+            // ! lock out existing users. `max:255` matches the column and bounds the throttle key.
+            'email' => ['required', 'string', 'email', 'max:255'],
             'password' => ['required', 'string'],
         ];
     }

@@ -5,6 +5,8 @@ import type { RegleRuleDefinition, RegleRuleRaw } from '@regle/core';
 // * Message key per declared rule name; `requiredIf` reuses the required copy. Rules absent here (custom or exotic ones) keep the message they already carry.
 const MESSAGE_KEYS: Record<string, string> = {
   email: 'validation.field.email',
+  emailAvailable: 'validation.field.emailTaken',
+  lowercase: 'validation.field.lowercase',
   maxLength: 'validation.field.maxLength',
   minLength: 'validation.field.minLength',
   required: 'validation.field.required',

@@ -40,7 +40,7 @@
     />
 
     <LinkButton @click="handleLogInClick">
-      Already have an account? Log in
+      {{ $t('auth.register.haveAccount') }} {{ $t('auth.loginLink') }}
     </LinkButton>
   </CardDialog>
 </template>

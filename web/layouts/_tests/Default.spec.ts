@@ -141,7 +141,7 @@ describe('the default layout', () => {
       await screen.findByText('Welcome Back');
 
       await fireEvent.click(
-        screen.getByRole('button', { name: /Don't have an account\? Register/ })
+        screen.getByRole('button', { name: /Register here/ })
       );
 
       expect(await screen.findByText('Create Account')).toBeTruthy();
@@ -154,7 +154,7 @@ describe('the default layout', () => {
       await screen.findByText('Welcome Back');
 
       await fireEvent.click(
-        screen.getByRole('button', { name: /Forgot password\?/ })
+        screen.getByRole('button', { name: /Forgot your password\?/ })
       );
 
       expect(await screen.findByText('Forgot Password')).toBeTruthy();

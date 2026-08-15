@@ -25,11 +25,11 @@
 
     <GapContainer column gap="1">
       <LinkButton @click="handleForgotPasswordClick">
-        Forgot password?
+        {{ $t('auth.login.forgotPasswordLink') }}
       </LinkButton>
 
       <LinkButton @click="handleRegisterClick">
-        Don't have an account? Register
+        {{ $t('auth.login.noAccount') }} {{ $t('auth.login.registerLink') }}
       </LinkButton>
     </GapContainer>
   </CardDialog>

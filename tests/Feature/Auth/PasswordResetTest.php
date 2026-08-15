@@ -23,6 +23,23 @@ test('a reset link request requires an email', function () {
         ->assertJsonValidationErrors('email');
 });
 
+// * 264 characters and structurally valid, so only max:255 can reject it — the same bound the
+// * register and user-management endpoints already enforced.
+test('a reset link request rejects an overlong email', function () {
+    $this->postJson('/forgot-password', [
+        'email' => str_repeat('a', 60).'@'.str_repeat('b.', 100).'com',
+    ])->assertStatus(422)->assertJsonValidationErrors('email');
+});
+
+test('a reset rejects an overlong email', function () {
+    $this->postJson('/reset-password', [
+        'token' => 'some-token',
+        'email' => str_repeat('a', 60).'@'.str_repeat('b.', 100).'com',
+        'password' => 'new-password',
+        'password_confirmation' => 'new-password',
+    ])->assertStatus(422)->assertJsonValidationErrors('email');
+});
+
 test('a reset requires a token, an email, and a password', function () {
     $this->postJson('/reset-password', [])
         ->assertStatus(422)
@@ -113,8 +130,8 @@ test('a reset rejects a password below the minimum length', function () {
         $this->postJson('/reset-password', [
             'token' => $notification->token,
             'email' => $user->email,
-            'password' => 'short',
-            'password_confirmation' => 'short',
+            'password' => 'shortpw',
+            'password_confirmation' => 'shortpw',
         ])->assertStatus(422)->assertJsonValidationErrors('password');
 
         return true;

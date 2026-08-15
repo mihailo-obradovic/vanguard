@@ -114,8 +114,8 @@ test('a password change rejects a password below the minimum length', function (
     $this->actingAs($user)
         ->putJson('/api/profile', [
             'current_password' => 'password',
-            'password' => 'short',
-            'password_confirmation' => 'short',
+            'password' => 'shortpw',
+            'password_confirmation' => 'shortpw',
         ])
         ->assertStatus(422)
         ->assertJsonValidationErrors('password');

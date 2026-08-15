@@ -162,8 +162,8 @@ test('creating a user rejects a password below the minimum length', function () 
         ->postJson('/api/users', [
             'name' => 'Short Password',
             'email' => 'short@example.com',
-            'password' => 'short',
-            'password_confirmation' => 'short',
+            'password' => 'shortpw',
+            'password_confirmation' => 'shortpw',
         ])
         ->assertStatus(422)
         ->assertJsonValidationErrors('password');
@@ -175,8 +175,22 @@ test('updating a user rejects a password below the minimum length', function () 
 
     $this->actingAs($admin)
         ->putJson("/api/users/{$user->id}", [
-            'password' => 'short',
-            'password_confirmation' => 'short',
+            'password' => 'shortpw',
+            'password_confirmation' => 'shortpw',
+        ])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors('password');
+});
+
+test('updating a user rejects a password above the maximum length', function () {
+    $admin = User::factory()->admin()->create();
+    $user = User::factory()->create();
+    $password = str_repeat('a', 256);
+
+    $this->actingAs($admin)
+        ->putJson("/api/users/{$user->id}", [
+            'password' => $password,
+            'password_confirmation' => $password,
         ])
         ->assertStatus(422)
         ->assertJsonValidationErrors('password');

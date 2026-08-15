@@ -147,6 +147,7 @@
       "title": "Potvrda brisanja",
       "warning": "Ova radnja se ne može poništiti."
     },
+    "empty": "Nema korisnika.",
     "form": {
       "editTitle": "Izmeni korisnika",
       "passwordConfirmationHint": "(obavezno pri promeni lozinke)",

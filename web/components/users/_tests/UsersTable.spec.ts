@@ -119,6 +119,29 @@ describe('UsersTable', () => {
 
     expect(screen.queryByRole('progressbar')).toBeNull();
   });
+
+  it('stands in skeleton rows for the data while the first load is in flight', async () => {
+    await renderTable({ users: [], loading: true });
+
+    expect(
+      document.querySelectorAll('.v-skeleton-loader').length
+    ).toBeGreaterThan(0);
+    expect(screen.queryByText('No users found.')).toBeNull();
+  });
+
+  it('shows the rows, not skeletons, once loading ends', async () => {
+    await renderTable();
+
+    expect(document.querySelector('.v-skeleton-loader')).toBeNull();
+    expect(rowFor('Ana').getByText('ana@example.com')).toBeTruthy();
+  });
+
+  it('says so when there are no users at all', async () => {
+    await renderTable({ users: [] });
+
+    expect(screen.getByText('No users found.')).toBeTruthy();
+    expect(document.querySelector('.v-skeleton-loader')).toBeNull();
+  });
 });
 
 // ! The table caps its own height at the space left below it (`useElementBounding` plus the

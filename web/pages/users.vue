@@ -1,47 +1,44 @@
 <template>
-  <LoadingSpinner v-if="isPending" :model-value="true" fill-height />
+  <GapContainer class="justify-space-between align-center mb-4">
+    <h1>{{ $t('common.nav.users') }}</h1>
 
-  <template v-else>
-    <GapContainer class="justify-space-between align-center mb-4">
-      <h1>{{ $t('common.nav.users') }}</h1>
+    <v-btn
+      color="primary"
+      :prepend-icon="mdiAccountPlus"
+      @click="openCreateForm"
+    >
+      {{ $t('users.create') }}
+    </v-btn>
+  </GapContainer>
 
-      <v-btn
-        color="primary"
-        :prepend-icon="mdiAccountPlus"
-        @click="openCreateForm"
-      >
-        {{ $t('users.create') }}
-      </v-btn>
-    </GapContainer>
+  <UsersTable
+    :users="users"
+    :loading="isPending"
+    :deleting-id="deletingUserId"
+    :current-user-id="currentUser?.id ?? null"
+    @edit="openEditForm"
+    @delete="confirmDelete"
+  />
 
-    <UsersTable
-      :users="users"
-      :deleting-id="deletingUserId"
-      :current-user-id="currentUser?.id ?? null"
-      @edit="openEditForm"
-      @delete="confirmDelete"
-    />
+  <UserFormDialog
+    v-model="showUserForm"
+    :edit-mode="isEditMode"
+    :user="editingUser"
+    :loading="isSubmittingUser"
+    :server-errors="userFormErrors"
+    @confirm="handleSubmitUser"
+  />
 
-    <UserFormDialog
-      v-model="showUserForm"
-      :edit-mode="isEditMode"
-      :user="editingUser"
-      :loading="isSubmittingUser"
-      :server-errors="userFormErrors"
-      @confirm="handleSubmitUser"
-    />
-
-    <ConfirmDialog
-      v-model="showDeleteDialog"
-      :title="$t('users.delete.title')"
-      :message="deleteMessage"
-      :loading="isDeleting"
-      destructive
-      @cancel="cancelDelete"
-      @confirm="handleDelete"
-      @after-leave="handleDeleteDialogAfterLeave"
-    />
-  </template>
+  <ConfirmDialog
+    v-model="showDeleteDialog"
+    :title="$t('users.delete.title')"
+    :message="deleteMessage"
+    :loading="isDeleting"
+    destructive
+    @cancel="cancelDelete"
+    @confirm="handleDelete"
+    @after-leave="handleDeleteDialogAfterLeave"
+  />
 </template>
 
 <script setup lang="ts">

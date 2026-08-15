@@ -13,46 +13,65 @@
         </tr>
       </thead>
 
-      <tbody>
-        <tr v-for="user in users" :key="user.id">
-          <td>{{ user.id }}</td>
-          <td>{{ user.name }}</td>
-          <td>{{ user.email }}</td>
-          <td>
-            <v-chip
-              :color="user.role === 'admin' ? 'primary' : 'secondary'"
-              variant="flat"
-              size="small"
-            >
-              {{ $t(`users.roles.${user.role}`) }}
-            </v-chip>
-          </td>
-          <td class="text-right">
-            <v-btn
-              :aria-label="$t('users.actions.edit', { name: user.name })"
-              icon
-              variant="text"
-              color="primary"
-              size="small"
-              @click="emit('edit', user)"
-            >
-              <v-icon :icon="mdiPencil" />
-            </v-btn>
+      <tbody :aria-busy="loading || undefined">
+        <!-- * First-load skeleton: placeholder rows keep the header and column layout in place (`isPending` upstream). aria-hidden — aria-busy on the tbody already tells AT the region is loading. -->
+        <template v-if="loading">
+          <tr v-for="row in 6" :key="row" aria-hidden="true">
+            <td v-for="column in 4" :key="column">
+              <v-skeleton-loader type="text" />
+            </td>
 
-            <v-btn
-              v-if="deletable && user.id !== currentUserId"
-              :aria-label="$t('users.actions.delete', { name: user.name })"
-              icon
-              variant="text"
-              color="error"
-              size="small"
-              :loading="deletingId === user.id"
-              @click="emit('delete', user)"
-            >
-              <v-icon :icon="mdiDelete" />
-            </v-btn>
+            <td />
+          </tr>
+        </template>
+
+        <tr v-else-if="users.length === 0">
+          <td colspan="5" class="text-center text-medium-emphasis py-8">
+            {{ $t('users.empty') }}
           </td>
         </tr>
+
+        <template v-else>
+          <tr v-for="user in users" :key="user.id">
+            <td>{{ user.id }}</td>
+            <td>{{ user.name }}</td>
+            <td>{{ user.email }}</td>
+            <td>
+              <v-chip
+                :color="user.role === 'admin' ? 'primary' : 'secondary'"
+                variant="flat"
+                size="small"
+              >
+                {{ $t(`users.roles.${user.role}`) }}
+              </v-chip>
+            </td>
+            <td class="text-right">
+              <v-btn
+                :aria-label="$t('users.actions.edit', { name: user.name })"
+                icon
+                variant="text"
+                color="primary"
+                size="small"
+                @click="emit('edit', user)"
+              >
+                <v-icon :icon="mdiPencil" />
+              </v-btn>
+
+              <v-btn
+                v-if="deletable && user.id !== currentUserId"
+                :aria-label="$t('users.actions.delete', { name: user.name })"
+                icon
+                variant="text"
+                color="error"
+                size="small"
+                :loading="deletingId === user.id"
+                @click="emit('delete', user)"
+              >
+                <v-icon :icon="mdiDelete" />
+              </v-btn>
+            </td>
+          </tr>
+        </template>
       </tbody>
     </v-table>
   </GapContainer>
@@ -75,11 +94,14 @@ withDefaults(
     currentUserId?: number | null;
     // * Off for transports that expose no delete operation, e.g. the GraphQL demo.
     deletable?: boolean;
+    // * First load in flight — renders skeleton rows in place of data.
+    loading?: boolean;
   }>(),
   {
     deletingId: null,
     currentUserId: null,
-    deletable: true
+    deletable: true,
+    loading: false
   }
 );
 

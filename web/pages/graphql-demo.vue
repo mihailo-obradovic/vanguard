@@ -1,26 +1,27 @@
 <template>
-  <LoadingSpinner v-if="isPending" :model-value="true" fill-height />
+  <GapContainer column class="mb-4">
+    <h1>{{ $t('graphqlDemo.title') }}</h1>
 
-  <template v-else>
-    <GapContainer column class="mb-4">
-      <h1>{{ $t('graphqlDemo.title') }}</h1>
+    <p class="text-medium-emphasis text-body-2">
+      {{ $t('graphqlDemo.intro') }}
+    </p>
+  </GapContainer>
 
-      <p class="text-medium-emphasis text-body-2">
-        {{ $t('graphqlDemo.intro') }}
-      </p>
-    </GapContainer>
+  <UsersTable
+    :users="users"
+    :loading="isPending"
+    :deletable="false"
+    @edit="openEditForm"
+  />
 
-    <UsersTable :users="users" :deletable="false" @edit="openEditForm" />
-
-    <UserDetailsDialog
-      v-model="showEditForm"
-      :user="editingUser"
-      :loading="isUpdating"
-      :server-errors="formErrors"
-      @confirm="handleSubmit"
-      @after-leave="editingUser = null"
-    />
-  </template>
+  <UserDetailsDialog
+    v-model="showEditForm"
+    :user="editingUser"
+    :loading="isUpdating"
+    :server-errors="formErrors"
+    @confirm="handleSubmit"
+    @after-leave="editingUser = null"
+  />
 </template>
 
 <script setup lang="ts">

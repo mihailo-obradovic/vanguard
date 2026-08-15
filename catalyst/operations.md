@@ -72,11 +72,11 @@ pnpm dev            # SPA alone (localhost:3000)
 php artisan test && pnpm test   # both suites
 composer test:coverage          # backend coverage (sets XDEBUG_MODE=coverage; needs the Xdebug extension)
 pnpm test:coverage              # frontend coverage (text + html + lcov into coverage/, gitignored)
-XDEBUG_MODE=coverage vendor/bin/pest --mutate --everything --covered-only   # backend mutation audit (below)
-pnpm test:mutation              # frontend mutation audit (below)
+composer test:mutation          # backend mutation audit (below)
+pnpm test:mutation              # frontend mutation audit (below; preflight-checked)
 ```
 
-Mutation audit (ADR 009; run after a test-writing push, not on a schedule): the command above mutates `app/` (Pest's built-in mutation testing; `--everything` because classes carry no `covers()` annotations, `--covered-only` to skip mutations no test executes) and reruns the covering tests per mutant. **Do not add `--parallel`** — mutant processes share the `vanguard_testing` database and would trample each other. Every listed _untested_ mutation is a change no test noticed — fix the test it exposes or record here why the mutant is acceptable. Score is a measurement, never a gate.
+Mutation audit (ADR 009; run after a test-writing push, not on a schedule): `composer test:mutation` mutates `app/` (Pest's built-in mutation testing; `--everything` because classes carry no `covers()` annotations, `--covered-only` to skip mutations no test executes) and reruns the covering tests per mutant. **Do not add `--parallel`** — mutant processes share the `vanguard_testing` database and would trample each other. Every listed _untested_ mutation is a change no test noticed — fix the test it exposes or record here why the mutant is acceptable. Score is a measurement, never a gate.
 
 First audit (2026-08-13): 60.69% baseline → 70.61% (262 mutations, 77 surviving). Second audit (2026-08-13), re-reading that triage with the intent to kill rather than to accept: **82.06%** (262 mutations, 47 surviving). Thirty mutants fell to twenty tests, and two of the survivors turned out to be worse than missing assertions — see below.
 
@@ -103,6 +103,10 @@ Two things about `.vue` in particular:
 
 - **Stryker mutates only the `<script>` block.** Template logic is never mutated, so a component whose branching lives in the template — `UsersTable`'s `v-if="deletable && user.id !== currentUserId"`, for instance — scores on its script alone and can read as 0% while being thoroughly tested. The same fact is why several components yield no mutants at all: `SkipLink` and `Empty.vue` have no script, `TheFooter` derives one constant, master's `Default.vue` is three lines of composable calls, and master's `FieldErrors` keeps its whole behaviour — `errors[0] ?? ''` — in its template behind a type-only `defineProps`. Read a `.vue` score as a statement about its script, not about the component.
 - **Compiler macros must be excluded from instrumentation where they are used.** Stryker declares its coverage helpers locally inside the script block, and `withDefaults(defineProps<…>(), { … })` and `defineModel(…, { … })` are hoisted out of `setup()` — referencing the helpers from there is a `@vue/compiler-sfc` compile error, not a warning, and it fails the whole dry run with a message that names only the first file it hit. Every affected component therefore carries a `// Stryker disable all` / `// Stryker restore all` pair around its macro block; the prop defaults and model options inside go unmutated as a result. Fourteen components need it on `variant/vuetify`. `master` needs none — its components predate the Vuetify rewrite and use neither macro form, carrying only a type-only `defineProps` that has nothing to instrument. Do not drop those pairs when merging in either direction.
+
+`pnpm test:mutation` runs `scripts/preflight-mutation.mjs` before Stryker. It exists because the two ways this run breaks both report something unrelated to the cause: a missing `.nuxt/tsconfig.app.json` surfaces as a bare "No tests were found", and a `node_modules/.modules.yaml` pointing into the sandbox surfaces as every later pnpm command demanding to purge `node_modules`. The preflight names each one and prints the fix. Both branches of it were proven by breaking the tree on purpose, not by reading the code.
+
+One more trap, which no preflight can catch: **a crashed run still leaves the previous report in place**, and piping the command to something like `tail` hides the non-zero exit. The tell is a rerun that reproduces the previous score exactly — check `reports/mutation/frontend.json`'s modification time before believing it.
 
 Four config choices are load-bearing and easy to undo by accident:
 

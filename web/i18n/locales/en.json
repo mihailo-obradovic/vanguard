@@ -74,6 +74,8 @@
       "logoutPending": "Logging out...",
       "profile": "Profile",
       "register": "Register",
+      "toggleMenu": "Toggle navigation",
+      "toggleTheme": "Toggle dark mode",
       "users": "Users"
     },
     "notAvailable": "N/A",

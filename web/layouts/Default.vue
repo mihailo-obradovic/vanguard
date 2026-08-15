@@ -4,9 +4,12 @@
 
     <v-app-bar color="primary" class="px-2">
       <template #prepend>
-        <v-app-bar-nav-icon @click="toggleDrawer" />
+        <v-app-bar-nav-icon
+          :aria-label="$t('common.nav.toggleMenu')"
+          @click="toggleDrawer"
+        />
 
-        <v-btn icon to="/" class="ms-2">
+        <v-btn :aria-label="$t('common.nav.home')" icon to="/" class="ms-2">
           <v-icon :icon="mdiHome" />
         </v-btn>
       </template>
@@ -18,7 +21,11 @@
       <div class="d-flex align-center pa-2 ga-2">
         <LocaleSwitcher />
 
-        <v-btn icon @click="toggleTheme">
+        <v-btn
+          :aria-label="$t('common.nav.toggleTheme')"
+          icon
+          @click="toggleTheme"
+        >
           <v-icon
             :icon="isDark ? mdiMoonWaxingCrescent : mdiWhiteBalanceSunny"
           />

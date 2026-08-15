@@ -8,9 +8,7 @@
     @confirm="handleConfirm"
     @after-leave="handleAfterLeave"
   >
-    <p class="mb-4 text-body-2">
-      A link for resetting your password will be sent to your email.
-    </p>
+    <p class="mb-4 text-body-2">{{ $t('auth.forgotPassword.hint') }}</p>
 
     <v-text-field
       v-model="form.email"

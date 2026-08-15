@@ -1,5 +1,12 @@
 <template>
-  <LoadingSpinner v-if="!user" :model-value="true" fill-height />
+  <!-- * Only reachable when session priming failed to produce a user — a skeleton in UserCard's footprint, not a bare spinner, so the page keeps its shape. -->
+  <v-row v-if="!user" no-gutters>
+    <v-col cols="12" md="6">
+      <v-sheet class="pa-4 rounded-lg" elevation="1">
+        <v-skeleton-loader type="heading, text@2, chip" />
+      </v-sheet>
+    </v-col>
+  </v-row>
 
   <UserCard
     v-else

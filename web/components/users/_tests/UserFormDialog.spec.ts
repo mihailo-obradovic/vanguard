@@ -2,6 +2,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { renderSuspended } from '@nuxt/test-utils/runtime';
 import { screen, fireEvent, cleanup, waitFor } from '@testing-library/vue';
+import { flushPromises } from '@vue/test-utils';
 import { createVuetify } from 'vuetify';
 import { defineComponent, nextTick, reactive } from 'vue';
 
@@ -92,6 +93,10 @@ async function close() {
 
 function field(label: RegExp) {
   return screen.getByLabelText(label) as HTMLInputElement;
+}
+
+function confirmButton() {
+  return screen.getByRole('button', { name: 'Confirm' }) as HTMLButtonElement;
 }
 
 describe('UserFormDialog', () => {
@@ -208,17 +213,23 @@ describe('UserFormDialog', () => {
     });
   });
 
-  it('keeps an incomplete form to itself', async () => {
+  // ! An incomplete form is refused by disabling the confirmation rather than by validating on
+  // ! submit, so there is nothing to press and no message to read — the button is the whole signal.
+  it('offers no way to confirm an incomplete form', async () => {
     await renderOwner();
     await open();
 
     await fireEvent.update(field(/^Name$/), 'Bob');
-    await fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+    await flushPromises();
 
-    await waitFor(() =>
-      expect(screen.getAllByRole('alert').length).toBeGreaterThan(0)
-    );
-    expect(confirmed).toHaveLength(0);
+    expect(confirmButton().disabled).toBe(true);
+
+    await fireEvent.update(field(/^Email$/), 'bob@example.com');
+    await fireEvent.update(field(/^Password$/), 'hunter2hunter2');
+    await fireEvent.update(field(/^Password Confirmation$/), 'hunter2hunter2');
+    await flushPromises();
+
+    expect(confirmButton().disabled).toBe(false);
   });
 
   // ! Create requires a password; edit only validates one the user actually typed. The rules are a
@@ -243,11 +254,9 @@ describe('UserFormDialog', () => {
     await open({ editMode: true, user: ANA });
 
     await fireEvent.update(field(/^New password/), 'hunter2hunter2');
-    await fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+    await flushPromises();
 
-    await waitFor(() =>
-      expect(screen.getAllByRole('alert').length).toBeGreaterThan(0)
-    );
+    expect(confirmButton().disabled).toBe(true);
     expect(confirmed).toHaveLength(0);
   });
 });

@@ -154,9 +154,9 @@ describe('UserDetailsDialog', () => {
     await fireEvent.update(field(/^Email$/), 'not-an-email');
     await fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
 
-    await waitFor(() =>
-      expect(screen.getAllByRole('alert').length).toBeGreaterThan(0)
-    );
+    expect(
+      await screen.findByText('Please enter a valid email address.')
+    ).toBeTruthy();
     expect(confirmed).toHaveLength(0);
   });
 

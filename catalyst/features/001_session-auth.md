@@ -18,10 +18,10 @@ Authenticate the Nuxt SPA against the Laravel API with Sanctum's stateful cookie
 
 | Input                                          | Type       | Source                          | Constraints                                                             |
 | ---------------------------------------------- | ---------- | ------------------------------- | ----------------------------------------------------------------------- |
-| `name`, `email`, `password`(+`_confirmation`)  | strings    | `POST /register`                | name max 255; email lowercase/unique/max 255; password confirmed, min 8 |
+| `name`, `email`, `password`(+`_confirmation`)  | strings    | `POST /register`                | name max 255; email lowercase/unique/max 255; password confirmed, 8–255 |
 | `email`, `password`                            | strings    | `POST /login`                   | required; 5 attempts per email+IP, then throttled                       |
 | `email`                                        | string     | `POST /forgot-password`         | required, valid email                                                   |
-| `token`, `email`, `password`(+`_confirmation`) | strings    | `POST /reset-password`          | token required; password confirmed, min 8                               |
+| `token`, `email`, `password`(+`_confirmation`) | strings    | `POST /reset-password`          | token required; password confirmed, 8–255                               |
 | `id`, `hash` + signature                       | URL params | `GET /verify-email/{id}/{hash}` | signed URL (60 min), `throttle:6,1`, hash = sha1 of user email          |
 
 ## Outputs And Side Effects
@@ -66,6 +66,7 @@ Not role-specific — no auth endpoint is role-gated; registration cannot set a 
 
 ## Business Rules
 
+- **The password policy is stated once**, as `Password::defaults()` in `AppServiceProvider::boot()`; every rule set in features 001–003 and the GraphQL validator defers to it. Length 8–255, no composition rules (NIST 800-63B), plus `uncompromised()` **in production only** so no test or local run depends on Have I Been Pwned. The ceiling is bcrypt's 72-byte truncation made explicit.
 - Stateful domains: `SANCTUM_STATEFUL_DOMAINS=localhost:3000,localhost:3001`; Sanctum guard `web`; sessions in the database (`SESSION_DRIVER=database`, lifetime 120 min, `SameSite=lax`, `SESSION_DOMAIN=localhost`).
 - CORS (`config/cors.php`): credentialed, origins = `FRONTEND_URL` (+ `localhost:3001` in local/testing), fails closed when `FRONTEND_URL` unset; `verify-email/*` deliberately absent (browser navigation, not XHR).
 - Same-site-lax works only because both origins share `localhost`; a cross-domain production split would need `SameSite=None; Secure`.
@@ -106,9 +107,9 @@ Not role-specific — no auth endpoint is role-gated; registration cannot set a 
 
 ## Tests
 
-- Backend: `tests/Feature/Auth/` — 38 tests: authentication (15 — login happy/invalid/required-fields/non-string password, throttle pinned at exactly five attempts, the lockout message reporting the seconds remaining, the counter clearing on a successful login, the lockout scoped to both the email and the client address, logout flushing the session and reissuing the CSRF token, authed-on-guest-route 403, current-user envelope shape, guest 401 ×2, logout), registration (7 — happy incl. default role, required trio, overlong name/uppercase email/unconfirmed password, malformed email, non-string name + overlong email, password minimum, unique email), email verification (5), password reset (11 — both happy paths incl. the new password verified and the `status` payload, empty-body 422s for both endpoints, unknown-email 422, link-request throttle, invalid token, confirmation mismatch, password minimum, and the reset link resolving to the front-end page, which also exercises the `AppServiceProvider` URL closure).
+- Backend: `tests/Feature/Auth/` — 44 tests. The cases worth naming, because they pin a decision rather than a happy path: the throttle fires at exactly five attempts, its lockout message reports the seconds remaining, its counter clears on success, and it is scoped to the email _and_ the client address; logout flushes the session and reissues the CSRF token; an authenticated request to a guest route is 403, not a redirect; mixed-case sign-in is accepted (no `lowercase` on the read path); the password-length bounds are pinned on both sides at 7/8 and 256/255; the reset link resolves to the front-end page, which also exercises the `AppServiceProvider` URL closure. Per file: authentication 17, registration 10, password reset 12, email verification 5.
 - Frontend: `web/utils/_tests/authRedirectLogic.spec.ts` (5 cases: guest redirects, reset-prefix match, authed on `/login`, default-deny, root alias); `web/services/_tests/auth.api.spec.ts` (every session endpoint, including the web-route paths the stateful posture depends on); `web/services/queries/_tests/useAuthQueries.spec.ts` (the store side effects of login, register, refresh, logout); `web/stores/_tests/useAuthStore.spec.ts`; `web/utils/_tests/fetcher.spec.ts` covers the client half of the 419 recovery; `web/plugins/_tests/auth-loader.spec.ts` (5 cases: the CSRF cookie awaited before the session read — the ordering assertion holds the priming response open, because both requests start in order either way — the user restored from the cookie, an expired session and a schema-violating user each leaving nobody signed in, and an unprimeable CSRF cookie failing the boot).
-- Known gaps (recorded): untested — the server-side CSRF/419 path (Laravel skips CSRF in tests), verification-resend throttle, `remember` flag; **session-id rotation itself is untestable here** — a test request carries no session cookie, so the id differs before and after any request and an id comparison passes no matter what the controller does (two such tests were removed in the mutation audit; login's rotation is `SessionGuard::updateSession()`'s doing, not the controller's); the auth pages themselves have no component tests; hardcoded dev credentials in `login.vue` (intentional, kept for local development). Note: the unknown-email 422 asserts the current enumeration-friendly behavior — hardening it is a product decision, not a test gap.
+- Known gaps (recorded): untested — the server-side CSRF/419 path (Laravel skips CSRF in tests), verification-resend throttle, `remember` flag; **the production-only `uncompromised()` arm** (asserting it means either calling Have I Been Pwned from the suite or reading the rule's private state; the length bounds are pinned on both sides instead); **session-id rotation itself is untestable here** — a test request carries no session cookie, so the id differs before and after any request and an id comparison passes no matter what the controller does (two such tests were removed in the mutation audit; login's rotation is `SessionGuard::updateSession()`'s doing, not the controller's); the auth pages themselves have no component tests; hardcoded dev credentials in `login.vue` (intentional, kept for local development). Note: the unknown-email 422 asserts the current enumeration-friendly behavior — hardening it is a product decision, not a test gap.
 
 ## Verification
 
@@ -117,6 +118,8 @@ Backend suite green at adoption: 36 passed including all 16 auth tests; frontend
 B3 (2026-08-02): `GET /api/user` moved to the `UserResource` envelope (backend + SPA parser + test in one change); stock example tests removed with the welcome route — 34 tests green on MySQL, `route:cache` succeeds.
 
 2026-08-12: authenticated requests to guest routes now return 403 JSON (`redirectUsersTo(abort(403))` in `bootstrap/app.php`), closing the recorded 302-to-`/` edge case — 38 tests green.
+
+2026-08-15, password policy stated in `Password::defaults()` and `max:255` added to the login/forgot/reset email rules: 122 backend tests green, both bounds now pinned on both sides — the previous tests used a five-character literal that passed under a minimum of 6 or 7 too. A live login with `Test@Example.com` confirmed mixed-case sign-in still works, which is why the read path gets no `lowercase`.
 
 ## Agent Change Rules
 

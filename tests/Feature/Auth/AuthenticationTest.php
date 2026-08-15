@@ -20,6 +20,28 @@ test('login requires an email and a password', function () {
         ->assertJsonValidationErrors(['email', 'password']);
 });
 
+// * The address is structurally valid at 264 characters, so only max:255 can reject it. Without the
+// * bound an arbitrarily long string reaches the rate-limiter key and the credential lookup.
+test('login rejects an overlong email', function () {
+    $this->postJson('/login', [
+        'email' => str_repeat('a', 60).'@'.str_repeat('b.', 100).'com',
+        'password' => 'password',
+    ])->assertStatus(422)->assertJsonValidationErrors('email');
+});
+
+// * Mixed case must keep working: the column collates case-insensitively and the write endpoints'
+// * `lowercase` rule is deliberately absent here.
+test('login accepts an email in a different case', function () {
+    $user = User::factory()->create(['email' => 'mixed@example.com']);
+
+    $this->postJson('/login', [
+        'email' => 'Mixed@Example.com',
+        'password' => 'password',
+    ])->assertNoContent();
+
+    $this->assertAuthenticatedAs($user);
+});
+
 test('users cannot authenticate with an invalid password', function () {
     $user = User::factory()->create();
 

@@ -21,8 +21,13 @@
 <script setup lang="ts">
 import { mdiEye, mdiEyeOff } from '@mdi/js';
 
+// ! Stryker instruments this block with locally declared coverage helpers, and a compiler
+// ! macro is hoisted out of setup() — referencing them there is a compile error, not a
+// ! warning. The defaults inside go unmutated as a result (`catalyst/operations.md`).
+// Stryker disable all
 const model = defineModel<string>({ required: true });
 
 // * Bind the same `visible` model to several fields (e.g. a password and its confirmation) so toggling any one of them reveals the whole group.
 const visible = defineModel<boolean>('visible', { default: false });
+// Stryker restore all
 </script>

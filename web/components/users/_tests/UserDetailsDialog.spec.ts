@@ -87,6 +87,12 @@ function field(label: RegExp) {
   return screen.getByLabelText(label) as HTMLInputElement;
 }
 
+/** The role dropdown opens on ArrowDown — a click on the field does not reach it in happy-dom. */
+async function chooseRole(name: string) {
+  await fireEvent.keyDown(field(/^Role$/), { key: 'ArrowDown' });
+  await fireEvent.click(await screen.findByRole('option', { name }));
+}
+
 describe('UserDetailsDialog', () => {
   beforeEach(() => {
     Object.assign(owner, { open: false, user: null, serverErrors: {} });
@@ -173,6 +179,38 @@ describe('UserDetailsDialog', () => {
     expect(
       await screen.findByText('That email is already taken.')
     ).toBeTruthy();
+  });
+
+  it('offers both roles, and reports the one chosen', async () => {
+    await renderOwner();
+    await open(ANA);
+
+    await chooseRole('User');
+    await fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+
+    await waitFor(() => expect(confirmed).toHaveLength(1));
+    expect(confirmed[0]).toMatchObject({ role: 'user' });
+  });
+
+  // ! The owner sets `user` and the open flag separately, so a dialog opened before its subject
+  // ! arrives must fall back to a blank form rather than render `undefined` into the fields.
+  it('opens blank when there is no user to edit', async () => {
+    await renderOwner();
+    await open(null);
+
+    expect(field(/^Name$/).value).toBe('');
+    expect(field(/^Email$/).value).toBe('');
+  });
+
+  it('refuses a user with no name', async () => {
+    await renderOwner();
+    await open(ANA);
+
+    await fireEvent.update(field(/^Name$/), '');
+    await fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+
+    expect(await screen.findByText('This field is required.')).toBeTruthy();
+    expect(confirmed).toHaveLength(0);
   });
 });
 

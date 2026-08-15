@@ -263,4 +263,25 @@ describe('UserCard', () => {
       )
     );
   });
+
+  // ! Enter only submits while editing; in the read-only state it must do nothing at all.
+  it('does not submit on Enter while the profile is only being read', async () => {
+    const { emitted } = await renderCard();
+
+    await fireEvent.keyDown(field(/^Name$/), { key: 'Enter' });
+    await flushPromises();
+
+    expect(emitted().update).toBeUndefined();
+  });
+
+  it('refuses a profile with no name', async () => {
+    const { emitted } = await renderCard();
+    await startEditing();
+
+    await fireEvent.update(field(/^Name$/), '');
+    await fireEvent.click(button('Save'));
+
+    expect(await screen.findByText('This field is required.')).toBeTruthy();
+    expect(emitted().update).toBeUndefined();
+  });
 });

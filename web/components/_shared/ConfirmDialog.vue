@@ -15,6 +15,10 @@
 </template>
 
 <script setup lang="ts">
+// ! Stryker instruments this block with locally declared coverage helpers, and a compiler
+// ! macro is hoisted out of setup() — referencing them there is a compile error, not a
+// ! warning. The defaults inside go unmutated as a result (`catalyst/operations.md`).
+// Stryker disable all
 withDefaults(
   defineProps<{
     title?: string;
@@ -32,4 +36,5 @@ const emit = defineEmits<{
 }>();
 
 const dialog = defineModel<boolean>({ required: true });
+// Stryker restore all
 </script>

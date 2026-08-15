@@ -134,6 +134,10 @@ import { useResendEmailVerification } from '@/services/queries/useAuthQueries';
 
 import type { ProfileForm } from '@/types/user';
 
+// ! Stryker instruments this block with locally declared coverage helpers, and a compiler
+// ! macro is hoisted out of setup() — referencing them there is a compile error, not a
+// ! warning. The defaults inside go unmutated as a result (`catalyst/operations.md`).
+// Stryker disable all
 const props = withDefaults(
   defineProps<{
     loading?: boolean;
@@ -145,6 +149,7 @@ const props = withDefaults(
 const emit = defineEmits<{
   update: [form: ProfileForm];
 }>();
+// Stryker restore all
 
 const { t } = useI18n();
 

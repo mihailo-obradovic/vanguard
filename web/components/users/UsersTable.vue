@@ -64,6 +64,10 @@ import { mdiDelete, mdiPencil } from '@mdi/js';
 import type { ComponentPublicInstance } from 'vue';
 import type { User } from '@/types/auth';
 
+// ! Stryker instruments this block with locally declared coverage helpers, and a compiler
+// ! macro is hoisted out of setup() — referencing them there is a compile error, not a
+// ! warning. The defaults inside go unmutated as a result (`catalyst/operations.md`).
+// Stryker disable all
 withDefaults(
   defineProps<{
     users: User[];
@@ -83,6 +87,7 @@ const emit = defineEmits<{
   edit: [user: User];
   delete: [user: User];
 }>();
+// Stryker restore all
 
 const root = useTemplateRef<ComponentPublicInstance>('root');
 

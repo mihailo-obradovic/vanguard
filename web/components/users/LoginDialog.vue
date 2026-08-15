@@ -40,6 +40,10 @@ import { email, required } from '@regle/rules';
 
 import type { Credentials } from '@/types/auth';
 
+// ! Stryker instruments this block with locally declared coverage helpers, and a compiler
+// ! macro is hoisted out of setup() — referencing them there is a compile error, not a
+// ! warning. The defaults inside go unmutated as a result (`catalyst/operations.md`).
+// Stryker disable all
 const props = withDefaults(
   defineProps<{
     loading?: boolean;
@@ -55,6 +59,7 @@ const emit = defineEmits<{
 }>();
 
 const dialog = defineModel<boolean>({ required: true });
+// Stryker restore all
 
 const form = ref<Credentials>({
   email: 'test@example.com',

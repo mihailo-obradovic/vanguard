@@ -95,6 +95,12 @@ function field(label: RegExp) {
   return screen.getByLabelText(label) as HTMLInputElement;
 }
 
+/** The role dropdown opens on ArrowDown — a click on the field does not reach it in happy-dom. */
+async function chooseRole(name: string) {
+  await fireEvent.keyDown(field(/^Role$/), { key: 'ArrowDown' });
+  await fireEvent.click(await screen.findByRole('option', { name }));
+}
+
 function confirmButton() {
   return screen.getByRole('button', { name: 'Confirm' }) as HTMLButtonElement;
 }
@@ -258,5 +264,56 @@ describe('UserFormDialog', () => {
 
     expect(confirmButton().disabled).toBe(true);
     expect(confirmed).toHaveLength(0);
+  });
+
+  it('offers both roles, and reports the one chosen', async () => {
+    await renderOwner();
+    await open();
+
+    await fillInAValidUser();
+    await chooseRole('Admin');
+    await fireEvent.click(confirmButton());
+
+    await waitFor(() => expect(confirmed).toHaveLength(1));
+    expect(confirmed[0]).toMatchObject({ role: 'admin' });
+  });
+
+  it('masks the password again on the next opening', async () => {
+    await renderOwner();
+
+    await open();
+    await fireEvent.click(
+      screen.getAllByRole('button', { name: 'Show password' })[0]!
+    );
+    expect(field(/^Password$/).type).toBe('text');
+
+    await close();
+    await open();
+
+    expect(field(/^Password$/).type).toBe('password');
+  });
+
+  it('refuses a user with no name', async () => {
+    await renderOwner();
+    await open();
+
+    await fillInAValidUser();
+    await flushPromises();
+    expect(confirmButton().disabled).toBe(false);
+
+    await fireEvent.update(field(/^Name$/), '');
+    await flushPromises();
+
+    expect(confirmButton().disabled).toBe(true);
+  });
+
+  // ! `editMode` and `user` are set by the owner independently, so an edit whose subject has not
+  // ! arrived yet must fall back to a blank form rather than render `undefined` into the fields.
+  it('opens blank when an edit has no user yet', async () => {
+    await renderOwner();
+    await open({ editMode: true, user: null });
+
+    expect(field(/^Name$/).value).toBe('');
+    expect(field(/^Email$/).value).toBe('');
   });
 });

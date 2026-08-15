@@ -120,6 +120,13 @@ describe('UsersTable', () => {
     expect(screen.queryByRole('progressbar')).toBeNull();
   });
 
+  it('shows a progress bar over the stale rows while a refetch is in flight', async () => {
+    await renderTable({ refreshing: true });
+
+    expect(screen.getByRole('progressbar')).toBeTruthy();
+    expect(rowFor('Ana').getByText('ana@example.com')).toBeTruthy();
+  });
+
   it('stands in skeleton rows for the data while the first load is in flight', async () => {
     await renderTable({ users: [], loading: true });
 

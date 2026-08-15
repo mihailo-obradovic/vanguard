@@ -1,5 +1,19 @@
 <template>
-  <GapContainer ref="root" type="VSheet" elevation="1" class="rounded-lg">
+  <GapContainer
+    ref="root"
+    type="VSheet"
+    elevation="1"
+    class="rounded-lg position-relative"
+  >
+    <!-- * Background refetch (isLoading upstream): the stale rows stay visible, this bar is the only affordance. Absolute, so appearing costs no layout shift. -->
+    <v-progress-linear
+      v-if="refreshing"
+      indeterminate
+      absolute
+      color="primary"
+      rounded
+    />
+
     <v-table fixed-header class="w-100 users-table">
       <thead>
         <tr>
@@ -96,12 +110,15 @@ withDefaults(
     deletable?: boolean;
     // * First load in flight — renders skeleton rows in place of data.
     loading?: boolean;
+    // * Background refetch in flight over already-shown rows — shows the top progress bar.
+    refreshing?: boolean;
   }>(),
   {
     deletingId: null,
     currentUserId: null,
     deletable: true,
-    loading: false
+    loading: false,
+    refreshing: false
   }
 );
 

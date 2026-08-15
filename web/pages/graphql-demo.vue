@@ -10,6 +10,7 @@
   <UsersTable
     :users="users"
     :loading="isPending"
+    :refreshing="isLoading && !isPending"
     :deletable="false"
     @edit="openEditForm"
   />
@@ -42,8 +43,8 @@ import type { UserDetailsForm } from '@/components/users/UserDetailsDialog.vue';
 
 const { t } = useI18n();
 
-// * isPending covers only the first load — invalidation refetches keep the table mounted instead of flashing the spinner
-const { data, isPending } = useFetchUsersGql();
+// * isPending covers only the first load (skeleton rows); isLoading also spans invalidation refetches, which keep the stale rows mounted under the refresh bar
+const { data, isPending, isLoading } = useFetchUsersGql();
 
 const users = computed(() => data.value ?? []);
 

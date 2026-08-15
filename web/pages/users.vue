@@ -14,6 +14,7 @@
   <UsersTable
     :users="users"
     :loading="isPending"
+    :refreshing="isLoading && !isPending"
     :deleting-id="deletingUserId"
     :current-user-id="currentUser?.id ?? null"
     @edit="openEditForm"
@@ -61,8 +62,8 @@ const { t } = useI18n();
 
 const { user: currentUser } = storeToRefs(useAuthStore());
 
-// * isPending covers only the first load — invalidation refetches keep the table mounted instead of flashing the spinner
-const { data, isPending } = useFetchUsers();
+// * isPending covers only the first load (skeleton rows); isLoading also spans invalidation refetches, which keep the stale rows mounted under the refresh bar
+const { data, isPending, isLoading } = useFetchUsers();
 
 const users = computed(() => data.value?.data ?? []);
 

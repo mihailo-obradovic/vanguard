@@ -229,7 +229,7 @@
 </template>
 
 <script setup lang="ts">
-import { email, maxLength, required, requiredIf } from '@regle/rules';
+import { maxLength, required, requiredIf } from '@regle/rules';
 
 import {
   useRefreshUser,
@@ -290,11 +290,7 @@ const { r$ } = useRegle(
       required,
       maxLength: maxLength(255)
     }),
-    email: labeledRules('common.fields.email', {
-      required,
-      email,
-      maxLength: maxLength(255)
-    }),
+    ...accountEmailRules(() => user.value?.id),
     current_password: labeledRules('common.fields.currentPassword', {
       requiredIf: requiredIf(() => !!profileForm.value.password)
     }),

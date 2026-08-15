@@ -12,7 +12,8 @@ import {
   fetchUser,
   createUser,
   updateUser,
-  deleteUser
+  deleteUser,
+  checkEmailAvailability
 } from '../user.api';
 
 const requests = recordRequests();
@@ -131,6 +132,89 @@ describe('user.api', () => {
 
       await expect(deleteUser(7)).resolves.toBeUndefined();
       expect(requests.trace()).toEqual(['DELETE /api/users/7']);
+    });
+  });
+
+  describe('checkEmailAvailability', () => {
+    function respondWith(available: boolean) {
+      server.use(
+        http.get(apiUrl('/api/email-availability'), () =>
+          HttpResponse.json({ available })
+        )
+      );
+    }
+
+    it('reports a free address as available', async () => {
+      respondWith(true);
+
+      await expect(checkEmailAvailability('free@example.com')).resolves.toBe(
+        true
+      );
+    });
+
+    it('reports a claimed address as unavailable', async () => {
+      respondWith(false);
+
+      await expect(checkEmailAvailability('taken@example.com')).resolves.toBe(
+        false
+      );
+    });
+
+    it('sends the address as a query parameter', async () => {
+      respondWith(true);
+
+      await checkEmailAvailability('free@example.com');
+
+      const request = await requests.at(0);
+
+      expect(request.method).toBe('GET');
+      expect(request.path).toBe('/api/email-availability');
+    });
+
+    // * The parameter must be absent rather than empty when there is nobody to ignore: a blank
+    // * `ignore_id` would reach the backend's `integer` rule and 422 the whole check.
+    it('omits ignore_id when no user is being edited', async () => {
+      let requestUrl = '';
+
+      server.use(
+        http.get(apiUrl('/api/email-availability'), ({ request }) => {
+          requestUrl = request.url;
+
+          return HttpResponse.json({ available: true });
+        })
+      );
+
+      await checkEmailAvailability('free@example.com');
+
+      expect(new URL(requestUrl).searchParams.has('ignore_id')).toBe(false);
+    });
+
+    it('forwards ignore_id when a user is being edited', async () => {
+      let requestUrl = '';
+
+      server.use(
+        http.get(apiUrl('/api/email-availability'), ({ request }) => {
+          requestUrl = request.url;
+
+          return HttpResponse.json({ available: true });
+        })
+      );
+
+      await checkEmailAvailability('mine@example.com', 7);
+
+      expect(new URL(requestUrl).searchParams.get('ignore_id')).toBe('7');
+    });
+
+    it('rejects a response that does not carry the flag', async () => {
+      server.use(
+        http.get(apiUrl('/api/email-availability'), () =>
+          HttpResponse.json({ taken: false })
+        )
+      );
+
+      await expect(
+        checkEmailAvailability('free@example.com')
+      ).rejects.toBeInstanceOf(Error);
     });
   });
 });

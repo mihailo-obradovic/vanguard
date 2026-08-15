@@ -279,7 +279,7 @@
 </template>
 
 <script setup lang="ts">
-import { email, maxLength, required } from '@regle/rules';
+import { maxLength, required } from '@regle/rules';
 
 import {
   useFetchUsers,
@@ -365,11 +365,7 @@ const { r$ } = useRegle(
       required,
       maxLength: maxLength(255)
     }),
-    email: labeledRules('common.fields.email', {
-      required,
-      email,
-      maxLength: maxLength(255)
-    }),
+    ...accountEmailRules(() => editingUserId.value ?? undefined),
     ...newPasswordRules(
       () => userForm.value.password,
       () => isEditMode.value

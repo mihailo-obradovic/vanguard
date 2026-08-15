@@ -70,12 +70,41 @@ describe('newPasswordRules', () => {
       expect(await validate()).toBe(true);
     });
 
+    // * Seven and eight rather than an arbitrary short string: the pair pins the minimum where
+    // * the backend states it, so a drift to 6 or 7 fails here instead of at a user's submit.
     it('rejects a password under eight characters', async () => {
       const { form, validate } = await setupForm();
 
-      form.value = { password: 'short', password_confirmation: 'short' };
+      form.value = { password: 'shortpw', password_confirmation: 'shortpw' };
 
       expect(await validate()).toBe(false);
+    });
+
+    it('accepts a password of exactly eight characters', async () => {
+      const { form, validate } = await setupForm();
+
+      form.value = { password: 'password', password_confirmation: 'password' };
+
+      expect(await validate()).toBe(true);
+    });
+
+    // * Mirrors the backend ceiling, which exists because bcrypt truncates past 72 bytes.
+    it('rejects a password over 255 characters', async () => {
+      const { form, validate } = await setupForm();
+      const password = 'a'.repeat(256);
+
+      form.value = { password, password_confirmation: password };
+
+      expect(await validate()).toBe(false);
+    });
+
+    it('accepts a password of exactly 255 characters', async () => {
+      const { form, validate } = await setupForm();
+      const password = 'a'.repeat(255);
+
+      form.value = { password, password_confirmation: password };
+
+      expect(await validate()).toBe(true);
     });
 
     it('rejects a confirmation that does not match', async () => {
@@ -136,7 +165,7 @@ describe('newPasswordRules', () => {
     it('still enforces the length and the match', async () => {
       const { form, validate } = await setupForm(true);
 
-      form.value = { password: 'short', password_confirmation: 'short' };
+      form.value = { password: 'shortpw', password_confirmation: 'shortpw' };
 
       expect(await validate()).toBe(false);
 

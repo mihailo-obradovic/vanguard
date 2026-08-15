@@ -57,8 +57,6 @@
 </template>
 
 <script setup lang="ts">
-import { email, required } from '@regle/rules';
-
 import { useGeneratePasswordResetEmail } from '@/services/queries/useAuthQueries';
 
 const form = ref({
@@ -81,7 +79,7 @@ const {
 const { r$ } = useRegle(
   form,
   {
-    email: labeledRules('common.fields.email', { required, email })
+    ...credentialEmailRules()
   },
   { externalErrors: useExternalErrors(useValidationErrors(sendError)) }
 );

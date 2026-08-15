@@ -68,7 +68,7 @@
 </template>
 
 <script setup lang="ts">
-import { email, required } from '@regle/rules';
+import { required } from '@regle/rules';
 
 import { useLogIn } from '@/services/queries/useAuthQueries';
 
@@ -89,7 +89,7 @@ const {
 const { r$ } = useRegle(
   form,
   {
-    email: labeledRules('common.fields.email', { required, email }),
+    ...credentialEmailRules(),
     password: labeledRules('common.fields.password', { required })
   },
   { externalErrors: useExternalErrors(useValidationErrors(loginError)) }

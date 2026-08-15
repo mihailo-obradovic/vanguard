@@ -148,13 +148,17 @@
   },
   "validation": {
     "email": "Please enter a valid email address.",
+    "emailTaken": "This email address is already taken.",
     "field": {
       "email": "The {field} field must be a valid email address.",
+      "emailTaken": "The {field} field is already taken.",
+      "lowercase": "The {field} field must be lowercase.",
       "maxLength": "The {field} field must be at most {max} characters.",
       "minLength": "The {field} field must be at least {min} characters.",
       "required": "The {field} field is required.",
       "sameAs": "The {field} field does not match."
     },
+    "lowercase": "This field must be lowercase.",
     "maxLength": "This field must be at most {max} characters.",
     "minLength": "This field must be at least {min} characters.",
     "required": "This field is required.",

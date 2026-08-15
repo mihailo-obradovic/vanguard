@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 import { UserEnvelopeSchema } from '@/types/auth';
 import { UsersResponseSchema } from '@/types/user';
 
@@ -7,6 +9,9 @@ import type {
   CreateUserForm,
   UpdateUserForm
 } from '@/types/user';
+
+// * Response-only and used nowhere else, so it stays here rather than in @/types.
+const EmailAvailabilitySchema = z.object({ available: z.boolean() });
 
 export async function fetchUsers(): Promise<UsersResponse> {
   const response = await fetcher('/api/users');
@@ -39,6 +44,18 @@ export async function updateUser(
   });
 
   return parseResponse(UserEnvelopeSchema, response).data;
+}
+
+// * `ignoreId` excludes the user being edited, so keeping your own address does not read as taken.
+export async function checkEmailAvailability(
+  email: string,
+  ignoreId?: number
+): Promise<boolean> {
+  const response = await fetcher('/api/email-availability', {
+    query: { email, ...(ignoreId ? { ignore_id: ignoreId } : {}) }
+  });
+
+  return parseResponse(EmailAvailabilitySchema, response).available;
 }
 
 export async function deleteUser(id: number): Promise<void> {

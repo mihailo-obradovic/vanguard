@@ -98,7 +98,7 @@
 </template>
 
 <script setup lang="ts">
-import { email, maxLength, required } from '@regle/rules';
+import { maxLength, required } from '@regle/rules';
 
 import { useRegister } from '@/services/queries/useAuthQueries';
 
@@ -125,11 +125,7 @@ const { r$ } = useRegle(
       required,
       maxLength: maxLength(255)
     }),
-    email: labeledRules('common.fields.email', {
-      required,
-      email,
-      maxLength: maxLength(255)
-    }),
+    ...accountEmailRules(),
     ...newPasswordRules(() => form.value.password)
   },
   { externalErrors: useExternalErrors(useValidationErrors(registerError)) }

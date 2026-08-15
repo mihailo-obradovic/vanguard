@@ -24,18 +24,19 @@ Context documents: `context/product-description.md` (`references/context-documen
 
 One line per record: type, status, title, link.
 
-| ### | Type        | Status      | Decision                                                           | Document                                                                                             |
-| --- | ----------- | ----------- | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
-| 001 | init-design | Implemented | Init design — Vanguard brownfield stack                            | [decisions/001_init-design_vanguard-stack.md](decisions/001_init-design_vanguard-stack.md)           |
-| 002 | infra       | Implemented | Sanctum session-cookie auth for the SPA pairing (over token mode)  | [decisions/002_infra_sanctum-session-spa.md](decisions/002_infra_sanctum-session-spa.md)             |
-| 003 | tooling     | Implemented | oxlint + oxfmt for the frontend toolchain (over ESLint + Prettier) | [decisions/003_tooling_oxlint-oxfmt.md](decisions/003_tooling_oxlint-oxfmt.md)                       |
-| 004 | tooling     | Implemented | Hold TypeScript at 5.9.x (TS 7 unsupported by vue-tsc)             | [decisions/004_tooling_typescript-version-hold.md](decisions/004_tooling_typescript-version-hold.md) |
-| 005 | infra       | Implemented | Client-only SPA (`ssr: false`), paired with cookie-session auth    | [decisions/005_infra_spa-no-ssr.md](decisions/005_infra_spa-no-ssr.md)                               |
-| 006 | infra       | Accepted    | Adopt the i18n addon (`@nuxtjs/i18n`) with en / sr-Latn / sr-Cyrl  | [decisions/006_infra_i18n-adoption.md](decisions/006_infra_i18n-adoption.md)                         |
-| 007 | infra       | Implemented | Serve GraphQL alongside REST (Lighthouse + a fetcher-based client) | [decisions/007_infra_graphql-alongside-rest.md](decisions/007_infra_graphql-alongside-rest.md)       |
-| 008 | process     | Implemented | Testing strategy: coverage measured not gated, `_tests/` placement | [decisions/008_process_testing-strategy.md](decisions/008_process_testing-strategy.md)               |
-| 009 | process     | Implemented | Test-quality doctrine (Khorikov), MSW at the wire, mutation audits | [decisions/009_process_test-quality-doctrine.md](decisions/009_process_test-quality-doctrine.md)     |
-| 010 | ui          | Implemented | Vuetify as this branch's UI layer                                  | [decisions/010_ui_vuetify-variant.md](decisions/010_ui_vuetify-variant.md)                           |
+| ### | Type        | Status      | Decision                                                            | Document                                                                                             |
+| --- | ----------- | ----------- | ------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| 001 | init-design | Implemented | Init design — Vanguard brownfield stack                             | [decisions/001_init-design_vanguard-stack.md](decisions/001_init-design_vanguard-stack.md)           |
+| 002 | infra       | Implemented | Sanctum session-cookie auth for the SPA pairing (over token mode)   | [decisions/002_infra_sanctum-session-spa.md](decisions/002_infra_sanctum-session-spa.md)             |
+| 003 | tooling     | Implemented | oxlint + oxfmt for the frontend toolchain (over ESLint + Prettier)  | [decisions/003_tooling_oxlint-oxfmt.md](decisions/003_tooling_oxlint-oxfmt.md)                       |
+| 004 | tooling     | Implemented | Hold TypeScript at 5.9.x (TS 7 unsupported by vue-tsc)              | [decisions/004_tooling_typescript-version-hold.md](decisions/004_tooling_typescript-version-hold.md) |
+| 005 | infra       | Implemented | Client-only SPA (`ssr: false`), paired with cookie-session auth     | [decisions/005_infra_spa-no-ssr.md](decisions/005_infra_spa-no-ssr.md)                               |
+| 006 | infra       | Accepted    | Adopt the i18n addon (`@nuxtjs/i18n`) with en / sr-Latn / sr-Cyrl   | [decisions/006_infra_i18n-adoption.md](decisions/006_infra_i18n-adoption.md)                         |
+| 007 | infra       | Implemented | Serve GraphQL alongside REST (Lighthouse + a fetcher-based client)  | [decisions/007_infra_graphql-alongside-rest.md](decisions/007_infra_graphql-alongside-rest.md)       |
+| 008 | process     | Implemented | Testing strategy: coverage measured not gated, `_tests/` placement  | [decisions/008_process_testing-strategy.md](decisions/008_process_testing-strategy.md)               |
+| 009 | process     | Implemented | Test-quality doctrine (Khorikov), MSW at the wire, mutation audits  | [decisions/009_process_test-quality-doctrine.md](decisions/009_process_test-quality-doctrine.md)     |
+| 010 | ui          | Implemented | Vuetify as this branch's UI layer                                   | [decisions/010_ui_vuetify-variant.md](decisions/010_ui_vuetify-variant.md)                           |
+| 011 | process     | Proposed    | Coverage stays measured, never gated (answers 008's revisit clause) | [decisions/011_process_coverage-gates.md](decisions/011_process_coverage-gates.md)                   |
 
 ## Domain Decision Index
 

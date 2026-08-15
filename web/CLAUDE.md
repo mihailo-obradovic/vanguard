@@ -20,7 +20,7 @@ Paths below are relative to the repo root. The `catalyst/` documents are normati
 - `types/` — shared domain types and Zod schemas (`auth.ts`, `user.ts`) plus ambient declarations.
 - `utils/` — `fetcher.ts` (CSRF cookie + 419-retry), `gqlFetcher.ts` / `gql.ts` (GraphQL over the same fetcher, translating GraphQL errors into the REST-equivalent `FetchError`), `handleApiError.ts` / `setupQueryErrorHandling.ts` (central error handling), `parseResponse.ts` (Zod), `toast.ts`, `authRedirectLogic.ts`.
 
-Tests live in a `_tests/` subdirectory of the directory holding the code under test — `_tests/` (for `app.vue` and `regle-config.ts`), `utils/_tests/`, `services/_tests/`, `services/queries/_tests/`, `composables/_tests/`, `stores/_tests/`, `i18n/_tests/`, `plugins/_tests/`, `components/_shared/_tests/`, `layouts/_tests/` — one spec per source file, same base name. The API is mocked at the wire with MSW, never by stubbing the fetcher or a service module (`catalyst/stacks/frontend/nuxt/testing.md`).
+Tests live in a `_tests/` subdirectory of the directory holding the code under test — `_tests/` (for `app.vue` and `regle-config.ts`), `utils/_tests/`, `services/_tests/`, `services/queries/_tests/`, `composables/_tests/`, `stores/_tests/`, `i18n/_tests/`, `plugins/_tests/`, `components/_shared/_tests/`, `components/users/_tests/`, `layouts/_tests/` — one spec per source file, same base name. The API is mocked at the wire with MSW, never by stubbing the fetcher or a service module (`catalyst/stacks/frontend/nuxt/testing.md`).
 
 ## Governing documents
 

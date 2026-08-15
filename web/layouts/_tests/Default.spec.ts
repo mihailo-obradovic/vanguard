@@ -31,12 +31,23 @@ function actionNames() {
   ].map((element) => element.textContent?.trim());
 }
 
+/** The cookie the theme choice is carried to the next page load in. */
+function storedTheme() {
+  return document.cookie
+    .split('; ')
+    .find((entry) => entry.startsWith('theme='))
+    ?.split('=')[1];
+}
+
 function has(name: string) {
   return actionNames().some((label) => label === name);
 }
 
 describe('the default layout', () => {
   beforeEach(() => {
+    // ! The theme cookie outlives a test; without this the second toggle case starts from the
+    // ! first one's leftover 'dark' and reads backwards.
+    document.cookie = 'theme=; path=/; max-age=0';
     requests.reset();
     server.use(...authHandlers());
     useAuthStore().resetUser();
@@ -101,5 +112,108 @@ describe('the default layout', () => {
     await fireEvent.click(screen.getByRole('button', { name: /Logout/ }));
 
     await waitFor(() => expect(requests.trace()).toContain('POST /logout'));
+  });
+
+  // ! The three auth dialogs are mutually exclusive and each closes itself before emitting, so the
+  // ! layout's openers only raise their own flag. Nothing else proves that wiring — the dialogs
+  // ! themselves stay on the browser walk.
+  describe('the auth dialogs it owns', () => {
+    it('opens the login dialog from the app bar', async () => {
+      await renderLayout();
+
+      await fireEvent.click(screen.getByRole('button', { name: 'Login' }));
+
+      expect(await screen.findByText('Welcome Back')).toBeTruthy();
+    });
+
+    it('opens the registration dialog from the app bar', async () => {
+      await renderLayout();
+
+      await fireEvent.click(screen.getByRole('button', { name: 'Register' }));
+
+      expect(await screen.findByText('Create Account')).toBeTruthy();
+    });
+
+    it('swaps login for registration when the visitor has no account', async () => {
+      await renderLayout();
+
+      await fireEvent.click(screen.getByRole('button', { name: 'Login' }));
+      await screen.findByText('Welcome Back');
+
+      await fireEvent.click(
+        screen.getByRole('button', { name: /Register here/ })
+      );
+
+      expect(await screen.findByText('Create Account')).toBeTruthy();
+    });
+
+    it('swaps login for the reset request when the visitor forgot their password', async () => {
+      await renderLayout();
+
+      await fireEvent.click(screen.getByRole('button', { name: 'Login' }));
+      await screen.findByText('Welcome Back');
+
+      await fireEvent.click(
+        screen.getByRole('button', { name: /Forgot your password\?/ })
+      );
+
+      expect(await screen.findByText('Forgot Password')).toBeTruthy();
+    });
+
+    it('closes the login dialog once the session is established', async () => {
+      await renderLayout();
+
+      await fireEvent.click(screen.getByRole('button', { name: 'Login' }));
+      await screen.findByText('Welcome Back');
+
+      await fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+
+      await waitFor(() => expect(requests.trace()).toContain('POST /login'));
+
+      // ! By role, not by text: a closed Vuetify overlay is `v-show`n, so its markup — the title
+      // ! included — stays in the DOM and only leaves the accessibility tree.
+      await waitFor(() =>
+        expect(screen.queryByRole('button', { name: 'Confirm' })).toBeNull()
+      );
+    });
+  });
+
+  // ! Under `ssr: false` the app paints its default theme first and corrects after mount, so the
+  // ! stored preference is applied in `onMounted` and written back through a cookie — the only
+  // ! thing that carries the choice to the next page load.
+  describe('the theme it remembers', () => {
+    it('switches the theme when the toggle is pressed', async () => {
+      await renderLayout();
+
+      await fireEvent.click(
+        screen.getByRole('button', { name: 'Toggle dark mode' })
+      );
+
+      await waitFor(() => expect(storedTheme()).toBe('dark'));
+    });
+
+    it('switches back on a second press', async () => {
+      await renderLayout();
+
+      const toggle = screen.getByRole('button', { name: 'Toggle dark mode' });
+
+      await fireEvent.click(toggle);
+      await waitFor(() => expect(storedTheme()).toBe('dark'));
+
+      await fireEvent.click(toggle);
+      await waitFor(() => expect(storedTheme()).toBe('light'));
+    });
+
+    it('opens in the theme the visitor last chose', async () => {
+      document.cookie = 'theme=dark; path=/';
+
+      await renderLayout();
+
+      await waitFor(() =>
+        expect(
+          document.querySelector('.v-theme--dark, .v-application')?.className
+        ).toContain('dark')
+      );
+    });
   });
 });

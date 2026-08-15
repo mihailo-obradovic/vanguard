@@ -29,6 +29,7 @@
           </td>
           <td class="text-right">
             <v-btn
+              :aria-label="$t('users.actions.edit', { name: user.name })"
               icon
               variant="text"
               color="primary"
@@ -40,6 +41,7 @@
 
             <v-btn
               v-if="deletable && user.id !== currentUserId"
+              :aria-label="$t('users.actions.delete', { name: user.name })"
               icon
               variant="text"
               color="error"
@@ -62,6 +64,10 @@ import { mdiDelete, mdiPencil } from '@mdi/js';
 import type { ComponentPublicInstance } from 'vue';
 import type { User } from '@/types/auth';
 
+// ! Stryker instruments this block with locally declared coverage helpers, and a compiler
+// ! macro is hoisted out of setup() — referencing them there is a compile error, not a
+// ! warning. The defaults inside go unmutated as a result (`catalyst/operations.md`).
+// Stryker disable all
 withDefaults(
   defineProps<{
     users: User[];
@@ -81,6 +87,7 @@ const emit = defineEmits<{
   edit: [user: User];
   delete: [user: User];
 }>();
+// Stryker restore all
 
 const root = useTemplateRef<ComponentPublicInstance>('root');
 

@@ -14,6 +14,7 @@
           <GapContainer>
             <v-btn
               v-if="editMode"
+              :aria-label="$t('common.actions.cancel')"
               class="rounded"
               icon
               variant="flat"
@@ -26,6 +27,7 @@
 
             <v-btn
               v-if="!editMode"
+              :aria-label="$t('common.actions.edit')"
               class="rounded"
               icon
               variant="flat"
@@ -38,6 +40,7 @@
 
             <v-btn
               v-else
+              :aria-label="$t('common.actions.save')"
               class="rounded"
               icon
               variant="flat"
@@ -131,6 +134,10 @@ import { useResendEmailVerification } from '@/services/queries/useAuthQueries';
 
 import type { ProfileForm } from '@/types/user';
 
+// ! Stryker instruments this block with locally declared coverage helpers, and a compiler
+// ! macro is hoisted out of setup() — referencing them there is a compile error, not a
+// ! warning. The defaults inside go unmutated as a result (`catalyst/operations.md`).
+// Stryker disable all
 const props = withDefaults(
   defineProps<{
     loading?: boolean;
@@ -142,6 +149,7 @@ const props = withDefaults(
 const emit = defineEmits<{
   update: [form: ProfileForm];
 }>();
+// Stryker restore all
 
 const { t } = useI18n();
 

@@ -34,11 +34,15 @@
   "common": {
     "actions": {
       "cancel": "Откажи",
+      "close": "Затвори",
       "confirm": "Потврди",
       "delete": "Обриши",
       "deleting": "Брисање...",
       "edit": "Измени",
-      "saving": "Чување..."
+      "hidePassword": "Сакриј лозинку",
+      "save": "Сачувај",
+      "saving": "Чување...",
+      "showPassword": "Прикажи лозинку"
     },
     "confirmTitle": "Да ли сте сигурни?",
     "cookieConsent": {
@@ -70,6 +74,8 @@
       "logoutPending": "Одјављивање...",
       "profile": "Профил",
       "register": "Регистрација",
+      "toggleMenu": "Прикажи навигацију",
+      "toggleTheme": "Промени тему",
       "users": "Корисници"
     },
     "notAvailable": "Није доступно",
@@ -121,6 +127,10 @@
     }
   },
   "users": {
+    "actions": {
+      "delete": "Обриши {name}",
+      "edit": "Измени {name}"
+    },
     "columns": {
       "actions": "Радње",
       "createdAt": "Датум креирања",

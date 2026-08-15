@@ -14,6 +14,9 @@
     "web/plugins/**/*.ts",
     "web/regle-config.ts",
     "web/i18n/i18n.config.ts",
+    "web/components/**/*.vue",
+    "web/layouts/**/*.vue",
+    "web/app.vue",
     "!web/**/_tests/**"
   ],
   "ignorePatterns": ["!.nuxt"],

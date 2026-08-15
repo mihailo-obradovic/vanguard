@@ -29,6 +29,7 @@
           </td>
           <td class="text-right">
             <v-btn
+              :aria-label="$t('users.actions.edit', { name: user.name })"
               icon
               variant="text"
               color="primary"
@@ -40,6 +41,7 @@
 
             <v-btn
               v-if="deletable && user.id !== currentUserId"
+              :aria-label="$t('users.actions.delete', { name: user.name })"
               icon
               variant="text"
               color="error"

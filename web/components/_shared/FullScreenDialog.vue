@@ -3,7 +3,11 @@
     <v-sheet class="h-100 d-flex flex-column" @keydown.enter="handleEnterKey">
       <v-toolbar flat color="primary" class="px-2">
         <v-toolbar-items>
-          <v-btn icon @click="emit('cancel')">
+          <v-btn
+            :aria-label="$t('common.actions.close')"
+            icon
+            @click="emit('cancel')"
+          >
             <v-icon :icon="mdiClose" />
           </v-btn>
         </v-toolbar-items>
@@ -16,6 +20,7 @@
 
         <v-toolbar-items>
           <v-btn
+            :aria-label="$t('common.actions.save')"
             :disabled="confirmDisabled"
             :loading="loading"
             icon

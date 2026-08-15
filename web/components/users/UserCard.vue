@@ -14,6 +14,7 @@
           <GapContainer>
             <v-btn
               v-if="editMode"
+              :aria-label="$t('common.actions.cancel')"
               class="rounded"
               icon
               variant="flat"
@@ -26,6 +27,7 @@
 
             <v-btn
               v-if="!editMode"
+              :aria-label="$t('common.actions.edit')"
               class="rounded"
               icon
               variant="flat"
@@ -38,6 +40,7 @@
 
             <v-btn
               v-else
+              :aria-label="$t('common.actions.save')"
               class="rounded"
               icon
               variant="flat"

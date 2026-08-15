@@ -1,10 +1,21 @@
 <template>
-  <v-text-field
-    v-model="model"
-    :type="visible ? 'text' : 'password'"
-    :append-inner-icon="visible ? mdiEyeOff : mdiEye"
-    @click:append-inner="visible = !visible"
-  />
+  <v-text-field v-model="model" :type="visible ? 'text' : 'password'">
+    <!-- * A real button rather than `append-inner-icon`: that renders a bare icon, which no
+         * screen reader announces and no keyboard reaches. -->
+    <template #append-inner>
+      <v-btn
+        :aria-label="
+          visible
+            ? $t('common.actions.hidePassword')
+            : $t('common.actions.showPassword')
+        "
+        :icon="visible ? mdiEyeOff : mdiEye"
+        density="compact"
+        variant="text"
+        @click="visible = !visible"
+      />
+    </template>
+  </v-text-field>
 </template>
 
 <script setup lang="ts">

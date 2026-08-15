@@ -34,11 +34,15 @@
   "common": {
     "actions": {
       "cancel": "Otkaži",
+      "close": "Zatvori",
       "confirm": "Potvrdi",
       "delete": "Obriši",
       "deleting": "Brisanje...",
       "edit": "Izmeni",
-      "saving": "Čuvanje..."
+      "hidePassword": "Sakrij lozinku",
+      "save": "Sačuvaj",
+      "saving": "Čuvanje...",
+      "showPassword": "Prikaži lozinku"
     },
     "confirmTitle": "Da li ste sigurni?",
     "cookieConsent": {
@@ -121,6 +125,10 @@
     }
   },
   "users": {
+    "actions": {
+      "delete": "Obriši {name}",
+      "edit": "Izmeni {name}"
+    },
     "columns": {
       "actions": "Radnje",
       "createdAt": "Datum kreiranja",

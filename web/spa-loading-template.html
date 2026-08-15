@@ -1,0 +1,39 @@
+<!-- * Shown from HTML load until the app mounts — this covers auth-loader's two blocking requests (CSRF cookie + current user), which used to be a blank screen. Pre-i18n, so no text; colors mirror the Vuetify themes in web/plugins/vuetify.ts. -->
+<div id="boot-splash">
+  <div id="boot-splash-spinner" role="progressbar" aria-label="Loading"></div>
+</div>
+<style>
+  #boot-splash {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f8f2;
+  }
+
+  #boot-splash.boot-splash--dark {
+    background: #282a36;
+  }
+
+  #boot-splash-spinner {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 4px solid rgba(189, 147, 249, 0.25);
+    border-top-color: #bd93f9;
+    animation: boot-splash-spin 1.4s linear infinite;
+  }
+
+  @keyframes boot-splash-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+</style>
+<script>
+  // * The app applies the persisted theme cookie on mount (layouts/Default.vue); matching it here spares dark-theme users a white flash on every reload.
+  if (document.cookie.split('; ').indexOf('theme=dark') !== -1) {
+    document.getElementById('boot-splash').classList.add('boot-splash--dark');
+  }
+</script>

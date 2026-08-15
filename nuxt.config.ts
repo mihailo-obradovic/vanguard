@@ -9,6 +9,9 @@ export default defineNuxtConfig({
 
   ssr: false,
 
+  // * web/spa-loading-template.html bridges the pre-mount window in which auth-loader blocks on the session requests.
+  spaLoadingTemplate: true,
+
   runtimeConfig: {
     public: {
       apiBaseUrl: ''

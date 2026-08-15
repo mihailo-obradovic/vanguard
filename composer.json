@@ -58,6 +58,11 @@
             "@php artisan config:clear --ansi @no_additional_args",
             "@php artisan test --coverage"
         ],
+        "test:mutation": [
+            "Composer\\Config::disableProcessTimeout",
+            "@putenv XDEBUG_MODE=coverage",
+            "vendor/bin/pest --mutate --everything --covered-only"
+        ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"

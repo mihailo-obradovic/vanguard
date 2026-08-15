@@ -107,8 +107,8 @@ No protected area of its own — the backend validation contracts are owned by f
 - `web/_tests/regle-config.spec.ts` — the generic catalog fallbacks bare rules get, including the `requiredIf` key that would otherwise fall back to the library's hardcoded English.
 - `web/utils/_tests/handleApiError.spec.ts` — the `hideValidationToast` path that keeps a 422 inline instead of toasting it, including the fallback when a 422 carries no field errors.
 - `web/composables/_tests/useExternalErrors.spec.ts` and `useValidationErrors.spec.ts` — the bridge itself: the empty map a form binds to before anything has failed, the server errors arriving, the copy-not-share that lets Regle clear an entry without reaching back into the source, replacement on a differently-failing submit, and a getter source.
-- `web/components/users/_tests/UserFormDialog.spec.ts` and `UserCard.spec.ts` — the per-form schemas at component level: the password rules switching with the mode, a disabled confirmation refusing an incomplete form, and a server 422 landing on its own field rather than in a toast.
-- Known gaps (recorded): the three auth dialogs' own schemas have no component tests (tracked separately). On this branch only the password pair reaches `labeledRules`, through `newPasswordRules`; every other field still shows the generic `validation.*` copy until each form passes its `common.fields.*` label — deferred with the rest of the component work.
+- `web/components/users/_tests/` — the per-form schemas at component level, across `UserFormDialog`, `UserCard` and the three auth dialogs: the password rules switching with the mode, `sameAs` and the length bounds, a disabled confirmation refusing an incomplete form, and a server 422 landing on its own field rather than in a toast.
+- Known gaps (recorded): on this branch only the password pair reaches `labeledRules`, through `newPasswordRules`; every other field still shows the generic `validation.*` copy until each form passes its `common.fields.*` label — deferred with the rest of the component work.
 
 ## Verification
 

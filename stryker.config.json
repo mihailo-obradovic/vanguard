@@ -17,10 +17,7 @@
     "web/components/**/*.vue",
     "web/layouts/**/*.vue",
     "web/app.vue",
-    "!web/**/_tests/**",
-    "!web/components/users/LoginDialog.vue",
-    "!web/components/users/RegisterDialog.vue",
-    "!web/components/users/ForgotPasswordDialog.vue"
+    "!web/**/_tests/**"
   ],
   "ignorePatterns": ["!.nuxt"],
   "ignoreStatic": true,

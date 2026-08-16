@@ -10,7 +10,7 @@ Medium
 
 ## Purpose
 
-Tell a user that an email address is already taken while they are still typing it, instead of after a failed submit. Registration, admin user creation, and profile email changes all fail the same way today: a server 422 arrives on submit and the form renders it inline. That is correct but late — the user has already filled the rest of the form.
+Tell a user that an email address is already taken while they are still typing it. Without it, registration, admin user creation, and profile email changes only learn the address is taken from a 422 on submit — correct but late.
 
 The endpoint exists only to answer that one question. The `unique` rules in features 001–003 remain the authority; this is a read-only hint that lets the client ask the question early.
 
@@ -33,14 +33,14 @@ The endpoint exists only to answer that one question. The `unique` rules in feat
 
 In scope: one public `GET /api/email-availability` endpoint; the debounced async Regle rule that consumes it; wiring that rule into the register, users, and profile forms.
 
-Non-goals: replacing the backend `unique` rules (they stay authoritative — a race between the check and the submit is resolved by the 422); checking any field other than email; Laravel Precognition (this is the one Precognition feature worth having, without adopting the protocol); rate-limit UX beyond letting the rule fail open.
+Non-goals: replacing the backend `unique` rules (they stay authoritative — a race between the check and the submit is resolved by the 422); checking any field other than email; adopting the Laravel Precognition protocol; rate-limit UX beyond letting the rule fail open.
 
 ## User / System Behavior
 
 - While the user types an email, the client waits for a pause in typing (500 ms) and then asks the endpoint whether the address is free. The rule only fires once the field is otherwise valid — an incomplete address is never sent.
 - If the address is taken, the field shows "This email address is already taken." alongside its other messages, and the form cannot submit.
 - If the address is free, no message appears and the field validates as before.
-- **The rule fails open.** A network error, a 429, or any non-200 leaves the field valid: the endpoint is a convenience, and the server's `unique` rule still rejects the submit. A hint that cannot be fetched must never block a user who would otherwise succeed.
+- The rule fails open: a network error, a 429, or any non-200 leaves the field valid, and the server's `unique` rule still rejects the submit.
 - Editing an existing user (admin) or one's own profile passes `ignore_id`, so keeping your own address is not reported as taken.
 - The endpoint is public because the register form needs it before a session exists.
 
@@ -70,7 +70,7 @@ Not role-specific — the endpoint is public and unauthenticated; `ignore_id` is
 
 - **Race**: an address free at check time and taken at submit time yields a 422, rendered inline by feature 006's bridge. Expected, not a defect.
 - **Own address on edit**: `ignore_id` covers it; without the parameter a user editing their profile would be told their own address is taken.
-- **Case**: the lookup matches the way the database matches (`ci` collation), so `Taken@example.com` reports the same as `taken@example.com`. The write endpoints additionally enforce `lowercase`, which the client now mirrors (feature 006), so a mixed-case address is flagged by that rule before this one matters.
+- **Case**: the lookup matches the way the database matches (`ci` collation), so `Taken@example.com` reports the same as `taken@example.com`. The write endpoints additionally enforce `lowercase`, mirrored client-side (feature 006), so a mixed-case address is flagged by that rule first.
 - **An unknown `ignore_id`** filters nothing out; it is not validated for existence, because it only ever narrows a public read.
 
 ## Invariants
@@ -93,7 +93,7 @@ No protected area of its own.
 - `app/Http/Controllers/EmailAvailabilityController.php`: the single action.
 - `app/Http/Requests/EmailAvailabilityRequest.php`: the query validation.
 - `web/services/user.api.ts`: `checkEmailAvailability` — the service call, parsed by Zod.
-- `web/utils/emailRules.ts`: `accountEmailRules()` (write path — adds `lowercase` and the debounced availability rule) and `credentialEmailRules()` (read path). The two functions are what keep each form's email rules matched to its endpoint.
+- `web/utils/emailRules.ts`: `accountEmailRules()` (write path — adds `lowercase` and the debounced availability rule) and `credentialEmailRules()` (read path — neither).
 
 ## Dependencies
 
@@ -111,9 +111,9 @@ No protected area of its own.
 
 ## Verification
 
-2026-08-15: backend suite green (122 tests, 376 assertions), including the 10 new `EmailAvailabilityTest` cases; frontend suite green (35 files, 264 tests) with the new `emailRules` and `checkEmailAvailability` specs; `nuxt typecheck`, `oxlint`, `oxfmt --check` and `pint --test` all clean.
+Backend and frontend suites green, including `EmailAvailabilityTest`, the `emailRules` specs and the `checkEmailAvailability` service spec; `nuxt typecheck`, `oxlint`, `oxfmt --check` and `pint --test` clean.
 
-Live walk on the register page (isolated browser context, API on :8001, SPA on :3001, real MySQL): typing `test@example.com` — an address a user holds — rendered "The Email field is already taken." with no submit, and `Fresh@Example.com` rendered "The Email field must be lowercase." beside a seven-character password's minimum-length message. Correcting all three cleared every message and enabled the Register button. `/login` accepted `Test@Example.com` with no error, confirming the read path carries neither the lowercase nor the availability rule.
+Live walk on the register page against real MySQL: a taken address rendered "The Email field is already taken." and blocked submit; a mixed-case address rendered the lowercase message; correcting both cleared every message and enabled Register. `/login` accepted a mixed-case address, confirming the read path carries neither rule.
 
 Fail-open is covered by unit tests (500 and 429 both leave the field valid) rather than by the live walk; the production-only `uncompromised()` arm of the password policy is untested by design (feature 001, Tests).
 

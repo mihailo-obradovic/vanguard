@@ -134,7 +134,7 @@ describe('newPasswordRules', () => {
       await validate();
 
       expect(confirmationErrors()).toContain(
-        'The Password Confirmation field is required.'
+        'The password confirmation field is required.'
       );
     });
 
@@ -143,7 +143,7 @@ describe('newPasswordRules', () => {
 
       await validate();
 
-      expect(passwordErrors()).toContain('The Password field is required.');
+      expect(passwordErrors()).toContain('The password field is required.');
     });
   });
 

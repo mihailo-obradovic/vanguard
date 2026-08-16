@@ -20,7 +20,7 @@ async function setupForm() {
     defineComponent({
       setup() {
         const { r$ } = useRegle(form, {
-          email: labeledRules('common.fields.email', {
+          email: labeledRules('validation.fieldNames.email', {
             email,
             maxLength: maxLength(255),
             required
@@ -51,7 +51,7 @@ describe('labeledRules', () => {
 
     await validate();
 
-    expect(emailErrors()).toContain('The Email field is required.');
+    expect(emailErrors()).toContain('The email field is required.');
   });
 
   it('names the field and the limit in a parameterized message', async () => {
@@ -61,7 +61,7 @@ describe('labeledRules', () => {
     await validate();
 
     expect(emailErrors()).toContain(
-      'The Email field must be at most 255 characters.'
+      'The email field must be at most 255 characters.'
     );
   });
 
@@ -80,7 +80,7 @@ describe('labeledRules', () => {
       'Custom message'
     );
 
-    const wrapped = labeledRules('common.fields.email', { custom });
+    const wrapped = labeledRules('validation.fieldNames.email', { custom });
 
     expect(wrapped.custom).toBe(custom);
   });

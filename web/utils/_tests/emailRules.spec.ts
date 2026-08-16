@@ -84,7 +84,7 @@ describe('emailRules', () => {
 
       await validate();
 
-      expect(errors()).toContain('The Email field is already taken.');
+      expect(errors()).toContain('The email field is already taken.');
     });
 
     // ! The whole point of the fail-open contract: the backend's `unique` rule is the authority,
@@ -130,7 +130,7 @@ describe('emailRules', () => {
       );
 
       expect(await validate()).toBe(false);
-      expect(errors()).toContain('The Email field must be lowercase.');
+      expect(errors()).toContain('The email field must be lowercase.');
     });
 
     it('rejects an address over 255 characters', async () => {

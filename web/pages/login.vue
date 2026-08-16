@@ -90,7 +90,7 @@ const { r$ } = useRegle(
   form,
   {
     ...credentialEmailRules(),
-    password: labeledRules('common.fields.password', { required })
+    password: labeledRules('validation.fieldNames.password', { required })
   },
   { externalErrors: useExternalErrors(useValidationErrors(loginError)) }
 );

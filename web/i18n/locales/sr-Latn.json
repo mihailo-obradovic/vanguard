@@ -158,6 +158,14 @@
       "required": "Polje „{field}“ je obavezno.",
       "sameAs": "Polje „{field}“ se ne poklapa."
     },
+    "fieldNames": {
+      "currentPassword": "Trenutna lozinka",
+      "email": "E-pošta",
+      "name": "Ime",
+      "password": "Lozinka",
+      "passwordConfirmation": "Potvrda lozinke",
+      "role": "Uloga"
+    },
     "lowercase": "Ovo polje mora biti malim slovima.",
     "maxLength": "Ovo polje može imati najviše {max} karaktera.",
     "minLength": "Ovo polje mora imati najmanje {min} karaktera.",

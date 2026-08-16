@@ -158,6 +158,14 @@
       "required": "Поље „{field}“ је обавезно.",
       "sameAs": "Поље „{field}“ се не поклапа."
     },
+    "fieldNames": {
+      "currentPassword": "Тренутна лозинка",
+      "email": "Е-пошта",
+      "name": "Име",
+      "password": "Лозинка",
+      "passwordConfirmation": "Потврда лозинке",
+      "role": "Улога"
+    },
     "lowercase": "Ово поље мора бити малим словима.",
     "maxLength": "Ово поље може имати највише {max} карактера.",
     "minLength": "Ово поље мора имати најмање {min} карактера.",

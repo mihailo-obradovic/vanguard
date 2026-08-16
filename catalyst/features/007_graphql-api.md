@@ -147,7 +147,7 @@ Guest and non-admin refusals: see Roles And Access; client behavior is under Err
 - `tests/Feature/UserManagementTest.php`: unchanged and green — the proof that extracting the update action did not alter the REST contract.
 - `web/utils/_tests/gqlFetcher.spec.ts`: each row of the Error Handling table, plus the success path.
 - `web/services/_tests/user.gql.spec.ts` and `queries/_tests/useUserGqlQueries.spec.ts`: operation naming, REST field parity, `id` as a variable, schema mismatches rejecting, and `users-gql` refreshing only itself.
-- `web/components/users/_tests/UserDetailsDialog.spec.ts`: the demo's edit dialog — opening on the user being edited (and on the next one, not the last), abandoning an edit, the emitted payload, and a server 422 landing on its field. The `after-leave` re-emit is not covered: it needs the Web Animations API, which happy-dom lacks (`catalyst/operations.md`).
+- `web/components/users/_tests/UserDetailsDialog.spec.ts`: the demo's edit dialog — opening on the user being edited (and the next, not the last), abandoning an edit, the emitted payload, a server 422 landing on its field. Gap: the `after-leave` re-emit needs the Web Animations API happy-dom lacks (`operations.md`).
 
 ## Verification
 

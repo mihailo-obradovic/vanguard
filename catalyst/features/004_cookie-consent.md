@@ -4,8 +4,6 @@
 
 Active
 
-Retro-documented at brownfield adoption (2026-08-04) from code. Frontend-only; no backend contract.
-
 ## Task Weight
 
 Easy
@@ -34,13 +32,13 @@ Present a dismissable banner that records the visitor's accept/decline choice fo
 
 In scope: the `useCookieConsent()` composable (read/write the cookie, expose `isDecided`/`hasConsented`/`accept`/`decline`) and the `CookieConsentBanner.vue` UI mounted globally in `web/app.vue`.
 
-Non-goals: **actually gating any cookie, script, or analytics on the choice** — `hasConsented` is exposed but nothing consumes it yet (recorded gap below); a full preferences/category manager; a server-side record of consent; blocking first render on the decision.
+Non-goals: actually gating any cookie, script, or analytics on the choice — `hasConsented` is exposed but nothing consumes it yet; a full preferences/category manager; a server-side record of consent; blocking first render on the decision.
 
 ## User / System Behavior
 
-- On first load with no `cookie_consent` cookie, a modal bottom sheet slides in offering Accept / Decline; its scrim blocks page interaction until the visitor decides (persistent — outside clicks and Esc do not dismiss it).
+- On first load with no `cookie_consent` cookie, a modal bottom sheet slides in offering Accept / Decline; its scrim blocks page interaction until the visitor decides, and outside clicks and Esc do not dismiss it.
 - Clicking Accept or Decline writes the cookie and hides the sheet (slide-out transition); the choice persists for a year, so the sheet does not reappear on later visits.
-- The banner only renders after `onMounted` sets an `isMounted` flag — avoiding a flash before the component is client-mounted (the app is `ssr: false`).
+- The sheet renders only after client mount, avoiding a flash before mount (the app is `ssr: false`).
 - The banner is `role="region"` with `aria-label="Cookie consent"`.
 
 ## Roles And Access
@@ -58,7 +56,7 @@ Not role-specific — shown to every visitor including guests, independent of au
 
 ## Business Rules
 
-- The decision is stored client-side only, in the `cookie_consent` cookie (`maxAge` = 60·60·24·365 seconds).
+- The decision is stored client-side only, in the `cookie_consent` cookie.
 - Declining does not remove or block any cookie today (nothing is gated); it only records the preference.
 
 ## Edge Cases
@@ -80,7 +78,7 @@ No protected area — this feature owns no backend contract and no cross-feature
 ## Entry Points
 
 - `web/composables/useCookieConsent.ts`: the cookie read/write and derived state (`isDecided`, `hasConsented`, `accept`, `decline`).
-- `web/components/_shared/CookieConsentBanner.vue`: the banner UI (auto-imported from `components/_shared/`).
+- `web/components/_shared/CookieConsentBanner.vue`: the banner UI.
 - `web/app.vue`: mounts the banner once, globally.
 
 ## Dependencies
@@ -95,7 +93,7 @@ No protected area — this feature owns no backend contract and no cross-feature
 
 ## Verification
 
-Behavior traced against source on 2026-08-04: `useCookieConsent.ts` (cookie name, values, `maxAge`, derived computeds) and `CookieConsentBanner.vue` (visibility bound to `!isDecided`, `onMounted` guard, ARIA attributes), mounted in `web/app.vue`. Repo-wide grep confirms `hasConsented` has no consumer — the gating hook is dormant. No automated tests exist yet.
+Behavior traced against source: cookie name, values and `maxAge` in `useCookieConsent.ts`; visibility, mount guard and ARIA attributes in `CookieConsentBanner.vue`; global mount in `web/app.vue`. `hasConsented` has no consumer — the gating hook is dormant. No automated tests exist yet.
 
 ## Agent Change Rules
 

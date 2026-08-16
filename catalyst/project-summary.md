@@ -46,6 +46,7 @@ Present only when the project has standing, cross-cutting domain or method decis
 | ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
 | Feature documents carry the current contract only — no history, dates, commit hashes, or retro-narration | Git holds the history; the repo is a template base, so a document must read as the contract it is today |
 | Superseded decision records are deleted, not kept — the superseding record and git history hold the why    | Same template-base reasoning; `Superseded by <nnn>` stays available for a record genuinely worth keeping |
+| Document numbers are never reused or compacted — holes are expected under delete-at-supersession           | A number is a stable identifier across branches, git history, and the tracker; compacting breaks every reference to it |
 
 ## Protected Areas
 

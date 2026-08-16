@@ -79,7 +79,7 @@ test('a duplicate email is reported as a validation error keyed by field', funct
     $this->actingAs($admin)
         ->graphQL(UPDATE_USER, ['id' => $user->id, 'email' => 'taken@example.com'])
         ->assertOk()
-        ->assertGraphQLValidationError('email', 'The email has already been taken.')
+        ->assertGraphQLValidationKeys(['email'])
         ->assertJsonPath('errors.0.extensions.status', 422);
 });
 

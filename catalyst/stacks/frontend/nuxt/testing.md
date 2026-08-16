@@ -1,7 +1,7 @@
 # Nuxt — Testing
 
 **Layer:** Frontend
-**Tool:** Vitest 4 · `@nuxt/test-utils` · `@vue/test-utils` · happy-dom · `@vitest/coverage-v8`
+**Tool:** Vitest 4 · `@nuxt/test-utils` · `@vue/test-utils` · happy-dom · `@vitest/coverage-v8` · `@vitest/ui`
 
 How this module tests. Read this when adding a frontend test, deciding what level a piece of behavior should be tested at, or measuring coverage. The universal quality rules — what to assert, when doubles are allowed, proving a test can fail — live in `conventions/testing.md`; this document binds them to Nuxt.
 
@@ -81,5 +81,6 @@ Coverage is **measured, never gated** (`decisions/013`): CI prints the report an
 
 - `pnpm test` — the suite once; `pnpm test:watch` while iterating.
 - `pnpm test:coverage` — with the coverage report (`text` to the terminal, `html` + `lcov` into `coverage/`, gitignored).
+- `pnpm test:ui` — Vitest's browser dashboard (`@vitest/ui`) in watch mode with the coverage report embedded; a live alternative to opening `coverage/index.html` by hand.
 - The full suite is green before a merge; a failing test is never left for later without saying so.
 - `pnpm test:mutation` — the Stryker mutation audit over the data layer. Same triage rule as the backend's Pest runs (`conventions/testing.md`), never a CI gate; scope, config rationale, and the standing survivor list live in `operations.md`.

@@ -1,17 +1,21 @@
 <?php
 
 use App\Models\User;
+use App\Notifications\VerifyEmailNotification;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
 
 test('admins can list users newest first', function () {
-    $admin = User::factory()->admin()->create();
-    User::factory()->count(3)->create();
+    $admin = User::factory()->admin()->create(['created_at' => '2026-01-01 10:00:00']);
+    User::factory()->create(['created_at' => '2026-01-02 10:00:00']);
+    $newest = User::factory()->create(['created_at' => '2026-01-03 10:00:00']);
 
     $this->actingAs($admin)
         ->getJson('/api/users')
         ->assertOk()
-        ->assertJsonPath('total', 4)
-        ->assertJsonCount(4, 'data');
+        ->assertJsonPath('total', 3)
+        ->assertJsonCount(3, 'data')
+        ->assertJsonPath('data.0.id', $newest->id);
 });
 
 test('non-admins cannot access user management', function () {
@@ -19,8 +23,7 @@ test('non-admins cannot access user management', function () {
 
     $this->actingAs($user)
         ->getJson('/api/users')
-        ->assertForbidden()
-        ->assertJsonPath('message', 'Forbidden. Admin access required.');
+        ->assertForbidden();
 });
 
 test('guests cannot access user management', function () {
@@ -276,8 +279,35 @@ test('admins cannot delete their own account', function () {
 
     $this->actingAs($admin)
         ->deleteJson("/api/users/{$admin->id}")
-        ->assertForbidden()
-        ->assertJsonPath('message', 'You cannot delete your own account.');
+        ->assertForbidden();
 
     $this->assertDatabaseHas('users', ['id' => $admin->id]);
+});
+
+test('an admin changing a user email resets verification and sends a link', function () {
+    Notification::fake();
+
+    $admin = User::factory()->admin()->create();
+    $user = User::factory()->create();
+
+    $this->actingAs($admin)
+        ->putJson("/api/users/{$user->id}", ['email' => 'moved@example.com'])
+        ->assertOk();
+
+    expect($user->fresh()->hasVerifiedEmail())->toBeFalse();
+    Notification::assertSentTo($user, VerifyEmailNotification::class);
+});
+
+test('an admin editing only a name does not reset verification', function () {
+    Notification::fake();
+
+    $admin = User::factory()->admin()->create();
+    $user = User::factory()->create();
+
+    $this->actingAs($admin)
+        ->putJson("/api/users/{$user->id}", ['name' => 'Renamed'])
+        ->assertOk();
+
+    expect($user->fresh()->hasVerifiedEmail())->toBeTrue();
+    Notification::assertNothingSent();
 });

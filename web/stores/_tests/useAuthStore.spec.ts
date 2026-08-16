@@ -2,22 +2,9 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
 
+import { buildUser } from '@/mocks/fixtures';
+
 import { useAuthStore } from '../useAuthStore';
-
-import type { User } from '@/types/auth';
-
-function makeUser(overrides: Partial<User> = {}): User {
-  return {
-    id: 1,
-    name: 'Mihailo',
-    email: 'mihailo@example.com',
-    role: 'user',
-    email_verified_at: null,
-    created_at: '2026-08-01T00:00:00.000000Z',
-    updated_at: '2026-08-01T00:00:00.000000Z',
-    ...overrides
-  };
-}
 
 describe('useAuthStore', () => {
   beforeEach(() => {
@@ -34,7 +21,7 @@ describe('useAuthStore', () => {
 
   it('holds the user it is given', () => {
     const store = useAuthStore();
-    const user = makeUser();
+    const user = buildUser();
 
     store.setUser(user);
 
@@ -45,7 +32,7 @@ describe('useAuthStore', () => {
   it('recognises an admin by role', () => {
     const store = useAuthStore();
 
-    store.setUser(makeUser({ role: 'admin' }));
+    store.setUser(buildUser({ role: 'admin' }));
 
     expect(store.isAdmin).toBe(true);
   });
@@ -53,7 +40,7 @@ describe('useAuthStore', () => {
   it('does not treat an ordinary user as an admin', () => {
     const store = useAuthStore();
 
-    store.setUser(makeUser({ role: 'user' }));
+    store.setUser(buildUser({ role: 'user' }));
 
     expect(store.isAdmin).toBe(false);
   });
@@ -61,7 +48,7 @@ describe('useAuthStore', () => {
   it('signs the user out on reset', () => {
     const store = useAuthStore();
 
-    store.setUser(makeUser({ role: 'admin' }));
+    store.setUser(buildUser({ role: 'admin' }));
     store.resetUser();
 
     expect(store.user).toBeNull();
@@ -73,7 +60,7 @@ describe('useAuthStore', () => {
   it('exposes the user read-only so actions stay the only way to change it', () => {
     const store = useAuthStore();
 
-    store.setUser(makeUser());
+    store.setUser(buildUser());
 
     // * Pinia's store type still permits the assignment, so the guarantee is the runtime one
     // * `readonly()` gives: the write is refused rather than rejected at compile time.

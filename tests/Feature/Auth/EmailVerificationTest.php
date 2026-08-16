@@ -22,13 +22,19 @@ test('registration sends an email verification notification', function () {
 });
 
 test('email is verified via the signed url and redirects to the front-end', function () {
-    $user = User::factory()->unverified()->create();
+    Notification::fake();
 
-    $verificationUrl = URL::temporarySignedRoute(
-        'verification.verify',
-        now()->addMinutes(60),
-        ['id' => $user->id, 'hash' => sha1($user->email)]
-    );
+    $user = User::factory()->unverified()->create();
+    $user->sendEmailVerificationNotification();
+
+    // * The URL is captured from the sent notification, not rebuilt with URL::temporarySignedRoute —
+    // * this proves the link a user actually receives verifies end-to-end.
+    $verificationUrl = null;
+    Notification::assertSentTo($user, VerifyEmailNotification::class, function (VerifyEmailNotification $notification) use ($user, &$verificationUrl) {
+        $verificationUrl = $notification->toMail($user)->actionUrl;
+
+        return true;
+    });
 
     $this->actingAs($user)
         ->get($verificationUrl)

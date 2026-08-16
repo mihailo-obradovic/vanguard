@@ -50,7 +50,7 @@ By complexity × collaborator count: **complex logic with few collaborators** (d
 The defaults above are global. Exactly three exceptions exist, and every deliberate omission must be an instance of one — folder- or file-level carve-outs are never rules of their own:
 
 1. **Presentation belongs to the live browser walk, not the suite.** Pages, presentational components, template-only logic a mutation tool cannot see, and environment-bound behavior a test DOM cannot observe (transitions, scroll and viewport measurement, hydration guards).
-2. **Copy is not contract.** Messages, labels, titles, and log text are never asserted; their mutants are accepted.
+2. **Copy is not contract.** Messages, labels, titles, and log text are never asserted; their mutants are accepted. Two boundaries: where producing the copy _is_ the unit's behavior (a message catalog, a validation-message builder), that output is tested like any other — and locating an element by its accessible name is targeting, not asserting copy. An exact string may also be asserted where it is the only observable separating two failure modes, with a comment on the assertion naming that role.
 3. **Behavior unobservable at the suite's level is proven where it is observable.** Browser-enforced effects (cookie lifetime, credentials mode), events nothing consumes yet, defensive code unreachable through real entry points — recorded as accepted survivors, with reasons.
 
 Meta-rule: **every 0% is legible.** A file is either tested or carries a per-file "deliberately untested" entry naming its exception in the project runbook's register (`operations.md`); an omission without an entry is an oversight, not an exception. A candidate exclusion either derives from one of the three or gets a test.
@@ -58,7 +58,7 @@ Meta-rule: **every 0% is legible.** A file is either tested or carries a per-fil
 ## Structure
 
 - **Arrange–Act–Assert, one act per test.** Two acts is two tests, or an integration test in disguise.
-- **No conditionals, loops, or try/catch in a test** — branching logic in a test means the test needs a test.
+- **No conditionals, loops, or try/catch in a test** — branching logic in a test means the test needs a test. What this forbids is branching on an _outcome_; a uniform loop or table that repeats the same act and assert over fixed inputs (throttle setup, per-key catalog checks, method maps) is repetition, not logic, and is fine.
 - **Hardcode expected values.** Recomputing the expectation with production logic asserts nothing.
 - **Names are behavior sentences** a non-programmer could read (`a password change fails with the wrong current password`), never `method_state_result` encodings.
 - **Fixtures come from factory helpers** with sensible defaults and explicit overrides for every value the test asserts on; no shared mutable fixtures in base classes or global hooks. A test reads top to bottom without jumping to other files.

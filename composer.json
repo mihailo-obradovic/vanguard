@@ -58,6 +58,12 @@
             "@php artisan config:clear --ansi @no_additional_args",
             "@php artisan test --coverage"
         ],
+        "test:coverage-html": [
+            "@putenv XDEBUG_MODE=coverage",
+            "@php artisan config:clear --ansi @no_additional_args",
+            "@php artisan test --coverage-html reports/coverage-backend",
+            "@php scripts/open-in-browser.php reports/coverage-backend/index.html"
+        ],
         "test:mutation": [
             "Composer\\Config::disableProcessTimeout",
             "@putenv XDEBUG_MODE=coverage",

@@ -178,31 +178,3 @@ test('a user cannot escalate their own role via the profile', function () {
 test('guests cannot update a profile', function () {
     $this->putJson('/api/profile', ['name' => 'Nope'])->assertUnauthorized();
 });
-
-test('an admin changing a user email resets verification and sends a link', function () {
-    Notification::fake();
-
-    $admin = User::factory()->admin()->create();
-    $user = User::factory()->create();
-
-    $this->actingAs($admin)
-        ->putJson("/api/users/{$user->id}", ['email' => 'moved@example.com'])
-        ->assertOk();
-
-    expect($user->fresh()->hasVerifiedEmail())->toBeFalse();
-    Notification::assertSentTo($user, VerifyEmailNotification::class);
-});
-
-test('an admin editing only a name does not reset verification', function () {
-    Notification::fake();
-
-    $admin = User::factory()->admin()->create();
-    $user = User::factory()->create();
-
-    $this->actingAs($admin)
-        ->putJson("/api/users/{$user->id}", ['name' => 'Renamed'])
-        ->assertOk();
-
-    expect($user->fresh()->hasVerifiedEmail())->toBeTrue();
-    Notification::assertNothingSent();
-});

@@ -177,9 +177,8 @@ describe('UserCard', () => {
     expect(emitted().update).toBeUndefined();
   });
 
-  // ! The backend treats a present `password` as a change request, so sending an empty one would
-  // ! fail validation on a rename that never touched the password.
-  it('leaves the password out of a rename', async () => {
+  // ! The backend treats a present `password` as a change request and validates a present-but-empty `current_password` against the stored hash, so a rename must omit all three password keys entirely.
+  it('leaves the password fields out of a rename', async () => {
     const { emitted } = await renderCard();
     await startEditing();
 
@@ -192,8 +191,7 @@ describe('UserCard', () => {
 
     expect(form).toEqual({
       name: 'Ana Marić',
-      email: 'ana@example.com',
-      current_password: ''
+      email: 'ana@example.com'
     });
   });
 

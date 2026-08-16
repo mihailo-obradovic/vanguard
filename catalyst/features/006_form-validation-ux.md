@@ -66,7 +66,7 @@ Not role-specific — validation UX applies to every form regardless of role.
 
 ## Edge Cases
 
-- The profile form always sends `current_password` (possibly `""`); Laravel skips non-implicit rules on empty strings, so name-only saves pass (feature 003).
+- The profile form sends `current_password` only when a new password is being set — a present-but-empty value is validated against the stored hash and rejected (feature 003).
 
 ## Invariants
 
@@ -110,7 +110,7 @@ Traced against source: the shared factories each form adopts, and the `error-mes
 
 Walked live on this branch on 2026-08-16 against real MySQL, which closed the standing risk the factory wiring left. In the register dialog, `ana@` renders "The email field must be a valid email address." on one line under the input, `test@example.com` renders "The email field is already taken." with the confirmation disabled, and `TEST@Example.com` renders "The email field must be lowercase." (the field name was title case when walked, lowercased since; the current copy is pinned by the component specs) — both account-only rules wired, and the field-named copy rendering rather than a raw key. The debounce measured **843ms** from keystroke to the message clearing (the 500ms timer plus the round trip), with the confirmation disabled throughout instead of flickering. `/login` still accepts a mixed-case address, so the read path carries neither rule, and a locale switch re-renders the chrome and messages. `ignore_id` was read off the wire rather than inferred: `ignore_id=1` for the signed-in user from the profile card, `ignore_id=46` for the user being edited from the user dialog, and a name-only edit there saved `200` with its address untouched.
 
-The walk also surfaced a defect it was not looking for, pre-dating this work: the profile card always sends `current_password`, so a name-only save is refused 422 with "The password is incorrect." Ticketed; feature 003 owns the behavior. Component-level gaps stand as recorded.
+The walk also surfaced a pre-existing defect (the profile card always sent `current_password`, refusing name-only saves 422), since fixed under feature 003. Component-level gaps stand as recorded.
 
 ## Agent Change Rules
 

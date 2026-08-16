@@ -79,7 +79,7 @@ No protected area of its own — the backend contracts this layer calls are prot
 
 ## Error Handling
 
-- Central `setupQueryErrorHandling`: 401 → reset auth store + `/login`; 403 → `/home`; 422 → inline in opted-in forms (feature 006) else toast; other errors → generic toast. Wired once per query/mutation, not per component.
+- Central `setupQueryErrorHandling`: 401 → reset auth store + `/login`; 403 → `/home`; 422 → inline in opted-in forms (feature 010) else toast; other errors → generic toast. Wired once per query/mutation, not per component.
 - 419 is recovered inside `fetcher` (re-prime + one retry) before it reaches the handler.
 
 ## Entry Points

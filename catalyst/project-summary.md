@@ -37,6 +37,7 @@ One line per record: type, status, title, link.
 | 008 | process     | Implemented | Testing strategy: coverage measured not gated, `_tests/` placement  | [decisions/008_process_testing-strategy.md](decisions/008_process_testing-strategy.md)               |
 | 009 | process     | Implemented | Test-quality doctrine (Khorikov), MSW at the wire, mutation audits  | [decisions/009_process_test-quality-doctrine.md](decisions/009_process_test-quality-doctrine.md)     |
 | 011 | process     | Proposed    | Coverage stays measured, never gated (answers 008's revisit clause) | [decisions/011_process_coverage-gates.md](decisions/011_process_coverage-gates.md)                   |
+| 012 | tooling     | Accepted    | mattpocock-skills run inside Catalyst structures (Workflowy tracker, single ADR home, glossary as context doc) | [decisions/012_tooling_mattpocock-skills-integration.md](decisions/012_tooling_mattpocock-skills-integration.md) |
 
 ## Domain Decision Index
 

@@ -68,7 +68,7 @@ Not role-specific — the endpoint is public and unauthenticated; `ignore_id` is
 
 ## Edge Cases
 
-- **Race**: an address free at check time and taken at submit time yields a 422, rendered inline by feature 006's bridge. Expected, not a defect.
+- **Race**: an address free at check time and taken at submit time yields a 422, rendered inline by feature 010's bridge. Expected, not a defect.
 - **Own address on edit**: `ignore_id` covers it; without the parameter a user editing their profile would be told their own address is taken.
 - **Case**: the lookup matches the way the database matches (`ci` collation), so `Taken@example.com` reports the same as `taken@example.com`. The write endpoints additionally enforce `lowercase`, mirrored client-side (feature 006), so a mixed-case address is flagged by that rule first.
 - **An unknown `ignore_id`** filters nothing out; it is not validated for existence, because it only ever narrows a public read.

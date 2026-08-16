@@ -4,7 +4,7 @@
 
 Active
 
-Retro-documented at brownfield adoption (2026-08-04) from code. **Demonstration contract** — the rules live in `catalyst/stacks/frontend/nuxt/validation.md`; this document records how _this project_ wires client validation and folds server 422s back into the form.
+Demonstration contract — the rules live in `catalyst/stacks/frontend/nuxt/validation.md`; this document records how _this project_ wires client validation and folds server 422s back into the form.
 
 ## Task Weight
 
@@ -39,13 +39,13 @@ Non-goals: the backend validation rules themselves (FormRequests, owned by featu
 ## User / System Behavior
 
 - Each form declares Regle rules that mirror the backend (e.g. `required`, `email`, `minLength(8)`, `maxLength(255)`, `sameAs`, `requiredIf`) so the user gets feedback before a round-trip.
-- **Mirroring is done by shared factories, not per-form literals**, because a rule copied into six forms drifts in one of them. `newPasswordRules()` carries the 8–255 password pair; `emailRules.ts` splits the email rules the way the backend splits them — `accountEmailRules(ignoreId?)` for the endpoints that _write_ a user (register, users, profile: adds `lowercase` and the debounced availability check of feature 008) and `credentialEmailRules()` for those that _read_ one (login, forgot-password, reset: neither rule, since the column collates case-insensitively and the address is meant to already exist).
-- **On this branch the email factories are not wired in yet.** `newPasswordRules()` is shared, so the password bounds already apply, but the auth dialogs and `password-reset.vue` still declare email rules inline (`{ required, email }`, some without `labeledRules`) and so carry the drift the factories exist to prevent: no `lowercase` mirror, no availability check, and `maxLength(255)` missing where the endpoint enforces it. Porting them is open work, tracked in the to-do list.
-- Client messages are localized and name the field: each field's rules are wrapped by `labeledRules(labelKey, rules)`, which resolves `validation.field.*` copy with the field's `common.fields.*` label ("The Email field is required."). `web/regle-config.ts` overrides the library's built-in messages with generic `validation.*` catalog copy as the fallback for any unwrapped rule — including a `requiredIf` entry, because Regle matches messages by the declared rule key, not the rule's type. Both layers resolve `t` lazily, so an open form's errors follow a locale switch.
+- Mirroring runs through shared factories, never per-form literals: `newPasswordRules()` carries the 8–255 password pair; `emailRules.ts` splits the email rules the way the backend does — `accountEmailRules(ignoreId?)` for endpoints that _write_ a user (register, users, profile: adds `lowercase` and feature 008's debounced availability check), `credentialEmailRules()` for those that _read_ one (login, forgot-password, reset: neither rule).
+- On this branch the email factories are not wired in yet: `newPasswordRules()` is shared, so the password bounds apply, but the auth dialogs and `password-reset.vue` still declare email rules inline (`{ required, email }`, some without `labeledRules`) and carry the drift the factories exist to prevent — no `lowercase` mirror, no availability check, and `maxLength(255)` missing where the endpoint enforces it. Porting them is open work, tracked in the to-do list.
+- Client messages are localized and name the field: each field's rules are wrapped by `labeledRules(labelKey, rules)`, resolving `validation.field.*` copy with the field's `common.fields.*` label ("The Email field is required."). `web/regle-config.ts` supplies generic `validation.*` fallbacks for any unwrapped rule, including an explicit `requiredIf` entry — Regle matches messages by the declared rule key, not the rule's type. Both layers resolve `t` lazily, so an open form's errors follow a locale switch.
 - On submit, an invalid form is blocked client-side; a valid form calls its mutation.
 - When the server returns 422, `useValidationErrors` derives a field-keyed map from the mutation's `error` ref; `useExternalErrors` copies that map into a ref Regle owns as its `externalErrors` modifier. Regle clears each entry as the user edits that field — which is why the source is copied, not shared.
-- Every field binds `:error-messages="r$.<field>.$errors"`, so Vuetify renders the combined Regle + external messages under the input itself — this branch has no shared error component. The validation toast is suppressed for forms that opt into inline handling; non-422 errors still toast centrally (feature 005).
-- Client rules may be **stricter** than the server (deliberate): e.g. the profile form marks `name`/`email` required, so the UI never issues a true partial update even though `PUT /api/profile` allows one (recorded in feature 003).
+- Every field binds `:error-messages="r$.<field>.$errors"`, so Vuetify renders the combined Regle + external messages under the input itself — this branch has no shared error component.
+- Client rules may be deliberately stricter than the server: the profile form marks `name`/`email` required, so the UI never issues a true partial update even though `PUT /api/profile` allows one (recorded in feature 003).
 
 ## Roles And Access
 
@@ -87,10 +87,9 @@ No protected area of its own — the backend validation contracts are owned by f
 
 ## Entry Points
 
-- `web/regle-config.ts`: the `@regle/nuxt` setup file — localized fallback messages for the built-in rules.
-- `web/utils/labeledRules.ts`: wraps one field's rules with copy naming that field; forms pass it a `common.fields.*` label key.
-- `web/composables/useValidationErrors.ts`: derives a field-keyed map from a mutation's `error` ref.
-- `web/composables/useExternalErrors.ts`: mirrors that map into a Regle-owned `externalErrors` ref.
+- `web/regle-config.ts` — the `@regle/nuxt` setup file: localized fallback messages for the built-in rules.
+- `web/utils/labeledRules.ts` — wraps one field's rules with copy naming that field (`common.fields.*` label key); `emailRules.ts`, `newPasswordRules.ts` — the shared mirroring factories.
+- `web/composables/useValidationErrors.ts` → `useExternalErrors.ts` — the bridge: a field-keyed map from a mutation's `error` ref, mirrored into a Regle-owned `externalErrors` ref.
 - Per-form Regle schemas in the auth dialogs (`web/components/users/`) and the profile/users/password-reset pages; `web/utils/getValidationErrors.ts`; `web/types/*` Zod schemas (response validation). Rendering is Vuetify's: each input takes the field's `$errors` on its `error-messages` prop.
 
 ## Dependencies
@@ -103,23 +102,17 @@ No protected area of its own — the backend validation contracts are owned by f
 
 ## Tests
 
-- `web/utils/_tests/getValidationErrors.spec.ts` — the 422-to-field-map extraction.
-- `web/utils/_tests/newPasswordRules.spec.ts` — the shared password/confirmation rules driven through a real Regle instance, asserting validity per mode (required, optional, and the runtime create/edit switch) rather than the rule objects; also pins the confirmation's field-named message and both length bounds on both sides (7/8, 255/256).
-- `web/utils/_tests/emailRules.spec.ts` — the two factories driven through a real Regle instance: the availability check invalidating a taken address and naming the field, the fail-open contract under a 500 and a 429, `lowercase`, the 255 bound, no request for an empty or malformed value, `ignoreId` forwarded, and `credentialEmailRules` carrying neither `lowercase` nor the availability call.
-- `web/utils/_tests/labeledRules.spec.ts` — field-named copy, parameterized messages, locale switching on an open form, and the pass-through for rules it has no message for.
+- `web/utils/_tests/` — `getValidationErrors` (the 422-to-field-map extraction); `newPasswordRules` and `emailRules`, driven through a real Regle instance rather than asserting rule objects: validity per mode (required, optional, the create/edit switch), both length bounds on both sides (7/8, 255/256), `lowercase`, the availability check invalidating a taken address and naming the field, failing open on a 500 and a 429, skipping empty or malformed values, `ignoreId` forwarded, and `credentialEmailRules` carrying neither `lowercase` nor the availability call; `labeledRules` (field-named and parameterized copy, locale switching on an open form, pass-through for unknown rules); `handleApiError` (the `hideValidationToast` path keeping a 422 inline, including a 422 carrying no field errors).
 - `web/_tests/regle-config.spec.ts` — the generic catalog fallbacks bare rules get, including the `requiredIf` key that would otherwise fall back to the library's hardcoded English.
-- `web/utils/_tests/handleApiError.spec.ts` — the `hideValidationToast` path that keeps a 422 inline instead of toasting it, including the fallback when a 422 carries no field errors.
-- `web/composables/_tests/useExternalErrors.spec.ts` and `useValidationErrors.spec.ts` — the bridge itself: the empty map a form binds to before anything has failed, the server errors arriving, the copy-not-share that lets Regle clear an entry without reaching back into the source, replacement on a differently-failing submit, and a getter source.
+- `web/composables/_tests/` — the bridge itself (`useValidationErrors`, `useExternalErrors`): the empty map a form binds to before anything has failed, server errors arriving, the copy-not-share that lets Regle clear an entry without reaching back into the source, replacement on a differently-failing submit, and a getter source.
 - `web/components/users/_tests/` — the per-form schemas at component level, across `UserFormDialog`, `UserCard` and the three auth dialogs: the password rules switching with the mode, `sameAs` and the length bounds, a disabled confirmation refusing an incomplete form, and a server 422 landing on its own field rather than in a toast.
 - Known gaps (recorded): on this branch only the password pair reaches `labeledRules`, through `newPasswordRules`; every other field still shows the generic `validation.*` copy until each form passes its `common.fields.*` label — deferred with the rest of the component work.
 
 ## Verification
 
-Traced against source on 2026-08-04: the bridge chain (`useValidationErrors` → `useExternalErrors`, copied-not-shared so Regle can clear on edit) and the `error-messages` binding on each field; the stricter-client asymmetry cross-checked against feature 003. Frontend unit suite green at adoption (`getValidationErrors` spec). Component-level test gaps stand as recorded.
+Traced against source: the bridge chain (`useValidationErrors` → `useExternalErrors`, copied-not-shared so Regle can clear on edit) and the `error-messages` binding on each field; the stricter-client asymmetry cross-checked against feature 003. Frontend suite green at its last recorded run, including the per-form component specs.
 
-2026-08-13, field-named localized messages (walked on `master`'s UI; this branch shares the helpers, not the forms): register form walked live — email/minLength/sameAs errors render with field labels and re-render across en / sr-Latn / sr-Cyrl on a locale switch with the form open; suite green (labeledRules, newPasswordRules, regle-config, locales specs).
-
-2026-08-15, mirroring moved into shared factories (`newPasswordRules` gains `maxLength(255)`; `accountEmailRules`/`credentialEmailRules` split the email rules the way the backend does): 264 frontend tests green, `nuxt typecheck` and `oxlint` clean. Register walked live — the lowercase and availability messages render inline before any submit and clear on correction; `/login` accepts a mixed-case address, confirming the read path deliberately carries neither rule. Two drifts this closed: the client never mirrored `lowercase`, so an uppercase address was promised valid and then 422'd, and three forms lacked the `maxLength(255)` their endpoints enforce.
+The live walk of the field-named localized messages ran on `master`'s UI — this branch shares the helpers, not the forms, so the component specs stand in for it here. Component-level gaps and the unwired email factories stand as recorded.
 
 ## Agent Change Rules
 

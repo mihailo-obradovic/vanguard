@@ -16,9 +16,9 @@ const MESSAGE_KEYS: Record<string, string> = {
 
 // * Wraps each rule of one field with a message naming that field, e.g. "The email field is required." Regle's message context does not expose the field name, so the name has to be attached here, where the field is known — the generic messages in regle-config.ts remain the fallback for unwrapped rules.
 // * `nameKey` is a `validation.fieldNames.*` key, not the `common.fields.*` label the input renders: the name sits mid-sentence in English and so is lowercase there, while the label is capitalized. Serbian sets it in quotation marks and keeps the label's own casing, which is why this is two catalog entries rather than a transform.
-// * Both the name and the message resolve lazily inside the getter, so an open form re-renders its errors when the locale changes.
+// * Both the name and the message resolve lazily inside the getter, so an open form re-renders its errors when the locale changes. `nameKey` may itself be a getter for fields whose visible label switches with a form mode (create vs edit), so the message always names the label the user is looking at.
 export function labeledRules<TRules extends Record<string, RegleRuleRaw>>(
-  nameKey: string,
+  nameKey: MaybeRefOrGetter<string>,
   rules: TRules
 ): TRules {
   return Object.fromEntries(
@@ -34,7 +34,7 @@ export function labeledRules<TRules extends Record<string, RegleRuleRaw>>(
 
           // * Interpolates more than any single message uses; each message picks what it names.
           return t(messageKey, {
-            field: t(nameKey),
+            field: t(toValue(nameKey)),
             max: $params?.[0],
             min: $params?.[0]
           });

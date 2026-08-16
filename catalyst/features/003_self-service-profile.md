@@ -57,7 +57,8 @@ Every account type gets the same profile page; admins additionally manage others
 
 | Input                                                            | Expected Output                                         | Notes                                                                          |
 | ---------------------------------------------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| `{ name: "New Name" }`                                           | 200, name persisted                                     | name-only save; empty `current_password` string is skipped (non-implicit rule) |
+| `{ name: "New Name" }`                                           | 200, name persisted                                     | name-only save; the `current_password` key is absent                           |
+| `{ name: "New Name", current_password: "" }`                     | 422 on `current_password`, name unchanged               | a present-but-empty value is validated, not skipped                            |
 | `{ email: <changed> }`                                           | 200, `email_verified_at` null, verification mail queued |                                                                                |
 | `{ password, password_confirmation, current_password: <wrong> }` | 422 on `current_password`, old password still valid     | no partial write                                                               |
 | `{ role: "admin" }`                                              | 200, role unchanged                                     | escalation blocked twice: rules + fillable                                     |
@@ -71,7 +72,7 @@ Every account type gets the same profile page; admins additionally manage others
 ## Edge Cases
 
 - Same-email resubmission short-circuits in `changeEmail()` — no verification reset, no mail.
-- The frontend always sends `current_password` (possibly `""`); Laravel skips non-implicit rules on empty strings, so name-only saves work.
+- The frontend sends `current_password` only when a new password is being set: a present-but-empty value is not skipped — the `current_password` rule runs against the stored hash and rejects it — so name-only saves must omit the key entirely.
 - Client rules are stricter than the server: Regle marks `name`/`email` required, so the UI never issues a true partial update; the server contract still allows one.
 
 ## Invariants

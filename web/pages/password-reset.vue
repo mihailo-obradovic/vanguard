@@ -36,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import { email, required } from '@regle/rules';
+import { required } from '@regle/rules';
 
 import { useResetPassword } from '@/services/queries/useAuthQueries';
 
@@ -80,7 +80,7 @@ const { r$ } = useRegle(
   form,
   {
     token: { required },
-    email: { required, email },
+    ...credentialEmailRules(),
     ...newPasswordRules(() => form.value.password)
   },
   { externalErrors }

@@ -25,7 +25,6 @@
 </template>
 
 <script setup lang="ts">
-import { email, required } from '@regle/rules';
 
 // ! Stryker instruments this block with locally declared coverage helpers, and a compiler
 // ! macro is hoisted out of setup() — referencing them there is a compile error, not a
@@ -56,7 +55,7 @@ const externalErrors = useExternalErrors(() => props.serverErrors);
 const { r$ } = useRegle(
   form,
   {
-    email: { required, email }
+    ...credentialEmailRules()
   },
   { externalErrors }
 );

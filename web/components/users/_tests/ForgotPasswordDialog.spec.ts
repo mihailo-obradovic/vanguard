@@ -126,6 +126,19 @@ describe('ForgotPasswordDialog', () => {
     expect(confirmed).toHaveLength(0);
   });
 
+  // ! The length bound is what tells the shared factory apart from the bare `{ required, email }`
+  // ! this dialog used to declare: 255 is the column width, and only the factory carries it.
+  it('refuses an address longer than the column allows', async () => {
+    await renderOwner();
+    await open();
+
+    await fireEvent.update(emailField(), `${'a'.repeat(246)}@example.com`);
+    await flushPromises();
+
+    expect(confirmButton().disabled).toBe(true);
+    expect(confirmed).toHaveLength(0);
+  });
+
   // ! The 422 only reaches the field once the submit has marked it dirty — Regle keeps `$errors`
   // ! empty for an untouched field, external errors included. That is why this walks the real
   // ! sequence (fill, submit, server refuses) rather than just setting the prop.

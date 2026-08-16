@@ -36,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import { email, required } from '@regle/rules';
+import { required } from '@regle/rules';
 
 import type { Credentials } from '@/types/auth';
 
@@ -71,7 +71,7 @@ const externalErrors = useExternalErrors(() => props.serverErrors);
 const { r$ } = useRegle(
   form,
   {
-    email: { required, email },
+    ...credentialEmailRules(),
     password: { required }
   },
   { externalErrors }

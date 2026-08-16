@@ -16,8 +16,6 @@
     },
     "loginLink": "Login here",
     "passwordReset": {
-      "confirmNewPassword": "Confirm New Password",
-      "newPassword": "New Password",
       "submit": "Reset Password",
       "submitting": "Resetting...",
       "title": "Reset Password"
@@ -45,11 +43,11 @@
       "message": "We use cookies to enhance your experience. You can accept or decline non-essential cookies."
     },
     "fields": {
-      "currentPassword": "Current Password",
+      "currentPassword": "Current password",
       "email": "Email",
       "name": "Name",
       "password": "Password",
-      "passwordConfirmation": "Password Confirmation",
+      "passwordConfirmation": "Password confirmation",
       "role": "Role"
     },
     "footer": {
@@ -82,9 +80,9 @@
   "profile": {
     "edit": "Edit Profile",
     "form": {
-      "confirmNewPassword": "Confirm New Password (required if changing password)",
-      "currentPassword": "Current Password (required when changing password)",
-      "newPassword": "New Password (leave empty to keep current)",
+      "confirmNewPassword": "Confirm new password (required if changing password)",
+      "currentPassword": "Current password (required when changing password)",
+      "newPassword": "New password (leave empty to keep current)",
       "submit": "Update Profile"
     },
     "info": {

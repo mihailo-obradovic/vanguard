@@ -16,8 +16,6 @@
     },
     "loginLink": "Пријавите се овде",
     "passwordReset": {
-      "confirmNewPassword": "Потврди нову лозинку",
-      "newPassword": "Нова лозинка",
       "submit": "Ресетуј лозинку",
       "submitting": "Ресетовање...",
       "title": "Ресетовање лозинке"

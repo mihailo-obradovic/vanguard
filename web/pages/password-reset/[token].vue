@@ -27,7 +27,7 @@
 
         <div class="form-group">
           <label for="password" class="form-label">
-            {{ $t('auth.passwordReset.newPassword') }}
+            {{ $t('common.fields.password') }}
           </label>
 
           <input
@@ -44,7 +44,7 @@
 
         <div class="form-group">
           <label for="password_confirmation" class="form-label">
-            {{ $t('auth.passwordReset.confirmNewPassword') }}
+            {{ $t('common.fields.passwordConfirmation') }}
           </label>
 
           <input

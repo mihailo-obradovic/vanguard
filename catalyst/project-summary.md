@@ -44,9 +44,9 @@ One line per record: type, status, title, link.
 
 Present only when the project has standing, cross-cutting domain or method decisions that must stay visible and locked (e.g. "negative values are signal, never clipped"). Pre-resolved judgment calls the agent follows and does not re-litigate — distinct from decision records (architectural why, lazy-loaded) and Protected Areas (load-bearing contracts). One line each: the decision + short rationale. A local decision in a feature or experiment graduates here when it proves cross-cutting.
 
-| Decision                       | Rationale |
-| ------------------------------ | --------- |
-| _No documented decisions yet._ | -         |
+| Decision                                                                                             | Rationale                                                                                              |
+| ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| Feature documents carry the current contract only — no history, dates, commit hashes, or retro-narration | Git holds the history; the repo is a template base, so a document must read as the contract it is today |
 
 ## Protected Areas
 

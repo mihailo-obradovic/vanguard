@@ -38,7 +38,7 @@ const emailAvailable = createRule({
 // * endpoints exactly: no `lowercase`, and no availability check (the address is meant to exist).
 export function credentialEmailRules() {
   return {
-    email: labeledRules('common.fields.email', {
+    email: labeledRules('validation.fieldNames.email', {
       required,
       email,
       maxLength: maxLength(255)
@@ -51,7 +51,7 @@ export function credentialEmailRules() {
 export function accountEmailRules(ignoreId?: () => number | undefined) {
   return {
     email: {
-      ...labeledRules('common.fields.email', {
+      ...labeledRules('validation.fieldNames.email', {
         required,
         email,
         maxLength: maxLength(255),

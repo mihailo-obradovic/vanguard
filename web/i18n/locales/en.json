@@ -184,6 +184,14 @@
       "required": "The {field} field is required.",
       "sameAs": "The {field} field does not match."
     },
+    "fieldNames": {
+      "currentPassword": "current password",
+      "email": "email",
+      "name": "name",
+      "password": "password",
+      "passwordConfirmation": "password confirmation",
+      "role": "role"
+    },
     "lowercase": "This field must be lowercase.",
     "maxLength": "This field must be at most {max} characters.",
     "minLength": "This field must be at least {min} characters.",

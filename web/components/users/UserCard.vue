@@ -187,7 +187,7 @@ const { r$ } = useRegle(
     ...nameRules(),
     // * The signed-in user already owns their own address, so the check has to ignore them.
     ...accountEmailRules(() => user.value?.id),
-    current_password: labeledRules('common.fields.currentPassword', {
+    current_password: labeledRules('validation.fieldNames.currentPassword', {
       requiredIf: requiredIf(() => !!form.value.password)
     }),
     ...newPasswordRules(() => form.value.password, true)

@@ -172,7 +172,7 @@ describe('UserCard', () => {
     await fireEvent.click(button('Save'));
 
     expect(
-      await screen.findByText('The Current Password field is required.')
+      await screen.findByText('The current password field is required.')
     ).toBeTruthy();
     expect(emitted().update).toBeUndefined();
   });
@@ -223,7 +223,7 @@ describe('UserCard', () => {
     await fireEvent.click(button('Save'));
 
     expect(
-      await screen.findByText('The Email field must be a valid email address.')
+      await screen.findByText('The email field must be a valid email address.')
     ).toBeTruthy();
     expect(emitted().update).toBeUndefined();
   });
@@ -325,7 +325,7 @@ describe('UserCard', () => {
     await fireEvent.update(field(/^Name$/), '');
     await fireEvent.click(button('Save'));
 
-    expect(await screen.findByText('The Name field is required.')).toBeTruthy();
+    expect(await screen.findByText('The name field is required.')).toBeTruthy();
     expect(emitted().update).toBeUndefined();
   });
 });

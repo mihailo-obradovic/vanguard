@@ -68,6 +68,6 @@ describe('nameRules', () => {
 
     await validate();
 
-    expect(nameErrors()).toContain('The Name field is required.');
+    expect(nameErrors()).toContain('The name field is required.');
   });
 });

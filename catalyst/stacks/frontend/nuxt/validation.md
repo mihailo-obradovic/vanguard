@@ -57,7 +57,7 @@ Where a project needs custom rules or shared error messages, the module injects 
 Two things to know about that message layer:
 
 - **Messages match on the key a form declares a rule under, not the rule's internal type.** A field declaring `requiredIf` is not covered by a `required` entry — every rule name forms actually use needs its own entry, or it falls back to the library's hardcoded English.
-- **The setup file cannot name the field** — Regle's message context (`$value`, `$params`, rule state) carries no field name. Copy that names the field ("The Email field is required.") is attached where the field is known: a small helper (`utils/labeledRules.ts` here) wraps one field's rules with `withMessage`, resolving the field's label and the message lazily inside the getter so open forms follow locale changes. The setup file's generic messages remain the fallback for any unwrapped rule.
+- **The setup file cannot name the field** — Regle's message context (`$value`, `$params`, rule state) carries no field name. Copy that names the field ("The email field is required.") is attached where the field is known: a small helper (`utils/labeledRules.ts` here) wraps one field's rules with `withMessage`, resolving the field's name and the message lazily inside the getter so open forms follow locale changes. The name the message interpolates is its own catalog entry, not the label the input renders — a name sitting mid-sentence and a label heading an input want different casing, and which one differs is per locale, so a transform in code cannot serve both. The setup file's generic messages remain the fallback for any unwrapped rule.
 
 ### The auto-import boundary
 

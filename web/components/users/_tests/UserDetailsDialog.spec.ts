@@ -195,7 +195,7 @@ describe('UserDetailsDialog', () => {
     await fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
 
     expect(
-      await screen.findByText('The Email field must be a valid email address.')
+      await screen.findByText('The email field must be a valid email address.')
     ).toBeTruthy();
     expect(confirmed).toHaveLength(0);
   });
@@ -301,7 +301,7 @@ describe('UserDetailsDialog', () => {
     await fireEvent.update(field(/^Name$/), '');
     await fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
 
-    expect(await screen.findByText('The Name field is required.')).toBeTruthy();
+    expect(await screen.findByText('The name field is required.')).toBeTruthy();
     expect(confirmed).toHaveLength(0);
   });
 });

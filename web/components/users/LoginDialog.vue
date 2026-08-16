@@ -77,17 +77,11 @@ const { r$ } = useRegle(
   { externalErrors }
 );
 
-function handleCancel() {
-  dialog.value = false;
-}
-
-async function handleConfirm() {
-  const { valid } = await r$.$validate();
-
-  if (valid) {
-    emit('confirm', form.value);
-  }
-}
+const { handleCancel, handleConfirm, handleAfterLeave } = useDialogForm(
+  dialog,
+  r$,
+  { form, onSubmit: (values) => emit('confirm', values) }
+);
 
 function handleForgotPasswordClick() {
   dialog.value = false;
@@ -99,9 +93,5 @@ function handleRegisterClick() {
   dialog.value = false;
 
   emit('register-click');
-}
-
-function handleAfterLeave() {
-  r$.$reset({ toInitialState: true, clearExternalErrors: true });
 }
 </script>

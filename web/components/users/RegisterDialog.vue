@@ -91,27 +91,21 @@ const { r$ } = useRegle(
   { externalErrors }
 );
 
-function handleCancel() {
-  dialog.value = false;
-}
-
-async function handleConfirm() {
-  const { valid } = await r$.$validate();
-
-  if (valid) {
-    emit('confirm', form.value);
+const { handleCancel, handleConfirm, handleAfterLeave } = useDialogForm(
+  dialog,
+  r$,
+  {
+    form,
+    onReset: () => {
+      showPassword.value = false;
+    },
+    onSubmit: (values) => emit('confirm', values)
   }
-}
+);
 
 function handleLogInClick() {
   dialog.value = false;
 
   emit('log-in-click');
-}
-
-function handleAfterLeave() {
-  showPassword.value = false;
-
-  r$.$reset({ toInitialState: true, clearExternalErrors: true });
 }
 </script>

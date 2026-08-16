@@ -97,24 +97,10 @@ const { r$ } = useRegle(
   { externalErrors }
 );
 
-function handleCancel() {
-  dialog.value = false;
-}
-
-async function handleConfirm() {
-  const { valid } = await r$.$validate();
-
-  if (valid) {
-    emit('confirm', { ...form.value });
-  }
-}
-
-// ! Resets on open, not after-leave: the target state depends on the `user` prop, which the parent assigns right before opening — at close time it still describes the previous session
-watch(dialog, (open) => {
-  if (!open) {
-    return;
-  }
-
-  r$.$reset({ toState: initialFormState(), clearExternalErrors: true });
+// * Passing `initialState` puts this form on the on-open reset: its target state depends on the `user` prop, which the parent assigns right before opening (`useDialogForm`).
+const { handleCancel, handleConfirm } = useDialogForm(dialog, r$, {
+  form,
+  initialState: initialFormState,
+  onSubmit: (values) => emit('confirm', values)
 });
 </script>

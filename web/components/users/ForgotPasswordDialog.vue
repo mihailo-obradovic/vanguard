@@ -25,7 +25,6 @@
 </template>
 
 <script setup lang="ts">
-
 // ! Stryker instruments this block with locally declared coverage helpers, and a compiler
 // ! macro is hoisted out of setup() — referencing them there is a compile error, not a
 // ! warning. The defaults inside go unmutated as a result (`catalyst/operations.md`).
@@ -60,25 +59,15 @@ const { r$ } = useRegle(
   { externalErrors }
 );
 
-function handleCancel() {
-  dialog.value = false;
-}
-
-async function handleConfirm() {
-  const { valid } = await r$.$validate();
-
-  if (valid) {
-    emit('confirm', form.value);
-  }
-}
+const { handleCancel, handleConfirm, handleAfterLeave } = useDialogForm(
+  dialog,
+  r$,
+  { form, onSubmit: (values) => emit('confirm', values) }
+);
 
 function handleBackToLoginClick() {
   dialog.value = false;
 
   emit('back-to-login-click');
-}
-
-function handleAfterLeave() {
-  r$.$reset({ toInitialState: true, clearExternalErrors: true });
 }
 </script>

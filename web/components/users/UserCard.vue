@@ -128,7 +128,7 @@
 
 <script setup lang="ts">
 import { mdiCheck, mdiClose, mdiPencil } from '@mdi/js';
-import { email, maxLength, required, requiredIf } from '@regle/rules';
+import { maxLength, required, requiredIf } from '@regle/rules';
 
 import { useResendEmailVerification } from '@/services/queries/useAuthQueries';
 
@@ -185,7 +185,8 @@ const { r$ } = useRegle(
   form,
   {
     name: { required, maxLength: maxLength(255) },
-    email: { required, email, maxLength: maxLength(255) },
+    // * The signed-in user already owns their own address, so the check has to ignore them.
+    ...accountEmailRules(() => user.value?.id),
     current_password: { requiredIf: requiredIf(() => !!form.value.password) },
     ...newPasswordRules(() => form.value.password, true)
   },

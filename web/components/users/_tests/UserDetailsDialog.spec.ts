@@ -6,6 +6,11 @@ import { createVuetify } from 'vuetify';
 import { defineComponent, nextTick, reactive } from 'vue';
 
 import { buildUser } from '@/mocks/fixtures';
+import { http, HttpResponse } from 'msw';
+
+import { server } from '@/mocks/server';
+import { apiUrl } from '@/mocks/api';
+import { emailAvailabilityHandler } from '@/mocks/handlers/user';
 
 import UserDetailsDialog from '../UserDetailsDialog.vue';
 
@@ -87,6 +92,21 @@ function field(label: RegExp) {
   return screen.getByLabelText(label) as HTMLInputElement;
 }
 
+function confirmButton() {
+  return screen.getByRole('button', { name: 'Confirm' }) as HTMLButtonElement;
+}
+
+/**
+ * ! The availability check is a debounced network rule and the confirmation is bound to
+ * ! `r$.$invalid`, so the button is disabled while the check is in flight — a click landing then
+ * ! does nothing at all. `flushPromises` cannot settle a 500ms timer; this waits on the button.
+ */
+function readyToConfirm() {
+  return waitFor(() => expect(confirmButton().disabled).toBe(false), {
+    timeout: 3000
+  });
+}
+
 /** The role dropdown opens on ArrowDown — a click on the field does not reach it in happy-dom. */
 async function chooseRole(name: string) {
   await fireEvent.keyDown(field(/^Role$/), { key: 'ArrowDown' });
@@ -97,6 +117,8 @@ describe('UserDetailsDialog', () => {
   beforeEach(() => {
     Object.assign(owner, { open: false, user: null, serverErrors: {} });
     confirmed.length = 0;
+    // * The email rules ask whether the address is free the moment one is typed.
+    server.use(emailAvailabilityHandler());
   });
 
   afterEach(() => {
@@ -143,7 +165,8 @@ describe('UserDetailsDialog', () => {
     await open(ANA);
 
     await fireEvent.update(field(/^Name$/), 'Ana Marić');
-    await fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+    await readyToConfirm();
+    await fireEvent.click(confirmButton());
 
     await waitFor(() => expect(confirmed).toHaveLength(1));
     expect(confirmed[0]).toEqual({
@@ -161,7 +184,7 @@ describe('UserDetailsDialog', () => {
     await fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
 
     expect(
-      await screen.findByText('Please enter a valid email address.')
+      await screen.findByText('The Email field must be a valid email address.')
     ).toBeTruthy();
     expect(confirmed).toHaveLength(0);
   });
@@ -172,7 +195,8 @@ describe('UserDetailsDialog', () => {
     await renderOwner();
     await open(ANA);
 
-    await fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+    await readyToConfirm();
+    await fireEvent.click(confirmButton());
     owner.serverErrors = { email: ['That email is already taken.'] };
     await nextTick();
 
@@ -181,12 +205,40 @@ describe('UserDetailsDialog', () => {
     ).toBeTruthy();
   });
 
+  // ! The user being edited owns the address already, so the check has to exclude them, or an edit
+  // ! that only changes the role would be refused by the form itself.
+  it('asks the server whether the address is free, ignoring the user being edited', async () => {
+    const asked: URL[] = [];
+
+    server.use(
+      http.get(apiUrl('/api/email-availability'), ({ request }) => {
+        asked.push(new URL(request.url));
+
+        return HttpResponse.json({ available: true });
+      })
+    );
+
+    await renderOwner();
+    await open(ANA);
+
+    await fireEvent.update(field(/^Email$/), 'ana.maric@example.com');
+
+    // * Opening already checks the address the dialog was filled with, so the typed one is later.
+    await waitFor(() =>
+      expect(asked.at(-1)?.searchParams.get('email')).toBe(
+        'ana.maric@example.com'
+      )
+    );
+    expect(asked.at(-1)!.searchParams.get('ignore_id')).toBe(String(ANA.id));
+  });
+
   it('offers both roles, and reports the one chosen', async () => {
     await renderOwner();
     await open(ANA);
 
     await chooseRole('User');
-    await fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+    await readyToConfirm();
+    await fireEvent.click(confirmButton());
 
     await waitFor(() => expect(confirmed).toHaveLength(1));
     expect(confirmed[0]).toMatchObject({ role: 'user' });

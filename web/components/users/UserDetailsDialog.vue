@@ -32,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import { email, maxLength, required } from '@regle/rules';
+import { maxLength, required } from '@regle/rules';
 
 import type { User } from '@/types/auth';
 
@@ -91,7 +91,8 @@ const { r$ } = useRegle(
   form,
   {
     name: { required, maxLength: maxLength(255) },
-    email: { required, email, maxLength: maxLength(255) }
+    // * The user being edited owns the address already, so the check has to ignore them.
+    ...accountEmailRules(() => props.user?.id)
   },
   { externalErrors }
 );

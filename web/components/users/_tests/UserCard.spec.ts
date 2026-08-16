@@ -6,8 +6,12 @@ import { flushPromises } from '@vue/test-utils';
 import { createVuetify } from 'vuetify';
 import { defineComponent, reactive } from 'vue';
 
+import { http, HttpResponse } from 'msw';
+
 import { server } from '@/mocks/server';
+import { apiUrl } from '@/mocks/api';
 import { authHandlers } from '@/mocks/handlers/auth';
+import { emailAvailabilityHandler } from '@/mocks/handlers/user';
 import { recordRequests } from '@/mocks/requests';
 import { buildUser } from '@/mocks/fixtures';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -67,7 +71,8 @@ describe('UserCard', () => {
   beforeEach(() => {
     owner.serverErrors = {};
     requests.reset();
-    server.use(...authHandlers());
+    // * The email rules ask whether the address is free the moment one is typed.
+    server.use(...authHandlers(), emailAvailabilityHandler());
     useAuthStore().resetUser();
     useAuthStore().setUser(
       buildUser({ name: 'Ana', email: 'ana@example.com' })
@@ -214,7 +219,7 @@ describe('UserCard', () => {
     await fireEvent.click(button('Save'));
 
     expect(
-      await screen.findByText('Please enter a valid email address.')
+      await screen.findByText('The Email field must be a valid email address.')
     ).toBeTruthy();
     expect(emitted().update).toBeUndefined();
   });
@@ -237,6 +242,35 @@ describe('UserCard', () => {
     expect(
       await screen.findByText('That email is already taken.')
     ).toBeTruthy();
+  });
+
+  // ! The signed-in user already owns their address, so the check has to exclude them — otherwise
+  // ! saving a profile whose email never changed would be refused by the form itself. The id comes
+  // ! from the store here, unlike the user dialogs where it comes from a prop.
+  it('asks the server whether the address is free, ignoring the signed-in user', async () => {
+    const asked: URL[] = [];
+
+    server.use(
+      http.get(apiUrl('/api/email-availability'), ({ request }) => {
+        asked.push(new URL(request.url));
+
+        return HttpResponse.json({ available: true });
+      })
+    );
+
+    await renderCard();
+    await startEditing();
+
+    await fireEvent.update(field(/^Email$/), 'ana.maric@example.com');
+
+    await waitFor(() =>
+      expect(asked.at(-1)?.searchParams.get('email')).toBe(
+        'ana.maric@example.com'
+      )
+    );
+    expect(asked.at(-1)!.searchParams.get('ignore_id')).toBe(
+      String(useAuthStore().user!.id)
+    );
   });
 
   it('says the address is confirmed for a verified user', async () => {

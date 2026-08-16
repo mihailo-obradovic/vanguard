@@ -260,6 +260,30 @@ describe('UserDetailsDialog', () => {
     expect(confirmed[0]).toMatchObject({ role: 'user' });
   });
 
+  // ! The same subject-less opening, but typing: a dialog opened before its subject arrives still
+  // ! has to ask, and ask about nobody in particular. Note this does not pin the optional chaining
+  // ! in `props.user?.id` — Regle swallows a throw in that getter and sends the request without an
+  // ! `ignore_id` either way (measured; the mutant is an accepted survivor in `operations.md`).
+  it('still checks the address when there is no user to edit', async () => {
+    const asked: URL[] = [];
+
+    server.use(
+      http.get(apiUrl('/api/email-availability'), ({ request }) => {
+        asked.push(new URL(request.url));
+
+        return HttpResponse.json({ available: true });
+      })
+    );
+
+    await renderOwner();
+    await open(null);
+
+    await fireEvent.update(field(/^Email$/), 'bob@example.com');
+
+    await waitFor(() => expect(asked).toHaveLength(1));
+    expect(asked[0]!.searchParams.get('ignore_id')).toBeNull();
+  });
+
   // ! The owner sets `user` and the open flag separately, so a dialog opened before its subject
   // ! arrives must fall back to a blank form rather than render `undefined` into the fields.
   it('opens blank when there is no user to edit', async () => {

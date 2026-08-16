@@ -361,6 +361,32 @@ describe('UserFormDialog', () => {
     expect(confirmButton().disabled).toBe(true);
   });
 
+  // ! The same subject-less edit, but typing: an edit whose subject has not arrived still has to
+  // ! ask, and ask about nobody in particular. Note this does not pin the optional chaining in
+  // ! `props.user?.id` — Regle swallows a throw in that getter and sends the request without an
+  // ! `ignore_id` either way (measured; the mutant is an accepted survivor in `operations.md`).
+  it('still checks the address when an edit has no user yet', async () => {
+    const asked: URL[] = [];
+
+    server.use(
+      http.get(apiUrl('/api/email-availability'), ({ request }) => {
+        asked.push(new URL(request.url));
+
+        return HttpResponse.json({ available: true });
+      })
+    );
+
+    await renderOwner();
+    await open({ editMode: true, user: null });
+
+    await fireEvent.update(field(/^Email$/), 'bob@example.com');
+
+    await waitFor(() => expect(asked).toHaveLength(1));
+    expect(asked[0]!.searchParams.get('ignore_id')).toBeNull();
+
+    await flushPromises();
+  });
+
   // ! `editMode` and `user` are set by the owner independently, so an edit whose subject has not
   // ! arrived yet must fall back to a blank form rather than render `undefined` into the fields.
   it('opens blank when an edit has no user yet', async () => {

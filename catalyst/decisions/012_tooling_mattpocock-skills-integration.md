@@ -14,13 +14,13 @@ Easy
 
 ## Context
 
-The `mattpocock-skills` plugin (v1.2.3) is installed in this repository's agent harness. It provides an idea-to-ship pipeline (`/grill-with-docs` → `/to-spec` → `/to-tickets` → `/implement`) plus `/triage`, `/diagnosing-bugs`, `/code-review`, `/tdd`, and `/domain-modeling`. Its `/setup-matt-pocock-skills` precondition expects per-repo configuration: an issue tracker, a triage label vocabulary, and a domain-doc layout, by default under `docs/agents/` with a root `CONTEXT.md` glossary and `docs/adr/` ADRs.
+The `mattpocock-skills` plugin (v1.2.3) is installed in this repository's agent harness. It provides an idea-to-ship pipeline (`/grill-with-docs` → `/to-spec` → `/to-tickets` → `/implement`) plus `/triage`, `/diagnosing-bugs`, `/code-review`, `/tdd`, and `/domain-modeling`. Its `/setup-matt-pocock-skills` precondition expects per-repo configuration: an issue tracker, a triage label vocabulary, and a domain-doc layout — by default `docs/agents/`, a root `CONTEXT.md` glossary, and `docs/adr/`.
 
-The project already runs under Catalyst, whose Tool Routing (`prime-directive.md`) anticipates installed pipelines: weights route the same way, and the repository's entry document records the concrete tool mapping. Left unconfigured, the skills would create a parallel governance surface — a second ADR home, a second spec format, and a third task location beside Workflowy.
+The project already runs under Catalyst, whose Tool Routing (`prime-directive.md`) anticipates installed pipelines: weights route the same way, and the repository's entry document records the concrete tool mapping. Unconfigured, the skills would grow a parallel governance surface — a second ADR home, a second spec format, a third task location beside Workflowy.
 
 ## Decision
 
-Configure the skills to run inside Catalyst's structures instead of beside them:
+Configure the skills to run inside Catalyst's structures, not beside them:
 
 - **Issue tracker: Workflowy** (the existing source-of-truth node `Home → Work → Vanguard`), recorded as an "Other" tracker in `agents/issue-tracker.md`. Rejected: GitHub Issues (native label/blocking support, but splits the task source of truth) and local markdown under `.scratch/` (a third task location).
 - **Single ADR system:** skills read and write `decisions/` using the Catalyst template, numbering, worthiness test, and `Proposed` → `Accepted` flow. No `docs/adr/`. Rejected: a second lightweight ADR tier (two homes for one document type).

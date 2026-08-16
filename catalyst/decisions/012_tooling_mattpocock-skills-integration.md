@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Implemented
 
 ## Type
 
@@ -51,6 +51,6 @@ Configure the skills to run inside Catalyst's structures instead of beside them:
 
 ## Verification
 
-- `python3 catalyst/tools/validate.py .` passes with the new documents.
-- Root `AGENTS.md` generated block byte-identical (diff shows additions only outside the markers).
-- `workflowy_list` on node `5a55338a-20d1-0ab4-8cbe-3d075daaf161` resolves, confirming the tracker contract in `agents/issue-tracker.md` is real.
+- `python3 catalyst/tools/validate.py .` ran after each step: 0 errors, 0 notes throughout.
+- Root `AGENTS.md` diff was insertions-only after the `catalyst:end` marker; the generated block stayed byte-identical.
+- `workflowy_list` on node `5a55338a-20d1-0ab4-8cbe-3d075daaf161` resolved the live Vanguard task list (with its `#archive` child), confirming the tracker contract in `agents/issue-tracker.md` against the real tree.

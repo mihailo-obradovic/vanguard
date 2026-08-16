@@ -47,12 +47,6 @@ describe('CardDialog', () => {
     document.body.innerHTML = '';
   });
 
-  it('heads the dialog with the title it was given', async () => {
-    await renderDialog();
-
-    expect(screen.getByText('Edit user')).toBeTruthy();
-  });
-
   it('shows the content it was handed', async () => {
     await renderDialog({}, { default: '<p>Some field</p>' });
 
@@ -80,7 +74,8 @@ describe('CardDialog', () => {
   // ! The `v-if="$slots.…"` guards on the forwarded slots are defensive, not load-bearing: Vue
   // ! falls back when a forwarded slot renders nothing, so dropping them changes nothing here.
   // ! This case pins what the user sees — an owner that supplies no slots still gets a titled
-  // ! dialog with both buttons — rather than the guard itself.
+  // ! dialog with both buttons — rather than the guard itself. It carries the plain title too,
+  // ! which is why there is no separate case for it.
   it('leaves the card’s own title and buttons in place when no slots are given', async () => {
     await renderDialog();
 

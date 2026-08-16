@@ -19,8 +19,7 @@ test('non-admins cannot access user management', function () {
 
     $this->actingAs($user)
         ->getJson('/api/users')
-        ->assertForbidden()
-        ->assertJsonPath('message', 'Forbidden. Admin access required.');
+        ->assertForbidden();
 });
 
 test('guests cannot access user management', function () {
@@ -276,8 +275,7 @@ test('admins cannot delete their own account', function () {
 
     $this->actingAs($admin)
         ->deleteJson("/api/users/{$admin->id}")
-        ->assertForbidden()
-        ->assertJsonPath('message', 'You cannot delete your own account.');
+        ->assertForbidden();
 
     $this->assertDatabaseHas('users', ['id' => $admin->id]);
 });

@@ -35,11 +35,9 @@ One line per record: type, status, title, link.
 | 005 | infra       | Implemented | Client-only SPA (`ssr: false`), paired with cookie-session auth     | [decisions/005_infra_spa-no-ssr.md](decisions/005_infra_spa-no-ssr.md)                               |
 | 006 | infra       | Accepted    | Adopt the i18n addon (`@nuxtjs/i18n`) with en / sr-Latn / sr-Cyrl   | [decisions/006_infra_i18n-adoption.md](decisions/006_infra_i18n-adoption.md)                         |
 | 007 | infra       | Implemented | Serve GraphQL alongside REST (Lighthouse + a fetcher-based client)  | [decisions/007_infra_graphql-alongside-rest.md](decisions/007_infra_graphql-alongside-rest.md)       |
-| 008 | process     | Implemented | Testing strategy: coverage measured not gated, `_tests/` placement  | [decisions/008_process_testing-strategy.md](decisions/008_process_testing-strategy.md)               |
-| 009 | process     | Implemented | Test-quality doctrine (Khorikov), MSW at the wire, mutation audits  | [decisions/009_process_test-quality-doctrine.md](decisions/009_process_test-quality-doctrine.md)     |
 | 010 | ui          | Implemented | Vuetify as this branch's UI layer                                   | [decisions/010_ui_vuetify-variant.md](decisions/010_ui_vuetify-variant.md)                           |
-| 011 | process     | Proposed    | Coverage stays measured, never gated (answers 008's revisit clause) | [decisions/011_process_coverage-gates.md](decisions/011_process_coverage-gates.md)                   |
 | 012 | tooling     | Implemented | mattpocock-skills run inside Catalyst structures (Workflowy tracker, single ADR home, glossary as context doc) | [decisions/012_tooling_mattpocock-skills-integration.md](decisions/012_tooling_mattpocock-skills-integration.md) |
+| 013 | process     | Implemented | Testing rulebook: strategy, quality doctrine, mutation and coverage stance in one record (supersedes 008/009/011, deleted) | [decisions/013_process_testing-rulebook.md](decisions/013_process_testing-rulebook.md)               |
 
 ## Domain Decision Index
 
@@ -48,6 +46,7 @@ Present only when the project has standing, cross-cutting domain or method decis
 | Decision                                                                                             | Rationale                                                                                              |
 | ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
 | Feature documents carry the current contract only — no history, dates, commit hashes, or retro-narration | Git holds the history; the repo is a template base, so a document must read as the contract it is today |
+| Superseded decision records are deleted, not kept — the superseding record and git history hold the why    | Same template-base reasoning; `Superseded by <nnn>` stays available for a record genuinely worth keeping |
 
 ## Protected Areas
 

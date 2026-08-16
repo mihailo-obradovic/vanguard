@@ -6,7 +6,7 @@ The universal rules for what makes a test worth keeping. Framework follows Khori
 
 ## Purpose
 
-A test suite exists to keep the cost of change flat as the codebase grows. A test is an asset only while its value exceeds its maintenance cost; one that must be edited every time the code is restructured is a liability — fix it or delete it. Coverage is read accordingly (`decisions/008`): low coverage is evidence of a problem, high coverage is evidence of nothing, and no test is ever added just to move the number. Every test must be able to answer: _what regression does this catch, and what refactor would falsely break it?_
+A test suite exists to keep the cost of change flat as the codebase grows. A test is an asset only while its value exceeds its maintenance cost; one that must be edited every time the code is restructured is a liability — fix it or delete it. Coverage is read accordingly (`decisions/013`): low coverage is evidence of a problem, high coverage is evidence of nothing, and no test is ever added just to move the number. Every test must be able to answer: _what regression does this catch, and what refactor would falsely break it?_
 
 ## The four pillars
 
@@ -44,6 +44,16 @@ Structure code as a functional core in an imperative shell so output-based testi
 ## What to test
 
 By complexity × collaborator count: **complex logic with few collaborators** (domain rules, algorithms) → unit test thoroughly, the highest ROI in the suite. **Trivial code** → don't test. **Complex logic tangled with many collaborators** → refactor into the other two cells first; an elaborate mock-heavy test is never the fix. **Orchestration** (controllers, wiring) → integration test through the real entry point.
+
+## What is deliberately not tested
+
+The defaults above are global. Exactly three exceptions exist, and every deliberate omission must be an instance of one — folder- or file-level carve-outs are never rules of their own:
+
+1. **Presentation belongs to the live browser walk, not the suite.** Pages, presentational components, template-only logic a mutation tool cannot see, and environment-bound behavior a test DOM cannot observe (transitions, scroll and viewport measurement, hydration guards).
+2. **Copy is not contract.** Messages, labels, titles, and log text are never asserted; their mutants are accepted.
+3. **Behavior unobservable at the suite's level is proven where it is observable.** Browser-enforced effects (cookie lifetime, credentials mode), events nothing consumes yet, defensive code unreachable through real entry points — recorded as accepted survivors, with reasons.
+
+Meta-rule: **every 0% is legible.** A file is either tested or carries a per-file "deliberately untested" entry naming its exception in the project runbook's register (`operations.md`); an omission without an entry is an oversight, not an exception. A candidate exclusion either derives from one of the three or gets a test.
 
 ## Structure
 

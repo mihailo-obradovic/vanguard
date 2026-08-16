@@ -103,7 +103,7 @@ No protected area of its own — the backend contracts this layer calls are prot
 - `web/services/queries/_tests/` — `useAuthQueries` (the store side effects and their ordering against caller callbacks; the user fetch living inside the login/register mutation), `useUserQueries` and `useUserGqlQueries` (which keys each mutation invalidates, including when the write fails, and the two namespaces staying separate).
 - `web/composables/_tests/` — `useAppQuery` (previous data held mid-flight by `placeholderData`) and `useAppMutation`; both cover error handling being wired only inside a component instance.
 - `web/stores/_tests/useAuthStore.spec.ts` — `isLoggedIn`/`isAdmin` derivation and the readonly exposure.
-- Remaining frontend gaps are outside this layer — the auth dialogs, the shared dialog bases, and the pages (`decisions/008`).
+- Remaining frontend gaps are outside this layer — the pages (`decisions/013`).
 
 ## Verification
 

@@ -6,7 +6,7 @@ Catalyst version: 1.5.0
 
 Vanguard is a full-stack starter pairing a Laravel 13 JSON API with a Nuxt 4 SPA in one repository. It ships session-based Sanctum authentication (Breeze-style endpoints), admin-gated user CRUD with role-based access, self-service profile management, and a cookie-consent banner. The data-layer and validation conventions it exists to demonstrate — Pinia Colada two-layer services and Regle + Zod — have their own demonstration feature contracts (005, 006) alongside the stack modules that hold their rules. It is the reference implementation for Catalyst's nuxt + laravel pairing, and doubles as an experimental testbed for the optimal Laravel + Nuxt setup across UI-library variants. Product vision, audience, and priorities live in `context/product-description.md`.
 
-Context documents: `context/product-description.md` (`references/context-documents.md`)
+Context documents: `context/product-description.md`, `context/domain-glossary.md` (`references/context-documents.md`)
 
 ## Feature Index
 

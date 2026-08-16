@@ -9,7 +9,7 @@ How this module tests. Read this when adding a frontend test, deciding what leve
 
 An SPA built on this stack concentrates its logic below the components: utils, composables, stores, services, query composables. That is where tests earn their keep — a pure function with branches gets a unit test the day it is written, and keeping logic extractable into those layers (the pattern `routing.md` uses for `authRedirectLogic`) is what keeps it testable.
 
-Pages and presentational components are not unit-tested by default. Their behavior is proven from the other side: the backend feature suite pins the API contract, and the prime directive's live browser walk verifies the rendered UI per feature — recorded in each feature's Tests section, as `architecture.md` (Testing) allows. A component earns a mounted test only when it carries real logic of its own — branching render state, non-trivial event handling, its own persistence (`CookieConsentBanner`, not `TheFooter`).
+Pages and presentational components are not unit-tested by default — the presentation exception (`conventions/testing.md`, What is deliberately not tested). Their behavior is proven from the other side: the backend feature suite pins the API contract, and the prime directive's live browser walk verifies the rendered UI per feature — recorded in each feature's Tests section, as `architecture.md` (Testing) allows. A component earns a mounted test only when it carries real logic of its own — branching render state, non-trivial event handling, its own persistence (`CookieConsentBanner`, not `TheFooter`).
 
 The levels, concretely:
 
@@ -75,7 +75,7 @@ Mount the query alongside the mutation and assert **the refetch that invalidatio
 
 `@vitest/coverage-v8` (the v8 provider: native, no instrumentation pass; istanbul remains the documented alternative if per-branch precision ever matters more than speed). Configured in `vitest.config.ts` to measure the whole `web/` tree — `include: ['web/**/*.{ts,vue}']` — so unimported files count as uncovered instead of invisible; locale catalogs are excluded as data. The extension filter is load-bearing: a bare `web/**` feeds the folder `CLAUDE.md` files to rolldown, which logs a `PARSE_ERROR` for each one.
 
-Coverage is **measured, not gated**: CI prints the report but enforces no threshold while recorded gaps are still being closed (`decisions/008`). A number that only ever ratchets by honest test-writing is a signal; a gate over a known-incomplete suite just teaches people to test what is cheap. Revisit gating when the recorded gaps are closed.
+Coverage is **measured, never gated** (`decisions/013`): CI prints the report and enforces no threshold. The deliberate omissions (`conventions/testing.md`, What is deliberately not tested) make any project-wide number dishonest to gate on, and a gated measurement stops being one; instead, every 0% must be legible through the runbook's per-file register (`operations.md`).
 
 ## Running
 

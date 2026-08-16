@@ -7,6 +7,11 @@ import { createVuetify } from 'vuetify';
 import { defineComponent, nextTick, reactive } from 'vue';
 
 import { buildUser } from '@/mocks/fixtures';
+import { http, HttpResponse } from 'msw';
+
+import { server } from '@/mocks/server';
+import { apiUrl } from '@/mocks/api';
+import { emailAvailabilityHandler } from '@/mocks/handlers/user';
 
 import UserFormDialog from '../UserFormDialog.vue';
 
@@ -70,12 +75,25 @@ async function open(state: Partial<typeof owner> = {}) {
   await waitFor(() => expect(screen.getByLabelText(/^Name$/)).toBeTruthy());
 }
 
-/** Everything the create form needs to pass its own rules. */
+/**
+ * ! The availability check is a debounced network rule, so a filled form is not submittable on the
+ * ! next microtask — `flushPromises` cannot settle a 500ms timer. Waiting on the button is waiting
+ * ! on the condition the user waits on.
+ */
+function readyToConfirm() {
+  return waitFor(() => expect(confirmButton().disabled).toBe(false), {
+    timeout: 3000
+  });
+}
+
+/** Everything the create form needs to pass its own rules, settled and submittable. */
 async function fillInAValidUser() {
   await fireEvent.update(field(/^Name$/), 'Bob');
   await fireEvent.update(field(/^Email$/), 'bob@example.com');
   await fireEvent.update(field(/^Password$/), 'hunter2hunter2');
   await fireEvent.update(field(/^Password Confirmation$/), 'hunter2hunter2');
+  await flushPromises();
+  await readyToConfirm();
 }
 
 /** A 422 comes back after a submit, so the errors arrive while the dialog is already open. */
@@ -114,6 +132,8 @@ describe('UserFormDialog', () => {
       serverErrors: {}
     });
     confirmed.length = 0;
+    // * The email rules ask whether the address is free the moment one is typed.
+    server.use(emailAvailabilityHandler());
   });
 
   afterEach(() => {
@@ -207,6 +227,7 @@ describe('UserFormDialog', () => {
     await fireEvent.update(field(/^Email$/), 'bob@example.com');
     await fireEvent.update(field(/^Password$/), 'hunter2hunter2');
     await fireEvent.update(field(/^Password Confirmation$/), 'hunter2hunter2');
+    await readyToConfirm();
 
     await fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
 
@@ -233,9 +254,8 @@ describe('UserFormDialog', () => {
     await fireEvent.update(field(/^Email$/), 'bob@example.com');
     await fireEvent.update(field(/^Password$/), 'hunter2hunter2');
     await fireEvent.update(field(/^Password Confirmation$/), 'hunter2hunter2');
-    await flushPromises();
 
-    expect(confirmButton().disabled).toBe(false);
+    await readyToConfirm();
   });
 
   // ! Create requires a password; edit only validates one the user actually typed. The rules are a
@@ -244,6 +264,8 @@ describe('UserFormDialog', () => {
     await renderOwner();
     await open({ editMode: true, user: ANA });
 
+    // * The prefilled address still goes through the debounced availability check on open.
+    await readyToConfirm();
     await fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
 
     await waitFor(() => expect(confirmed).toHaveLength(1));
@@ -253,6 +275,34 @@ describe('UserFormDialog', () => {
       password: '',
       role: 'admin'
     });
+  });
+
+  // ! The user being edited already owns their address, so the check has to exclude them or every
+  // ! edit that leaves the email alone would be refused by the form itself. `ignore_id` is the
+  // ! whole reason `accountEmailRules` takes an argument, and this is where it is supplied.
+  it('asks the server whether the address is free, ignoring the user being edited', async () => {
+    const asked: URL[] = [];
+
+    server.use(
+      http.get(apiUrl('/api/email-availability'), ({ request }) => {
+        asked.push(new URL(request.url));
+
+        return HttpResponse.json({ available: true });
+      })
+    );
+
+    await renderOwner();
+    await open({ editMode: true, user: ANA });
+
+    await fireEvent.update(field(/^Email$/), 'ana.maric@example.com');
+
+    // * Opening already checks the address the dialog was filled with, so the typed one is later.
+    await waitFor(() =>
+      expect(asked.at(-1)?.searchParams.get('email')).toBe(
+        'ana.maric@example.com'
+      )
+    );
+    expect(asked.at(-1)!.searchParams.get('ignore_id')).toBe(String(ANA.id));
   });
 
   it('holds an edit back when only half a new password was typed', async () => {

@@ -6,6 +6,10 @@ import { flushPromises } from '@vue/test-utils';
 import { createVuetify } from 'vuetify';
 import { defineComponent, nextTick, reactive } from 'vue';
 
+import { server } from '@/mocks/server';
+import { emailAvailabilityHandler } from '@/mocks/handlers/user';
+import { recordRequests } from '@/mocks/requests';
+
 import RegisterDialog from '../RegisterDialog.vue';
 
 import type { RegistrationForm } from '@/types/auth';
@@ -23,6 +27,8 @@ const owner = reactive<{
   open: boolean;
   serverErrors: Record<string, string[]>;
 }>({ open: false, serverErrors: {} });
+
+const requests = recordRequests();
 
 const confirmed: RegistrationForm[] = [];
 let logInClicks = 0;
@@ -61,13 +67,35 @@ async function open() {
   await waitFor(() => expect(screen.getByLabelText(/^Name$/)).toBeTruthy());
 }
 
-/** Everything the form needs to pass its own rules. */
+/**
+ * ! The availability check is a debounced network rule, so a filled form is not submittable on the
+ * ! next microtask — `flushPromises` cannot settle a 500ms timer. Waiting on the button is waiting
+ * ! on the condition the user waits on.
+ */
+function readyToConfirm() {
+  return waitFor(() => expect(confirmButton().disabled).toBe(false), {
+    timeout: 3000
+  });
+}
+
+/**
+ * * The mirror of `readyToConfirm`. The debounce sits on the email field as a whole, so even its
+ * * synchronous rules report a beat late — the delay a user sees before a typo is called out.
+ */
+function heldBack() {
+  return waitFor(() => expect(confirmButton().disabled).toBe(true), {
+    timeout: 3000
+  });
+}
+
+/** Everything the form needs to pass its own rules, settled and submittable. */
 async function fillInAValidRegistration() {
   await fireEvent.update(field(/^Name$/), 'Ana');
   await fireEvent.update(field(/^Email$/), 'ana@example.com');
   await fireEvent.update(field(/^Password$/), 'hunter2hunter2');
   await fireEvent.update(field(/^Password Confirmation$/), 'hunter2hunter2');
   await flushPromises();
+  await readyToConfirm();
 }
 
 /** A 422 comes back after a submit, so the errors arrive while the dialog is already open. */
@@ -90,6 +118,9 @@ describe('RegisterDialog', () => {
     Object.assign(owner, { open: false, serverErrors: {} });
     confirmed.length = 0;
     logInClicks = 0;
+    requests.reset();
+    // * The email rules ask whether the address is free the moment one is typed.
+    server.use(emailAvailabilityHandler());
   });
 
   afterEach(() => {
@@ -188,9 +219,23 @@ describe('RegisterDialog', () => {
 
     await fillInAValidRegistration();
     await fireEvent.update(field(/^Email$/), 'ana@');
-    await flushPromises();
+    await heldBack();
 
-    expect(confirmButton().disabled).toBe(true);
+    expect(confirmed).toHaveLength(0);
+  });
+
+  // ! The address a visitor claims goes past the server before they submit, so "already taken"
+  // ! arrives as they type rather than as a 422 afterwards. This is what tells the shared account
+  // ! rules apart from the plain ones — no other rule on this form leaves the app.
+  it('asks the server whether the address is free', async () => {
+    await renderOwner();
+    await open();
+
+    await fireEvent.update(field(/^Email$/), 'ana@example.com');
+
+    await waitFor(() =>
+      expect(requests.trace()).toContain('GET /api/email-availability')
+    );
   });
 
   // ! Both password fields share one `visible` model, so revealing either reveals the pair. An

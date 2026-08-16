@@ -55,7 +55,7 @@
 </template>
 
 <script setup lang="ts">
-import { email, maxLength, required } from '@regle/rules';
+import { maxLength, required } from '@regle/rules';
 
 import type { User } from '@/types/auth';
 import type { CreateUserForm } from '@/types/user';
@@ -128,7 +128,8 @@ const externalErrors = useExternalErrors(() => props.serverErrors);
 function buildRules() {
   return {
     name: { required, maxLength: maxLength(255) },
-    email: { required, email, maxLength: maxLength(255) },
+    // * The user being edited owns the address already, so the availability check must ignore them.
+    ...accountEmailRules(() => (props.editMode ? props.user?.id : undefined)),
     ...newPasswordRules(
       () => form.value.password,
       () => props.editMode

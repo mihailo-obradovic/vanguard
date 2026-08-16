@@ -71,7 +71,9 @@ php artisan serve   # API alone
 pnpm dev            # SPA alone (localhost:3000)
 php artisan test && pnpm test   # both suites
 composer test:coverage          # backend coverage (sets XDEBUG_MODE=coverage; needs the Xdebug extension)
+composer test:coverage-html     # same, plus browsable report into reports/coverage-backend/ (gitignored), opened in the browser
 pnpm test:coverage              # frontend coverage (text + html + lcov into coverage/, gitignored)
+pnpm test:ui                    # Vitest browser dashboard, watch mode with coverage embedded
 composer test:mutation          # backend mutation audit (below)
 pnpm test:mutation              # frontend mutation audit (below; preflight-checked)
 ```

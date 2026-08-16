@@ -89,6 +89,7 @@ If a project decides the tradeoff is worth taking anyway, that is a decision rec
 ## Running
 
 - `php artisan test` (or `vendor/bin/pest`), with `--filter` while iterating.
+- `composer test:coverage` — terminal summary; `composer test:coverage-html` additionally writes the browsable per-class report into `reports/coverage-backend/` (gitignored) and opens it in the browser. Both need the Xdebug extension.
 - `laravel/pao` reformats the output when an agent is running the suite — failures come back as something readable rather than a wall of stack frames.
 - The full suite is green before a merge; a failing test is never left for later without saying so.
 - **Mutation audit**: Pest's built-in mutation testing (`pest --mutate`) runs periodically per the project runbook (`operations.md`) — every surviving mutant is a change no test noticed; fix the test or record why the mutant is acceptable. A measurement, never a CI gate.

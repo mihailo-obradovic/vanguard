@@ -44,8 +44,8 @@ In scope:
 Non-goals:
 
 - Migrating any existing page or endpoint off REST; the surfaces of features 001–003 are unchanged.
-- **Nested relationship fields.** Resolvers return finished `UserResource` arrays, while Lighthouse's relationship directives and N+1 batching need Eloquent models in the resolver tree — so `user { posts … }` cannot be added incrementally. That expansion is its own decision record, priced in ADR 007.
-- **Schema code generation.** `gql` is an identity tag: documents are validated at runtime and in GraphiQL, not at build time. The revisit trigger is in ADR 007.
+- Nested relationship fields — resolvers return finished `UserResource` arrays, so `user { posts … }` cannot be added incrementally; the expansion is its own decision record, priced in ADR 007.
+- Schema code generation — `gql` is an identity tag; documents are validated at runtime, not at build time. Revisit trigger in ADR 007.
 - Subscriptions, file uploads, batched or persisted queries, pagination (`@paginate` exists when needed), fragment colocation, normalized client caching.
 - A GraphQL equivalent of every REST endpoint: create and delete stay REST-only; the pattern generalizes without them.
 - Publishing the pattern as Catalyst stack modules (an ADR 007 follow-up).
@@ -143,16 +143,14 @@ Guest and non-admin refusals: see Roles And Access; client behavior is under Err
 
 - `tests/Feature/GraphQL/UserQueryTest.php`: admin list order; non-admin/guest refusal; payload matches the REST serialization field for field.
 - `tests/Feature/GraphQL/UpdateUserMutationTest.php`: updates; email-change side effect; duplicate-email validation keyed `email`; non-admin/guest refusal; unknown id.
-- `tests/Feature/GraphQL/QueryCacheConfigTest.php`: the query-cache mode stays compatible with `cache.serializable_classes` (see Verification).
+- `tests/Feature/GraphQL/QueryCacheConfigTest.php`: guards the `opcache` query-cache mode against Laravel's `cache.serializable_classes => false` hardening (the `store` mode 500s on warm hits).
 - `tests/Feature/UserManagementTest.php`: unchanged and green — the proof that extracting the update action did not alter the REST contract.
 - `web/utils/_tests/gqlFetcher.spec.ts`: each row of the Error Handling table, plus the success path.
 - `web/services/_tests/user.gql.spec.ts` and `queries/_tests/useUserGqlQueries.spec.ts`: operation naming, REST field parity, `id` as a variable, schema mismatches rejecting, and `users-gql` refreshing only itself.
 
 ## Verification
 
-Backend `php artisan test` green, including the payload-parity case and the untouched REST suite; frontend `pnpm test`/`typecheck`/`lint`/`format` green. Live walk at `/graphql-demo`: list loads, a duplicate email renders inline with no toast, a successful update closes the dialog and refetches, a non-admin lands on `/home`, a guest gets 401.
-
-The live walk caught two defects the suite could not: Lighthouse's `store` query-cache mode 500s on warm hits under Laravel's hardened `cache.serializable_classes => false` (now `opcache`, guarded by `QueryCacheConfigTest`), and `/graphql` sits outside `api/*` so it needed adding to `config/cors.php`. Remaining risk: the client keys on `extensions.status` from `RestStatusHandler`; a Lighthouse upgrade changing exception wrapping would degrade errors to generic toasts — the Pest tests assert the status per error class, so that fails the suite instead.
+Backend `php artisan test` green, including the payload-parity case and the untouched REST suite; frontend `pnpm test`/`typecheck`/`lint`/`format` green. Live walk at `/graphql-demo`: list loads, a duplicate email renders inline with no toast, a successful update closes the dialog and refetches, a non-admin lands on `/home`, a guest gets 401. Remaining risk: the client keys on `extensions.status` from `RestStatusHandler`; a Lighthouse upgrade changing exception wrapping would degrade errors to generic toasts — the Pest tests assert the status per error class, so that fails the suite instead.
 
 ## Agent Change Rules
 

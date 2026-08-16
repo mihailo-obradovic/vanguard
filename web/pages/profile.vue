@@ -334,12 +334,12 @@ async function handleSubmitProfile() {
 
   const updateData: ProfileForm = {
     name: profileForm.value.name,
-    email: profileForm.value.email,
-    current_password: profileForm.value.current_password
+    email: profileForm.value.email
   };
 
-  // * Only include password if provided
+  // * Only include the password pair — and the current-password challenge that authorizes it — when a new password is being set; a present-but-empty current_password is rejected by the backend.
   if (profileForm.value.password) {
+    updateData.current_password = profileForm.value.current_password;
     updateData.password = profileForm.value.password;
     updateData.password_confirmation = profileForm.value.password_confirmation;
   }

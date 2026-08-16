@@ -38,7 +38,7 @@ export type UpdateUserForm = Partial<CreateUserForm> & {
 export type ProfileForm = {
   name: string;
   email: string;
-  current_password: string;
+  current_password?: string;
   password?: string;
   password_confirmation?: string;
 };

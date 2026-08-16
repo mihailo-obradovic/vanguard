@@ -16,6 +16,17 @@ test('a user can update their own name', function () {
     expect($user->fresh()->name)->toBe('New Name');
 });
 
+test('a rename with an empty current password is rejected', function () {
+    $user = User::factory()->create(['name' => 'Old Name']);
+
+    $this->actingAs($user)
+        ->putJson('/api/profile', ['name' => 'New Name', 'current_password' => ''])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors('current_password');
+
+    expect($user->fresh()->name)->toBe('Old Name');
+});
+
 test('a user can change their password with the correct current password', function () {
     $user = User::factory()->create();
 

@@ -303,6 +303,10 @@ describe('UserFormDialog', () => {
       )
     );
     expect(asked.at(-1)!.searchParams.get('ignore_id')).toBe(String(ANA.id));
+
+    // ! Let the check finish before the test ends — see UserDetailsDialog.spec on why a validation
+    // ! resolving after teardown becomes an unhandled rejection.
+    await readyToConfirm();
   });
 
   it('holds an edit back when only half a new password was typed', async () => {

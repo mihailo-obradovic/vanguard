@@ -236,6 +236,11 @@ describe('RegisterDialog', () => {
     await waitFor(() =>
       expect(requests.trace()).toContain('GET /api/email-availability')
     );
+
+    // ! Let the check finish before the test ends — a validation resolving after teardown writes
+    // ! into a disposed Regle scope and surfaces as an unhandled rejection.
+    await requests.settle();
+    await flushPromises();
   });
 
   // ! Both password fields share one `visible` model, so revealing either reveals the pair. An

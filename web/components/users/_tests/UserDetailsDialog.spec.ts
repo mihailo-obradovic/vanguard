@@ -2,20 +2,23 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { renderSuspended } from '@nuxt/test-utils/runtime';
 import { screen, fireEvent, cleanup, waitFor } from '@testing-library/vue';
+import { flushPromises } from '@vue/test-utils';
 import { createVuetify } from 'vuetify';
 import { defineComponent, nextTick, reactive } from 'vue';
-
-import { buildUser } from '@/mocks/fixtures';
 import { http, HttpResponse } from 'msw';
 
+import { buildUser } from '@/mocks/fixtures';
 import { server } from '@/mocks/server';
 import { apiUrl } from '@/mocks/api';
+import { recordRequests } from '@/mocks/requests';
 import { emailAvailabilityHandler } from '@/mocks/handlers/user';
 
 import UserDetailsDialog from '../UserDetailsDialog.vue';
 
 import type { UserDetailsForm } from '../UserDetailsDialog.vue';
 import type { User } from '@/types/auth';
+
+const requests = recordRequests();
 
 // ! happy-dom has no `visualViewport`, and Vuetify's overlay positioning reaches for it as a bare
 // ! global — optional chaining does not save an *undeclared* name from a ReferenceError.
@@ -117,11 +120,19 @@ describe('UserDetailsDialog', () => {
   beforeEach(() => {
     Object.assign(owner, { open: false, user: null, serverErrors: {} });
     confirmed.length = 0;
+    requests.reset();
     // * The email rules ask whether the address is free the moment one is typed.
     server.use(emailAvailabilityHandler());
   });
 
-  afterEach(() => {
+  afterEach(async () => {
+    // ! Confirming runs `r$.$validate()`, which awaits the debounced availability check. Unmounting
+    // ! while it is in flight leaves it to resolve into a disposed Regle scope — an unhandled
+    // ! rejection that leaves the suite green, and that the mutation runner dies trying to report.
+    // ! Waiting for the wire to fall quiet lets it land while the component is still here.
+    await requests.settle();
+    await flushPromises();
+
     cleanup();
     // ! The dialog teleports to body, outside the container `cleanup` owns.
     document.body.innerHTML = '';
@@ -230,6 +241,11 @@ describe('UserDetailsDialog', () => {
       )
     );
     expect(asked.at(-1)!.searchParams.get('ignore_id')).toBe(String(ANA.id));
+
+    // ! Let the check finish before the test ends. Resolving after teardown writes into a Regle
+    // ! scope the unmount already disposed, which surfaces as an unhandled rejection — green suite,
+    // ! one reported error, and a mutation run that dies trying to describe it.
+    await readyToConfirm();
   });
 
   it('offers both roles, and reports the one chosen', async () => {

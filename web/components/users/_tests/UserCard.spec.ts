@@ -79,7 +79,9 @@ describe('UserCard', () => {
     );
   });
 
-  afterEach(() => {
+  afterEach(async () => {
+    // [DEBUG-a4f2]
+    await flushPromises();
     cleanup();
     document.body.innerHTML = '';
   });
@@ -273,6 +275,12 @@ describe('UserCard', () => {
     expect(asked.at(-1)!.searchParams.get('ignore_id')).toBe(
       String(useAuthStore().user!.id)
     );
+
+    // ! Let the check finish before the test ends — a validation resolving after teardown writes
+    // ! into a disposed Regle scope and surfaces as an unhandled rejection. The card has no
+    // ! disabled-confirm to wait on, so this waits for the recorder to fall quiet instead.
+    await requests.settle();
+    await flushPromises();
   });
 
   it('says the address is confirmed for a verified user', async () => {

@@ -361,7 +361,7 @@ const userFormErrors = useValidationErrors(
 const { r$ } = useRegle(
   userForm,
   () => ({
-    name: labeledRules('common.fields.name', {
+    name: labeledRules('validation.fieldNames.name', {
       required,
       maxLength: maxLength(255)
     }),

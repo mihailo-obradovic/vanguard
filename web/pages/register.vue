@@ -121,7 +121,7 @@ const {
 const { r$ } = useRegle(
   form,
   {
-    name: labeledRules('common.fields.name', {
+    name: labeledRules('validation.fieldNames.name', {
       required,
       maxLength: maxLength(255)
     }),

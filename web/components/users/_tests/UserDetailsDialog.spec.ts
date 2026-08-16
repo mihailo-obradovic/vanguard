@@ -261,7 +261,7 @@ describe('UserDetailsDialog', () => {
     await fireEvent.update(field(/^Name$/), '');
     await fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
 
-    expect(await screen.findByText('This field is required.')).toBeTruthy();
+    expect(await screen.findByText('The Name field is required.')).toBeTruthy();
     expect(confirmed).toHaveLength(0);
   });
 });

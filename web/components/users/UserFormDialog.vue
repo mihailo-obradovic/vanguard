@@ -122,7 +122,7 @@ const externalErrors = useExternalErrors(() => props.serverErrors);
 // * Create requires a password; edit only validates one when entered. Stays a getter so mode changes re-evaluate.
 function buildRules() {
   return {
-    name: { required, maxLength: maxLength(255) },
+    ...nameRules(),
     // * The user being edited owns the address already, so the availability check must ignore them.
     ...accountEmailRules(() => (props.editMode ? props.user?.id : undefined)),
     ...newPasswordRules(

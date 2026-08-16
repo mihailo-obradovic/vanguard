@@ -72,7 +72,8 @@ const { r$ } = useRegle(
   form,
   {
     ...credentialEmailRules(),
-    password: { required }
+    // * Not `newPasswordRules` — this password is being checked, not set, so the 8–255 bounds are the server's business and a stale short password must still be able to sign in.
+    password: labeledRules('common.fields.password', { required })
   },
   { externalErrors }
 );

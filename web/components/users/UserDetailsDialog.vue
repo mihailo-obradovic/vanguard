@@ -85,7 +85,7 @@ const externalErrors = useExternalErrors(() => props.serverErrors);
 const { r$ } = useRegle(
   form,
   {
-    name: { required, maxLength: maxLength(255) },
+    ...nameRules(),
     // * The user being edited owns the address already, so the check has to ignore them.
     ...accountEmailRules(() => props.user?.id)
   },

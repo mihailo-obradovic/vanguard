@@ -169,7 +169,9 @@ describe('UserCard', () => {
     await fireEvent.update(field(/^Confirm new password$/), 'hunter2hunter2');
     await fireEvent.click(button('Save'));
 
-    expect(await screen.findByText('This field is required.')).toBeTruthy();
+    expect(
+      await screen.findByText('The Current Password field is required.')
+    ).toBeTruthy();
     expect(emitted().update).toBeUndefined();
   });
 
@@ -315,7 +317,7 @@ describe('UserCard', () => {
     await fireEvent.update(field(/^Name$/), '');
     await fireEvent.click(button('Save'));
 
-    expect(await screen.findByText('This field is required.')).toBeTruthy();
+    expect(await screen.findByText('The Name field is required.')).toBeTruthy();
     expect(emitted().update).toBeUndefined();
   });
 });

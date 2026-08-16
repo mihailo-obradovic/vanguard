@@ -184,10 +184,12 @@ const externalErrors = useExternalErrors(() => props.serverErrors);
 const { r$ } = useRegle(
   form,
   {
-    name: { required, maxLength: maxLength(255) },
+    ...nameRules(),
     // * The signed-in user already owns their own address, so the check has to ignore them.
     ...accountEmailRules(() => user.value?.id),
-    current_password: { requiredIf: requiredIf(() => !!form.value.password) },
+    current_password: labeledRules('common.fields.currentPassword', {
+      requiredIf: requiredIf(() => !!form.value.password)
+    }),
     ...newPasswordRules(() => form.value.password, true)
   },
   { externalErrors }

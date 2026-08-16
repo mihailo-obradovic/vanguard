@@ -84,7 +84,7 @@ const externalErrors = useExternalErrors(() => props.serverErrors);
 const { r$ } = useRegle(
   form,
   {
-    name: { required, maxLength: maxLength(255) },
+    ...nameRules(),
     ...accountEmailRules(),
     ...newPasswordRules(() => form.value.password)
   },

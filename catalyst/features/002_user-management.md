@@ -109,7 +109,7 @@ Walkthroughs — Admin: full table and all actions, including their own row (see
 
 ## Tests
 
-- `tests/Feature/UserManagementTest.php` — the gates (guest 401, non-admin 403 with the middleware message), each verb's happy path (list count + `total`, show, create admin, create default role, partial update with role promotion, hard delete), the self-delete 403 with its message, the exact response field set as a field-leakage guard, and the full `UserRequest` validation matrix incl. the two uniqueness cases. `ProfileTest.php` covers the shared email-change pair; `tests/Unit/UserPolicyTest.php` covers all four policy arms.
+- `tests/Feature/UserManagementTest.php` — the gates (guest 401, non-admin 403), each verb's happy path (list newest-first with `total`, show, create admin, create default role, partial update with role promotion, hard delete), the self-delete 403, the exact response field set as a field-leakage guard, and the full `UserRequest` validation matrix incl. the two uniqueness cases. `ProfileTest.php` covers the shared email-change pair; `tests/Unit/UserPolicyTest.php` covers all four policy arms.
 - Known gaps: 404s and non-GET 401/403; self-demotion & last-admin scenarios; `latest()` ordering unasserted; PATCH unexercised; post-delete orphan cleanup; no component test for `users.vue`. The frontend data layer behind it is covered (`web/services/_tests/user.api.spec.ts`, `web/services/queries/_tests/useUserQueries.spec.ts`).
 
 ## Verification

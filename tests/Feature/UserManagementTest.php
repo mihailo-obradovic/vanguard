@@ -4,14 +4,16 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
 test('admins can list users newest first', function () {
-    $admin = User::factory()->admin()->create();
-    User::factory()->count(3)->create();
+    $admin = User::factory()->admin()->create(['created_at' => '2026-01-01 10:00:00']);
+    User::factory()->create(['created_at' => '2026-01-02 10:00:00']);
+    $newest = User::factory()->create(['created_at' => '2026-01-03 10:00:00']);
 
     $this->actingAs($admin)
         ->getJson('/api/users')
         ->assertOk()
-        ->assertJsonPath('total', 4)
-        ->assertJsonCount(4, 'data');
+        ->assertJsonPath('total', 3)
+        ->assertJsonCount(3, 'data')
+        ->assertJsonPath('data.0.id', $newest->id);
 });
 
 test('non-admins cannot access user management', function () {

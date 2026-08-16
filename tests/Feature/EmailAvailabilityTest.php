@@ -26,14 +26,12 @@ test('the ignored user does not make their own email unavailable', function () {
 });
 
 test('ignoring one user does not hide another holding the address', function () {
-    $holder = User::factory()->create(['email' => 'shared@example.com']);
+    User::factory()->create(['email' => 'shared@example.com']);
     $other = User::factory()->create();
 
     $this->getJson("/api/email-availability?email=shared@example.com&ignore_id={$other->id}")
         ->assertOk()
         ->assertExactJson(['available' => false]);
-
-    expect($holder->fresh())->not->toBeNull();
 });
 
 test('the check is reachable without a session', function () {

@@ -3,15 +3,16 @@
 use App\Models\User;
 
 test('admins can list users newest first', function () {
-    $admin = User::factory()->admin()->create();
-    User::factory()->count(3)->create();
+    $admin = User::factory()->admin()->create(['created_at' => '2026-01-01 10:00:00']);
+    User::factory()->create(['created_at' => '2026-01-02 10:00:00']);
+    $newest = User::factory()->create(['created_at' => '2026-01-03 10:00:00']);
 
     $this->actingAs($admin)
         ->graphQL('{ users { id name email role } }')
         ->assertOk()
         ->assertGraphQLErrorFree()
-        ->assertJsonCount(4, 'data.users')
-        ->assertJsonPath('data.users.0.id', User::latest()->first()->id);
+        ->assertJsonCount(3, 'data.users')
+        ->assertJsonPath('data.users.0.id', $newest->id);
 });
 
 test('the graphql payload for a user matches the rest payload', function () {

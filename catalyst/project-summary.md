@@ -6,7 +6,7 @@ Catalyst version: 1.5.0
 
 Vanguard is a full-stack starter pairing a Laravel 13 JSON API with a Nuxt 4 SPA in one repository. It ships session-based Sanctum authentication (Breeze-style endpoints), admin-gated user CRUD with role-based access, self-service profile management, and a cookie-consent banner. The data-layer and validation conventions it exists to demonstrate — Pinia Colada two-layer services and Regle + Zod — have their own demonstration feature contracts (005, 006) alongside the stack modules that hold their rules. It is the reference implementation for Catalyst's nuxt + laravel pairing, and doubles as an experimental testbed for the optimal Laravel + Nuxt setup across UI-library variants. Product vision, audience, and priorities live in `context/product-description.md`.
 
-Context documents: `context/product-description.md` (`references/context-documents.md`)
+Context documents: `context/product-description.md`, `context/domain-glossary.md` (`references/context-documents.md`)
 
 ## Feature Index
 
@@ -38,6 +38,7 @@ One line per record: type, status, title, link.
 | 009 | process     | Implemented | Test-quality doctrine (Khorikov), MSW at the wire, mutation audits  | [decisions/009_process_test-quality-doctrine.md](decisions/009_process_test-quality-doctrine.md)     |
 | 010 | ui          | Implemented | Vuetify as this branch's UI layer                                   | [decisions/010_ui_vuetify-variant.md](decisions/010_ui_vuetify-variant.md)                           |
 | 011 | process     | Proposed    | Coverage stays measured, never gated (answers 008's revisit clause) | [decisions/011_process_coverage-gates.md](decisions/011_process_coverage-gates.md)                   |
+| 012 | tooling     | Implemented | mattpocock-skills run inside Catalyst structures (Workflowy tracker, single ADR home, glossary as context doc) | [decisions/012_tooling_mattpocock-skills-integration.md](decisions/012_tooling_mattpocock-skills-integration.md) |
 
 ## Domain Decision Index
 

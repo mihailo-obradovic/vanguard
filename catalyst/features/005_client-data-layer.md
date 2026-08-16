@@ -4,7 +4,7 @@
 
 Active
 
-Retro-documented at brownfield adoption (2026-08-04) from code. This is a **demonstration contract**: Vanguard exists partly to show this pattern. The conventions live in `catalyst/stacks/frontend/nuxt/data-layer.md` and `error-handling.md` — this document records how _this project_ wires them and what stays true, not the rules themselves.
+A **demonstration contract**: Vanguard exists partly to show this pattern. The conventions live in `catalyst/stacks/frontend/nuxt/data-layer.md` and `error-handling.md` — this document records how _this project_ wires them, not the rules themselves.
 
 ## Task Weight
 
@@ -12,7 +12,7 @@ Medium
 
 ## Purpose
 
-Give the SPA one disciplined path from component to API so data fetching, caching, response validation, and error handling are uniform and testable rather than scattered across components. Every feature that touches the backend (001–003) rides this layer.
+Give the SPA one disciplined path from component to API so data fetching, caching, response validation, and error handling are uniform and testable rather than scattered across components.
 
 ## Inputs
 
@@ -84,10 +84,9 @@ No protected area of its own — the backend contracts this layer calls are prot
 
 ## Entry Points
 
-- `web/services/*.api.ts` (`auth.api.ts`, `user.api.ts`) — pure network functions.
-- `web/services/queries/use{Auth,User}Queries.ts` — the composables and their query keys.
+- `web/services/*.api.ts` — pure network functions; `web/services/queries/use<Resource>Queries.ts` — the composables and their query keys.
 - `web/composables/useAppQuery.ts`, `useAppMutation.ts` — the Pinia Colada wrappers.
-- `web/utils/fetcher.ts`, `handleApiError.ts`, `setupQueryErrorHandling.ts`, `parseResponse.ts`.
+- `web/utils/` — `fetcher.ts`, `handleApiError.ts`, `setupQueryErrorHandling.ts`, `parseResponse.ts`.
 
 ## Dependencies
 
@@ -104,13 +103,13 @@ No protected area of its own — the backend contracts this layer calls are prot
 - `web/services/queries/_tests/` — `useAuthQueries` (the store side effects and their ordering against caller callbacks; the user fetch living inside the login/register mutation), `useUserQueries` and `useUserGqlQueries` (which keys each mutation invalidates, including when the write fails, and the two namespaces staying separate).
 - `web/composables/_tests/` — `useAppQuery` (previous data held mid-flight by `placeholderData`) and `useAppMutation`; both cover error handling being wired only inside a component instance.
 - `web/stores/_tests/useAuthStore.spec.ts` — `isLoggedIn`/`isAdmin` derivation and the readonly exposure.
-- The layer is at 100% statements and lines, and 100% mutation score across `services`, `services/queries` and `stores` (2026-08-13 audit, `operations.md`). The remaining frontend gaps are outside it — the auth dialogs, the shared dialog bases, and the pages (`decisions/008`).
+- Remaining frontend gaps are outside this layer — the auth dialogs, the shared dialog bases, and the pages (`decisions/008`).
 
 ## Verification
 
-Traced against source on 2026-08-04: the two-layer chain in `services/` + `services/queries/`, wrapper behavior in `useAppQuery`/`useAppMutation` (placeholderData, conditional error wiring), and `onSettled` invalidation in `useUserQueries.ts`.
+Traced against source: the two-layer chain in `services/` + `services/queries/`, wrapper behavior in `useAppQuery`/`useAppMutation` (placeholderData, conditional error wiring), and `onSettled` invalidation in `useUserQueries.ts`.
 
-Test gaps closed on 2026-08-13: every Examples row now has a spec — the Zod-parse guard, the 419 retry, `placeholderData`, and `['users','fetch']` invalidation on create. Each behavior was mutation-checked (the source broken deliberately) to confirm the spec fails without it; that pass found one real hole, `useCreateUser` having no failing-write case, which is now covered. Frontend suite green at 161 tests; overall frontend coverage 17.4% → 43.2% statements, with this layer at 100%.
+Every Examples row has a spec — the Zod-parse guard, the 419 retry, `placeholderData`, and `['users','fetch']` invalidation on create — each mutation-checked (the source broken deliberately) to confirm the spec fails without it. Frontend suite green at 161 tests; this layer at 100% statements and lines, and a 100% mutation score across `services`, `services/queries` and `stores` (`operations.md`).
 
 ## Agent Change Rules
 

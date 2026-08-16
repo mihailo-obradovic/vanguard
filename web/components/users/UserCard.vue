@@ -220,18 +220,7 @@ async function handleSubmit() {
   emit('update', updateData);
 }
 
-function handleEnterKey(event: KeyboardEvent) {
-  if (!editMode.value) {
-    return;
-  }
-
-  // * Buttons and links handle Enter themselves; submitting here too would double-fire
-  if ((event.target as HTMLElement).closest('button, a')) {
-    return;
-  }
-
-  handleSubmit();
-}
+const handleEnterKey = useConfirmOnEnter(handleSubmit, () => editMode.value);
 
 // * Window-level so Esc cancels editing even when focus has left the card
 onKeyStroke('Escape', () => {

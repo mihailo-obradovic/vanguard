@@ -86,18 +86,10 @@ useResizeObserver(
   }
 );
 
-function handleEnterKey(event: KeyboardEvent) {
-  if (!props.confirmOnEnter || props.confirmDisabled || props.loading) {
-    return;
-  }
-
-  // * Interactive elements handle Enter themselves (buttons click, selects toggle their menu); confirming here too would double-fire
-  if ((event.target as HTMLElement).closest('button, a, textarea, .v-select')) {
-    return;
-  }
-
-  emit('confirm');
-}
+const handleEnterKey = useConfirmOnEnter(
+  () => emit('confirm'),
+  () => props.confirmOnEnter && !props.confirmDisabled && !props.loading
+);
 </script>
 
 <style scoped>

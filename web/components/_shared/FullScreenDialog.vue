@@ -65,16 +65,9 @@ const emit = defineEmits<{
 }>();
 // Stryker restore all
 
-function handleEnterKey(event: KeyboardEvent) {
-  if (props.confirmDisabled || props.loading) {
-    return;
-  }
-
-  // * Interactive elements handle Enter themselves (buttons click, selects toggle their menu); confirming here too would double-fire
-  if ((event.target as HTMLElement).closest('button, a, textarea, .v-select')) {
-    return;
-  }
-
-  emit('confirm');
-}
+// ! No `confirmOnEnter` opt-out here, unlike FormCard: this dialog's toolbar save is its only confirm affordance.
+const handleEnterKey = useConfirmOnEnter(
+  () => emit('confirm'),
+  () => !props.confirmDisabled && !props.loading
+);
 </script>

@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { formatDate } from '../formatDate';
 
@@ -10,6 +10,10 @@ vi.mock('#app/nuxt', () => ({
 }));
 
 describe('formatDate', () => {
+  afterEach(() => {
+    locale.value = 'en';
+  });
+
   it('formats an ISO timestamp as a long date', () => {
     expect(formatDate('2026-08-03T12:34:56.000000Z')).toBe('August 3, 2026');
   });
@@ -18,14 +22,14 @@ describe('formatDate', () => {
     expect(formatDate('2026-12-31T23:59:59Z')).toBe('December 31, 2026');
   });
 
-  it('follows the active locale', () => {
+  it('follows the active locale for Serbian Latin', () => {
     locale.value = 'sr-Latn';
     expect(formatDate('2026-08-03T12:34:56.000000Z')).toBe('3. avgust 2026.');
+  });
 
+  it('follows the active locale for Serbian Cyrillic', () => {
     locale.value = 'sr-Cyrl';
     expect(formatDate('2026-08-03T12:34:56.000000Z')).toBe('3. август 2026.');
-
-    locale.value = 'en';
   });
 
   it('falls back for an empty value', () => {

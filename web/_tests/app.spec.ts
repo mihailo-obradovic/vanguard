@@ -27,33 +27,48 @@ const stubs = {
 };
 
 /**
- * Mount the shell on `path`, then flip the session and let the watcher run.
+ * Mount the shell on `path` with the session already in `before`, then move it to `after` and let
+ * the watcher run.
  *
- * * The flip has to happen after the mount: the watcher is what this spec exercises, and a store
+ * * The change has to happen after the mount: the watcher is what this spec exercises, and a store
  * * already in the target state when the shell appears never triggers it.
  */
-async function signIn(path: string, direction: 'in' | 'out') {
+async function mountThenChangeSession(
+  path: string,
+  before: 'signed in' | 'signed out',
+  after: 'signed in' | 'signed out'
+) {
   const store = useAuthStore();
 
   route.path = path;
 
-  if (direction === 'in') {
-    store.resetUser();
-  } else {
-    store.setUser(buildUser());
-  }
+  applySession(before);
 
   await mountSuspended(App, { global: { stubs } });
 
   navigateTo.mockClear();
 
-  if (direction === 'in') {
-    store.setUser(buildUser());
-  } else {
-    store.resetUser();
-  }
+  applySession(after);
 
   await nextTick();
+
+  function applySession(state: 'signed in' | 'signed out') {
+    if (state === 'signed in') {
+      store.setUser(buildUser());
+    } else {
+      store.resetUser();
+    }
+  }
+}
+
+/** The shell is mounted with somebody signed in, and they then sign out. */
+function signOutOn(path: string) {
+  return mountThenChangeSession(path, 'signed in', 'signed out');
+}
+
+/** The shell is mounted with nobody signed in, and somebody then signs in. */
+function signInOn(path: string) {
+  return mountThenChangeSession(path, 'signed out', 'signed in');
 }
 
 describe('the app shell', () => {
@@ -70,19 +85,19 @@ describe('the app shell', () => {
   // * `replace` is asserted rather than any-options: the page the session just made unreachable
   // * must not stay one Back away.
   it('sends a user who signs out away from a page they can no longer reach', async () => {
-    await signIn('/users', 'out');
+    await signOutOn('/users');
 
     expect(navigateTo).toHaveBeenCalledWith('/home', { replace: true });
   });
 
   it('sends a user who signs in away from a guest-only page', async () => {
-    await signIn('/password-reset', 'in');
+    await signInOn('/password-reset');
 
     expect(navigateTo).toHaveBeenCalledWith('/home', { replace: true });
   });
 
   it('stays put when the new session still allows the current page', async () => {
-    await signIn('/home', 'in');
+    await signInOn('/home');
 
     expect(navigateTo).not.toHaveBeenCalled();
   });

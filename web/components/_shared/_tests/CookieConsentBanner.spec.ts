@@ -19,8 +19,9 @@ function arriveWithoutADecision() {
     'cookie_consent=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
 }
 
-function settleTheCookie() {
-  return new Promise((resolve) => setTimeout(resolve, 0));
+/** Nuxt writes the cookie asynchronously, so wait for the decision rather than for the scheduler. */
+function decisionRecorded() {
+  return waitFor(() => expect(useCookieConsent().isDecided.value).toBe(true));
 }
 
 /** The banner announces itself as a region labelled by the consent copy. */
@@ -61,7 +62,7 @@ describe('CookieConsentBanner', () => {
 
   it('does not ask again once the visitor has accepted', async () => {
     useCookieConsent().accept();
-    await settleTheCookie();
+    await decisionRecorded();
 
     await renderBanner();
 
@@ -72,7 +73,7 @@ describe('CookieConsentBanner', () => {
   // ! until it hears yes is the dark pattern this component exists to avoid.
   it('does not ask again once the visitor has declined', async () => {
     useCookieConsent().decline();
-    await settleTheCookie();
+    await decisionRecorded();
 
     await renderBanner();
 

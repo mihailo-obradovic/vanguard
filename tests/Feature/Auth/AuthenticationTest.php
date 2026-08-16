@@ -53,7 +53,7 @@ test('users cannot authenticate with an invalid password', function () {
     $this->assertGuest();
 });
 
-test('login is rate limited after five failed attempts', function () {
+test('login is rate limited after five failed attempts and reports the seconds remaining', function () {
     $user = User::factory()->create();
 
     // * Each of the first five attempts must fail on credentials, not on the limiter — this pins the threshold at exactly five.
@@ -72,7 +72,7 @@ test('login is rate limited after five failed attempts', function () {
 
     $response->assertStatus(422);
     // * Copy asserted as discriminator: no non-copy observable (header or field) marks this 422 as a lockout rather than a credential failure.
-    expect($response->json('message'))->toContain('seconds');
+    expect($response->json('errors.email.0'))->toMatch('/try again in \d+ seconds/');
 });
 
 test('login rejects a non-string password', function () {
@@ -83,20 +83,6 @@ test('login rejects a non-string password', function () {
         'email' => $user->email,
         'password' => ['array', 'password'],
     ])->assertStatus(422)->assertJsonValidationErrors('password');
-});
-
-test('the lockout response reports the seconds remaining', function () {
-    $user = User::factory()->create();
-
-    foreach (range(1, 5) as $ignored) {
-        $this->postJson('/login', ['email' => $user->email, 'password' => 'wrong-password']);
-    }
-
-    $response = $this->postJson('/login', ['email' => $user->email, 'password' => 'wrong-password']);
-
-    $response->assertStatus(422);
-    // * Copy asserted as discriminator: no non-copy observable (header or field) marks this 422 as a lockout rather than a credential failure.
-    expect($response->json('errors.email.0'))->toMatch('/try again in \d+ seconds/');
 });
 
 test('a successful login clears the failed attempt counter', function () {

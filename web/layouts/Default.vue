@@ -200,6 +200,7 @@ function useThemeSwitching() {
     theme.toggle();
   }
 
+  // ! `web/spa-loading-template.html` reads this same cookie name and its `dark` value, to paint the boot splash dark before any bundle runs. It cannot import a constant from here — it is inlined into the HTML ahead of the app — so the two are kept in step by hand. Renaming the cookie or its values means editing that file too.
   const themeSetting = useCookie('theme');
 
   watch(isDark, (value) => {

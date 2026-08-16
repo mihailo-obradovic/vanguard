@@ -32,7 +32,8 @@
   }
 </style>
 <script>
-  // * The app applies the persisted theme cookie on mount (layouts/Default.vue); matching it here spares dark-theme users a white flash on every reload.
+  // ! The cookie name and its `dark` value are duplicated from `useThemeSwitching()` in layouts/Default.vue, which writes them. This file is inlined into the HTML ahead of every bundle, so it cannot import the constant and the two are kept in step by hand — change one, change the other.
+  // * The app applies the persisted theme cookie on mount; matching it here spares dark-theme users a white flash on every reload.
   if (document.cookie.split('; ').indexOf('theme=dark') !== -1) {
     document.getElementById('boot-splash').classList.add('boot-splash--dark');
   }

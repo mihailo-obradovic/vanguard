@@ -67,12 +67,7 @@ const emit = defineEmits<{
 const dialog = defineModel<boolean>({ required: true });
 // Stryker restore all
 
-const { t } = useI18n();
-
-const roleItems = computed(() => [
-  { title: t('users.roles.user'), value: 'user' },
-  { title: t('users.roles.admin'), value: 'admin' }
-]);
+const roleItems = useRoleItems();
 
 // * What the form should hold when the dialog opens: the edited user's snapshot.
 function initialFormState(): UserDetailsForm {

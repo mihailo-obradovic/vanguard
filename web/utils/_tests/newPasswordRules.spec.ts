@@ -187,6 +187,23 @@ describe('newPasswordRules', () => {
 
       expect(await validate()).toBe(true);
     });
+
+    it('names the new-password fields in its messages', async () => {
+      // * A change-password form labels its inputs "New password" / "Confirm new password" — and may show a separate "Current password" input at the same time — so the copy must name the field the user actually sees, not the "password" of a set-password form.
+      const { form, validate, passwordErrors, confirmationErrors } =
+        await setupForm(true);
+
+      form.value = { password: 'shortpw', password_confirmation: '' };
+      await validate();
+
+      expect(passwordErrors()).toContain(
+        'The new password field must be at least 8 characters.'
+      );
+
+      expect(confirmationErrors()).toContain(
+        'The confirm new password field is required.'
+      );
+    });
   });
 
   it('re-evaluates when a form switches mode at runtime', async () => {
@@ -199,5 +216,26 @@ describe('newPasswordRules', () => {
     isEditMode.value = false;
 
     expect(await validate()).toBe(false);
+  });
+
+  it('switches the field names in its messages when the mode flips at runtime', async () => {
+    const isEditMode = ref(false);
+    const { form, validate, passwordErrors } = await setupForm(
+      () => isEditMode.value
+    );
+
+    form.value = { password: 'shortpw', password_confirmation: 'shortpw' };
+    await validate();
+
+    expect(passwordErrors()).toContain(
+      'The password field must be at least 8 characters.'
+    );
+
+    isEditMode.value = true;
+    await validate();
+
+    expect(passwordErrors()).toContain(
+      'The new password field must be at least 8 characters.'
+    );
   });
 });

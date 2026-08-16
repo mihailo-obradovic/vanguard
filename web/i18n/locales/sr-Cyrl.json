@@ -159,12 +159,13 @@
       "sameAs": "Поље „{field}“ се не поклапа."
     },
     "fieldNames": {
+      "confirmNewPassword": "Потврди нову лозинку",
       "currentPassword": "Тренутна лозинка",
       "email": "Е-пошта",
       "name": "Име",
+      "newPassword": "Нова лозинка",
       "password": "Лозинка",
-      "passwordConfirmation": "Потврда лозинке",
-      "role": "Улога"
+      "passwordConfirmation": "Потврда лозинке"
     },
     "lowercase": "Ово поље мора бити малим словима.",
     "maxLength": "Ово поље може имати највише {max} карактера.",

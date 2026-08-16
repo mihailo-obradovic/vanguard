@@ -159,12 +159,13 @@
       "sameAs": "The {field} field does not match."
     },
     "fieldNames": {
+      "confirmNewPassword": "confirm new password",
       "currentPassword": "current password",
       "email": "email",
       "name": "name",
+      "newPassword": "new password",
       "password": "password",
-      "passwordConfirmation": "password confirmation",
-      "role": "role"
+      "passwordConfirmation": "password confirmation"
     },
     "lowercase": "This field must be lowercase.",
     "maxLength": "This field must be at most {max} characters.",

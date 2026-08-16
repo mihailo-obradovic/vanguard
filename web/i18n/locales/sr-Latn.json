@@ -159,12 +159,13 @@
       "sameAs": "Polje „{field}“ se ne poklapa."
     },
     "fieldNames": {
+      "confirmNewPassword": "Potvrdi novu lozinku",
       "currentPassword": "Trenutna lozinka",
       "email": "E-pošta",
       "name": "Ime",
+      "newPassword": "Nova lozinka",
       "password": "Lozinka",
-      "passwordConfirmation": "Potvrda lozinke",
-      "role": "Uloga"
+      "passwordConfirmation": "Potvrda lozinke"
     },
     "lowercase": "Ovo polje mora biti malim slovima.",
     "maxLength": "Ovo polje može imati najviše {max} karaktera.",

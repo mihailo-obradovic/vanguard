@@ -36,7 +36,7 @@ Tests live in a `_tests/` subdirectory of the directory holding the code under t
 
 ## Local invariants
 
-- `auth.global.ts` runs on every navigation; redirect logic lives in `utils/authRedirectLogic.ts` so it stays unit-testable — change the logic there, not in the middleware.
+- `auth.global.ts` runs on every navigation; redirect logic lives in `utils/authRedirectLogic.ts` so it stays unit-testable — change the logic there, not in the middleware. The policy takes the session state as an argument rather than reading the store, so the middleware and `app.vue`'s login-state watcher are the only two places that touch the framework; keep it that way and its spec needs neither the nuxt environment nor a stub.
 - Components never call `useQuery`/`useMutation` or the fetcher directly; the service → query-composable → component chain is the only path to the API. This holds for GraphQL too — `gqlFetcher` is a service-layer tool, never called from a component (`catalyst/features/007_graphql-api.md`).
 - GraphQL documents are plain strings — the `gql` tag is an identity function and nothing validates them at build time, so a mistyped field fails at runtime. Verify new documents against `graphql/schema.graphql` (GraphiQL at `/graphiql` in dev); the codegen revisit trigger is recorded in `catalyst/decisions/007_infra_graphql-alongside-rest.md`.
 - The backend contract this app is built against is a protected area — see Protected Areas in `catalyst/architecture.md`.

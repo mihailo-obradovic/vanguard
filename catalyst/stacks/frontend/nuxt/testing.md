@@ -32,7 +32,7 @@ Vitest runs specs in the node environment by default — cheap and sufficient fo
 import { mockNuxtImport } from '@nuxt/test-utils/runtime';
 ```
 
-`mockNuxtImport` stubs auto-imported composables (`authRedirectLogic.spec.ts` is the worked example — it stubs the auth store's state). Keep the nuxt environment the exception: if a util needs it, first ask whether the util should take its dependencies as arguments instead.
+`mockNuxtImport` stubs auto-imported composables (`setupQueryErrorHandling.spec.ts` is the worked example — it stubs the auth store, the route, and the error handler it delegates to). Keep the nuxt environment the exception: if a util needs it, first ask whether the util should take its dependencies as arguments instead. `authRedirectLogic.ts` is what that question looks like answered — it used to reach into the auth store and its spec stubbed it; taking the session state as an argument made the policy pure, and the spec dropped both the stubs and the nuxt environment.
 
 ## Conventions
 

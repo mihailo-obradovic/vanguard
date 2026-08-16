@@ -169,6 +169,10 @@ describe('ForgotPasswordDialog', () => {
 
   // ! The hint is the one piece of prose in this dialog. Asserting it in English would pass just as
   // ! well against a hardcoded sentence, so this asserts it in a language only the catalog knows.
+  // ! This is the discriminator case exception 2 allows (`catalyst/conventions/testing.md`, What is
+  // ! deliberately not tested): the exact string is the only observable separating "localized" from
+  // ! "hardcoded", and hardcoded is the defect writing this spec actually found. It is the suite's
+  // ! one exact-prose assertion, deliberately — the cost is that rewording the Serbian reddens it.
   it('explains itself in the visitor’s language', async () => {
     await renderOwner();
     await open();

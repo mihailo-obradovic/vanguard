@@ -35,6 +35,16 @@ function renderTable(props: Partial<UsersTableProps> = {}) {
   });
 }
 
+/**
+ * The table's body group. The skeleton rows are `aria-hidden`, so while the first load is in
+ * flight the only row left in the accessibility tree is the header's — which is the point.
+ */
+function tableBody() {
+  const [, body] = screen.getAllByRole('rowgroup');
+
+  return body!;
+}
+
 /** The row a user occupies, found by the name shown in it. */
 function rowFor(name: string) {
   const row = screen
@@ -127,19 +137,21 @@ describe('UsersTable', () => {
     expect(rowFor('Ana').getByText('ana@example.com')).toBeTruthy();
   });
 
-  it('stands in skeleton rows for the data while the first load is in flight', async () => {
+  // ! Placeholder rows stand in for the data, so the header and column widths hold still. They are
+  // ! `aria-hidden` and the body is marked busy: a screen reader is told the table is loading
+  // ! rather than read six rows of nothing. Only the header row is left in the tree.
+  it('stands in placeholder rows for the data while the first load is in flight', async () => {
     await renderTable({ users: [], loading: true });
 
-    expect(
-      document.querySelectorAll('.v-skeleton-loader').length
-    ).toBeGreaterThan(0);
+    expect(tableBody().getAttribute('aria-busy')).toBe('true');
+    expect(screen.getAllByRole('row')).toHaveLength(1);
     expect(screen.queryByText('No users found.')).toBeNull();
   });
 
-  it('shows the rows, not skeletons, once loading ends', async () => {
+  it('shows the rows, not placeholders, once loading ends', async () => {
     await renderTable();
 
-    expect(document.querySelector('.v-skeleton-loader')).toBeNull();
+    expect(tableBody().getAttribute('aria-busy')).toBeNull();
     expect(rowFor('Ana').getByText('ana@example.com')).toBeTruthy();
   });
 
@@ -147,7 +159,7 @@ describe('UsersTable', () => {
     await renderTable({ users: [] });
 
     expect(screen.getByText('No users found.')).toBeTruthy();
-    expect(document.querySelector('.v-skeleton-loader')).toBeNull();
+    expect(tableBody().getAttribute('aria-busy')).toBeNull();
   });
 });
 

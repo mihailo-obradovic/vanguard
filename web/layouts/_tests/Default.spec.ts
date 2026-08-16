@@ -17,10 +17,16 @@ vi.stubGlobal('visualViewport', null);
 
 const requests = recordRequests();
 
-function renderLayout() {
-  return renderSuspended(Default, {
-    global: { plugins: [createVuetify()] }
-  });
+/**
+ * Render on a Vuetify instance the caller keeps hold of, so a test can read the theme the layout
+ * put it in — the same way `plugins/_tests/vuetify.spec.ts` reads the locale off the instance.
+ */
+async function renderLayout() {
+  const vuetify = createVuetify();
+
+  await renderSuspended(Default, { global: { plugins: [vuetify] } });
+
+  return vuetify;
 }
 
 /** Everything the user can act on in the chrome, by its accessible name. */
@@ -204,16 +210,15 @@ describe('the default layout', () => {
       await waitFor(() => expect(storedTheme()).toBe('light'));
     });
 
+    // ! The only case proving the cookie is read back rather than merely written. Asserted on the
+    // ! Vuetify instance the layout switched, not on the class it renders — the class is the
+    // ! framework's business, and the applied styling itself is a live-browser matter.
     it('opens in the theme the visitor last chose', async () => {
       document.cookie = 'theme=dark; path=/';
 
-      await renderLayout();
+      const vuetify = await renderLayout();
 
-      await waitFor(() =>
-        expect(
-          document.querySelector('.v-theme--dark, .v-application')?.className
-        ).toContain('dark')
-      );
+      await waitFor(() => expect(vuetify.theme.global.name.value).toBe('dark'));
     });
   });
 });

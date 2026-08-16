@@ -17,8 +17,6 @@
     },
     "loginLink": "Prijavite se ovde",
     "passwordReset": {
-      "confirmNewPassword": "Potvrdi novu lozinku",
-      "newPassword": "Nova lozinka",
       "submit": "Resetuj lozinku",
       "submitting": "Resetovanje...",
       "title": "Resetovanje lozinke"

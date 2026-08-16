@@ -26,7 +26,7 @@ There is no rejected alternative to name — master _is_ the headless alternativ
 
 Product decisions of this branch, not module prescriptions (the module's components document says exactly this about borrowing compositions):
 
-- **Auth lives in dialogs, not routes.** `LoginDialog`/`RegisterDialog`/`ForgotPasswordDialog` mount in `layouts/Default.vue` driven by a local `useUserDialogs()` composable; the four auth pages are deleted. Follow-on: `utils/authRedirectLogic.ts` shrinks guest-only routes to `['/password-reset']` and redirects unauthenticated users to `/home`, and the flattened `pages/password-reset.vue` reads `?token=&email=` — the backend's emailed reset URL must match, so this composition reaches into route policy and server config (why it is recorded here).
+- **Auth lives in dialogs, not routes.** `LoginDialog`/`RegisterDialog`/`ForgotPasswordDialog` mount in `layouts/Default.vue`, one `useMutationDialog()` call each; the four auth pages are deleted. Follow-on: `utils/authRedirectLogic.ts` shrinks guest-only routes to `['/password-reset']` and redirects unauthenticated users to `/home`, and the flattened `pages/password-reset.vue` reads `?token=&email=` — the backend's emailed reset URL must match, so this composition reaches into route policy and server config (why it is recorded here).
 - **Dracula palette with custom theme tokens.** `link`, `highlight`, and `foreground` beyond Vuetify's built-ins, used as ordinary `color=` props and `--v-theme-*` variables; no `surface` override.
 - **Project idioms:** `GapContainer` (polymorphic `d-flex`/gap wrapper; imports `VSheet`/`VCard` explicitly for `<component :is>`), `PasswordField`'s second `visible` model shared across a password/confirmation pair, `UserCard`'s inline edit mode via `defineExpose({ resetForm })`.
 
@@ -34,8 +34,7 @@ Product decisions of this branch, not module prescriptions (the module's compone
 
 - `CookieConsentBanner.vue` is hand-rolled HTML/CSS with hardcoded colours that ignore the theme (arrived from master unconverted).
 - `LoginDialog.vue` ships hardcoded dev credentials in `initialForm`.
-- `FullScreenDialog.vue` is referenced by no page.
-- `useThemeSwitching()` and `useUserDialogs()` are declared inside `layouts/Default.vue` rather than in `composables/`. Both are pure logic — cookie-backed theme persistence, and the three auth dialogs with their mutations and validation wiring — so both are testable the moment they move, and untestable where they are. Extracting them is deferred with the rest of the component work, not blocked by it.
+- `useThemeSwitching()` is declared inside `layouts/Default.vue` rather than in `composables/`. It is pure logic — cookie-backed theme persistence — so it is testable the moment it moves, and untestable where it is. Extracting it is deferred with the rest of the component work, not blocked by it. (`useUserDialogs()` sat beside it and is gone: the three auth dialogs are now one `useMutationDialog()` call each.)
 
 ## Scope
 

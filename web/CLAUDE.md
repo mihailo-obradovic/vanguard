@@ -7,7 +7,7 @@ Paths below are relative to the repo root. The `catalyst/` documents are normati
 ## Structure
 
 - `app.vue` / `error.vue` — entry and error shells; `layouts/Default.vue` is the main layout (app bar, navigation drawer, auth dialogs), `layouts/Empty.vue` a bare centered shell for standalone pages.
-- `components/_shared/` — auto-imported shared components (`components.dirs` in `nuxt.config.ts`); everything else is explicitly imported.
+- `components/_shared/` — auto-imported shared components (`components.dirs` in `nuxt.config.ts`); everything else is explicitly imported. `FullScreenDialog.vue` is referenced by no page on purpose — it is the worked example of the module's separate-component fullscreen dialog; see its own note before wiring or deleting it.
 - `composables/` — `useAppQuery` / `useAppMutation` (the only query/mutation wrappers components may use), `useValidationErrors` / `useExternalErrors` (server-422-to-Regle bridge), `useDialogForm` (a dialog form's cancel/confirm/reset trio, and where the reset-timing rule is decided), `useConfirmOnEnter` (the Enter-confirms handler, and where the list of elements that keep Enter to themselves lives), `useMutationDialog` (a dialog whose confirm runs one mutation: owns the open flag, closes on success, keeps 422s off the toast), `useCookieConsent`.
 - `i18n/` — message catalogs and the Vue I18n config; has its own `CLAUDE.md`.
 - `mocks/` — test-only: the MSW server, its lifecycle setup file, the request recorder, schema-parsed fixtures, and per-resource handlers. Never imported by shipped code.

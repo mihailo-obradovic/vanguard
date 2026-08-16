@@ -41,6 +41,8 @@
 <script setup lang="ts">
 import { mdiClose, mdiContentSave } from '@mdi/js';
 
+// ! Deliberately referenced by no page — this repository is a reference implementation, and the Vuetify module prescribes a fullscreen dialog as its own component rather than a `fullscreen` prop, because the internal structure genuinely differs (a toolbar replaces the card title and the button row). Kept as the worked example of that. It is not `CardDialog`'s mobile path: `fullscreenOnMobile` makes the card fill the screen and keeps its Cancel/Confirm row, which is a different surface, and swapping one for the other would change how every dialog behaves on a phone.
+
 // ! Stryker instruments this block with locally declared coverage helpers, and a compiler
 // ! macro is hoisted out of setup() — referencing them there is a compile error, not a
 // ! warning. The defaults inside go unmutated as a result (`catalyst/operations.md`).

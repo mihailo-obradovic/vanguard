@@ -6,6 +6,7 @@
     scrollable
     @after-leave="emit('after-leave')"
   >
+    <!-- ! Each prop and event is forwarded by hand rather than through `v-bind="$attrs"` and a slot loop. The loop is about eighteen lines shorter and was considered and rejected: attrs are untyped, so `title`, `loading`, `confirmDisabled`, `confirmOnEnter` and `confirmColor` would stop being checked at the six call sites, and the spec cases that sabotage-prove each forward would have nothing left to assert. The forwarding is this component's contract, not plumbing to be minimized. -->
     <FormCard
       :title="title"
       :confirm-disabled="confirmDisabled"

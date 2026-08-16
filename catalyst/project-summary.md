@@ -12,7 +12,7 @@ Context documents: `context/product-description.md`, `context/domain-glossary.md
 
 | ### | Feature              | Status | Summary                                                                                                                                                                    | Document                                                                     |
 | --- | -------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| 001 | Session Auth Flow    | Active | Sanctum stateful cookie auth for the SPA: register/login/logout, email verification, password reset, CSRF flow, auth store + route guarding.                               | [features/001_session-auth.md](features/001_session-auth.md)                 |
+| 001 | Session Auth Flow    | Active | Sanctum stateful cookie auth for the SPA: register/login/logout, `GET /api/user`, CSRF flow, auth store, boot plugin and route guarding.                                   | [features/001_session-auth.md](features/001_session-auth.md)                 |
 | 002 | User Management      | Active | Admin-gated user CRUD behind the `admin` middleware: list/create/update/hard-delete, two-role RBAC (`user`/`admin`), self-delete guard.                                    | [features/002_user-management.md](features/002_user-management.md)           |
 | 003 | Self-Service Profile | Active | `PUT /api/profile`: own name/email/password updates; email change resets verification; `current_password` challenge; role untouchable.                                     | [features/003_self-service-profile.md](features/003_self-service-profile.md) |
 | 004 | Cookie Consent       | Active | Accept/decline banner (`web/app.vue`) persisting a `cookie_consent` cookie for a year; consent recorded but not yet gating anything.                                       | [features/004_cookie-consent.md](features/004_cookie-consent.md)             |
@@ -20,6 +20,7 @@ Context documents: `context/product-description.md`, `context/domain-glossary.md
 | 006 | Form Validation UX   | Active | Demonstration contract: Regle rules mirror the backend, Zod validates responses only, server 422s bridge to inline field errors (no toast).                                | [features/006_form-validation-ux.md](features/006_form-validation-ux.md)     |
 | 007 | GraphQL API          | Active | Demonstration contract: a Lighthouse `/graphql` endpoint (users query + updateUser mutation) and the client wrappers that make a GraphQL call cost what a REST call costs. | [features/007_graphql-api.md](features/007_graphql-api.md)                   |
 | 008 | Email Availability   | Active | Public `GET /api/email-availability` + a debounced async Regle rule: "already taken" while typing, failing open so the backend `unique` rules stay authoritative.          | [features/008_email-availability.md](features/008_email-availability.md)     |
+| 009 | Email Verification & Password Reset | Active | The mail-driven lifecycle around the session: forgot/reset password, the signed verification link and its resend, and the SPA pages that drive them.  | [features/009_email-verification-password-reset.md](features/009_email-verification-password-reset.md) |
 
 ## Architecture Decision Record (ADR) Index
 
@@ -54,7 +55,8 @@ Pointer index of protections declared in feature/decision documents (lazy-loaded
 
 | Area                                                                       | Owner                                |
 | -------------------------------------------------------------------------- | ------------------------------------ |
-| Session/auth contract + auth endpoints (`routes/web.php`, `GET /api/user`) | features/001_session-auth.md         |
+| Session mechanics + register/login/logout and `GET /api/user`              | features/001_session-auth.md         |
+| Forgot/reset password, verification link and resend endpoints              | features/009_email-verification-password-reset.md |
 | User management API (`apiResource` users)                                  | features/002_user-management.md      |
 | Profile endpoint (`PUT /api/profile`)                                      | features/003_self-service-profile.md |
 | GraphQL schema + `/graphql` endpoint                                       | features/007_graphql-api.md          |

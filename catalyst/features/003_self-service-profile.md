@@ -4,15 +4,13 @@
 
 Active
 
-Retro-documented at brownfield adoption (2026-08-02) from code, tests, and the original design spec (implemented 2026-07-29 in `c7cf4d6` + `d7e1934`). The backend matched that spec verbatim and the frontend exceeded it; this document has since superseded the spec, which was removed.
-
 ## Task Weight
 
 Medium
 
 ## Purpose
 
-Let any authenticated user update their own name, email, and password without admin involvement — safely: email changes re-trigger verification, password changes require the current password, and the role can never be self-modified. Before this endpoint existed, the profile page saved through the admin-only `PUT /api/users/{id}` and non-admins got 403.
+Let any authenticated user update their own name, email, and password without admin involvement — safely: email changes re-trigger verification, password changes require the current password, and the role can never be self-modified.
 
 ## Inputs
 
@@ -23,7 +21,7 @@ Let any authenticated user update their own name, email, and password without ad
 | `password`         | string | body                    | `sometimes`, `confirmed`, Laravel `Password::defaults()` (8–255, feature 001) |
 | `current_password` | string | body                    | `required_with:password`, must match session user's password (web guard)      |
 
-All fields optional (`sometimes`) — partial updates are valid; `{}` is a 200 no-op. `role` is not accepted: absent from the rules and from `User`'s fillable set — sent values are silently ignored (tested).
+All fields optional (`sometimes`) — partial updates are valid; `{}` is a 200 no-op. `role` is not accepted: absent from the rules and from `User`'s fillable set — sent values are silently ignored.
 
 ## Outputs And Side Effects
 
@@ -43,8 +41,8 @@ Non-goals: admin user management (feature 002 — `PUT /api/users/{id}` keeps ro
 
 - When an authenticated user submits the profile form, the backend applies `changeEmail()` first, then fills only `name`/`password`, saves once, and re-sends verification only if the email changed.
 - When the email is unchanged (strict compare; `lowercase` rule normalizes input first), verification status is untouched and nothing is sent.
-- When a password change is requested without the correct `current_password`, the request 422s and no partial write occurs (tested).
-- Frontend (`web/pages/profile.vue`): read view shows name, email, role badge, verification badge with a resend button when unverified; an edit modal submits via `useUpdateProfile`; on success the auth store is replaced wholesale (verification badge flips immediately), a success toast fires, and the modal resets. `?verified=1` on arrival refetches the user and toasts.
+- When a password change is requested without the correct `current_password`, the request 422s and no partial write occurs.
+- The profile page shows name, email, a role badge, and a verification badge with a resend button when unverified; an edit modal submits the update. On success the auth store is replaced wholesale (the verification badge flips immediately), a success toast fires, and the modal resets. Arriving with `?verified=1` refetches the user and toasts.
 - Server 422s render inline per field (Regle external errors via `useValidationErrors` → `useExternalErrors`), with the validation toast suppressed; non-422 errors still toast centrally.
 
 ## Roles And Access
@@ -60,8 +58,8 @@ Every account type gets the same profile page; admins additionally manage others
 | Input                                                            | Expected Output                                         | Notes                                                                          |
 | ---------------------------------------------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------ |
 | `{ name: "New Name" }`                                           | 200, name persisted                                     | name-only save; empty `current_password` string is skipped (non-implicit rule) |
-| `{ email: <changed> }`                                           | 200, `email_verified_at` null, verification mail queued | tested                                                                         |
-| `{ password, password_confirmation, current_password: <wrong> }` | 422 on `current_password`, old password still valid     | tested                                                                         |
+| `{ email: <changed> }`                                           | 200, `email_verified_at` null, verification mail queued |                                                                                |
+| `{ password, password_confirmation, current_password: <wrong> }` | 422 on `current_password`, old password still valid     | no partial write                                                               |
 | `{ role: "admin" }`                                              | 200, role unchanged                                     | escalation blocked twice: rules + fillable                                     |
 
 ## Business Rules
@@ -72,7 +70,7 @@ Every account type gets the same profile page; admins additionally manage others
 
 ## Edge Cases
 
-- Same-email resubmission short-circuits in `changeEmail()` — no verification reset, no mail (tested).
+- Same-email resubmission short-circuits in `changeEmail()` — no verification reset, no mail.
 - The frontend always sends `current_password` (possibly `""`); Laravel skips non-implicit rules on empty strings, so name-only saves work.
 - Client rules are stricter than the server: Regle marks `name`/`email` required, so the UI never issues a true partial update; the server contract still allows one.
 
@@ -93,7 +91,7 @@ Every account type gets the same profile page; admins additionally manage others
 
 ## Entry Points
 
-- `routes/api.php:11` — `PUT /api/profile` (no name, no throttle, PUT only).
+- `routes/api.php` — `PUT /api/profile` (no name, no throttle, PUT only).
 - `app/Http/Controllers/ProfileController.php` / `app/Http/Requests/ProfileUpdateRequest.php` — the contract's server half.
 - `app/Models/User.php` — `changeEmail()` + overridden `sendEmailVerificationNotification()` (queued).
 - `web/pages/profile.vue` + `web/services/queries/useAuthQueries.ts` (`useUpdateProfile`) + `web/services/auth.api.ts` (`updateProfile`) — the SPA half.
@@ -108,14 +106,12 @@ Every account type gets the same profile page; admins additionally manage others
 
 ## Tests
 
-- `tests/Feature/ProfileTest.php` — 14 tests: name update, password change happy/wrong/missing current password, `confirmed`-mismatch 422, email uniqueness collision, malformed-email and overlong-name/uppercase-email 422s, email change resets + resends, same-email no-op, role-escalation blocked, guest 401, plus the two admin-path email tests. `tests/Unit/UserTest.php` unit-tests `changeEmail()` (same-address no-op; change resets verification) and the role helpers; the response field set is pinned in `UserManagementTest.php` (same `UserResource`).
-- Known gaps (recorded, not smoothed over): no tests for the password min-length 422 or the empty-body no-op; on the frontend, `profile.vue` itself has no component test — the page stays on the live browser walk, but the card it renders is covered by `web/components/users/_tests/UserCard.spec.ts` (read-only until the pencil, Escape cancelling from anywhere, Enter submitting from a field, the current password required only once a new one is typed, the password pair left out of a rename and included when set, a server 422 landing on its field, and the verification chip with the resend it sends). `updateProfile` and `useUpdateProfile` — including the store update on success — are covered by `web/services/_tests/auth.api.spec.ts` and `web/services/queries/_tests/useAuthQueries.spec.ts`.
+- `tests/Feature/ProfileTest.php` — name update; password change happy / wrong / missing `current_password`; `confirmed`-mismatch, email-uniqueness, malformed-email and overlong-name/uppercase-email 422s; email change resets and resends; same-email no-op; role escalation blocked; guest 401. `tests/Unit/UserTest.php` covers `changeEmail()` and the role helpers; the response field set is pinned in `UserManagementTest.php` (same `UserResource`). `updateProfile` and `useUpdateProfile`, including the store update on success, are covered in `web/services/_tests/auth.api.spec.ts` and `web/services/queries/_tests/useAuthQueries.spec.ts`.
+- Known gaps: no test for the password min-length 422 or the empty-body no-op; `profile.vue` itself has no component test and stays on the live browser walk, though the card it renders is covered by `web/components/users/_tests/UserCard.spec.ts`.
 
 ## Verification
 
-Backend suite green at adoption: `php artisan test` → 36 passed (98 assertions), including all 10 profile tests, on sqlite `:memory:`. Spec-vs-reality audit (2026-08-02) found every backend design point implemented verbatim; deviations are frontend-only (stricter client rules; always-sent `current_password`) and are documented above.
-
-B3 (2026-08-02): the suite moved off sqlite onto the real engine — `php artisan test` green against MySQL `vanguard_testing` (Catalyst Laravel module departure #1 resolved; setup in `operations.md`).
+`php artisan test` is green against the MySQL `vanguard_testing` database (setup in `operations.md`), profile tests included. Rules, `changeEmail()` semantics, and the response envelope are traced to source; the only deviations from this contract are frontend-only — stricter client rules and an always-sent `current_password` — and are documented above.
 
 ## Agent Change Rules
 

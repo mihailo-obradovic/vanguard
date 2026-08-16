@@ -21,11 +21,11 @@ Authenticate the Nuxt SPA against the Laravel API with Sanctum's stateful cookie
 
 ## Outputs And Side Effects
 
-| Output / Side Effect             | Type         | Description                                                                                                      |
-| -------------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------ |
-| `204 No Content`                 | HTTP         | register, login, logout — no body; session rotation per Invariants                                               |
+| Output / Side Effect             | Type         | Description                                                                                                                      |
+| -------------------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| `204 No Content`                 | HTTP         | register, login, logout — no body; session rotation per Invariants                                                               |
 | `GET /api/user` → `UserResource` | JSON         | `{ "data": ... }` envelope — `id, name, email, role, email_verified_at, created_at, updated_at` (password/remember_token hidden) |
-| Queued mail                      | notification | registration fires `Registered` → queued `VerifyEmailNotification`; the round-trip belongs to feature 009        |
+| Queued mail                      | notification | registration fires `Registered` → queued `VerifyEmailNotification`; the round-trip belongs to feature 009                        |
 
 ## Scope And Non-Goals
 
@@ -48,7 +48,7 @@ Not role-specific — no auth endpoint is role-gated; registration cannot set a 
 ## Examples
 
 | Input                                               | Expected Output                      | Notes                                              |
-| --------------------------------------------------- | ------------------------------------ | ---------------------------------------------------- |
+| --------------------------------------------------- | ------------------------------------ | -------------------------------------------------- |
 | `POST /login` valid creds                           | 204, session regenerated             | SPA follows with `GET /api/user`                   |
 | `POST /login` wrong password ×6                     | 422 ×5 on `email`, then throttle 422 | limiter clears on success                          |
 | `GET /api/user` as guest (even without JSON Accept) | 401 JSON, never a redirect           | `redirectGuestsTo(null)` + forced JSON for `api/*` |
@@ -102,7 +102,7 @@ Not role-specific — no auth endpoint is role-gated; registration cannot set a 
 
 ## Verification
 
-`php artisan test` is green against the MySQL `vanguard_testing` database (`operations.md`) and `route:cache` succeeds; the frontend suite covers the redirect, store, fetcher and boot-plugin cases above, plus 25 sabotage-proven cases across the auth dialogs. The endpoint table, config values and redirect rules are traced line-by-line to source, and a live signed-out walk through the login and forgot-password dialogs renders their copy in the active locale. Remaining risk: master's shared client-side email and password rule factories are not yet ported to this branch's dialogs.
+`php artisan test` is green against the MySQL `vanguard_testing` database (`operations.md`) and `route:cache` succeeds; the frontend suite covers the redirect, store, fetcher and boot-plugin cases above, plus 25 sabotage-proven cases across the auth dialogs. The endpoint table, config values and redirect rules are traced line-by-line to source, and a live signed-out walk through the login and forgot-password dialogs renders their copy in the active locale. The shared client-side rule factories now drive these dialogs too (`features/006`): login and forgot-password take `credentialEmailRules()`, register takes `accountEmailRules()`. Remaining risk: the register dialog's email errors are now field-named and arrive after a 500ms debounce, and neither has been seen in a browser on this branch.
 
 ## Agent Change Rules
 

@@ -68,7 +68,7 @@ Not role-specific — the endpoint is public and unauthenticated; `ignore_id` is
 
 ## Edge Cases
 
-- **Race**: an address free at check time and taken at submit time yields a 422, rendered inline by feature 006's bridge. Expected, not a defect.
+- **Race**: an address free at check time and taken at submit time yields a 422, rendered inline by feature 010's bridge. Expected, not a defect.
 - **Own address on edit**: `ignore_id` covers it; without the parameter a user editing their profile would be told their own address is taken.
 - **Case**: the lookup matches the way the database matches (`ci` collation), so `Taken@example.com` reports the same as `taken@example.com`. The write endpoints additionally enforce `lowercase`, mirrored client-side (feature 006), so a mixed-case address is flagged by that rule first.
 - **An unknown `ignore_id`** filters nothing out; it is not validated for existence, because it only ever narrows a public read.
@@ -113,7 +113,7 @@ No protected area of its own.
 
 Backend and frontend suites green, including `EmailAvailabilityTest`, the `emailRules` specs and the `checkEmailAvailability` service spec; `nuxt typecheck`, `oxlint`, `oxfmt --check` and `pint --test` clean.
 
-Live walk on the register page against real MySQL: a taken address rendered "The Email field is already taken." and blocked submit; a mixed-case address rendered the lowercase message; correcting both cleared every message and enabled Register. `/login` accepted a mixed-case address, confirming the read path carries neither rule.
+Live walk on the register page against real MySQL: a taken address rendered the taken message ("The email field is already taken." — the field name was title case when walked, lowercased since) and blocked submit; a mixed-case address rendered the lowercase message; correcting both cleared every message and enabled Register. `/login` accepted a mixed-case address, confirming the read path carries neither rule.
 
 Fail-open is covered by unit tests (500 and 429 both leave the field valid) rather than by the live walk; the production-only `uncompromised()` arm of the password policy is untested by design (feature 001, Tests).
 

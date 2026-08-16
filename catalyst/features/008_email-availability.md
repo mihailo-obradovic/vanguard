@@ -113,7 +113,7 @@ No protected area of its own.
 
 Backend and frontend suites green, including `EmailAvailabilityTest`, the `emailRules` specs and the `checkEmailAvailability` service spec; `nuxt typecheck`, `oxlint`, `oxfmt --check` and `pint --test` clean.
 
-Live walk on the register page against real MySQL: a taken address rendered "The Email field is already taken." and blocked submit; a mixed-case address rendered the lowercase message; correcting both cleared every message and enabled Register. `/login` accepted a mixed-case address, confirming the read path carries neither rule.
+Live walk on the register page against real MySQL: a taken address rendered the taken message ("The email field is already taken." — the field name was title case when walked, lowercased since) and blocked submit; a mixed-case address rendered the lowercase message; correcting both cleared every message and enabled Register. `/login` accepted a mixed-case address, confirming the read path carries neither rule.
 
 Fail-open is covered by unit tests (500 and 429 both leave the field valid) rather than by the live walk; the production-only `uncompromised()` arm of the password policy is untested by design (feature 001, Tests).
 

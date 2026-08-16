@@ -91,7 +91,7 @@ async function fillInAValidUser() {
   await fireEvent.update(field(/^Name$/), 'Bob');
   await fireEvent.update(field(/^Email$/), 'bob@example.com');
   await fireEvent.update(field(/^Password$/), 'hunter2hunter2');
-  await fireEvent.update(field(/^Password Confirmation$/), 'hunter2hunter2');
+  await fireEvent.update(field(/^Password confirmation$/), 'hunter2hunter2');
   await flushPromises();
   await readyToConfirm();
 }
@@ -226,7 +226,7 @@ describe('UserFormDialog', () => {
     await fireEvent.update(field(/^Name$/), 'Bob');
     await fireEvent.update(field(/^Email$/), 'bob@example.com');
     await fireEvent.update(field(/^Password$/), 'hunter2hunter2');
-    await fireEvent.update(field(/^Password Confirmation$/), 'hunter2hunter2');
+    await fireEvent.update(field(/^Password confirmation$/), 'hunter2hunter2');
     await readyToConfirm();
 
     await fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
@@ -253,7 +253,7 @@ describe('UserFormDialog', () => {
 
     await fireEvent.update(field(/^Email$/), 'bob@example.com');
     await fireEvent.update(field(/^Password$/), 'hunter2hunter2');
-    await fireEvent.update(field(/^Password Confirmation$/), 'hunter2hunter2');
+    await fireEvent.update(field(/^Password confirmation$/), 'hunter2hunter2');
 
     await readyToConfirm();
   });

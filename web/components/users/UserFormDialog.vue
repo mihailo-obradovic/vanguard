@@ -37,6 +37,8 @@
           ? $t('common.fields.newPassword')
           : $t('common.fields.password')
       "
+      :hint="editMode ? $t('common.fields.newPasswordHint') : undefined"
+      :persistent-hint="editMode"
       :required="!editMode"
     />
 

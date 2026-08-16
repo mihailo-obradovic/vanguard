@@ -62,7 +62,7 @@ async function startEditing() {
 }
 
 async function fillInANewPassword() {
-  await fireEvent.update(field(/^Current Password$/), 'oldpassword');
+  await fireEvent.update(field(/^Current password$/), 'oldpassword');
   await fireEvent.update(field(/^New password/), 'hunter2hunter2');
   await fireEvent.update(field(/^Confirm new password$/), 'hunter2hunter2');
 }
@@ -92,7 +92,7 @@ describe('UserCard', () => {
     expect(field(/^Name$/).value).toBe('Ana');
     expect(field(/^Name$/).readOnly).toBe(true);
     expect(button('Edit')).toBeTruthy();
-    expect(screen.queryByLabelText(/^Current Password$/)).toBeNull();
+    expect(screen.queryByLabelText(/^Current password$/)).toBeNull();
   });
 
   it('offers the password fields once editing starts', async () => {
@@ -100,7 +100,7 @@ describe('UserCard', () => {
     await startEditing();
 
     expect(field(/^Name$/).readOnly).toBe(false);
-    expect(field(/^Current Password$/)).toBeTruthy();
+    expect(field(/^Current password$/)).toBeTruthy();
     expect(field(/^New password/)).toBeTruthy();
   });
 

@@ -54,7 +54,8 @@
       "currentPassword": "Trenutna lozinka",
       "email": "E-pošta",
       "name": "Ime",
-      "newPassword": "Nova lozinka (opciono)",
+      "newPassword": "Nova lozinka",
+      "newPasswordHint": "Opciono — ostavite prazno da zadržite trenutnu lozinku.",
       "password": "Lozinka",
       "passwordConfirmation": "Potvrda lozinke",
       "role": "Uloga"

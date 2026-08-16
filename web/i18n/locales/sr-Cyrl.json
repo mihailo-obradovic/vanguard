@@ -54,7 +54,8 @@
       "currentPassword": "Тренутна лозинка",
       "email": "Е-пошта",
       "name": "Име",
-      "newPassword": "Нова лозинка (опционо)",
+      "newPassword": "Нова лозинка",
+      "newPasswordHint": "Опционо — оставите празно да задржите тренутну лозинку.",
       "password": "Лозинка",
       "passwordConfirmation": "Потврда лозинке",
       "role": "Улога"

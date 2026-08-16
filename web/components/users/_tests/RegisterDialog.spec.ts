@@ -93,7 +93,7 @@ async function fillInAValidRegistration() {
   await fireEvent.update(field(/^Name$/), 'Ana');
   await fireEvent.update(field(/^Email$/), 'ana@example.com');
   await fireEvent.update(field(/^Password$/), 'hunter2hunter2');
-  await fireEvent.update(field(/^Password Confirmation$/), 'hunter2hunter2');
+  await fireEvent.update(field(/^Password confirmation$/), 'hunter2hunter2');
   await flushPromises();
   await readyToConfirm();
 }
@@ -138,7 +138,7 @@ describe('RegisterDialog', () => {
     expect(field(/^Email$/).value).toBe('');
     // * The password pair too — a registration form that opened prefilled would be a real defect.
     expect(field(/^Password$/).value).toBe('');
-    expect(field(/^Password Confirmation$/).value).toBe('');
+    expect(field(/^Password confirmation$/).value).toBe('');
     expect(confirmButton().disabled).toBe(true);
   });
 
@@ -178,7 +178,7 @@ describe('RegisterDialog', () => {
     await fillInAValidRegistration();
     expect(confirmButton().disabled).toBe(false);
 
-    await fireEvent.update(field(/^Password Confirmation$/), 'hunter3hunter3');
+    await fireEvent.update(field(/^Password confirmation$/), 'hunter3hunter3');
     await flushPromises();
 
     expect(confirmButton().disabled).toBe(true);
@@ -192,7 +192,7 @@ describe('RegisterDialog', () => {
     await fireEvent.update(field(/^Name$/), 'Ana');
     await fireEvent.update(field(/^Email$/), 'ana@example.com');
     await fireEvent.update(field(/^Password$/), 'hunter2');
-    await fireEvent.update(field(/^Password Confirmation$/), 'hunter2');
+    await fireEvent.update(field(/^Password confirmation$/), 'hunter2');
     await flushPromises();
 
     expect(confirmButton().disabled).toBe(true);
@@ -250,14 +250,14 @@ describe('RegisterDialog', () => {
     await open();
 
     expect(field(/^Password$/).type).toBe('password');
-    expect(field(/^Password Confirmation$/).type).toBe('password');
+    expect(field(/^Password confirmation$/).type).toBe('password');
 
     await fireEvent.click(
       screen.getAllByRole('button', { name: 'Show password' })[0]!
     );
 
     expect(field(/^Password$/).type).toBe('text');
-    expect(field(/^Password Confirmation$/).type).toBe('text');
+    expect(field(/^Password confirmation$/).type).toBe('text');
   });
 
   // ! The 422 only reaches the field once the submit has marked it dirty — Regle keeps `$errors`

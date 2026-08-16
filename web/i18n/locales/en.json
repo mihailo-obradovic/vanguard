@@ -54,7 +54,8 @@
       "currentPassword": "Current password",
       "email": "Email",
       "name": "Name",
-      "newPassword": "New password (optional)",
+      "newPassword": "New password",
+      "newPasswordHint": "Optional — leave empty to keep the current password.",
       "password": "Password",
       "passwordConfirmation": "Password confirmation",
       "role": "Role"

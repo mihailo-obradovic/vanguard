@@ -109,6 +109,8 @@
               v-model:visible="showNewPassword"
               :error-messages="r$.password.$errors"
               :label="$t('common.fields.newPassword')"
+              :hint="$t('common.fields.newPasswordHint')"
+              persistent-hint
               variant="outlined"
             />
 

@@ -77,12 +77,13 @@
 
     <TheFooter />
 
+    <!-- * The three are mutually exclusive, and each closes itself before emitting its hand-off — so a hand-off only has to raise the next one's flag. -->
     <RegisterDialog
       v-model="registerDialog"
       :loading="isRegistering"
       :server-errors="registerErrors"
       @confirm="handleRegister"
-      @log-in-click="handleOpenLoginDialog"
+      @log-in-click="loginDialog = true"
     />
 
     <LoginDialog
@@ -90,8 +91,8 @@
       :loading="isLoggingIn"
       :server-errors="loginErrors"
       @confirm="handleLogin"
-      @forgot-password-click="handleOpenForgotPasswordDialog"
-      @register-click="handleOpenRegisterDialog"
+      @forgot-password-click="forgotPasswordDialog = true"
+      @register-click="registerDialog = true"
     />
 
     <ForgotPasswordDialog
@@ -99,7 +100,7 @@
       :loading="isSendingResetEmail"
       :server-errors="forgotPasswordErrors"
       @confirm="handleForgotPassword"
-      @back-to-login-click="handleOpenLoginDialog"
+      @back-to-login-click="loginDialog = true"
     />
   </v-layout>
 </template>
@@ -168,22 +169,27 @@ function toggleDrawer() {
 const { isDark, toggleTheme } = useThemeSwitching();
 
 const {
-  registerDialog,
-  loginDialog,
-  forgotPasswordDialog,
-  handleRegister,
-  handleLogin,
-  handleForgotPassword,
-  handleOpenRegisterDialog,
-  handleOpenLoginDialog,
-  handleOpenForgotPasswordDialog,
-  isRegistering,
-  isLoggingIn,
-  isSendingResetEmail,
-  loginErrors,
-  registerErrors,
-  forgotPasswordErrors
-} = useUserDialogs();
+  dialog: registerDialog,
+  submit: handleRegister,
+  loading: isRegistering,
+  errors: registerErrors
+} = useMutationDialog(useRegister);
+
+const {
+  dialog: loginDialog,
+  submit: handleLogin,
+  loading: isLoggingIn,
+  errors: loginErrors
+} = useMutationDialog(useLogIn);
+
+const {
+  dialog: forgotPasswordDialog,
+  submit: handleForgotPassword,
+  loading: isSendingResetEmail,
+  errors: forgotPasswordErrors
+} = useMutationDialog(useGeneratePasswordResetEmail, (data) =>
+  $toast(data.status, 'success')
+);
 
 function useThemeSwitching() {
   const theme = useTheme();
@@ -205,83 +211,6 @@ function useThemeSwitching() {
   });
 
   return { isDark, toggleTheme };
-}
-
-function useUserDialogs() {
-  const registerDialog = ref(false);
-  const loginDialog = ref(false);
-  const forgotPasswordDialog = ref(false);
-
-  const {
-    mutate: handleRegister,
-    isLoading: isRegistering,
-    error: registerError
-  } = useRegister({
-    errorHandling: { hideValidationToast: true },
-    onSuccess: () => {
-      registerDialog.value = false;
-    }
-  });
-
-  const registerErrors = useValidationErrors(registerError);
-
-  const {
-    mutate: handleLogin,
-    isLoading: isLoggingIn,
-    error: loginError
-  } = useLogIn({
-    errorHandling: { hideValidationToast: true },
-    onSuccess: () => {
-      loginDialog.value = false;
-    }
-  });
-
-  const loginErrors = useValidationErrors(loginError);
-
-  const {
-    mutate: handleForgotPassword,
-    isLoading: isSendingResetEmail,
-    error: forgotPasswordError
-  } = useGeneratePasswordResetEmail({
-    errorHandling: { hideValidationToast: true },
-    onSuccess: (data) => {
-      $toast(data.status, 'success');
-      forgotPasswordDialog.value = false;
-    }
-  });
-
-  const forgotPasswordErrors = useValidationErrors(forgotPasswordError);
-
-  // * The dialogs are mutually exclusive: each one closes itself before emitting, so the opener here only has to raise its own flag
-  function handleOpenRegisterDialog() {
-    registerDialog.value = true;
-  }
-
-  function handleOpenLoginDialog() {
-    loginDialog.value = true;
-  }
-
-  function handleOpenForgotPasswordDialog() {
-    forgotPasswordDialog.value = true;
-  }
-
-  return {
-    registerDialog,
-    loginDialog,
-    forgotPasswordDialog,
-    handleRegister,
-    handleLogin,
-    handleForgotPassword,
-    handleOpenRegisterDialog,
-    handleOpenLoginDialog,
-    handleOpenForgotPasswordDialog,
-    isRegistering,
-    isLoggingIn,
-    isSendingResetEmail,
-    loginErrors,
-    registerErrors,
-    forgotPasswordErrors
-  };
 }
 </script>
 

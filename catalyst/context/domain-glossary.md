@@ -11,3 +11,5 @@ A **context document** (`references/context-documents.md`): the project's domain
 **Field name** — the noun a validation message interpolates mid-sentence ("The password field must be at least 8 characters"). Not the same thing as the field label; a message must name the field the user actually sees.
 
 **Field label** — the string rendered on or above an input ("New password"). Carries the field's name only; guidance such as "optional" belongs in a hint, never in the label. Replaces the loose use of "label" for both the visible string and the interpolated name (see Field name).
+
+**Variant** — a long-lived branch carrying the same product on an alternative `frontend/ui` module; synced from master, never merged back. Its UI-composition decisions are variant-only, ported only by deliberate decision, never by merge.

@@ -8,24 +8,13 @@
     </v-col>
   </v-row>
 
-  <UserCard
-    v-else
-    ref="userCard"
-    :loading="isUpdatingProfile"
-    :server-errors="profileErrors"
-    @update="handleUpdate"
-  />
+  <UserCard v-else />
 </template>
 
 <script setup lang="ts">
 import UserCard from '@/components/users/UserCard.vue';
 
-import {
-  useRefreshUser,
-  useUpdateProfile
-} from '@/services/queries/useAuthQueries';
-
-import type { ProfileForm } from '@/types/user';
+import { useRefreshUser } from '@/services/queries/useAuthQueries';
 
 const { t } = useI18n();
 
@@ -46,24 +35,4 @@ onMounted(() => {
     refreshUser();
   }
 });
-
-const userCard = useTemplateRef<InstanceType<typeof UserCard>>('userCard');
-
-const {
-  mutate: updateProfile,
-  isLoading: isUpdatingProfile,
-  error: updateProfileError
-} = useUpdateProfile({
-  errorHandling: { hideValidationToast: true },
-  onSuccess: () => {
-    $toast(t('profile.toasts.updated'), 'success');
-    userCard.value?.resetForm();
-  }
-});
-
-const profileErrors = useValidationErrors(updateProfileError);
-
-function handleUpdate(form: ProfileForm) {
-  updateProfile(form);
-}
 </script>

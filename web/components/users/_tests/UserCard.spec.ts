@@ -4,7 +4,6 @@ import { renderSuspended } from '@nuxt/test-utils/runtime';
 import { screen, fireEvent, cleanup, waitFor } from '@testing-library/vue';
 import { flushPromises } from '@vue/test-utils';
 import { createVuetify } from 'vuetify';
-import { defineComponent, reactive } from 'vue';
 
 import { http, HttpResponse } from 'msw';
 
@@ -23,28 +22,48 @@ vi.stubGlobal('visualViewport', null);
 
 const requests = recordRequests();
 
-type UserCardProps = InstanceType<typeof UserCard>['$props'];
+const PROFILE_UPDATE = 'PUT /api/profile';
 
 /** Vuetify needs supplying by hand — `renderSuspended` does not run the Nuxt plugin that installs it. */
-function renderCard(props: Partial<UserCardProps> = {}) {
+function renderCard() {
   return renderSuspended(UserCard, {
-    props,
     global: { plugins: [createVuetify()] }
   });
 }
 
-/** An owner that can hand the card a server 422 after the fact, the way a failed mutation does. */
-const owner = reactive<{ serverErrors: Record<string, string[]> }>({
-  serverErrors: {}
-});
+/**
+ * The body of the profile update the card sent. The card owns its own mutation, so what it
+ * decided to save is only observable on the wire — which is also the contract
+ * `ProfileUpdateRequest` reads.
+ */
+async function profileUpdate() {
+  await requests.settle();
 
-const AnOwnedCard = defineComponent({
-  components: { UserCard },
-  setup() {
-    return { owner };
-  },
-  template: `<UserCard :server-errors="owner.serverErrors" />`
-});
+  const index = requests.trace().indexOf(PROFILE_UPDATE);
+
+  expect(index).toBeGreaterThan(-1);
+
+  return (await requests.at(index)).body as Record<string, unknown>;
+}
+
+/** Everything the card sent, once the wire has gone quiet — so a test can show what is absent from it. */
+async function settledTrace() {
+  await requests.settle();
+
+  return requests.trace();
+}
+
+/** Make the next save come back 422 against a field the card renders. */
+function serverRejects(errors: Record<string, string[]>) {
+  server.use(
+    http.put(apiUrl('/api/profile'), () =>
+      HttpResponse.json(
+        { message: 'The given data was invalid.', errors },
+        { status: 422 }
+      )
+    )
+  );
+}
 
 function field(label: RegExp) {
   return screen.getByLabelText(label) as HTMLInputElement;
@@ -69,7 +88,6 @@ async function fillInANewPassword() {
 
 describe('UserCard', () => {
   beforeEach(() => {
-    owner.serverErrors = {};
     requests.reset();
     // * The email rules ask whether the address is free the moment one is typed.
     server.use(...authHandlers(), emailAvailabilityHandler());
@@ -80,7 +98,6 @@ describe('UserCard', () => {
   });
 
   afterEach(async () => {
-    // [DEBUG-a4f2]
     await flushPromises();
     cleanup();
     document.body.innerHTML = '';
@@ -138,13 +155,13 @@ describe('UserCard', () => {
   });
 
   it('submits the changes when Enter is pressed in a field', async () => {
-    const { emitted } = await renderCard();
+    await renderCard();
     await startEditing();
 
     await fireEvent.update(field(/^Name$/), 'Ana Marić');
     await fireEvent.keyDown(field(/^Name$/), { key: 'Enter' });
 
-    await waitFor(() => expect(emitted().update).toHaveLength(1));
+    expect(await profileUpdate()).toMatchObject({ name: 'Ana Marić' });
   });
 
   // ! Buttons act on Enter themselves; submitting here as well would fire twice on one keypress.
@@ -152,19 +169,18 @@ describe('UserCard', () => {
   // ! removing that guard alone changes nothing here, so the button is already swallowing the key.
   // ! Recorded as an accepted survivor rather than asserted through the DOM structure.
   it('leaves Enter to a button that handles it itself', async () => {
-    const { emitted } = await renderCard();
+    await renderCard();
     await startEditing();
 
     await fireEvent.keyDown(button('Save'), { key: 'Enter' });
-    await flushPromises();
 
-    expect(emitted().update).toBeUndefined();
+    expect(await settledTrace()).not.toContain(PROFILE_UPDATE);
   });
 
   // ! `ProfileUpdateRequest` rejects a password change with no current password, so the form asks
   // ! for it the moment a new one is typed and not before.
   it('asks for the current password only once a new one is typed', async () => {
-    const { emitted } = await renderCard();
+    await renderCard();
     await startEditing();
 
     await fireEvent.update(field(/^New password/), 'hunter2hunter2');
@@ -174,47 +190,58 @@ describe('UserCard', () => {
     expect(
       await screen.findByText('The current password field is required.')
     ).toBeTruthy();
-    expect(emitted().update).toBeUndefined();
+    expect(await settledTrace()).not.toContain(PROFILE_UPDATE);
   });
 
   // ! The backend treats a present `password` as a change request and validates a present-but-empty `current_password` against the stored hash, so a rename must omit all three password keys entirely.
   it('leaves the password fields out of a rename', async () => {
-    const { emitted } = await renderCard();
+    await renderCard();
     await startEditing();
 
     await fireEvent.update(field(/^Name$/), 'Ana Marić');
     await fireEvent.click(button('Save'));
 
-    await waitFor(() => expect(emitted().update).toHaveLength(1));
-
-    const [form] = emitted().update![0] as [Record<string, unknown>];
-
-    expect(form).toEqual({
+    expect(await profileUpdate()).toEqual({
       name: 'Ana Marić',
       email: 'ana@example.com'
     });
   });
 
   it('sends both password fields when one is being set', async () => {
-    const { emitted } = await renderCard();
+    await renderCard();
     await startEditing();
 
     await fillInANewPassword();
     await fireEvent.click(button('Save'));
 
-    await waitFor(() => expect(emitted().update).toHaveLength(1));
-
-    const [form] = emitted().update![0] as [Record<string, unknown>];
-
-    expect(form).toMatchObject({
+    expect(await profileUpdate()).toMatchObject({
       current_password: 'oldpassword',
       password: 'hunter2hunter2',
       password_confirmation: 'hunter2hunter2'
     });
   });
 
+  // ! The card owns the whole submit → success → reset loop now, so this is the case that proves
+  // ! it closes: nothing above the card calls back into it to finish the job.
+  it('leaves edit mode and forgets the passwords once the save lands', async () => {
+    await renderCard();
+    await startEditing();
+
+    await fillInANewPassword();
+    await fireEvent.click(button('Save'));
+
+    await waitFor(() => expect(button('Edit')).toBeTruthy());
+
+    expect(screen.queryByLabelText(/^Current password$/)).toBeNull();
+
+    await startEditing();
+
+    expect(field(/^Current password$/).value).toBe('');
+    expect(field(/^New password/).value).toBe('');
+  });
+
   it('keeps an invalid form to itself', async () => {
-    const { emitted } = await renderCard();
+    await renderCard();
     await startEditing();
 
     await fireEvent.update(field(/^Email$/), 'not-an-email');
@@ -223,27 +250,29 @@ describe('UserCard', () => {
     expect(
       await screen.findByText('The email field must be a valid email address.')
     ).toBeTruthy();
-    expect(emitted().update).toBeUndefined();
+    expect(await settledTrace()).not.toContain(PROFILE_UPDATE);
   });
 
   // ! The errors have to arrive *after* the first render: `useExternalErrors` deliberately omits
   // ! `immediate`, so a value already present when the watcher is created never reaches Regle.
-  // ! That matches the real flow — the 422 comes back from a submit — and it is also why the
-  // ! field is edited and submitted first, since Regle keeps `$errors` empty until it is dirty.
-  it('shows the server’s complaint against the field it names', async () => {
-    await renderSuspended(AnOwnedCard, {
-      global: { plugins: [createVuetify()] }
-    });
+  // ! Coming back from the card's own mutation is exactly that flow. The field is edited and
+  // ! submitted first because Regle keeps `$errors` empty until it is dirty.
+  it('shows the server’s complaint against the field it names, and stays open to fix it', async () => {
+    serverRejects({ email: ['That email is already taken.'] });
+
+    await renderCard();
     await startEditing();
 
     await fireEvent.update(field(/^Email$/), 'taken@example.com');
     await fireEvent.click(button('Save'));
 
-    owner.serverErrors = { email: ['That email is already taken.'] };
-
     expect(
       await screen.findByText('That email is already taken.')
     ).toBeTruthy();
+
+    // ! A rejected save must not reset: the user needs the form as they left it to correct it.
+    expect(button('Save')).toBeTruthy();
+    expect(field(/^Email$/).value).toBe('taken@example.com');
   });
 
   // ! The signed-in user already owns their address, so the check has to exclude them — otherwise
@@ -308,22 +337,21 @@ describe('UserCard', () => {
 
   // ! Enter only submits while editing; in the read-only state it must do nothing at all.
   it('does not submit on Enter while the profile is only being read', async () => {
-    const { emitted } = await renderCard();
+    await renderCard();
 
     await fireEvent.keyDown(field(/^Name$/), { key: 'Enter' });
-    await flushPromises();
 
-    expect(emitted().update).toBeUndefined();
+    expect(await settledTrace()).not.toContain(PROFILE_UPDATE);
   });
 
   it('refuses a profile with no name', async () => {
-    const { emitted } = await renderCard();
+    await renderCard();
     await startEditing();
 
     await fireEvent.update(field(/^Name$/), '');
     await fireEvent.click(button('Save'));
 
     expect(await screen.findByText('The name field is required.')).toBeTruthy();
-    expect(emitted().update).toBeUndefined();
+    expect(await settledTrace()).not.toContain(PROFILE_UPDATE);
   });
 });

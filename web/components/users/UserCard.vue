@@ -132,26 +132,12 @@
 import { mdiCheck, mdiClose, mdiPencil } from '@mdi/js';
 import { maxLength, required, requiredIf } from '@regle/rules';
 
-import { useResendEmailVerification } from '@/services/queries/useAuthQueries';
+import {
+  useResendEmailVerification,
+  useUpdateProfile
+} from '@/services/queries/useAuthQueries';
 
 import type { ProfileForm } from '@/types/user';
-
-// ! Stryker instruments this block with locally declared coverage helpers, and a compiler
-// ! macro is hoisted out of setup() — referencing them there is a compile error, not a
-// ! warning. The defaults inside go unmutated as a result (`catalyst/operations.md`).
-// Stryker disable all
-const props = withDefaults(
-  defineProps<{
-    loading?: boolean;
-    serverErrors?: Record<string, string[]>;
-  }>(),
-  { loading: false, serverErrors: () => ({}) }
-);
-
-const emit = defineEmits<{
-  update: [form: ProfileForm];
-}>();
-// Stryker restore all
 
 const { t } = useI18n();
 
@@ -180,7 +166,24 @@ const initialForm = computed(() => {
 
 const form = ref(Object.assign({}, initialForm.value));
 
-const externalErrors = useExternalErrors(() => props.serverErrors);
+// * The card owns the whole edit: submitting it, the 422s that come back onto its own fields, and leaving edit mode once the save lands. Nothing above it has to know the order those happen in.
+const {
+  mutate: updateProfile,
+  isLoading: loading,
+  error: updateProfileError
+} = useUpdateProfile({
+  // * A validation failure this form could have caught belongs on its field, not in a toast.
+  errorHandling: { hideValidationToast: true },
+  onSuccess: () => {
+    $toast(t('profile.toasts.updated'), 'success');
+
+    resetForm();
+  }
+});
+
+const externalErrors = useExternalErrors(
+  useValidationErrors(updateProfileError)
+);
 
 // * Mirrors ProfileUpdateRequest: the current password is only needed when setting a new one.
 const { r$ } = useRegle(
@@ -222,7 +225,7 @@ async function handleSubmit() {
     updateData.password_confirmation = form.value.password_confirmation;
   }
 
-  emit('update', updateData);
+  updateProfile(updateData);
 }
 
 const handleEnterKey = useConfirmOnEnter(handleSubmit, () => editMode.value);
@@ -233,6 +236,4 @@ onKeyStroke('Escape', () => {
     resetForm();
   }
 });
-
-defineExpose({ resetForm });
 </script>

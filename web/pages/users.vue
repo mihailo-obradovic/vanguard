@@ -90,156 +90,126 @@
       </div>
     </div>
 
-    <!-- * Create/Edit User Form -->
-    <div v-if="showUserForm" class="modal-overlay" @click="closeUserForm">
-      <div
-        ref="userFormModal"
-        class="modal form-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="user-form-title"
-        tabindex="-1"
-        @click.stop
-        @keydown.esc="closeUserForm"
-      >
-        <div class="modal-header">
-          <h3 id="user-form-title" class="modal-title">
-            {{ isEditMode ? $t('users.form.editTitle') : $t('users.create') }}
-          </h3>
-        </div>
+    <UIDialog
+      :open="showUserForm"
+      :title="isEditMode ? $t('users.form.editTitle') : $t('users.create')"
+      @close="closeUserForm"
+    >
+      <form class="user-form" novalidate @submit.prevent="handleSubmitUser">
+        <UIField
+          v-model="userForm.name"
+          :label="$t('common.fields.name')"
+          :errors="r$.name.$errors"
+          type="text"
+          required
+          :disabled="isSubmittingUser"
+        />
 
-        <form class="user-form" novalidate @submit.prevent="handleSubmitUser">
-          <UIField
-            v-model="userForm.name"
-            :label="$t('common.fields.name')"
-            :errors="r$.name.$errors"
-            type="text"
-            required
-            :disabled="isSubmittingUser"
-          />
+        <UIField
+          v-model="userForm.email"
+          :label="$t('common.fields.email')"
+          :errors="r$.email.$errors"
+          type="email"
+          required
+          :disabled="isSubmittingUser"
+        />
 
-          <UIField
-            v-model="userForm.email"
-            :label="$t('common.fields.email')"
-            :errors="r$.email.$errors"
-            type="email"
-            required
-            :disabled="isSubmittingUser"
-          />
+        <UIField
+          v-model="userForm.password"
+          :label="passwordLabel"
+          :errors="r$.password.$errors"
+          type="password"
+          :required="!isEditMode"
+          :disabled="isSubmittingUser"
+        />
 
-          <UIField
-            v-model="userForm.password"
-            :label="passwordLabel"
-            :errors="r$.password.$errors"
-            type="password"
-            :required="!isEditMode"
-            :disabled="isSubmittingUser"
-          />
+        <UIField
+          v-model="userForm.password_confirmation"
+          :label="passwordConfirmationLabel"
+          :errors="r$.password_confirmation.$errors"
+          type="password"
+          :required="!isEditMode || !!userForm.password"
+          :disabled="isSubmittingUser"
+        />
 
-          <UIField
-            v-model="userForm.password_confirmation"
-            :label="passwordConfirmationLabel"
-            :errors="r$.password_confirmation.$errors"
-            type="password"
-            :required="!isEditMode || !!userForm.password"
-            :disabled="isSubmittingUser"
-          />
-
-          <UIField :label="$t('common.fields.role')">
-            <template #default="{ controlId }">
-              <select
-                :id="controlId"
-                v-model="userForm.role"
-                class="ui-field-control"
-                required
-                :disabled="isSubmittingUser"
-              >
-                <option value="user">{{ $t('users.roles.user') }}</option>
-
-                <option value="admin">{{ $t('users.roles.admin') }}</option>
-              </select>
-            </template>
-          </UIField>
-
-          <div class="modal-actions">
-            <button
-              type="button"
-              class="cancel-btn"
+        <UIField :label="$t('common.fields.role')">
+          <template #default="{ controlId }">
+            <select
+              :id="controlId"
+              v-model="userForm.role"
+              class="ui-field-control"
+              required
               :disabled="isSubmittingUser"
-              @click="closeUserForm"
             >
-              {{ $t('common.actions.cancel') }}
-            </button>
+              <option value="user">{{ $t('users.roles.user') }}</option>
 
-            <button
-              type="submit"
-              class="submit-btn"
-              :disabled="isSubmittingUser || r$.$invalid"
-            >
-              {{
-                isSubmittingUser
-                  ? $t('common.actions.saving')
-                  : isEditMode
-                    ? $t('users.form.submitUpdate')
-                    : $t('users.form.submitCreate')
-              }}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+              <option value="admin">{{ $t('users.roles.admin') }}</option>
+            </select>
+          </template>
+        </UIField>
 
-    <!-- * Confirmation Dialog -->
-    <div v-if="userToDelete" class="modal-overlay" @click="cancelDelete">
-      <div
-        ref="confirmDeleteModal"
-        class="modal confirm-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="confirm-delete-title"
-        tabindex="-1"
-        @click.stop
-        @keydown.esc="cancelDelete"
-      >
-        <div class="modal-header">
-          <h3 id="confirm-delete-title" class="modal-title danger">
-            {{ $t('users.delete.title') }}
-          </h3>
-        </div>
-
-        <div class="modal-content">
-          <i18n-t keypath="users.delete.confirm" tag="p">
-            <template #name>
-              <strong>"{{ userToDelete.name }}"</strong>
-            </template>
-          </i18n-t>
-
-          <p class="warning-text">{{ $t('users.delete.warning') }}</p>
-        </div>
-
-        <div class="modal-actions">
+        <UIDialogActions>
           <button
+            type="button"
             class="cancel-btn"
-            :disabled="isDeleting"
-            @click="cancelDelete"
+            :disabled="isSubmittingUser"
+            @click="closeUserForm"
           >
             {{ $t('common.actions.cancel') }}
           </button>
 
           <button
-            class="confirm-delete-btn"
-            :disabled="isDeleting"
-            @click="handleDelete"
+            type="submit"
+            class="submit-btn"
+            :disabled="isSubmittingUser || r$.$invalid"
           >
             {{
-              isDeleting
-                ? $t('common.actions.deleting')
-                : $t('users.delete.submit')
+              isSubmittingUser
+                ? $t('common.actions.saving')
+                : isEditMode
+                  ? $t('users.form.submitUpdate')
+                  : $t('users.form.submitCreate')
             }}
           </button>
-        </div>
+        </UIDialogActions>
+      </form>
+    </UIDialog>
+
+    <UIDialog
+      :open="!!userToDelete"
+      :title="$t('users.delete.title')"
+      narrow
+      danger
+      @close="cancelDelete"
+    >
+      <div class="delete-confirmation">
+        <i18n-t keypath="users.delete.confirm" tag="p">
+          <template #name>
+            <strong>"{{ userToDelete?.name }}"</strong>
+          </template>
+        </i18n-t>
+
+        <p class="warning-text">{{ $t('users.delete.warning') }}</p>
       </div>
-    </div>
+
+      <UIDialogActions>
+        <button class="cancel-btn" :disabled="isDeleting" @click="cancelDelete">
+          {{ $t('common.actions.cancel') }}
+        </button>
+
+        <button
+          class="confirm-delete-btn"
+          :disabled="isDeleting"
+          @click="handleDelete"
+        >
+          {{
+            isDeleting
+              ? $t('common.actions.deleting')
+              : $t('users.delete.submit')
+          }}
+        </button>
+      </UIDialogActions>
+    </UIDialog>
   </div>
 </template>
 
@@ -256,9 +226,6 @@ import type { User } from '@/types/auth';
 import type { CreateUserForm, UpdateUserForm } from '@/types/user';
 
 const { t } = useI18n();
-
-const userFormModal = useTemplateRef('userFormModal');
-const confirmDeleteModal = useTemplateRef('confirmDeleteModal');
 
 const { data: usersResponse, isLoading, error } = useFetchUsers();
 
@@ -443,21 +410,6 @@ async function handleSubmitUser() {
     createUser(userForm.value);
   }
 }
-
-// * Move focus into the dialogs so Escape and keyboard navigation work without a pointer.
-watch(showUserForm, async (isOpen) => {
-  if (isOpen) {
-    await nextTick();
-    userFormModal.value?.focus();
-  }
-});
-
-watch(userToDelete, async (user) => {
-  if (user) {
-    await nextTick();
-    confirmDeleteModal.value?.focus();
-  }
-});
 </script>
 
 <style scoped>
@@ -661,57 +613,13 @@ watch(userToDelete, async (user) => {
   cursor: not-allowed;
 }
 
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+.user-form {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 16px;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.modal {
-  background: white;
-  border-radius: 8px;
-  width: 100%;
-  max-width: 400px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-/* * The container is focused programmatically on open; the visible focus ring belongs on the controls inside, not the dialog itself. */
-.modal:focus {
-  outline: none;
-}
-
-.form-modal {
-  max-width: 500px;
-}
-
-.modal-header {
-  padding: 24px 24px 0 24px;
-}
-
-.modal-title {
-  margin: 0;
-  color: rgb(0, 102, 255);
-  font-size: 24px;
-  font-weight: 600;
-}
-
-.modal-title.danger {
-  color: #dc3545;
-}
-
-.modal-content {
-  padding: 16px 24px;
-}
-
-.modal-content p {
+.delete-confirmation p {
   margin: 0 0 8px 0;
   color: #495057;
 }
@@ -720,22 +628,6 @@ watch(userToDelete, async (user) => {
   color: #dc3545;
   font-size: 14px;
   font-style: italic;
-}
-
-.user-form {
-  padding: 16px 24px 0 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.modal-actions {
-  display: flex;
-  gap: 16px;
-  justify-content: flex-end;
-  padding: 24px;
-  border-top: 1px solid #e9ecef;
-  margin-top: 16px;
 }
 
 .cancel-btn {

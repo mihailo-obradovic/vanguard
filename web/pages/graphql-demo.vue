@@ -46,80 +46,67 @@
       </table>
     </div>
 
-    <div v-if="editingUser" class="modal-overlay" @click="closeEditForm">
-      <div
-        ref="editModal"
-        class="modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="graphql-edit-title"
-        tabindex="-1"
-        @click.stop
-        @keydown.esc="closeEditForm"
-      >
-        <div class="modal-header">
-          <h2 id="graphql-edit-title" class="modal-title">
-            {{ $t('graphqlDemo.editTitle', { name: editingUser.name }) }}
-          </h2>
-        </div>
+    <UIDialog
+      :open="!!editingUser"
+      :title="$t('graphqlDemo.editTitle', { name: editingUser?.name ?? '' })"
+      @close="closeEditForm"
+    >
+      <form class="user-form" novalidate @submit.prevent="handleSubmit">
+        <UIField
+          v-model="userForm.name"
+          :label="$t('common.fields.name')"
+          :errors="r$.name.$errors"
+          type="text"
+          :disabled="isUpdating"
+        />
 
-        <form class="user-form" novalidate @submit.prevent="handleSubmit">
-          <UIField
-            v-model="userForm.name"
-            :label="$t('common.fields.name')"
-            :errors="r$.name.$errors"
-            type="text"
-            :disabled="isUpdating"
-          />
+        <UIField
+          v-model="userForm.email"
+          :label="$t('common.fields.email')"
+          :errors="r$.email.$errors"
+          type="email"
+          :disabled="isUpdating"
+        />
 
-          <UIField
-            v-model="userForm.email"
-            :label="$t('common.fields.email')"
-            :errors="r$.email.$errors"
-            type="email"
-            :disabled="isUpdating"
-          />
-
-          <UIField :label="$t('common.fields.role')">
-            <template #default="{ controlId }">
-              <select
-                :id="controlId"
-                v-model="userForm.role"
-                class="ui-field-control"
-                :disabled="isUpdating"
-              >
-                <option value="user">{{ $t('users.roles.user') }}</option>
-
-                <option value="admin">{{ $t('users.roles.admin') }}</option>
-              </select>
-            </template>
-          </UIField>
-
-          <div class="modal-actions">
-            <button
-              type="button"
-              class="cancel-btn"
+        <UIField :label="$t('common.fields.role')">
+          <template #default="{ controlId }">
+            <select
+              :id="controlId"
+              v-model="userForm.role"
+              class="ui-field-control"
               :disabled="isUpdating"
-              @click="closeEditForm"
             >
-              {{ $t('common.actions.cancel') }}
-            </button>
+              <option value="user">{{ $t('users.roles.user') }}</option>
 
-            <button
-              type="submit"
-              class="submit-btn"
-              :disabled="isUpdating || r$.$invalid"
-            >
-              {{
-                isUpdating
-                  ? $t('common.actions.saving')
-                  : $t('users.form.submitUpdate')
-              }}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+              <option value="admin">{{ $t('users.roles.admin') }}</option>
+            </select>
+          </template>
+        </UIField>
+
+        <UIDialogActions>
+          <button
+            type="button"
+            class="cancel-btn"
+            :disabled="isUpdating"
+            @click="closeEditForm"
+          >
+            {{ $t('common.actions.cancel') }}
+          </button>
+
+          <button
+            type="submit"
+            class="submit-btn"
+            :disabled="isUpdating || r$.$invalid"
+          >
+            {{
+              isUpdating
+                ? $t('common.actions.saving')
+                : $t('users.form.submitUpdate')
+            }}
+          </button>
+        </UIDialogActions>
+      </form>
+    </UIDialog>
   </div>
 </template>
 
@@ -137,8 +124,6 @@ import type { User } from '@/types/auth';
 // * The only difference from users.vue is which composables it imports.
 
 const { t } = useI18n();
-
-const editModal = useTemplateRef('editModal');
 
 const { data: users, isLoading, error } = useFetchUsersGql();
 
@@ -199,14 +184,6 @@ async function handleSubmit() {
     ...changedFields(editingUser.value, userForm.value)
   });
 }
-
-// * Move focus into the dialog so Escape and keyboard navigation work without a pointer.
-watch(editingUser, async (user) => {
-  if (user) {
-    await nextTick();
-    editModal.value?.focus();
-  }
-});
 </script>
 
 <style scoped>
@@ -314,58 +291,10 @@ watch(editingUser, async (user) => {
   background-color: rgba(0, 102, 255, 0.9);
 }
 
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 16px;
-}
-
-.modal {
-  background: white;
-  border-radius: 8px;
-  width: 100%;
-  max-width: 500px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-/* * The container is focused programmatically on open; the visible focus ring belongs on the controls inside, not the dialog itself. */
-.modal:focus {
-  outline: none;
-}
-
-.modal-header {
-  padding: 24px 24px 0 24px;
-}
-
-.modal-title {
-  margin: 0;
-  color: rgb(0, 102, 255);
-  font-size: 24px;
-  font-weight: 600;
-}
-
 .user-form {
-  padding: 16px 24px 0 24px;
   display: flex;
   flex-direction: column;
   gap: 16px;
-}
-
-.modal-actions {
-  display: flex;
-  gap: 16px;
-  justify-content: flex-end;
-  padding: 24px;
-  border-top: 1px solid #e9ecef;
-  margin-top: 16px;
 }
 
 .cancel-btn {

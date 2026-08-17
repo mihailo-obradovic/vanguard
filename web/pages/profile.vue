@@ -93,98 +93,84 @@
       </div>
     </div>
 
-    <!-- * Edit Profile Form -->
-    <div v-if="showEditForm" class="modal-overlay" @click="closeEditForm">
-      <div
-        ref="editProfileModal"
-        class="modal form-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="edit-profile-title"
-        tabindex="-1"
-        @click.stop
-        @keydown.esc="closeEditForm"
+    <UIDialog
+      :open="showEditForm"
+      :title="$t('profile.edit')"
+      @close="closeEditForm"
+    >
+      <form
+        class="profile-form"
+        novalidate
+        @submit.prevent="handleSubmitProfile"
       >
-        <div class="modal-header">
-          <h3 id="edit-profile-title" class="modal-title">
-            {{ $t('profile.edit') }}
-          </h3>
-        </div>
+        <UIField
+          v-model="profileForm.name"
+          :label="$t('common.fields.name')"
+          :errors="r$.name.$errors"
+          type="text"
+          required
+          :disabled="isSubmittingProfile"
+        />
 
-        <form
-          class="profile-form"
-          novalidate
-          @submit.prevent="handleSubmitProfile"
-        >
-          <UIField
-            v-model="profileForm.name"
-            :label="$t('common.fields.name')"
-            :errors="r$.name.$errors"
-            type="text"
-            required
+        <UIField
+          v-model="profileForm.email"
+          :label="$t('common.fields.email')"
+          :errors="r$.email.$errors"
+          type="email"
+          required
+          :disabled="isSubmittingProfile"
+        />
+
+        <UIField
+          v-model="profileForm.current_password"
+          :label="$t('profile.form.currentPassword')"
+          :errors="r$.current_password.$errors"
+          type="password"
+          :required="!!profileForm.password"
+          :disabled="isSubmittingProfile"
+        />
+
+        <UIField
+          v-model="profileForm.password"
+          :label="$t('profile.form.newPassword')"
+          :errors="r$.password.$errors"
+          type="password"
+          :disabled="isSubmittingProfile"
+        />
+
+        <UIField
+          v-model="profileForm.password_confirmation"
+          :label="$t('profile.form.confirmNewPassword')"
+          :errors="r$.password_confirmation.$errors"
+          type="password"
+          :required="!!profileForm.password"
+          :disabled="isSubmittingProfile"
+        />
+
+        <UIDialogActions>
+          <button
+            type="button"
+            class="cancel-btn"
             :disabled="isSubmittingProfile"
-          />
+            @click="closeEditForm"
+          >
+            {{ $t('common.actions.cancel') }}
+          </button>
 
-          <UIField
-            v-model="profileForm.email"
-            :label="$t('common.fields.email')"
-            :errors="r$.email.$errors"
-            type="email"
-            required
-            :disabled="isSubmittingProfile"
-          />
-
-          <UIField
-            v-model="profileForm.current_password"
-            :label="$t('profile.form.currentPassword')"
-            :errors="r$.current_password.$errors"
-            type="password"
-            :required="!!profileForm.password"
-            :disabled="isSubmittingProfile"
-          />
-
-          <UIField
-            v-model="profileForm.password"
-            :label="$t('profile.form.newPassword')"
-            :errors="r$.password.$errors"
-            type="password"
-            :disabled="isSubmittingProfile"
-          />
-
-          <UIField
-            v-model="profileForm.password_confirmation"
-            :label="$t('profile.form.confirmNewPassword')"
-            :errors="r$.password_confirmation.$errors"
-            type="password"
-            :required="!!profileForm.password"
-            :disabled="isSubmittingProfile"
-          />
-
-          <div class="modal-actions">
-            <button
-              type="button"
-              class="cancel-btn"
-              :disabled="isSubmittingProfile"
-              @click="closeEditForm"
-            >
-              {{ $t('common.actions.cancel') }}
-            </button>
-
-            <button
-              type="submit"
-              class="submit-btn"
-              :disabled="isSubmittingProfile || r$.$invalid"
-            >
-              {{
-                isSubmittingProfile
-                  ? $t('common.actions.saving')
-                  : $t('profile.form.submit')
-              }}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+          <button
+            type="submit"
+            class="submit-btn"
+            :disabled="isSubmittingProfile || r$.$invalid"
+          >
+            {{
+              isSubmittingProfile
+                ? $t('common.actions.saving')
+                : $t('profile.form.submit')
+            }}
+          </button>
+        </UIDialogActions>
+      </form>
+    </UIDialog>
   </div>
 </template>
 
@@ -201,7 +187,6 @@ import type { ProfileForm } from '@/types/user';
 const { t } = useI18n();
 
 // * Edit form state
-const editProfileModal = useTemplateRef('editProfileModal');
 const showEditForm = ref(false);
 const profileForm = ref({
   name: '',
@@ -306,14 +291,6 @@ async function handleSubmitProfile() {
 
   updateProfile(updateData);
 }
-
-// * Move focus into the dialog so Escape and keyboard navigation work without a pointer.
-watch(showEditForm, async (isOpen) => {
-  if (isOpen) {
-    await nextTick();
-    editProfileModal.value?.focus();
-  }
-});
 
 onMounted(() => {
   if (route.query.verified === '1') {
@@ -495,63 +472,10 @@ onMounted(() => {
   font-size: 18px;
 }
 
-/* * Modal Styles */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 16px;
-}
-
-.modal {
-  background: white;
-  border-radius: 8px;
-  width: 100%;
-  max-width: 400px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-/* * The container is focused programmatically on open; the visible focus ring belongs on the controls inside, not the dialog itself. */
-.modal:focus {
-  outline: none;
-}
-
-.form-modal {
-  max-width: 500px;
-}
-
-.modal-header {
-  padding: 24px 24px 0 24px;
-}
-
-.modal-title {
-  margin: 0;
-  color: rgb(0, 102, 255);
-  font-size: 24px;
-  font-weight: 600;
-}
-
 .profile-form {
-  padding: 16px 24px 0 24px;
   display: flex;
   flex-direction: column;
   gap: 16px;
-}
-
-.modal-actions {
-  display: flex;
-  gap: 16px;
-  justify-content: flex-end;
-  padding: 24px;
-  border-top: 1px solid #e9ecef;
-  margin-top: 16px;
 }
 
 .cancel-btn {

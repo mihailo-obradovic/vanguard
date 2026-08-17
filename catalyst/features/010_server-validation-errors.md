@@ -103,7 +103,7 @@ No protected area of its own — the 422 shapes it consumes are owned by feature
 - `web/utils/_tests/getValidationErrors.spec.ts` — the extraction: a Laravel 422 body, a non-422 error, a missing error, and a malformed entry.
 - `web/utils/_tests/handleApiError.spec.ts` — the `hideValidationToast` path keeping a 422 inline, including a 422 carrying no field errors.
 - `web/composables/_tests/` — the bridge itself (`useValidationErrors`, `useExternalErrors`): the empty map a form binds to before anything has failed, server errors arriving, the copy-not-share that lets Regle clear an entry without reaching back into the source, replacement on a differently-failing submit, and a getter source.
-- `web/composables/_tests/useMutationDialog.spec.ts` — the toast opt-out it applies for every owner, and a 422 arriving as bindable field errors.
+- `web/composables/_tests/useMutationDialog.spec.ts` — the toast opt-out it applies for every owner, a 422 arriving as bindable field errors, and — where one dialog holds a mutation per mode — that the errors it surfaces are the active mode's alone, so a failure in the mode the user has left cannot follow them into the one they are in.
 - `web/components/users/_tests/` — per form, a server 422 landing on its own field rather than in a toast, across the dialogs and the profile card.
 
 ## Verification

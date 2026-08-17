@@ -21,7 +21,7 @@
     :loading="isUpdating"
     :server-errors="formErrors"
     @confirm="handleSubmit"
-    @after-leave="editingUser = null"
+    @after-leave="handleEditFormAfterLeave"
   />
 </template>
 
@@ -34,7 +34,6 @@ import {
   useUpdateUserGql
 } from '@/services/queries/useUserGqlQueries';
 
-import type { User } from '@/types/auth';
 import type { UserDetailsForm } from '@/components/users/UserDetailsDialog.vue';
 
 // * Worked example for catalyst/features/007_graphql-api.md: this page is written exactly the
@@ -48,29 +47,17 @@ const { data, isPending, isLoading } = useFetchUsersGql();
 
 const users = computed(() => data.value ?? []);
 
-const showEditForm = ref(false);
-
-// * Outlives showEditForm so the dialog title doesn't empty out mid fade-out; after-leave clears it.
-const editingUser = ref<User | null>(null);
-
-function openEditForm(user: User) {
-  editingUser.value = user;
-  showEditForm.value = true;
-}
-
 const {
-  mutate: updateUser,
-  isLoading: isUpdating,
-  error: updateError
-} = useUpdateUserGql({
-  errorHandling: { hideValidationToast: true },
-  onSuccess: (updatedUser) => {
-    $toast(t('users.toasts.updated', { name: updatedUser.name }), 'success');
-    showEditForm.value = false;
-  }
-});
-
-const formErrors = useValidationErrors(updateError);
+  dialog: showEditForm,
+  subject: editingUser,
+  open: openEditForm,
+  submit: updateUser,
+  loading: isUpdating,
+  errors: formErrors,
+  afterLeave: handleEditFormAfterLeave
+} = useMutationDialog(useUpdateUserGql, (updatedUser) =>
+  $toast(t('users.toasts.updated', { name: updatedUser.name }), 'success')
+);
 
 function handleSubmit(form: UserDetailsForm) {
   if (!editingUser.value) {

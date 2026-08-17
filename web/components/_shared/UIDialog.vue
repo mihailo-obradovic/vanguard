@@ -44,45 +44,7 @@ const titleId = useId();
 // * The control the dialog was opened from, so closing can hand focus back to it.
 let opener: HTMLElement | null = null;
 
-// ! Snapshotted while the opener is still in the document, never walked at close time: Vue detaches a removed row from its parent, so a dead opener's chain ends at `null` before it ever reaches the table that survived.
-let openerAncestors: HTMLElement[] = [];
-
-// * Stops below `<body>`: a dialog whose whole opening region is gone leaves focus where the browser put it rather than annotating the page's root.
-function ancestorsOf(element: HTMLElement | null) {
-  const chain: HTMLElement[] = [];
-
-  let current = element?.parentElement ?? null;
-
-  while (
-    current &&
-    current !== document.body &&
-    document.body.contains(current)
-  ) {
-    chain.push(current);
-    current = current.parentElement;
-  }
-
-  return chain;
-}
-
-// * A container is not focusable on its own, and the attribute is dropped again the moment focus leaves it — a shared primitive should leave no mark on markup it does not own.
-function focusRegion(element: HTMLElement) {
-  if (!element.hasAttribute('tabindex')) {
-    element.setAttribute('tabindex', '-1');
-
-    element.addEventListener(
-      'blur',
-      () => element.removeAttribute('tabindex'),
-      {
-        once: true
-      }
-    );
-  }
-
-  element.focus();
-}
-
-// ! `.focus()` on a detached node is a silent no-op, which is how closing a dialog over a refetched list used to drop the user on `<body>`: the row holding the opener is gone by the time the dialog closes.
+// ! `.focus()` on a detached node is a silent no-op, which is how closing a dialog over a deleted row drops the user on `<body>`. The layout's `<main>` landmark is the fallback: it is already focusable for SkipLink, and it is the nearest thing to "where they were" that is guaranteed to have outlived the row.
 function restoreFocus() {
   if (opener?.isConnected) {
     opener.focus();
@@ -90,9 +52,7 @@ function restoreFocus() {
     return;
   }
 
-  const region = openerAncestors.find((element) => element.isConnected);
-
-  if (region) focusRegion(region);
+  document.getElementById('main-content')?.focus();
 }
 
 // * Recomputed per keypress rather than cached on open: the submit button is disabled until the form is valid, and a disabled button is not a tab stop.
@@ -134,7 +94,6 @@ watch(
   async (open) => {
     if (open) {
       opener = document.activeElement as HTMLElement | null;
-      openerAncestors = ancestorsOf(opener);
 
       await nextTick();
       panel.value?.focus();
@@ -147,7 +106,6 @@ watch(
     restoreFocus();
 
     opener = null;
-    openerAncestors = [];
   }
 );
 </script>

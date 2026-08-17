@@ -52,7 +52,8 @@
       </div>
     </nav>
 
-    <main id="main-content" class="main-content">
+    <!-- * `tabindex="-1"` makes the landmark programmatically focusable: it is where SkipLink jumps, and where UIDialog hands focus back when the control it was opened from is gone. Neither moves focus without it — a fragment link alone only sets the browser's tab-navigation start point. -->
+    <main id="main-content" class="main-content" tabindex="-1">
       <slot />
     </main>
 

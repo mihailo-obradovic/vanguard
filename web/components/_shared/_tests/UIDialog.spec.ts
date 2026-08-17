@@ -39,6 +39,9 @@ async function openDialogWithTwoButtons(props: Record<string, unknown> = {}) {
 describe('UIDialog', () => {
   afterEach(() => {
     cleanup();
+
+    // ! Not left to the spec that appends it: a failing assertion would skip the removal there and leak the landmark into the spec that asserts there is none.
+    document.getElementById('main-content')?.remove();
   });
 
   it('renders nothing while it is closed', async () => {
@@ -107,15 +110,21 @@ describe('UIDialog', () => {
     await waitFor(() => expect(document.activeElement).toBe(opener));
   });
 
-  // ! The case the naive restore gets wrong: a list refetch removes the row the dialog was opened from, and `.focus()` on the detached button is a silent no-op that drops the user on `<body>`.
-  it('falls back to the region the opener was in when the opener itself is gone', async () => {
+  // ! The case the naive restore gets wrong: deleting a row removes the control the dialog was opened from, and `.focus()` on the detached button is a silent no-op that drops the user on `<body>`.
+  it('falls back to the main landmark when the opener itself is gone', async () => {
     const opened = ref(false);
     const rowPresent = ref(true);
+
+    // * Stands in for the layout, which is what publishes the landmark the dialog falls back to.
+    const main = document.createElement('main');
+    main.id = 'main-content';
+    main.tabIndex = -1;
+    document.body.append(main);
 
     const page = defineComponent({
       setup() {
         return () =>
-          h('div', { 'data-testid': 'region' }, [
+          h('div', null, [
             rowPresent.value
               ? h('div', { class: 'row' }, [
                   h(
@@ -132,27 +141,58 @@ describe('UIDialog', () => {
 
     await renderSuspended(page);
 
-    const region = screen.getByTestId('region');
     const opener = screen.getByRole('button', { name: 'Open' });
 
     opener.focus();
     await fireEvent.click(opener);
     await waitFor(() => expect(document.activeElement).toBe(dialog()));
 
-    // * The refetch lands while the dialog is still open — the row, and with it the opener, is replaced before anything asks for focus back.
+    // * The delete lands while the dialog is still open — the row, and with it the opener, is gone before anything asks for focus back.
     rowPresent.value = false;
     await nextTick();
 
     opened.value = false;
 
-    await waitFor(() => expect(document.activeElement).toBe(region));
+    await waitFor(() => expect(document.activeElement).toBe(main));
+  });
 
-    // * The container is only focusable because the dialog made it so, and only for as long as it holds focus.
-    expect(region.getAttribute('tabindex')).toBe('-1');
+  // ! A dialog rendered outside the default layout has no landmark to fall back to; leaving focus where the browser put it is the contract, not a crash.
+  it('survives a dead opener with no main landmark in the document', async () => {
+    const opened = ref(false);
+    const rowPresent = ref(true);
 
-    await fireEvent.blur(region);
+    const page = defineComponent({
+      setup() {
+        return () =>
+          h('div', null, [
+            rowPresent.value
+              ? h(
+                  'button',
+                  { type: 'button', onClick: () => (opened.value = true) },
+                  'Open'
+                )
+              : null,
+            h(UIDialog, { open: opened.value, title: TITLE })
+          ]);
+      }
+    });
 
-    expect(region.hasAttribute('tabindex')).toBe(false);
+    await renderSuspended(page);
+
+    const opener = screen.getByRole('button', { name: 'Open' });
+
+    opener.focus();
+    await fireEvent.click(opener);
+    await waitFor(() => expect(document.activeElement).toBe(dialog()));
+
+    rowPresent.value = false;
+    await nextTick();
+
+    opened.value = false;
+
+    await waitFor(() => expect(dialog()).toBeNull());
+
+    expect(document.getElementById('main-content')).toBeNull();
   });
 
   it('leaves focus alone when it was not opened from a control', async () => {

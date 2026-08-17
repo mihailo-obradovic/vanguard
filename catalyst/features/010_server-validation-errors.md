@@ -108,7 +108,9 @@ No protected area of its own — the 422 shapes it consumes are owned by feature
 
 ## Verification
 
-Traced against source at the split: the chain (`useValidationErrors` → `useExternalErrors`, copied-not-shared so Regle can clear on edit) and the `error-messages` binding on each field. Suite green at its last recorded run (50 files, 416 tests), including the composable and per-form specs named above.
+Traced against source at the split: the chain (`useValidationErrors` → `useExternalErrors`, copied-not-shared so Regle can clear on edit) and the `error-messages` binding on each field. Suite green at its last recorded run (50 files, 425 tests), including the composable and per-form specs named above.
+
+The mode-keyed dialog was walked live at the change that introduced it: on `/users`, a duplicate-email 422 landed under the field with no toast and the dialog stayed open; leaving that mode for the edit form carried no error across; the dialog title held its subject through the fade-out. The same inline-422 path was walked on `/graphql-demo`. Console clean.
 
 Behavior is unchanged by the split — no code moved, only this contract out of 006 — so the evidence recorded there before the split stands for this document.
 

@@ -109,92 +109,57 @@
         </div>
 
         <form class="user-form" novalidate @submit.prevent="handleSubmitUser">
-          <div class="form-group">
-            <label for="name" class="form-label">
-              {{ $t('common.fields.name') }}
-            </label>
+          <UIField
+            v-model="userForm.name"
+            :label="$t('common.fields.name')"
+            :errors="r$.name.$errors"
+            type="text"
+            required
+            :disabled="isSubmittingUser"
+          />
 
-            <input
-              id="name"
-              v-model="userForm.name"
-              type="text"
-              class="form-input"
-              required
-              :disabled="isSubmittingUser"
-            />
+          <UIField
+            v-model="userForm.email"
+            :label="$t('common.fields.email')"
+            :errors="r$.email.$errors"
+            type="email"
+            required
+            :disabled="isSubmittingUser"
+          />
 
-            <FieldErrors :errors="r$.name.$errors" />
-          </div>
+          <UIField
+            v-model="userForm.password"
+            :label="passwordLabel"
+            :errors="r$.password.$errors"
+            type="password"
+            :required="!isEditMode"
+            :disabled="isSubmittingUser"
+          />
 
-          <div class="form-group">
-            <label for="email" class="form-label">
-              {{ $t('common.fields.email') }}
-            </label>
+          <UIField
+            v-model="userForm.password_confirmation"
+            :label="passwordConfirmationLabel"
+            :errors="r$.password_confirmation.$errors"
+            type="password"
+            :required="!isEditMode || !!userForm.password"
+            :disabled="isSubmittingUser"
+          />
 
-            <input
-              id="email"
-              v-model="userForm.email"
-              type="email"
-              class="form-input"
-              required
-              :disabled="isSubmittingUser"
-            />
+          <UIField :label="$t('common.fields.role')">
+            <template #default="{ controlId }">
+              <select
+                :id="controlId"
+                v-model="userForm.role"
+                class="ui-field-control"
+                required
+                :disabled="isSubmittingUser"
+              >
+                <option value="user">{{ $t('users.roles.user') }}</option>
 
-            <FieldErrors :errors="r$.email.$errors" />
-          </div>
-
-          <div class="form-group">
-            <label for="password" class="form-label">
-              {{ $t('common.fields.password') }}
-              {{ isEditMode ? $t('users.form.passwordHint') : '' }}
-            </label>
-
-            <input
-              id="password"
-              v-model="userForm.password"
-              type="password"
-              class="form-input"
-              :required="!isEditMode"
-              :disabled="isSubmittingUser"
-            />
-
-            <FieldErrors :errors="r$.password.$errors" />
-          </div>
-
-          <div class="form-group">
-            <label for="password_confirmation" class="form-label">
-              {{ $t('common.fields.passwordConfirmation') }}
-              {{ isEditMode ? $t('users.form.passwordConfirmationHint') : '' }}
-            </label>
-
-            <input
-              id="password_confirmation"
-              v-model="userForm.password_confirmation"
-              type="password"
-              class="form-input"
-              :required="!isEditMode || !!userForm.password"
-              :disabled="isSubmittingUser"
-            />
-
-            <FieldErrors :errors="r$.password_confirmation.$errors" />
-          </div>
-
-          <div class="form-group">
-            <label for="role" class="form-label">
-              {{ $t('common.fields.role') }}
-            </label>
-
-            <select
-              id="role"
-              v-model="userForm.role"
-              class="form-select"
-              required
-              :disabled="isSubmittingUser"
-            >
-              <option value="user">{{ $t('users.roles.user') }}</option>
-              <option value="admin">{{ $t('users.roles.admin') }}</option>
-            </select>
-          </div>
+                <option value="admin">{{ $t('users.roles.admin') }}</option>
+              </select>
+            </template>
+          </UIField>
 
           <div class="modal-actions">
             <button
@@ -378,6 +343,19 @@ const users = computed(() => usersResponse.value?.data ?? []);
 
 const isSubmittingUser = computed(
   () => isCreatingUser.value || isUpdatingUser.value
+);
+
+// * Edit is a change-password form: both password labels carry the "optional" hint the mandatory pair does not.
+const passwordLabel = computed(() =>
+  isEditMode.value
+    ? `${t('common.fields.password')} ${t('users.form.passwordHint')}`
+    : t('common.fields.password')
+);
+
+const passwordConfirmationLabel = computed(() =>
+  isEditMode.value
+    ? `${t('common.fields.passwordConfirmation')} ${t('users.form.passwordConfirmationHint')}`
+    : t('common.fields.passwordConfirmation')
 );
 
 const isDeletingUser = computed(() =>
@@ -749,42 +727,6 @@ watch(userToDelete, async (user) => {
   display: flex;
   flex-direction: column;
   gap: 16px;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.form-label {
-  color: #495057;
-  font-weight: 500;
-  font-size: 14px;
-}
-
-.form-input,
-.form-select {
-  padding: 8px 16px;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
-  font-size: 16px;
-  transition: all 0.25s ease;
-  background-color: white;
-}
-
-.form-input:focus,
-.form-select:focus {
-  outline: none;
-  border-color: rgb(0, 102, 255);
-  box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
-}
-
-.form-input:disabled,
-.form-select:disabled {
-  background-color: #f8f9fa;
-  cursor: not-allowed;
-  opacity: 0.7;
 }
 
 .modal-actions {

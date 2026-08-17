@@ -116,89 +116,49 @@
           novalidate
           @submit.prevent="handleSubmitProfile"
         >
-          <div class="form-group">
-            <label for="name" class="form-label">
-              {{ $t('common.fields.name') }}
-            </label>
+          <UIField
+            v-model="profileForm.name"
+            :label="$t('common.fields.name')"
+            :errors="r$.name.$errors"
+            type="text"
+            required
+            :disabled="isSubmittingProfile"
+          />
 
-            <input
-              id="name"
-              v-model="profileForm.name"
-              type="text"
-              class="form-input"
-              required
-              :disabled="isSubmittingProfile"
-            />
+          <UIField
+            v-model="profileForm.email"
+            :label="$t('common.fields.email')"
+            :errors="r$.email.$errors"
+            type="email"
+            required
+            :disabled="isSubmittingProfile"
+          />
 
-            <FieldErrors :errors="r$.name.$errors" />
-          </div>
+          <UIField
+            v-model="profileForm.current_password"
+            :label="$t('profile.form.currentPassword')"
+            :errors="r$.current_password.$errors"
+            type="password"
+            :required="!!profileForm.password"
+            :disabled="isSubmittingProfile"
+          />
 
-          <div class="form-group">
-            <label for="email" class="form-label">
-              {{ $t('common.fields.email') }}
-            </label>
+          <UIField
+            v-model="profileForm.password"
+            :label="$t('profile.form.newPassword')"
+            :errors="r$.password.$errors"
+            type="password"
+            :disabled="isSubmittingProfile"
+          />
 
-            <input
-              id="email"
-              v-model="profileForm.email"
-              type="email"
-              class="form-input"
-              required
-              :disabled="isSubmittingProfile"
-            />
-
-            <FieldErrors :errors="r$.email.$errors" />
-          </div>
-
-          <div class="form-group">
-            <label for="current_password" class="form-label">
-              {{ $t('profile.form.currentPassword') }}
-            </label>
-
-            <input
-              id="current_password"
-              v-model="profileForm.current_password"
-              type="password"
-              class="form-input"
-              :required="!!profileForm.password"
-              :disabled="isSubmittingProfile"
-            />
-
-            <FieldErrors :errors="r$.current_password.$errors" />
-          </div>
-
-          <div class="form-group">
-            <label for="password" class="form-label">
-              {{ $t('profile.form.newPassword') }}
-            </label>
-
-            <input
-              id="password"
-              v-model="profileForm.password"
-              type="password"
-              class="form-input"
-              :disabled="isSubmittingProfile"
-            />
-
-            <FieldErrors :errors="r$.password.$errors" />
-          </div>
-
-          <div class="form-group">
-            <label for="password_confirmation" class="form-label">
-              {{ $t('profile.form.confirmNewPassword') }}
-            </label>
-
-            <input
-              id="password_confirmation"
-              v-model="profileForm.password_confirmation"
-              type="password"
-              class="form-input"
-              :required="!!profileForm.password"
-              :disabled="isSubmittingProfile"
-            />
-
-            <FieldErrors :errors="r$.password_confirmation.$errors" />
-          </div>
+          <UIField
+            v-model="profileForm.password_confirmation"
+            :label="$t('profile.form.confirmNewPassword')"
+            :errors="r$.password_confirmation.$errors"
+            type="password"
+            :required="!!profileForm.password"
+            :disabled="isSubmittingProfile"
+          />
 
           <div class="modal-actions">
             <button
@@ -583,39 +543,6 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 16px;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.form-label {
-  color: #495057;
-  font-weight: 500;
-  font-size: 14px;
-}
-
-.form-input {
-  padding: 8px 16px;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
-  font-size: 16px;
-  transition: all 0.25s ease;
-  background-color: white;
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: rgb(0, 102, 255);
-  box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
-}
-
-.form-input:disabled {
-  background-color: #f8f9fa;
-  cursor: not-allowed;
-  opacity: 0.7;
 }
 
 .modal-actions {

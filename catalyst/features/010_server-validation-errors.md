@@ -86,7 +86,7 @@ No protected area of its own — the 422 shapes it consumes are owned by feature
 
 - `web/utils/getValidationErrors.ts` — the 422-to-field-map extraction.
 - `web/composables/useValidationErrors.ts` → `useExternalErrors.ts` — the bridge: a field-keyed map from a mutation's `error` ref, mirrored into a Regle-owned `externalErrors` ref.
-- `web/components/shared/FieldErrors.vue` — renders combined Regle + server errors under a field.
+- `web/components/_shared/UIField.vue` — the field primitive: renders the first combined Regle + server message under the control, and points the control at it (`aria-describedby`, `aria-invalid`).
 - `web/utils/handleApiError.ts` — the `hideValidationToast` opt-out that keeps a 422 off the toast.
 
 ## Dependencies

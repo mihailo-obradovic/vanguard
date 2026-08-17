@@ -8,56 +8,32 @@
         novalidate
         @submit.prevent="handleSubmit"
       >
-        <div class="form-group">
-          <label for="email" class="form-label">
-            {{ $t('common.fields.email') }}
-          </label>
+        <UIField
+          v-model="form.email"
+          :label="$t('common.fields.email')"
+          :errors="r$.email.$errors"
+          type="email"
+          required
+          :disabled="isResetting"
+        />
 
-          <input
-            id="email"
-            v-model="form.email"
-            type="email"
-            class="form-input"
-            required
-            :disabled="isResetting"
-          />
+        <UIField
+          v-model="form.password"
+          :label="$t('common.fields.password')"
+          :errors="r$.password.$errors"
+          type="password"
+          required
+          :disabled="isResetting"
+        />
 
-          <FieldErrors :errors="r$.email.$errors" />
-        </div>
-
-        <div class="form-group">
-          <label for="password" class="form-label">
-            {{ $t('common.fields.password') }}
-          </label>
-
-          <input
-            id="password"
-            v-model="form.password"
-            type="password"
-            class="form-input"
-            required
-            :disabled="isResetting"
-          />
-
-          <FieldErrors :errors="r$.password.$errors" />
-        </div>
-
-        <div class="form-group">
-          <label for="password_confirmation" class="form-label">
-            {{ $t('common.fields.passwordConfirmation') }}
-          </label>
-
-          <input
-            id="password_confirmation"
-            v-model="form.password_confirmation"
-            type="password"
-            class="form-input"
-            required
-            :disabled="isResetting"
-          />
-
-          <FieldErrors :errors="r$.password_confirmation.$errors" />
-        </div>
+        <UIField
+          v-model="form.password_confirmation"
+          :label="$t('common.fields.passwordConfirmation')"
+          :errors="r$.password_confirmation.$errors"
+          type="password"
+          required
+          :disabled="isResetting"
+        />
 
         <button
           type="submit"
@@ -160,39 +136,6 @@ async function handleSubmit() {
   display: flex;
   flex-direction: column;
   gap: 16px;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.form-label {
-  color: #495057;
-  font-weight: 500;
-  font-size: 14px;
-}
-
-.form-input {
-  padding: 8px 16px;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
-  font-size: 16px;
-  transition: all 0.25s ease;
-  background-color: white;
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: rgb(0, 102, 255);
-  box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
-}
-
-.form-input:disabled {
-  background-color: #f8f9fa;
-  cursor: not-allowed;
-  opacity: 0.7;
 }
 
 .submit-btn {

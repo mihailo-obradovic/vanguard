@@ -4,39 +4,23 @@
       <h1 class="login-title">{{ $t('auth.login.title') }}</h1>
 
       <form class="login-form" novalidate @submit.prevent="handleLogin">
-        <div class="form-group">
-          <label for="email" class="form-label">
-            {{ $t('common.fields.email') }}
-          </label>
+        <UIField
+          v-model="form.email"
+          :label="$t('common.fields.email')"
+          :errors="r$.email.$errors"
+          type="email"
+          required
+          :disabled="isLoggingIn"
+        />
 
-          <input
-            id="email"
-            v-model="form.email"
-            type="email"
-            class="form-input"
-            required
-            :disabled="isLoggingIn"
-          />
-
-          <FieldErrors :errors="r$.email.$errors" />
-        </div>
-
-        <div class="form-group">
-          <label for="password" class="form-label">
-            {{ $t('common.fields.password') }}
-          </label>
-
-          <input
-            id="password"
-            v-model="form.password"
-            type="password"
-            class="form-input"
-            required
-            :disabled="isLoggingIn"
-          />
-
-          <FieldErrors :errors="r$.password.$errors" />
-        </div>
+        <UIField
+          v-model="form.password"
+          :label="$t('common.fields.password')"
+          :errors="r$.password.$errors"
+          type="password"
+          required
+          :disabled="isLoggingIn"
+        />
 
         <button
           type="submit"
@@ -137,33 +121,6 @@ async function handleLogin() {
   gap: 16px;
 }
 
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.form-label {
-  color: #495057;
-  font-weight: 500;
-  font-size: 14px;
-}
-
-.form-input {
-  padding: 8px 16px;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
-  font-size: 16px;
-  transition: all 0.25s ease;
-  background-color: white;
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: rgb(0, 102, 255);
-  box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
-}
-
 .login-btn {
   background-color: rgb(0, 102, 255);
   color: white;
@@ -184,12 +141,6 @@ async function handleLogin() {
 .login-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-}
-
-.form-input:disabled {
-  background-color: #f8f9fa;
-  cursor: not-allowed;
-  opacity: 0.7;
 }
 
 .auth-footer {

@@ -7,7 +7,7 @@ Paths below are relative to the repo root. The `catalyst/` documents are normati
 ## Structure
 
 - `app.vue` / `error.vue` — entry and error shells; `layouts/Default.vue` is the single layout.
-- `components/_shared/` — auto-imported shared components (`components.dirs` in `nuxt.config.ts`); everything else is explicitly imported.
+- `components/_shared/` — auto-imported shared components (`components.dirs` in `nuxt.config.ts`); everything else is explicitly imported. `UIField.vue` is the form-field primitive every form builds from.
 - `composables/` — `useAppQuery` / `useAppMutation` (the only query/mutation wrappers components may use), `useValidationErrors` / `useExternalErrors` (server-422-to-Regle bridge), `useCookieConsent`.
 - `i18n/` — message catalogs and the Vue I18n config; has its own `CLAUDE.md`.
 - `mocks/` — test-only: the MSW server, its lifecycle setup file, the request recorder, schema-parsed fixtures, and per-resource handlers. Never imported by shipped code.
@@ -37,6 +37,7 @@ Tests live in a `_tests/` subdirectory of the directory holding the code under t
 ## Local invariants
 
 - `auth.global.ts` runs on every navigation; redirect logic lives in `utils/authRedirectLogic.ts` so it stays unit-testable — change the logic there, not in the middleware.
+- A form field is a `<UIField>`, never hand-written `<label>`/`<input>`/error markup: the component owns the generated `id`, the `for` pairing, the `aria-invalid`/`aria-describedby` wiring and the reserved error line. Native attributes (`type`, `required`, `:disabled`) fall through to the control; a control that is not an `<input>` — the role `<select>` — comes in through the slot and takes the same `controlId`.
 - Components never call `useQuery`/`useMutation` or the fetcher directly; the service → query-composable → component chain is the only path to the API. This holds for GraphQL too — `gqlFetcher` is a service-layer tool, never called from a component (`catalyst/features/007_graphql-api.md`).
 - GraphQL documents are plain strings — the `gql` tag is an identity function and nothing validates them at build time, so a mistyped field fails at runtime. Verify new documents against `graphql/schema.graphql` (GraphiQL at `/graphiql` in dev); the codegen revisit trigger is recorded in `catalyst/decisions/007_infra_graphql-alongside-rest.md`.
 - The backend contract this app is built against is a protected area — see Protected Areas in `catalyst/architecture.md`.

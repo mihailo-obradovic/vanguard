@@ -64,53 +64,36 @@
         </div>
 
         <form class="user-form" novalidate @submit.prevent="handleSubmit">
-          <div class="form-group">
-            <label for="gql-name" class="form-label">
-              {{ $t('common.fields.name') }}
-            </label>
+          <UIField
+            v-model="userForm.name"
+            :label="$t('common.fields.name')"
+            :errors="r$.name.$errors"
+            type="text"
+            :disabled="isUpdating"
+          />
 
-            <input
-              id="gql-name"
-              v-model="userForm.name"
-              type="text"
-              class="form-input"
-              :disabled="isUpdating"
-            />
+          <UIField
+            v-model="userForm.email"
+            :label="$t('common.fields.email')"
+            :errors="r$.email.$errors"
+            type="email"
+            :disabled="isUpdating"
+          />
 
-            <FieldErrors :errors="r$.name.$errors" />
-          </div>
+          <UIField :label="$t('common.fields.role')">
+            <template #default="{ controlId }">
+              <select
+                :id="controlId"
+                v-model="userForm.role"
+                class="ui-field-control"
+                :disabled="isUpdating"
+              >
+                <option value="user">{{ $t('users.roles.user') }}</option>
 
-          <div class="form-group">
-            <label for="gql-email" class="form-label">
-              {{ $t('common.fields.email') }}
-            </label>
-
-            <input
-              id="gql-email"
-              v-model="userForm.email"
-              type="email"
-              class="form-input"
-              :disabled="isUpdating"
-            />
-
-            <FieldErrors :errors="r$.email.$errors" />
-          </div>
-
-          <div class="form-group">
-            <label for="gql-role" class="form-label">
-              {{ $t('common.fields.role') }}
-            </label>
-
-            <select
-              id="gql-role"
-              v-model="userForm.role"
-              class="form-select"
-              :disabled="isUpdating"
-            >
-              <option value="user">{{ $t('users.roles.user') }}</option>
-              <option value="admin">{{ $t('users.roles.admin') }}</option>
-            </select>
-          </div>
+                <option value="admin">{{ $t('users.roles.admin') }}</option>
+              </select>
+            </template>
+          </UIField>
 
           <div class="modal-actions">
             <button
@@ -374,42 +357,6 @@ watch(editingUser, async (user) => {
   display: flex;
   flex-direction: column;
   gap: 16px;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.form-label {
-  color: #495057;
-  font-weight: 500;
-  font-size: 14px;
-}
-
-.form-input,
-.form-select {
-  padding: 8px 16px;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
-  font-size: 16px;
-  transition: all 0.25s ease;
-  background-color: white;
-}
-
-.form-input:focus,
-.form-select:focus {
-  outline: none;
-  border-color: rgb(0, 102, 255);
-  box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
-}
-
-.form-input:disabled,
-.form-select:disabled {
-  background-color: #f8f9fa;
-  cursor: not-allowed;
-  opacity: 0.7;
 }
 
 .modal-actions {

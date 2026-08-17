@@ -34,7 +34,7 @@ Parameterized keys append their params in the composable: `key: () => [...usersQ
 ```ts
 export function useFetchUser(
   id: Ref<number>,
-  options: Omit<AppQueryOptions<User>, 'key' | 'query'> = {}
+  options: QueryOptions<User> = {}
 ) {
   return useAppQuery<User>({
     key: () => [...usersQueryKeys.fetchUser, id.value],
@@ -51,23 +51,30 @@ export function useFetchUser(
 Every composable takes an `options` passthrough so a caller can add its own `onSuccess` / `onSettled`. Two rules make that safe:
 
 1. **Spread the caller's options first, then declare the internal hook** — otherwise the caller silently overwrites the invalidation the composable exists to guarantee.
-2. **Chain the caller's hook last**, after the internal work: `await options.onSettled?.(data, error, vars, context)`.
+2. **Chain the caller's hook last**, after the internal work — and **await the internal work first**, or a caller reading the store or the cache sees the state as it was before the composable updated it.
+
+Rule 2 is `chainAfter(internal, caller)`, a project util, rather than a chain hand-written per composable. Its argument list comes from the caller's hook, so an internal hook declares only the arguments it reads:
 
 ```ts
-export function useUpdateUser(options: /* … */ = {}) {
+export function useUpdateUser(
+  options: MutationOptions<User, { id: number; userData: UpdateUserForm }> = {}
+) {
   const queryCache = useQueryCache();
 
   return useAppMutation({
     mutation: ({ id, userData }) => updateUser(id, userData),
     ...options,
-    onSettled: async (data, error, vars, context) => {
+    onSettled: chainAfter(async (_data, _error, vars) => {
       await queryCache.invalidateQueries({ key: usersQueryKeys.fetchUsers });
       await queryCache.invalidateQueries({ key: [...usersQueryKeys.fetchUser, vars.id] });
-      await options.onSettled?.(data, error, vars, context);
-    }
+    }, options.onSettled)
   });
 }
 ```
+
+The signature says `MutationOptions<TData, TVars>` — exported beside `useAppMutation`, and `QueryOptions<T>` beside `useAppQuery` — rather than repeating `Omit<AppMutationOptions<TData, TVars>, 'key' | 'mutation'>` at every composable. The `Omit` is the point of the alias: `mutation`/`query` and `key` are the composable's own to declare, never the caller's to replace.
+
+**Test the await, not just the order.** An internal hook whose effect is synchronous (`setUser(data)`) runs in order whether or not it is awaited, and an invalidation asserts the refetch was *sent*, not that it finished — so a composable-level spec can pass with the `await` removed. The guarantee is pinned once, in `chainAfter`'s own spec, with a deliberately slow internal hook.
 
 **Store side effects belong to the query layer's internal hook**, not to services and not to components — syncing the authenticated user after a login is the composable's job.
 

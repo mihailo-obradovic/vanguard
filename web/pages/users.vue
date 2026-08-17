@@ -5,7 +5,7 @@
     <v-btn
       color="primary"
       :prepend-icon="mdiAccountPlus"
-      @click="openCreateForm"
+      @click="openUserForm('create')"
     >
       {{ $t('users.create') }}
     </v-btn>
@@ -17,13 +17,13 @@
     :refreshing="isLoading && !isPending"
     :deleting-id="deletingUserId"
     :current-user-id="currentUser?.id ?? null"
-    @edit="openEditForm"
+    @edit="openUserForm('update', $event)"
     @delete="confirmDelete"
   />
 
   <UserFormDialog
     v-model="showUserForm"
-    :edit-mode="isEditMode"
+    :edit-mode="userFormMode === 'update'"
     :user="editingUser"
     :loading="isSubmittingUser"
     :server-errors="userFormErrors"
@@ -67,59 +67,30 @@ const { data, isPending, isLoading } = useFetchUsers();
 
 const users = computed(() => data.value?.data ?? []);
 
-// * Create / edit form state
-const showUserForm = ref(false);
-const isEditMode = ref(false);
-const editingUser = ref<User | null>(null);
-
-function openCreateForm() {
-  isEditMode.value = false;
-  editingUser.value = null;
-  showUserForm.value = true;
-}
-
-function openEditForm(user: User) {
-  isEditMode.value = true;
-  editingUser.value = user;
-  showUserForm.value = true;
-}
-
+// * One dialog, two mutations: the mode it was opened in decides which one runs, which errors it shows, and which toast it ends on.
 const {
-  mutate: createUser,
-  isLoading: isCreatingUser,
-  error: createUserError
-} = useCreateUser({
-  errorHandling: { hideValidationToast: true },
-  onSuccess: (newUser) => {
-    $toast(t('users.toasts.created', { name: newUser.name }), 'success');
-    showUserForm.value = false;
+  dialog: showUserForm,
+  mode: userFormMode,
+  subject: editingUser,
+  open: openUserForm,
+  submit: submitUser,
+  loading: isSubmittingUser,
+  errors: userFormErrors
+} = useMutationDialog(
+  { create: useCreateUser, update: useUpdateUser },
+  {
+    onSuccess: (user, mode) =>
+      $toast(
+        t(mode === 'create' ? 'users.toasts.created' : 'users.toasts.updated', {
+          name: user.name
+        }),
+        'success'
+      )
   }
-});
-
-const {
-  mutate: updateUser,
-  isLoading: isUpdatingUser,
-  error: updateUserError
-} = useUpdateUser({
-  errorHandling: { hideValidationToast: true },
-  onSuccess: (updatedUser) => {
-    $toast(t('users.toasts.updated', { name: updatedUser.name }), 'success');
-    showUserForm.value = false;
-  }
-});
-
-const isSubmittingUser = computed(
-  () => isCreatingUser.value || isUpdatingUser.value
-);
-
-const userFormErrors = useValidationErrors(
-  computed(() =>
-    isEditMode.value ? updateUserError.value : createUserError.value
-  )
 );
 
 function handleSubmitUser(form: CreateUserForm) {
-  if (isEditMode.value && editingUser.value) {
+  if (userFormMode.value === 'update' && editingUser.value) {
     const updateData: UpdateUserForm = {
       name: form.name,
       email: form.email,
@@ -132,9 +103,9 @@ function handleSubmitUser(form: CreateUserForm) {
       updateData.password_confirmation = form.password_confirmation;
     }
 
-    updateUser({ id: editingUser.value.id, userData: updateData });
+    submitUser.update({ id: editingUser.value.id, userData: updateData });
   } else {
-    createUser(form);
+    submitUser.create(form);
   }
 }
 

@@ -6,8 +6,14 @@ type MutationComposable<TData, TVars> = (
   options: Omit<AppMutationOptions<TData, TVars>, 'key' | 'mutation'>
 ) => ReturnType<typeof useAppMutation<TData, TVars>>;
 
-// * A dialog that offers more than one mutation names them: `{ create: useCreateUser, update: useUpdateUser }`. `TVars` is loose here on purpose — the constraint only has to admit every entry; each one's own variables type is recovered below, off the object the caller actually passed.
-type MutationMap<TData> = Record<string, MutationComposable<TData, any>>;
+// * A dialog that offers more than one mutation names them: `{ create: useCreateUser, update: useUpdateUser }`. The constraint is loose on purpose — it only has to admit every entry; each one's own data and variables types are recovered below, off the object the caller actually passed.
+type MutationMap = Record<string, MutationComposable<any, any>>;
+
+// * The entity the dialog is about, read off the mutations themselves: every mode of one dialog answers with the same thing, so it is also what `subject` holds.
+type DataOf<TMap> =
+  TMap extends Record<string, MutationComposable<infer TData, any>>
+    ? TData
+    : never;
 
 type Mode<TMap> = keyof TMap & string;
 
@@ -43,18 +49,18 @@ export function useMutationDialog<TData, TVars>(
 };
 
 // * The same dialog, offering a mutation per mode — an entity form that both creates and updates is one dialog, not two. The mode picked at `open` decides which mutation `submit` runs, which `error` `errors` reads, and what `onSuccess` is told.
-export function useMutationDialog<TData, TMap extends MutationMap<TData>>(
+export function useMutationDialog<TMap extends MutationMap>(
   mutations: TMap,
-  options?: { onSuccess?: (data: TData, mode: Mode<TMap>) => void }
-): DialogSession<TData> & {
+  options?: { onSuccess?: (data: DataOf<TMap>, mode: Mode<TMap>) => void }
+): DialogSession<DataOf<TMap>> & {
   mode: Ref<Mode<TMap>>;
-  open: (mode: Mode<TMap>, subject?: TData) => void;
+  open: (mode: Mode<TMap>, subject?: DataOf<TMap>) => void;
   submit: SubmitMap<TMap>;
 };
 
 // ! Implementation signature, not a callable one — the two overloads above are the interface. It is loose in the generics only so both of them narrow to it; every caller-facing type is settled there.
 export function useMutationDialog(
-  input: MutationComposable<any, any> | MutationMap<any>,
+  input: MutationComposable<any, any> | MutationMap,
   second?:
     | ((data: any) => void)
     | { onSuccess?: (data: any, mode: never) => void }
@@ -62,7 +68,7 @@ export function useMutationDialog(
   // * One mutation is the one-mode case of many, so the body only ever deals with the map.
   const single = typeof input === 'function';
 
-  const mutations: MutationMap<any> = single ? { default: input } : input;
+  const mutations: MutationMap = single ? { default: input } : input;
 
   // * Both overloads' handlers, read through the one shape the body calls them by; which arguments they actually get is decided per branch below.
   const onSuccess = (

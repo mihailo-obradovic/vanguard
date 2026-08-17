@@ -95,7 +95,7 @@ Every account type gets the same profile page; admins additionally manage others
 - `routes/api.php` — `PUT /api/profile` (no name, no throttle, PUT only).
 - `app/Http/Controllers/ProfileController.php` / `app/Http/Requests/ProfileUpdateRequest.php` — the contract's server half.
 - `app/Models/User.php` — `changeEmail()` + overridden `sendEmailVerificationNotification()` (queued).
-- `web/pages/profile.vue` + `web/services/queries/useAuthQueries.ts` (`useUpdateProfile`) + `web/services/auth.api.ts` (`updateProfile`) — the SPA half.
+- `web/components/users/UserCard.vue` (owns the form and the update) + `web/services/queries/useAuthQueries.ts` (`useUpdateProfile`) + `web/services/auth.api.ts` (`updateProfile`) — the SPA half; `web/pages/profile.vue` only renders the card and handles `?verified=1`.
 
 ## Dependencies
 

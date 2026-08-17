@@ -1,5 +1,6 @@
 import type { FetchError } from 'ofetch';
 
+// ! Reads as half-parameterized — `navigateTo` and `$toast` are called ambiently while these two are injected — and a design review proposed either passing all four or dropping the object entirely. Kept: the split is what varies, not what has an effect. `routePath` differs per call, and `resetUser` needs a store instance this module must not reach for; `navigateTo` and `$toast` are app-wide globals that are the same at every call site. Widening the context would make three call sites restate what cannot differ. Round 1 of the design review recorded this module and its adapter as the codebase's reference depth shape; that stands.
 export interface HandleApiErrorContext {
   routePath: string;
   resetUser: () => void;

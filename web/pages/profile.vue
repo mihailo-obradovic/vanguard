@@ -93,108 +93,30 @@
       </div>
     </div>
 
-    <UIDialog
+    <ProfileFormDialog
+      v-if="user"
       :open="showEditForm"
-      :title="$t('profile.edit')"
+      :user="user"
+      :submitting="isSubmittingProfile"
+      :server-errors="profileFormErrors"
+      @submit="updateProfile"
       @close="closeEditForm"
-    >
-      <form
-        class="profile-form"
-        novalidate
-        @submit.prevent="handleSubmitProfile"
-      >
-        <UIField
-          v-model="profileForm.name"
-          :label="$t('common.fields.name')"
-          :errors="r$.name.$errors"
-          type="text"
-          required
-          :disabled="isSubmittingProfile"
-        />
-
-        <UIField
-          v-model="profileForm.email"
-          :label="$t('common.fields.email')"
-          :errors="r$.email.$errors"
-          type="email"
-          required
-          :disabled="isSubmittingProfile"
-        />
-
-        <UIField
-          v-model="profileForm.current_password"
-          :label="$t('profile.form.currentPassword')"
-          :errors="r$.current_password.$errors"
-          type="password"
-          :required="!!profileForm.password"
-          :disabled="isSubmittingProfile"
-        />
-
-        <UIField
-          v-model="profileForm.password"
-          :label="$t('profile.form.newPassword')"
-          :errors="r$.password.$errors"
-          type="password"
-          :disabled="isSubmittingProfile"
-        />
-
-        <UIField
-          v-model="profileForm.password_confirmation"
-          :label="$t('profile.form.confirmNewPassword')"
-          :errors="r$.password_confirmation.$errors"
-          type="password"
-          :required="!!profileForm.password"
-          :disabled="isSubmittingProfile"
-        />
-
-        <UIDialogActions>
-          <button
-            type="button"
-            class="cancel-btn"
-            :disabled="isSubmittingProfile"
-            @click="closeEditForm"
-          >
-            {{ $t('common.actions.cancel') }}
-          </button>
-
-          <button
-            type="submit"
-            class="submit-btn"
-            :disabled="isSubmittingProfile || r$.$invalid"
-          >
-            {{
-              isSubmittingProfile
-                ? $t('common.actions.saving')
-                : $t('profile.form.submit')
-            }}
-          </button>
-        </UIDialogActions>
-      </form>
-    </UIDialog>
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { maxLength, required, requiredIf } from '@regle/rules';
+import ProfileFormDialog from '@/components/profile/ProfileFormDialog.vue';
 
 import {
   useRefreshUser,
   useUpdateProfile,
   useResendEmailVerification
 } from '@/services/queries/useAuthQueries';
-import type { ProfileForm } from '@/types/user';
 
 const { t } = useI18n();
 
-// * Edit form state
 const showEditForm = ref(false);
-const profileForm = ref({
-  name: '',
-  email: '',
-  current_password: '',
-  password: '',
-  password_confirmation: ''
-});
 
 const route = useRoute();
 const router = useRouter();
@@ -227,69 +149,16 @@ const {
   }
 });
 
-// * Mirrors ProfileUpdateRequest: the current password is only needed when setting a new one.
-const { r$ } = useRegle(
-  profileForm,
-  {
-    name: labeledRules('validation.fieldNames.name', {
-      required,
-      maxLength: maxLength(255)
-    }),
-    ...accountEmailRules(() => user.value?.id),
-    current_password: labeledRules('validation.fieldNames.currentPassword', {
-      requiredIf: requiredIf(() => !!profileForm.value.password)
-    }),
-    ...newPasswordRules(() => profileForm.value.password, true)
-  },
-  { externalErrors: useExternalErrors(useValidationErrors(updateProfileError)) }
-);
+const profileFormErrors = useValidationErrors(updateProfileError);
 
 function openEditForm() {
   if (!user.value) return;
 
-  profileForm.value = {
-    name: user.value.name,
-    email: user.value.email,
-    current_password: '',
-    password: '',
-    password_confirmation: ''
-  };
-  r$.$reset();
   showEditForm.value = true;
 }
 
 function closeEditForm() {
   showEditForm.value = false;
-  profileForm.value = {
-    name: '',
-    email: '',
-    current_password: '',
-    password: '',
-    password_confirmation: ''
-  };
-  r$.$reset();
-}
-
-async function handleSubmitProfile() {
-  const { valid } = await r$.$validate();
-
-  if (!valid) {
-    return;
-  }
-
-  const updateData: ProfileForm = {
-    name: profileForm.value.name,
-    email: profileForm.value.email
-  };
-
-  // * Only include the password pair — and the current-password challenge that authorizes it — when a new password is being set; a present-but-empty current_password is rejected by the backend.
-  if (profileForm.value.password) {
-    updateData.current_password = profileForm.value.current_password;
-    updateData.password = profileForm.value.password;
-    updateData.password_confirmation = profileForm.value.password_confirmation;
-  }
-
-  updateProfile(updateData);
 }
 
 onMounted(() => {
@@ -470,47 +339,6 @@ onMounted(() => {
 .loading-state p {
   margin: 0;
   font-size: 18px;
-}
-
-.profile-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.cancel-btn {
-  background-color: #6c757d;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.25s ease;
-}
-
-.cancel-btn:hover {
-  background-color: #5a6268;
-}
-
-.submit-btn {
-  background-color: rgb(0, 102, 255);
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.25s ease;
-}
-
-.submit-btn:hover:not(:disabled) {
-  background-color: rgba(0, 102, 255, 0.9);
-}
-
-.submit-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
 }
 
 @media (max-width: 768px) {

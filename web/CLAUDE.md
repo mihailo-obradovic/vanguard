@@ -8,7 +8,7 @@ Paths below are relative to the repo root. The `catalyst/` documents are normati
 
 - `app.vue` / `error.vue` — entry and error shells; `layouts/Default.vue` is the single layout.
 - `components/_shared/` — auto-imported shared components (`components.dirs` in `nuxt.config.ts`); everything else is explicitly imported. `UIField.vue` and `UIDialog.vue` (+ `UIDialogActions.vue`) are the primitives every form and dialog builds from.
-- `components/<resource>/` — feature components, imported explicitly: `users/UserFormDialog.vue` owns the create/edit form its page used to hold inline.
+- `components/<resource>/` — feature components, imported explicitly: `users/UserFormDialog.vue` and `profile/ProfileFormDialog.vue` own the forms their pages used to hold inline.
 - `composables/` — `useAppQuery` / `useAppMutation` (the only query/mutation wrappers components may use), `useValidationErrors` / `useExternalErrors` (server-422-to-Regle bridge), `useCookieConsent`.
 - `i18n/` — message catalogs and the Vue I18n config; has its own `CLAUDE.md`.
 - `mocks/` — test-only: the MSW server, its lifecycle setup file, the request recorder, schema-parsed fixtures, and per-resource handlers. Never imported by shipped code.

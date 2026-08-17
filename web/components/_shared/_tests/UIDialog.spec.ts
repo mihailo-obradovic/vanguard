@@ -1,6 +1,6 @@
 // @vitest-environment nuxt
 import { describe, it, expect, afterEach } from 'vitest';
-import { defineComponent, h, ref } from 'vue';
+import { defineComponent, h, nextTick, ref } from 'vue';
 import { renderSuspended } from '@nuxt/test-utils/runtime';
 import { screen, fireEvent, cleanup, waitFor } from '@testing-library/vue';
 
@@ -105,6 +105,76 @@ describe('UIDialog', () => {
     opened.value = false;
 
     await waitFor(() => expect(document.activeElement).toBe(opener));
+  });
+
+  // ! The case the naive restore gets wrong: a list refetch removes the row the dialog was opened from, and `.focus()` on the detached button is a silent no-op that drops the user on `<body>`.
+  it('falls back to the region the opener was in when the opener itself is gone', async () => {
+    const opened = ref(false);
+    const rowPresent = ref(true);
+
+    const page = defineComponent({
+      setup() {
+        return () =>
+          h('div', { 'data-testid': 'region' }, [
+            rowPresent.value
+              ? h('div', { class: 'row' }, [
+                  h(
+                    'button',
+                    { type: 'button', onClick: () => (opened.value = true) },
+                    'Open'
+                  )
+                ])
+              : null,
+            h(UIDialog, { open: opened.value, title: TITLE })
+          ]);
+      }
+    });
+
+    await renderSuspended(page);
+
+    const region = screen.getByTestId('region');
+    const opener = screen.getByRole('button', { name: 'Open' });
+
+    opener.focus();
+    await fireEvent.click(opener);
+    await waitFor(() => expect(document.activeElement).toBe(dialog()));
+
+    // * The refetch lands while the dialog is still open — the row, and with it the opener, is replaced before anything asks for focus back.
+    rowPresent.value = false;
+    await nextTick();
+
+    opened.value = false;
+
+    await waitFor(() => expect(document.activeElement).toBe(region));
+
+    // * The container is only focusable because the dialog made it so, and only for as long as it holds focus.
+    expect(region.getAttribute('tabindex')).toBe('-1');
+
+    await fireEvent.blur(region);
+
+    expect(region.hasAttribute('tabindex')).toBe(false);
+  });
+
+  it('leaves focus alone when it was not opened from a control', async () => {
+    const opened = ref(false);
+
+    const page = defineComponent({
+      setup() {
+        return () => h(UIDialog, { open: opened.value, title: TITLE });
+      }
+    });
+
+    await renderSuspended(page);
+
+    document.body.focus();
+
+    opened.value = true;
+    await waitFor(() => expect(document.activeElement).toBe(dialog()));
+
+    opened.value = false;
+
+    await waitFor(() => expect(document.activeElement).toBe(document.body));
+    expect(document.body.hasAttribute('tabindex')).toBe(false);
   });
 
   it('asks to close on Escape', async () => {

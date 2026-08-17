@@ -112,7 +112,9 @@ Every account type gets the same profile page; admins additionally manage others
 
 ## Verification
 
-`php artisan test` is green against the MySQL `vanguard_testing` database (setup in `operations.md`), profile tests included. Rules, `changeEmail()` semantics, and the response envelope are traced to source; the only deviations from this contract are frontend-only — stricter client rules and an always-sent `current_password` — and are documented above.
+`php artisan test` is green against the MySQL `vanguard_testing` database (setup in `operations.md`), profile tests included. Rules, `changeEmail()` semantics, and the response envelope are traced to source; the one remaining deviation is frontend-only — stricter client rules — and is documented above.
+
+The SPA half was walked live when the card took ownership of the update: a rename saved and returned the card to read-only; a wrong `current_password` and a taken email each landed inline on their own field, with no toast and the form still open to correct; Escape and cancel both restored the previous values. Console clean.
 
 ## Agent Change Rules
 

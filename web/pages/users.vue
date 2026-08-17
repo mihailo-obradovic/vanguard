@@ -45,22 +45,15 @@
               <td>{{ user.id }}</td>
               <td class="user-name">{{ user.name }}</td>
               <td class="user-email">{{ user.email }}</td>
+              <td><RoleBadge :role="user.role" /></td>
               <td>
-                <span class="role-badge" :class="user.role">
-                  {{ $t(`users.roles.${user.role}`) }}
-                </span>
-              </td>
-              <td>
-                <span
-                  class="verification-badge"
-                  :class="{ verified: user.email_verified_at }"
-                >
+                <VerificationBadge :verified="!!user.email_verified_at">
                   {{
                     user.email_verified_at
                       ? $t('users.verified.yes')
                       : $t('users.verified.no')
                   }}
-                </span>
+                </VerificationBadge>
               </td>
               <td class="created-date">{{ formatDate(user.created_at) }}</td>
               <td class="actions-cell">
@@ -263,11 +256,11 @@ function handleUpdateUser(id: number, userData: UpdateUserForm) {
   align-items: center;
   margin-bottom: 24px;
   padding-bottom: 16px;
-  border-bottom: 1px solid #e9ecef;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .users-title {
-  color: rgb(0, 102, 255);
+  color: var(--color-brand);
   margin: 0;
   font-size: 32px;
   font-weight: 600;
@@ -279,34 +272,34 @@ function handleUpdateUser(id: number, userData: UpdateUserForm) {
 }
 
 .create-btn {
-  background-color: rgb(0, 102, 255);
-  color: white;
+  background-color: var(--color-brand);
+  color: var(--color-on-brand);
   border: none;
   padding: 8px 16px;
-  border-radius: 8px;
+  border-radius: var(--radius);
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.25s ease;
+  transition: background-color var(--transition);
   font-size: 14px;
 }
 
 .create-btn:hover {
-  background-color: rgba(0, 102, 255, 0.9);
+  background-color: var(--color-brand-hover);
 }
 
 .loading-state,
 .error-state {
   text-align: center;
   padding: 32px;
-  background: white;
-  border-radius: 8px;
-  border: 1px solid #e9ecef;
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
 }
 
 .error-state {
-  color: #dc3545;
-  background-color: #f8d7da;
-  border-color: #f5c6cb;
+  color: var(--color-danger);
+  background-color: var(--color-danger-surface);
+  border-color: var(--color-danger-surface-border);
 }
 
 .users-stats {
@@ -314,22 +307,22 @@ function handleUpdateUser(id: number, userData: UpdateUserForm) {
 }
 
 .users-stats p {
-  color: #495057;
+  color: var(--color-text);
   margin: 0;
   font-size: 16px;
 }
 
 .stats-number {
   font-weight: 600;
-  color: rgb(0, 102, 255);
+  color: var(--color-brand);
 }
 
 .table-container {
-  background: white;
-  border-radius: 8px;
-  border: 1px solid #e9ecef;
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-subtle);
 }
 
 .users-table {
@@ -338,8 +331,8 @@ function handleUpdateUser(id: number, userData: UpdateUserForm) {
 }
 
 .users-table th {
-  background-color: rgb(0, 102, 255);
-  color: white;
+  background-color: var(--color-brand);
+  color: var(--color-on-brand);
   padding: 12px 16px;
   text-align: left;
   font-weight: 600;
@@ -348,60 +341,25 @@ function handleUpdateUser(id: number, userData: UpdateUserForm) {
 
 .users-table td {
   padding: 12px 16px;
-  border-bottom: 1px solid #e9ecef;
+  border-bottom: 1px solid var(--color-border);
   font-size: 14px;
 }
 
 .user-row:hover {
-  background-color: #f8f9fa;
+  background-color: var(--color-surface-muted);
 }
 
 .user-name {
   font-weight: 500;
-  color: #495057;
+  color: var(--color-text);
 }
 
 .user-email {
-  color: #6c757d;
-}
-
-.role-badge {
-  padding: 4px 8px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 500;
-  text-transform: uppercase;
-}
-
-.role-badge.admin {
-  background-color: #dc3545;
-  color: white;
-}
-
-.role-badge.user {
-  background-color: #28a745;
-  color: white;
-}
-
-.verification-badge {
-  padding: 4px 8px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.verification-badge.verified {
-  background-color: #28a745;
-  color: white;
-}
-
-.verification-badge:not(.verified) {
-  background-color: #ffc107;
-  color: #000;
+  color: var(--color-text-muted);
 }
 
 .created-date {
-  color: #6c757d;
+  color: var(--color-text-muted);
   font-size: 13px;
 }
 
@@ -411,19 +369,19 @@ function handleUpdateUser(id: number, userData: UpdateUserForm) {
 }
 
 .edit-btn {
-  background-color: rgb(0, 102, 255);
-  color: white;
+  background-color: var(--color-brand);
+  color: var(--color-on-brand);
   border: none;
   padding: 6px 12px;
-  border-radius: 8px;
+  border-radius: var(--radius);
   cursor: pointer;
   font-size: 12px;
   font-weight: 500;
-  transition: background-color 0.25s ease;
+  transition: background-color var(--transition);
 }
 
 .edit-btn:hover:not(:disabled) {
-  background-color: rgba(0, 102, 255, 0.9);
+  background-color: var(--color-brand-hover);
 }
 
 .edit-btn:disabled {
@@ -432,19 +390,19 @@ function handleUpdateUser(id: number, userData: UpdateUserForm) {
 }
 
 .delete-btn {
-  background-color: #dc3545;
-  color: white;
+  background-color: var(--color-danger);
+  color: var(--color-on-brand);
   border: none;
   padding: 6px 12px;
-  border-radius: 8px;
+  border-radius: var(--radius);
   cursor: pointer;
   font-size: 12px;
   font-weight: 500;
-  transition: background-color 0.25s ease;
+  transition: background-color var(--transition);
 }
 
 .delete-btn:hover:not(:disabled) {
-  background-color: #c82333;
+  background-color: var(--color-danger-hover);
 }
 
 .delete-btn:disabled {
@@ -454,43 +412,43 @@ function handleUpdateUser(id: number, userData: UpdateUserForm) {
 
 .delete-confirmation p {
   margin: 0 0 8px 0;
-  color: #495057;
+  color: var(--color-text);
 }
 
 .warning-text {
-  color: #dc3545;
+  color: var(--color-danger);
   font-size: 14px;
   font-style: italic;
 }
 
 .cancel-btn {
-  background-color: #6c757d;
-  color: white;
+  background-color: var(--color-secondary);
+  color: var(--color-on-brand);
   border: none;
   padding: 8px 16px;
-  border-radius: 8px;
+  border-radius: var(--radius);
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.25s ease;
+  transition: background-color var(--transition);
 }
 
 .cancel-btn:hover {
-  background-color: #5a6268;
+  background-color: var(--color-secondary-hover);
 }
 
 .confirm-delete-btn {
-  background-color: #dc3545;
-  color: white;
+  background-color: var(--color-danger);
+  color: var(--color-on-brand);
   border: none;
   padding: 8px 16px;
-  border-radius: 8px;
+  border-radius: var(--radius);
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.25s ease;
+  transition: background-color var(--transition);
 }
 
 .confirm-delete-btn:hover:not(:disabled) {
-  background-color: #c82333;
+  background-color: var(--color-danger-hover);
 }
 
 .cancel-btn:disabled,

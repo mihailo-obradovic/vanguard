@@ -105,7 +105,7 @@ watch(
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: var(--color-overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -114,11 +114,11 @@ watch(
 }
 
 .ui-dialog {
-  background: white;
-  border-radius: 8px;
+  background: var(--color-surface);
+  border-radius: var(--radius);
   width: 100%;
   max-width: 500px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-card);
 }
 
 .ui-dialog.narrow {
@@ -136,13 +136,13 @@ watch(
 
 .ui-dialog-title {
   margin: 0;
-  color: rgb(0, 102, 255);
+  color: var(--color-brand);
   font-size: 24px;
   font-weight: 600;
 }
 
 .ui-dialog-title.danger {
-  color: #dc3545;
+  color: var(--color-danger);
 }
 
 .ui-dialog-body {

@@ -28,9 +28,7 @@
               <div class="info-label">{{ $t('common.fields.role') }}</div>
 
               <div class="info-value">
-                <span class="role-badge" :class="user.role">
-                  {{ $t(`users.roles.${user.role}`) }}
-                </span>
+                <RoleBadge :role="user.role" large />
               </div>
             </div>
 
@@ -40,16 +38,13 @@
               </div>
 
               <div class="info-value verification-value">
-                <span
-                  class="verification-badge"
-                  :class="{ verified: user.email_verified_at }"
-                >
+                <VerificationBadge :verified="!!user.email_verified_at" large>
                   {{
                     user.email_verified_at
                       ? $t('profile.info.verified')
                       : $t('profile.info.notVerified')
                   }}
-                </span>
+                </VerificationBadge>
 
                 <button
                   v-if="!user.email_verified_at"
@@ -175,16 +170,16 @@ onMounted(() => {
 }
 
 .profile-card {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e9ecef;
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--color-border);
   overflow: hidden;
 }
 
 .profile-header {
-  background-color: rgb(0, 102, 255);
-  color: white;
+  background-color: var(--color-brand);
+  color: var(--color-on-brand);
   padding: 24px;
   text-align: center;
 }
@@ -204,12 +199,12 @@ onMounted(() => {
 }
 
 .section-title {
-  color: rgb(0, 102, 255);
+  color: var(--color-brand);
   font-size: 24px;
   font-weight: 600;
   margin: 0 0 24px 0;
   padding-bottom: 8px;
-  border-bottom: 2px solid #e9ecef;
+  border-bottom: 2px solid var(--color-border);
 }
 
 .info-grid {
@@ -225,7 +220,7 @@ onMounted(() => {
 }
 
 .info-label {
-  color: #495057;
+  color: var(--color-text);
   font-weight: 500;
   font-size: 14px;
   text-transform: uppercase;
@@ -233,32 +228,13 @@ onMounted(() => {
 }
 
 .info-value {
-  color: #495057;
+  color: var(--color-text);
   font-size: 16px;
   font-weight: 500;
   padding: 12px 16px;
-  background-color: #f8f9fa;
-  border-radius: 8px;
-  border: 1px solid #e9ecef;
-}
-
-.role-badge {
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.role-badge.admin {
-  background-color: #dc3545;
-  color: white;
-}
-
-.role-badge.user {
-  background-color: #28a745;
-  color: white;
+  background-color: var(--color-surface-muted);
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
 }
 
 .verification-value {
@@ -268,28 +244,21 @@ onMounted(() => {
   gap: 12px;
 }
 
-.verification-badge {
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
 .resend-btn {
   background-color: transparent;
-  color: rgb(0, 102, 255);
-  border: 1px solid rgb(0, 102, 255);
+  color: var(--color-brand);
+  border: 1px solid var(--color-brand);
   padding: 6px 12px;
-  border-radius: 8px;
+  border-radius: var(--radius);
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: all var(--transition);
 }
 
 .resend-btn:hover:not(:disabled) {
-  background-color: rgb(0, 102, 255);
-  color: white;
+  background-color: var(--color-brand);
+  color: var(--color-on-brand);
 }
 
 .resend-btn:disabled {
@@ -297,43 +266,33 @@ onMounted(() => {
   cursor: not-allowed;
 }
 
-.verification-badge.verified {
-  background-color: #28a745;
-  color: white;
-}
-
-.verification-badge:not(.verified) {
-  background-color: #ffc107;
-  color: #000;
-}
-
 .profile-actions {
   display: flex;
   justify-content: center;
   padding-top: 24px;
-  border-top: 1px solid #e9ecef;
+  border-top: 1px solid var(--color-border);
 }
 
 .edit-profile-btn {
-  background-color: rgb(0, 102, 255);
-  color: white;
+  background-color: var(--color-brand);
+  color: var(--color-on-brand);
   border: none;
   padding: 12px 24px;
-  border-radius: 8px;
+  border-radius: var(--radius);
   font-size: 16px;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.25s ease;
+  transition: background-color var(--transition);
 }
 
 .edit-profile-btn:hover {
-  background-color: rgba(0, 102, 255, 0.9);
+  background-color: var(--color-brand-hover);
 }
 
 .loading-state {
   text-align: center;
   padding: 64px 32px;
-  color: #6c757d;
+  color: var(--color-text-muted);
 }
 
 .loading-state p {

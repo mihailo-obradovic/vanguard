@@ -70,8 +70,8 @@ const { mutate: logOut, isLoading: isLoggingOut } = useLogOut();
 
 <style scoped>
 .navbar {
-  background-color: rgb(0, 102, 255);
-  border-bottom: 1px solid #000000;
+  background-color: var(--color-brand);
+  border-bottom: 1px solid var(--color-rule);
   padding: 8px;
 }
 
@@ -90,15 +90,15 @@ const { mutate: logOut, isLoading: isLoggingOut } = useLogOut();
 
 .nav-link {
   text-decoration: none;
-  color: white;
+  color: var(--color-on-brand);
   padding: 8px 16px;
-  border-radius: 8px;
-  transition: all 0.25s ease;
+  border-radius: var(--radius);
+  transition: all var(--transition);
 }
 
 .nav-link:hover {
-  color: rgb(0, 102, 255);
-  background-color: #e9ecef;
+  color: var(--color-brand);
+  background-color: var(--color-border);
 }
 
 .nav-auth {
@@ -109,51 +109,51 @@ const { mutate: logOut, isLoading: isLoggingOut } = useLogOut();
 
 .user-name-link {
   text-decoration: none;
-  color: rgb(0, 102, 255);
-  background-color: #e9ecef;
+  color: var(--color-brand);
+  background-color: var(--color-border);
   padding: 8px 16px;
   /* * Transparent border matches .auth-link so the navbar height doesn't change between logged-in and logged-out states. */
   border: 1px solid transparent;
-  border-radius: 8px;
-  transition: all 0.25s ease;
+  border-radius: var(--radius);
+  transition: all var(--transition);
   font-weight: 500;
 }
 
 .user-name-link:hover {
-  color: white;
-  background-color: #c82333;
+  color: var(--color-on-brand);
+  background-color: var(--color-danger-hover);
 }
 
 .logout-btn {
   font-family: 'Lexend', sans-serif;
-  background-color: #dc3545;
-  color: white;
+  background-color: var(--color-danger);
+  color: var(--color-on-brand);
   border: 1px solid transparent;
   padding: 8px 16px;
-  border-radius: 8px;
+  border-radius: var(--radius);
   cursor: pointer;
-  transition: background-color 0.25s ease;
+  transition: background-color var(--transition);
   font-size: 16px;
   line-height: normal;
 }
 
 .logout-btn:hover {
-  background-color: #c82333;
+  background-color: var(--color-danger-hover);
 }
 
 .auth-link {
   text-decoration: none;
-  color: #ffffff;
+  color: var(--color-on-brand);
   font-weight: 500;
   padding: 0.5rem 1rem;
-  border: 1px solid white;
+  border: 1px solid var(--color-on-brand);
   border-radius: 0.375rem;
   transition: all 0.2s ease;
 }
 
 .auth-link:hover {
-  background-color: white;
-  color: rgb(0, 102, 255);
+  background-color: var(--color-surface);
+  color: var(--color-brand);
 }
 
 .main-content {

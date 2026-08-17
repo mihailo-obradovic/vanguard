@@ -49,19 +49,19 @@ const emit = defineEmits<{ submit: [] }>();
 }
 
 .auth-card {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
   padding: 32px;
   width: 100%;
   max-width: 400px;
-  border: 1px solid #e9ecef;
+  border: 1px solid var(--color-border);
 }
 
 .auth-card-title {
   text-align: center;
   margin: 0 0 24px 0;
-  color: rgb(0, 102, 255);
+  color: var(--color-brand);
   font-size: 28px;
   font-weight: 600;
 }
@@ -74,7 +74,7 @@ const emit = defineEmits<{ submit: [] }>();
 .auth-card-hint {
   text-align: center;
   margin: 0 0 24px 0;
-  color: #495057;
+  color: var(--color-text);
   font-size: 14px;
 }
 
@@ -85,20 +85,20 @@ const emit = defineEmits<{ submit: [] }>();
 }
 
 .auth-card-submit {
-  background-color: rgb(0, 102, 255);
-  color: white;
+  background-color: var(--color-brand);
+  color: var(--color-on-brand);
   border: none;
   padding: 12px 16px;
-  border-radius: 8px;
+  border-radius: var(--radius);
   font-size: 16px;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.25s ease;
+  transition: background-color var(--transition);
   margin-top: 8px;
 }
 
 .auth-card-submit:hover:not(:disabled) {
-  background-color: rgba(0, 102, 255, 0.9);
+  background-color: var(--color-brand-hover);
 }
 
 .auth-card-submit:disabled {
@@ -110,24 +110,24 @@ const emit = defineEmits<{ submit: [] }>();
   text-align: center;
   margin-top: 24px;
   padding-top: 16px;
-  border-top: 1px solid #e9ecef;
+  border-top: 1px solid var(--color-border);
 }
 
 /* * Deep, because the footer's links are slot content and carry the caller's scope id. */
 .auth-card-footer :deep(p) {
   margin: 0;
-  color: #495057;
+  color: var(--color-text);
 }
 
 .auth-card-footer :deep(a) {
-  color: rgb(0, 102, 255);
+  color: var(--color-brand);
   text-decoration: none;
   font-weight: 500;
-  transition: color 0.25s ease;
+  transition: color var(--transition);
 }
 
 .auth-card-footer :deep(a:hover) {
-  color: rgba(0, 102, 255, 0.8);
+  color: var(--color-brand-hover-text);
   text-decoration: underline;
 }
 </style>

@@ -14,8 +14,8 @@ const currentYear = Temporal.Now.plainDateISO().year;
 .footer {
   padding: 8px;
   text-align: center;
-  background-color: rgb(0, 102, 255);
-  border-top: 1px solid #000000;
-  color: white;
+  background-color: var(--color-brand);
+  border-top: 1px solid var(--color-rule);
+  color: var(--color-on-brand);
 }
 </style>

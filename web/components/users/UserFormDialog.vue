@@ -216,33 +216,33 @@ watch(
 }
 
 .cancel-btn {
-  background-color: #6c757d;
-  color: white;
+  background-color: var(--color-secondary);
+  color: var(--color-on-brand);
   border: none;
   padding: 8px 16px;
-  border-radius: 8px;
+  border-radius: var(--radius);
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.25s ease;
+  transition: background-color var(--transition);
 }
 
 .cancel-btn:hover {
-  background-color: #5a6268;
+  background-color: var(--color-secondary-hover);
 }
 
 .submit-btn {
-  background-color: rgb(0, 102, 255);
-  color: white;
+  background-color: var(--color-brand);
+  color: var(--color-on-brand);
   border: none;
   padding: 8px 16px;
-  border-radius: 8px;
+  border-radius: var(--radius);
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.25s ease;
+  transition: background-color var(--transition);
 }
 
 .submit-btn:hover:not(:disabled) {
-  background-color: rgba(0, 102, 255, 0.9);
+  background-color: var(--color-brand-hover);
 }
 
 .submit-btn:disabled,

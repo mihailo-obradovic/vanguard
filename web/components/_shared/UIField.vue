@@ -53,7 +53,7 @@ const describedBy = computed(() => (invalid.value ? errorId : undefined));
 }
 
 .ui-field-label {
-  color: #495057;
+  color: var(--color-text);
   font-weight: 500;
   font-size: 14px;
 }
@@ -61,28 +61,28 @@ const describedBy = computed(() => (invalid.value ? errorId : undefined));
 /* * Deep, because a control passed through the slot is compiled in the caller's scope and carries the caller's scope id — the default input and a slotted `<select>` have to be reachable by the same rule. */
 .ui-field :deep(.ui-field-control) {
   padding: 8px 16px;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
   font-size: 16px;
-  transition: all 0.25s ease;
-  background-color: white;
+  transition: all var(--transition);
+  background-color: var(--color-surface);
 }
 
 .ui-field :deep(.ui-field-control:focus) {
   outline: none;
-  border-color: rgb(0, 102, 255);
-  box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 3px var(--color-brand-ring);
 }
 
 .ui-field :deep(.ui-field-control:disabled) {
-  background-color: #f8f9fa;
+  background-color: var(--color-surface-muted);
   cursor: not-allowed;
   opacity: 0.7;
 }
 
 /* * Always occupies one line so messages appearing/disappearing don't shift the layout. */
 .ui-field-error {
-  color: #dc3545;
+  color: var(--color-danger);
   font-size: 14px;
   line-height: 1.3;
   min-height: 18px;

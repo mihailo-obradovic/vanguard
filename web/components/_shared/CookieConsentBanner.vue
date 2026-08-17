@@ -50,9 +50,9 @@ onMounted(() => {
   left: 0;
   right: 0;
   z-index: 1000;
-  background: white;
-  border-top: 1px solid #e9ecef;
-  box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+  box-shadow: var(--shadow-card-up);
 }
 
 .cookie-content {
@@ -67,7 +67,7 @@ onMounted(() => {
 
 .cookie-message {
   margin: 0;
-  color: #495057;
+  color: var(--color-text);
   font-size: 14px;
 }
 
@@ -81,38 +81,38 @@ onMounted(() => {
 .cookie-btn {
   font-family: 'Lexend', sans-serif;
   padding: 8px 16px;
-  border-radius: 8px;
+  border-radius: var(--radius);
   font-size: 16px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: all var(--transition);
 }
 
 .cookie-btn--decline {
   background-color: transparent;
-  color: #495057;
-  border: 1px solid #e9ecef;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
 }
 
 .cookie-btn--decline:hover {
-  background-color: #e9ecef;
+  background-color: var(--color-border);
 }
 
 .cookie-btn--accept {
-  background-color: rgb(0, 102, 255);
-  color: white;
-  border: 1px solid rgb(0, 102, 255);
+  background-color: var(--color-brand);
+  color: var(--color-on-brand);
+  border: 1px solid var(--color-brand);
 }
 
 .cookie-btn--accept:hover {
-  background-color: rgba(0, 102, 255, 0.9);
+  background-color: var(--color-brand-hover);
 }
 
 .cookie-slide-enter-active,
 .cookie-slide-leave-active {
   transition:
-    transform 0.25s ease,
-    opacity 0.25s ease;
+    transform var(--transition),
+    opacity var(--transition);
 }
 
 .cookie-slide-enter-from,

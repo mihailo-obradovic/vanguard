@@ -1,3 +1,59 @@
+/*
+ * The design tokens every component's `<style scoped>` builds on, per the headless UI module
+ * (catalyst/stacks/frontend/nuxt/ui/headless.md): nothing global except these definitions and the
+ * few base-element rules below.
+ *
+ * Tokens are named for the ROLE, not the value — two roles may share a value (a muted label and a
+ * secondary button are both #6c757d) and still change independently later.
+ */
+:root {
+    /* Brand */
+    --color-brand: rgb(0 102 255);
+    /* Hover on a brand-filled surface (buttons). */
+    --color-brand-hover: rgb(0 102 255 / 0.9);
+    /* Hover on brand-coloured text (links). */
+    --color-brand-hover-text: rgb(0 102 255 / 0.8);
+    /* The focus ring an input grows when it takes focus. */
+    --color-brand-ring: rgb(0 102 255 / 0.1);
+
+    /* Surfaces and lines */
+    --color-surface: #ffffff;
+    --color-surface-muted: #f8f9fa;
+    --color-border: #e9ecef;
+    /* The hard separator under the nav bar and over the footer. */
+    --color-rule: #000000;
+    --color-overlay: rgb(0 0 0 / 0.5);
+
+    /* Text */
+    --color-text: #495057;
+    --color-text-strong: #212529;
+    --color-text-muted: #6c757d;
+    /* Text on a brand- or status-filled surface. */
+    --color-on-brand: #ffffff;
+    /* Text on the warning fill, which is too light for white. */
+    --color-on-warning: #000000;
+
+    /* Status */
+    --color-danger: #dc3545;
+    --color-danger-hover: #c82333;
+    --color-danger-surface: #f8d7da;
+    --color-danger-surface-border: #f5c6cb;
+    --color-success: #28a745;
+    --color-warning: #ffc107;
+
+    /* Secondary action (cancel, dismiss) */
+    --color-secondary: #6c757d;
+    --color-secondary-hover: #5a6268;
+
+    /* Shape, depth and motion */
+    --radius: 8px;
+    --shadow-card: 0 4px 6px rgb(0 0 0 / 0.1);
+    --shadow-subtle: 0 2px 4px rgb(0 0 0 / 0.05);
+    /* The same card depth, cast upward — for a bar pinned to the bottom of the viewport. */
+    --shadow-card-up: 0 -4px 6px rgb(0 0 0 / 0.1);
+    --transition: 0.25s ease;
+}
+
 html,
 body,
 #__nuxt {
@@ -12,22 +68,6 @@ body {
 }
 
 ::selection {
-    color: white;
+    color: var(--color-on-brand);
     background-color: red;
-}
-
-.user-select-none {
-    user-select: none;
-}
-
-.text-transform-none {
-    text-transform: none;
-}
-
-.z-index-top {
-    z-index: 1000;
-}
-
-.br-2 {
-    border-radius: 8px;
 }

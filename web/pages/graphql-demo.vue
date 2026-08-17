@@ -31,11 +31,7 @@
             <td>{{ user.id }}</td>
             <td>{{ user.name }}</td>
             <td class="user-email">{{ user.email }}</td>
-            <td>
-              <span class="role-badge" :class="user.role">
-                {{ $t(`users.roles.${user.role}`) }}
-              </span>
-            </td>
+            <td><RoleBadge :role="user.role" /></td>
             <td>
               <button class="edit-btn" @click="openEditForm(user)">
                 {{ $t('common.actions.edit') }}
@@ -107,18 +103,18 @@ function closeEditForm() {
 .demo-header {
   margin-bottom: 24px;
   padding-bottom: 16px;
-  border-bottom: 1px solid #e9ecef;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .demo-title {
-  color: rgb(0, 102, 255);
+  color: var(--color-brand);
   margin: 0;
   font-size: 32px;
   font-weight: 600;
 }
 
 .demo-intro {
-  color: #6c757d;
+  color: var(--color-text-muted);
   margin: 8px 0 0 0;
   font-size: 14px;
 }
@@ -126,23 +122,23 @@ function closeEditForm() {
 .state-panel {
   text-align: center;
   padding: 32px;
-  background: white;
-  border-radius: 8px;
-  border: 1px solid #e9ecef;
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
 }
 
 .error-panel {
-  color: #dc3545;
-  background-color: #f8d7da;
-  border-color: #f5c6cb;
+  color: var(--color-danger);
+  background-color: var(--color-danger-surface);
+  border-color: var(--color-danger-surface-border);
 }
 
 .table-container {
-  background: white;
-  border-radius: 8px;
-  border: 1px solid #e9ecef;
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-subtle);
 }
 
 .users-table {
@@ -151,8 +147,8 @@ function closeEditForm() {
 }
 
 .users-table th {
-  background-color: rgb(0, 102, 255);
-  color: white;
+  background-color: var(--color-brand);
+  color: var(--color-on-brand);
   padding: 12px 16px;
   text-align: left;
   font-weight: 600;
@@ -161,45 +157,27 @@ function closeEditForm() {
 
 .users-table td {
   padding: 12px 16px;
-  border-bottom: 1px solid #e9ecef;
+  border-bottom: 1px solid var(--color-border);
   font-size: 14px;
 }
 
 .user-email {
-  color: #6c757d;
-}
-
-.role-badge {
-  padding: 4px 8px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 500;
-  text-transform: uppercase;
-}
-
-.role-badge.admin {
-  background-color: #dc3545;
-  color: white;
-}
-
-.role-badge.user {
-  background-color: #28a745;
-  color: white;
+  color: var(--color-text-muted);
 }
 
 .edit-btn {
-  background-color: rgb(0, 102, 255);
-  color: white;
+  background-color: var(--color-brand);
+  color: var(--color-on-brand);
   border: none;
   padding: 6px 12px;
-  border-radius: 8px;
+  border-radius: var(--radius);
   cursor: pointer;
   font-size: 12px;
   font-weight: 500;
-  transition: background-color 0.25s ease;
+  transition: background-color var(--transition);
 }
 
 .edit-btn:hover:not(:disabled) {
-  background-color: rgba(0, 102, 255, 0.9);
+  background-color: var(--color-brand-hover);
 }
 </style>

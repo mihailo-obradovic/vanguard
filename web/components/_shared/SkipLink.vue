@@ -8,10 +8,10 @@
   position: absolute;
   left: -9999px;
   z-index: 2000;
-  background-color: white;
-  color: rgb(0, 102, 255);
+  background-color: var(--color-surface);
+  color: var(--color-brand);
   padding: 8px 16px;
-  border-radius: 8px;
+  border-radius: var(--radius);
   text-decoration: none;
   font-weight: 500;
 }

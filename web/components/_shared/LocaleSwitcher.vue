@@ -24,24 +24,24 @@ const selected = computed({
 .locale-select {
   font-family: 'Lexend', sans-serif;
   background-color: transparent;
-  color: white;
+  color: var(--color-on-brand);
   border: 1px solid white;
-  border-radius: 8px;
+  border-radius: var(--radius);
   padding: 8px 12px;
   font-size: 16px;
   line-height: normal;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: all var(--transition);
 }
 
 .locale-select:hover {
-  background-color: white;
-  color: rgb(0, 102, 255);
+  background-color: var(--color-surface);
+  color: var(--color-brand);
 }
 
 /* * The dropdown list is painted by the OS, which ignores the transparent background above. */
 .locale-select option {
-  color: #212529;
-  background-color: white;
+  color: var(--color-text-strong);
+  background-color: var(--color-surface);
 }
 </style>

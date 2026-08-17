@@ -11,7 +11,7 @@
   gap: 16px;
   justify-content: flex-end;
   padding: 24px;
-  border-top: 1px solid #e9ecef;
+  border-top: 1px solid var(--color-border);
   margin-top: 16px;
 }
 </style>

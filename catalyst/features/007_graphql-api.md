@@ -128,7 +128,7 @@ Guest and non-admin refusals: see Roles And Access; client behavior is under Err
 - `app/Actions/UpdateUser.php`: the update logic shared with `UserController::update`.
 - `web/utils/gqlFetcher.ts`: the transport and error translation.
 - `web/services/user.gql.ts` + `web/services/queries/useUserGqlQueries.ts`: the two-layer contract, GraphQL flavor.
-- `web/pages/graphql-demo.vue`: the worked call site.
+- `web/pages/graphql-demo.vue` + `web/components/users/UserGqlFormDialog.vue`: the worked call site, split page/dialog like the REST pages.
 
 ## Dependencies
 

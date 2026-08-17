@@ -46,72 +46,18 @@
       </table>
     </div>
 
-    <UIDialog
-      :open="!!editingUser"
-      :title="$t('graphqlDemo.editTitle', { name: editingUser?.name ?? '' })"
+    <UserGqlFormDialog
+      :user="editingUser"
+      :submitting="isUpdating"
+      :server-errors="formErrors"
+      @update="updateUser"
       @close="closeEditForm"
-    >
-      <form class="user-form" novalidate @submit.prevent="handleSubmit">
-        <UIField
-          v-model="userForm.name"
-          :label="$t('common.fields.name')"
-          :errors="r$.name.$errors"
-          type="text"
-          :disabled="isUpdating"
-        />
-
-        <UIField
-          v-model="userForm.email"
-          :label="$t('common.fields.email')"
-          :errors="r$.email.$errors"
-          type="email"
-          :disabled="isUpdating"
-        />
-
-        <UIField :label="$t('common.fields.role')">
-          <template #default="{ controlId }">
-            <select
-              :id="controlId"
-              v-model="userForm.role"
-              class="ui-field-control"
-              :disabled="isUpdating"
-            >
-              <option value="user">{{ $t('users.roles.user') }}</option>
-
-              <option value="admin">{{ $t('users.roles.admin') }}</option>
-            </select>
-          </template>
-        </UIField>
-
-        <UIDialogActions>
-          <button
-            type="button"
-            class="cancel-btn"
-            :disabled="isUpdating"
-            @click="closeEditForm"
-          >
-            {{ $t('common.actions.cancel') }}
-          </button>
-
-          <button
-            type="submit"
-            class="submit-btn"
-            :disabled="isUpdating || r$.$invalid"
-          >
-            {{
-              isUpdating
-                ? $t('common.actions.saving')
-                : $t('users.form.submitUpdate')
-            }}
-          </button>
-        </UIDialogActions>
-      </form>
-    </UIDialog>
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { email, maxLength, required } from '@regle/rules';
+import UserGqlFormDialog from '@/components/users/UserGqlFormDialog.vue';
 
 import {
   useFetchUsersGql,
@@ -128,7 +74,6 @@ const { t } = useI18n();
 const { data: users, isLoading, error } = useFetchUsersGql();
 
 const editingUser = ref<User | null>(null);
-const userForm = ref({ name: '', email: '', role: 'user' as User['role'] });
 
 const {
   mutate: updateUser,
@@ -144,45 +89,12 @@ const {
 
 const formErrors = useValidationErrors(updateError);
 
-const { r$ } = useRegle(
-  userForm,
-  {
-    name: labeledRules('validation.fieldNames.name', {
-      required,
-      maxLength: maxLength(255)
-    }),
-    email: labeledRules('validation.fieldNames.email', {
-      required,
-      email,
-      maxLength: maxLength(255)
-    })
-  },
-  { externalErrors: useExternalErrors(() => formErrors.value) }
-);
-
 function openEditForm(user: User) {
   editingUser.value = user;
-  userForm.value = { name: user.name, email: user.email, role: user.role };
-  r$.$reset();
 }
 
 function closeEditForm() {
   editingUser.value = null;
-}
-
-async function handleSubmit() {
-  const { valid } = await r$.$validate();
-
-  if (!valid || !editingUser.value) {
-    return;
-  }
-
-  // * Partial update: only the fields the admin actually changed go on the wire — omitted
-  // * GraphQL variables never reach the resolver, so untouched fields keep their values.
-  updateUser({
-    id: editingUser.value.id,
-    ...changedFields(editingUser.value, userForm.value)
-  });
 }
 </script>
 
@@ -289,47 +201,5 @@ async function handleSubmit() {
 
 .edit-btn:hover:not(:disabled) {
   background-color: rgba(0, 102, 255, 0.9);
-}
-
-.user-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.cancel-btn {
-  background-color: #6c757d;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.25s ease;
-}
-
-.cancel-btn:hover:not(:disabled) {
-  background-color: #5a6268;
-}
-
-.submit-btn {
-  background-color: rgb(0, 102, 255);
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.25s ease;
-}
-
-.submit-btn:hover:not(:disabled) {
-  background-color: rgba(0, 102, 255, 0.9);
-}
-
-.submit-btn:disabled,
-.cancel-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
 }
 </style>

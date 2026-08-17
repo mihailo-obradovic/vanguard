@@ -6,7 +6,7 @@
       <p class="demo-intro">{{ $t('graphqlDemo.intro') }}</p>
     </header>
 
-    <div v-if="isLoading" class="state-panel">
+    <div v-if="isPending" class="state-panel">
       <p>{{ $t('users.loading') }}</p>
     </div>
 
@@ -67,7 +67,7 @@ import type { User } from '@/types/auth';
 
 const { t } = useI18n();
 
-const { data: users, isLoading, error } = useFetchUsersGql();
+const { data: users, isPending, error } = useFetchUsersGql();
 
 const editingUser = ref<User | null>(null);
 

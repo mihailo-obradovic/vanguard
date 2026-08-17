@@ -10,7 +10,7 @@
       </div>
     </div>
 
-    <div v-if="isLoading" class="loading-state">
+    <div v-if="isPending" class="loading-state">
       <p>{{ $t('users.loading') }}</p>
     </div>
 
@@ -146,7 +146,7 @@ import type { UpdateUserForm } from '@/types/user';
 
 const { t } = useI18n();
 
-const { data: usersResponse, isLoading, error } = useFetchUsers();
+const { data: usersResponse, isPending, error } = useFetchUsers();
 
 const userToDelete = ref<User | null>(null);
 

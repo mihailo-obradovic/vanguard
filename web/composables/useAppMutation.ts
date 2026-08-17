@@ -10,6 +10,12 @@ export type AppMutationOptions<TData, TVars> = UseMutationOptions<
   errorHandling?: ErrorHandlingOptions;
 };
 
+// * What a *caller* of a mutation composable may pass — the options passthrough (`catalyst/stacks/frontend/nuxt/data-layer.md`). `mutation` and `key` are the composable's own to declare, never the caller's to replace.
+export type MutationOptions<TData, TVars = void> = Omit<
+  AppMutationOptions<TData, TVars>,
+  'key' | 'mutation'
+>;
+
 export function useAppMutation<TData, TVars = void>(
   options: AppMutationOptions<TData, TVars>
 ) {

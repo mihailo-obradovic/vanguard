@@ -7,6 +7,9 @@ export type AppQueryOptions<T> = UseQueryOptions<T> & {
   errorHandling?: ErrorHandlingOptions;
 };
 
+// * What a *caller* of a query composable may pass — the options passthrough (`catalyst/stacks/frontend/nuxt/data-layer.md`). `query` and `key` are the composable's own to declare, never the caller's to replace.
+export type QueryOptions<T> = Omit<AppQueryOptions<T>, 'key' | 'query'>;
+
 export function useAppQuery<T>(options: AppQueryOptions<T>) {
   const { errorHandling, ...queryOptions } = options;
 

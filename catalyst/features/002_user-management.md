@@ -97,7 +97,7 @@ Walkthroughs — Admin: full table and all actions, including their own row (see
 ## Entry Points
 
 - `routes/api.php` (`apiResource` behind `['auth:sanctum','admin']`), `app/Http/Controllers/UserController.php`, `app/Http/Requests/UserRequest.php`, `app/Http/Middleware/EnsureUserIsAdmin.php`, `app/Enums/Role.php`, `app/Http/Resources/UserResource.php`.
-- SPA: `web/pages/users.vue`, `web/services/user.api.ts`, `web/services/queries/useUserQueries.ts`, `web/layouts/Default.vue` (nav gating).
+- SPA: `web/pages/users.vue` (table, delete confirmation, mutations), `web/components/users/UserFormDialog.vue` (the create/edit form, its rules and the payload it emits), `web/services/user.api.ts`, `web/services/queries/useUserQueries.ts`, `web/layouts/Default.vue` (nav gating).
 
 ## Dependencies
 

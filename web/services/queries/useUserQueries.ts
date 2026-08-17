@@ -8,8 +8,8 @@ import {
   deleteUser
 } from '@/services/user.api';
 
-import type { AppQueryOptions } from '@/composables/useAppQuery';
-import type { AppMutationOptions } from '@/composables/useAppMutation';
+import type { QueryOptions } from '@/composables/useAppQuery';
+import type { MutationOptions } from '@/composables/useAppMutation';
 import type { User } from '@/types/auth';
 import type {
   UsersResponse,
@@ -22,9 +22,7 @@ export const usersQueryKeys = {
   fetchUser: ['users', 'get']
 } as const;
 
-export function useFetchUsers(
-  options: Omit<AppQueryOptions<UsersResponse>, 'key' | 'query'> = {}
-) {
+export function useFetchUsers(options: QueryOptions<UsersResponse> = {}) {
   return useAppQuery<UsersResponse>({
     key: usersQueryKeys.fetchUsers,
     query: () => fetchUsers(),
@@ -35,7 +33,7 @@ export function useFetchUsers(
 // * Not consumed yet — intended for the upcoming user-detail view.
 export function useFetchUser(
   id: Ref<number>,
-  options: Omit<AppQueryOptions<User>, 'key' | 'query'> = {}
+  options: QueryOptions<User> = {}
 ) {
   return useAppQuery<User>({
     key: () => [...usersQueryKeys.fetchUser, id.value],
@@ -45,29 +43,22 @@ export function useFetchUser(
 }
 
 export function useCreateUser(
-  options: Omit<
-    AppMutationOptions<User, CreateUserForm>,
-    'key' | 'mutation'
-  > = {}
+  options: MutationOptions<User, CreateUserForm> = {}
 ) {
   const queryCache = useQueryCache();
 
   return useAppMutation({
     mutation: (userData: CreateUserForm) => createUser(userData),
     ...options,
-    onSettled: async (data, error, vars, context) => {
-      await queryCache.invalidateQueries({ key: usersQueryKeys.fetchUsers });
-
-      await options.onSettled?.(data, error, vars, context);
-    }
+    onSettled: chainAfter(
+      () => queryCache.invalidateQueries({ key: usersQueryKeys.fetchUsers }),
+      options.onSettled
+    )
   });
 }
 
 export function useUpdateUser(
-  options: Omit<
-    AppMutationOptions<User, { id: number; userData: UpdateUserForm }>,
-    'key' | 'mutation'
-  > = {}
+  options: MutationOptions<User, { id: number; userData: UpdateUserForm }> = {}
 ) {
   const queryCache = useQueryCache();
 
@@ -75,32 +66,26 @@ export function useUpdateUser(
     mutation: ({ id, userData }: { id: number; userData: UpdateUserForm }) =>
       updateUser(id, userData),
     ...options,
-    onSettled: async (data, error, vars, context) => {
+    onSettled: chainAfter(async (_data, _error, vars) => {
       await queryCache.invalidateQueries({ key: usersQueryKeys.fetchUsers });
       await queryCache.invalidateQueries({
         key: [...usersQueryKeys.fetchUser, vars.id]
       });
-
-      await options.onSettled?.(data, error, vars, context);
-    }
+    }, options.onSettled)
   });
 }
 
-export function useDeleteUser(
-  options: Omit<AppMutationOptions<void, number>, 'key' | 'mutation'> = {}
-) {
+export function useDeleteUser(options: MutationOptions<void, number> = {}) {
   const queryCache = useQueryCache();
 
   return useAppMutation({
     mutation: (id: number) => deleteUser(id),
     ...options,
-    onSettled: async (data, error, id, context) => {
+    onSettled: chainAfter(async (_data, _error, id) => {
       await queryCache.invalidateQueries({ key: usersQueryKeys.fetchUsers });
       await queryCache.invalidateQueries({
         key: [...usersQueryKeys.fetchUser, id]
       });
-
-      await options.onSettled?.(data, error, id, context);
-    }
+    }, options.onSettled)
   });
 }

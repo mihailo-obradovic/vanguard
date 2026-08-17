@@ -9,7 +9,7 @@ import {
   resendEmailVerification
 } from '@/services/auth.api';
 
-import type { AppMutationOptions } from '@/composables/useAppMutation';
+import type { MutationOptions } from '@/composables/useAppMutation';
 import type {
   RegistrationForm,
   Credentials,
@@ -19,10 +19,7 @@ import type {
 import type { ProfileForm } from '@/types/user';
 
 export function useRegister(
-  options: Omit<
-    AppMutationOptions<User, RegistrationForm>,
-    'key' | 'mutation'
-  > = {}
+  options: MutationOptions<User, RegistrationForm> = {}
 ) {
   const { setUser } = useAuthStore();
 
@@ -34,17 +31,11 @@ export function useRegister(
       return fetchCurrentUser();
     },
     ...options,
-    onSuccess: async (data, vars, context) => {
-      setUser(data);
-
-      await options.onSuccess?.(data, vars, context);
-    }
+    onSuccess: chainAfter((data: User) => setUser(data), options.onSuccess)
   });
 }
 
-export function useLogIn(
-  options: Omit<AppMutationOptions<User, Credentials>, 'key' | 'mutation'> = {}
-) {
+export function useLogIn(options: MutationOptions<User, Credentials> = {}) {
   const { setUser } = useAuthStore();
 
   return useAppMutation({
@@ -55,64 +46,44 @@ export function useLogIn(
       return fetchCurrentUser();
     },
     ...options,
-    onSuccess: async (data, vars, context) => {
-      setUser(data);
-
-      await options.onSuccess?.(data, vars, context);
-    }
+    onSuccess: chainAfter((data: User) => setUser(data), options.onSuccess)
   });
 }
 
-export function useRefreshUser(
-  options: Omit<AppMutationOptions<User, void>, 'key' | 'mutation'> = {}
-) {
+export function useRefreshUser(options: MutationOptions<User> = {}) {
   const { setUser } = useAuthStore();
 
   return useAppMutation({
     mutation: () => fetchCurrentUser(),
     ...options,
-    onSuccess: async (data, vars, context) => {
-      setUser(data);
-
-      await options.onSuccess?.(data, vars, context);
-    }
+    onSuccess: chainAfter((data: User) => setUser(data), options.onSuccess)
   });
 }
 
-export function useLogOut(
-  options: Omit<AppMutationOptions<void, void>, 'key' | 'mutation'> = {}
-) {
+export function useLogOut(options: MutationOptions<void> = {}) {
   const { resetUser } = useAuthStore();
 
   return useAppMutation({
     mutation: () => logOut(),
     ...options,
-    onSuccess: async (data, vars, context) => {
-      resetUser();
-
-      await options.onSuccess?.(data, vars, context);
-    }
+    onSuccess: chainAfter(() => resetUser(), options.onSuccess)
   });
 }
 
 export function useUpdateProfile(
-  options: Omit<AppMutationOptions<User, ProfileForm>, 'key' | 'mutation'> = {}
+  options: MutationOptions<User, ProfileForm> = {}
 ) {
   const { setUser } = useAuthStore();
 
   return useAppMutation({
     mutation: (form: ProfileForm) => updateProfile(form),
     ...options,
-    onSuccess: async (data, vars, context) => {
-      setUser(data);
-
-      await options.onSuccess?.(data, vars, context);
-    }
+    onSuccess: chainAfter((data: User) => setUser(data), options.onSuccess)
   });
 }
 
 export function useResendEmailVerification(
-  options: Omit<AppMutationOptions<void, void>, 'key' | 'mutation'> = {}
+  options: MutationOptions<void> = {}
 ) {
   return useAppMutation({
     mutation: () => resendEmailVerification(),
@@ -121,10 +92,7 @@ export function useResendEmailVerification(
 }
 
 export function useGeneratePasswordResetEmail(
-  options: Omit<
-    AppMutationOptions<{ status: string }, { email: string }>,
-    'key' | 'mutation'
-  > = {}
+  options: MutationOptions<{ status: string }, { email: string }> = {}
 ) {
   return useAppMutation({
     mutation: (form: { email: string }) => generatePasswordResetEmail(form),
@@ -133,10 +101,7 @@ export function useGeneratePasswordResetEmail(
 }
 
 export function useResetPassword(
-  options: Omit<
-    AppMutationOptions<{ status: string }, PasswordResetForm>,
-    'key' | 'mutation'
-  > = {}
+  options: MutationOptions<{ status: string }, PasswordResetForm> = {}
 ) {
   return useAppMutation({
     mutation: (form: PasswordResetForm) => resetPassword(form),

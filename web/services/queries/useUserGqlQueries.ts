@@ -2,8 +2,8 @@ import { useQueryCache } from '@pinia/colada';
 
 import { fetchUsersGql, updateUserGql } from '@/services/user.gql';
 
-import type { AppQueryOptions } from '@/composables/useAppQuery';
-import type { AppMutationOptions } from '@/composables/useAppMutation';
+import type { QueryOptions } from '@/composables/useAppQuery';
+import type { MutationOptions } from '@/composables/useAppMutation';
 import type { User } from '@/types/auth';
 import type { UpdateUserGqlInput } from '@/types/user';
 
@@ -13,9 +13,7 @@ export const usersGqlQueryKeys = {
   fetchUsers: ['users-gql', 'fetch']
 } as const;
 
-export function useFetchUsersGql(
-  options: Omit<AppQueryOptions<User[]>, 'key' | 'query'> = {}
-) {
+export function useFetchUsersGql(options: QueryOptions<User[]> = {}) {
   return useAppQuery<User[]>({
     key: usersGqlQueryKeys.fetchUsers,
     query: () => fetchUsersGql(),
@@ -24,20 +22,16 @@ export function useFetchUsersGql(
 }
 
 export function useUpdateUserGql(
-  options: Omit<
-    AppMutationOptions<User, UpdateUserGqlInput>,
-    'key' | 'mutation'
-  > = {}
+  options: MutationOptions<User, UpdateUserGqlInput> = {}
 ) {
   const queryCache = useQueryCache();
 
   return useAppMutation({
     mutation: (input: UpdateUserGqlInput) => updateUserGql(input),
     ...options,
-    onSettled: async (data, error, vars, context) => {
-      await queryCache.invalidateQueries({ key: usersGqlQueryKeys.fetchUsers });
-
-      await options.onSettled?.(data, error, vars, context);
-    }
+    onSettled: chainAfter(
+      () => queryCache.invalidateQueries({ key: usersGqlQueryKeys.fetchUsers }),
+      options.onSettled
+    )
   });
 }

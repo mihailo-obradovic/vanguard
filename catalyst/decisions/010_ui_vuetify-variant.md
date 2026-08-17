@@ -43,14 +43,33 @@ Product decisions of this branch, not module prescriptions (the module's compone
 ## Consequences
 
 - The bundle now advertises the vuetify skills and governs the code that actually exists here; future `upgrade_project.py` runs refresh the vuetify documents (presence-detected) and regenerate the wrappers.
-- Master → variant merges stay conflict-free on the ui layer: the two choices live at different paths, and this branch deletes rather than edits `headless.md`.
+- Master → variant merges stay conflict-free on the _stack documents_: the two ui choices live at different paths, and this branch deletes rather than edits `headless.md`. They are **not** conflict-free on the code — the 2026-08-17 sync took 21 conflicts across pages, layouts, `_shared/` components and the shared documents. Branch sync below is the standing resolution.
 - The auth-in-dialogs composition means master's auth-page changes need manual porting judgement at each sync rather than a clean merge.
+
+## Branch sync
+
+Master is the source; this branch is a **variant** (`context/domain-glossary.md`) — synced from master, never merged back. What syncs is decided by path, not by reading each diff:
+
+| Path                                                                        | Resolution                                                                                                                          |
+| --------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `web/composables/`, `web/services/`, `web/utils/`, `catalyst/stacks/`       | **Master wins.** Framework-agnostic; this is the layer the sync exists to carry.                                                    |
+| `web/pages/`, `web/layouts/`, `web/components/`, `web/assets/`, `web/i18n/` | **Variant wins**, always, including a file this branch has deleted (the four auth pages — auth lives in the layout's dialogs here). |
+| `web/CLAUDE.md`, `catalyst/operations.md`, `catalyst/features/*`            | **By hand.** Both branches hold real content, and these describe both.                                                              |
+
+Two things this does not catch on its own:
+
+- **Master-only UI files arrive as clean additions**, not conflicts — git has nothing on this branch to compare them against. They are deleted in the merge commit (the 2026-08-17 sync deleted 14: the `UI*`/`AuthCard`/badge primitives, `ProfileFormDialog`, `UserGqlFormDialog` and their specs). Left in, they would be unreferenced components styled against master's tokens, with specs that run and pad this branch's coverage and mutation figures. Every later master commit touching one of those paths raises a modify/delete conflict, resolved as _delete_ each time — that friction is the signal, not a defect.
+- **A shared document can auto-merge into a lie.** `features/002` and `007` took master's entry-point edits cleanly in the 2026-08-17 sync and pointed this branch at components it does not have. Read every `catalyst/features/*` diff after the merge, conflicted or not.
+
+A change genuinely wanted in both UI layers is ported deliberately, as its own commit on each branch. It is never a merge resolution.
 
 ## Verification
 
 B4 claim-by-claim pass (2026-08-02): every wiring, dependency, icon, dialog-base, form, and layout claim in the vuetify documents checked against this branch's code — two upstream doc corrections came out of it and are mirrored here (`theme.global.current` + `theme.toggle()`, custom-token paragraph). Skill wrappers diffed byte-identical against `write_skill_wrappers()` output; `validate.py` green; post-sync suites green (Pest 35, Vitest 12, oxlint, oxfmt, typecheck).
 
 2026-08-13: `web/plugins/_tests/vuetify.spec.ts` pins the two wiring claims that fail silently — the locale adapter reading through `{ global: app.$i18n }` (handing it the Composer directly leaves Vuetify's own strings unresolved) and the forced white on success surfaces. The colour assertion runs against `theme.computedThemes`, not the declared themes: removing the override does not leave a hole, it yields black. Both were confirmed by sabotage before being recorded.
+
+2026-08-17: first sync run under Branch sync above. 21 conflicts resolved by the table, 14 master-only UI files deleted, `features/002` and `007` corrected after auto-merging into claims untrue here. Post-merge suites green (Vitest 51 files / 434 tests, oxlint, typecheck, `validate.py`).
 
 ## Contracts Touched
 

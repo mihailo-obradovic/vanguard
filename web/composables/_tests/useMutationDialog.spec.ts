@@ -133,6 +133,22 @@ describe('useMutationDialog', () => {
 
     expect(subject.value).toBeNull();
   });
+
+  // ! Opening on a subject must not disturb where the errors come from — the single-mutation form has one source and `open` has no mode to change.
+  it('still routes its errors after being opened on a subject', async () => {
+    const mutation = fakeMutationComposable();
+
+    const { errors, open } = useMutationDialog(mutation.composable);
+
+    open({ status: 'Ada' } as never);
+
+    mutation.error.value = {
+      statusCode: 422,
+      data: { errors: { email: ['That email is taken.'] } }
+    } as FetchError;
+
+    expect(errors.value).toEqual({ email: ['That email is taken.'] });
+  });
 });
 
 describe('useMutationDialog, given a mutation per mode', () => {
@@ -225,6 +241,18 @@ describe('useMutationDialog, given a mutation per mode', () => {
     create.isLoading.value = true;
 
     expect(loading.value).toBe(true);
+  });
+
+  // ! The owner's handler is optional here too: a dialog that only needs closing passes nothing at all.
+  it('closes on success even when the owner asked for nothing else', () => {
+    const { update, dialogFor } = fakePair();
+
+    const { dialog, open } = dialogFor();
+
+    open('update', { status: 'Ada' } as never);
+    update.succeed();
+
+    expect(dialog.value).toBe(false);
   });
 
   it('closes on either mutation, and tells the owner which one succeeded', () => {

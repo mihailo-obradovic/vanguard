@@ -103,6 +103,23 @@ describe('ProfileFormDialog', () => {
     });
   });
 
+  // ! A changed email is what resets verification server-side (feature 003), so it has to reach the
+  // ! payload from this field and not be silently dropped as "unchanged".
+  it('sends a changed email', async () => {
+    const { submitted } = await mountDialog(
+      buildUser({ id: 3, name: 'Mihailo', email: OWN_EMAIL })
+    );
+
+    await fireEvent.update(field('Email'), 'new.address@example.com');
+
+    await submitAndSettle(submitted);
+
+    expect(submitted[0]).toEqual({
+      name: 'Mihailo',
+      email: 'new.address@example.com'
+    });
+  });
+
   it('sends the challenge and the pair when a new password was set', async () => {
     const { submitted } = await mountDialog(
       buildUser({ id: 3, name: 'Mihailo', email: OWN_EMAIL })

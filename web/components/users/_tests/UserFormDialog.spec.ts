@@ -209,6 +209,31 @@ describe('UserFormDialog', () => {
     });
   });
 
+  // ! The role is the one field with privilege attached: an admin created as a user (or the other
+  // ! way round) is a silent authorization bug, not a cosmetic one.
+  it('creates the role that was picked', async () => {
+    const { emitted } = await mountDialog();
+
+    await fillValidCreation();
+    await fireEvent.update(screen.getByLabelText('Role'), 'admin');
+
+    await submitAndSettle(emitted);
+
+    expect(emitted.create[0]?.role).toBe('admin');
+  });
+
+  it('carries a changed role on an update', async () => {
+    const { emitted } = await mountDialog(
+      buildUser({ id: 7, name: 'Ada', email: 'ada@example.com', role: 'user' })
+    );
+
+    await fireEvent.update(screen.getByLabelText('Role'), 'admin');
+
+    await submitAndSettle(emitted);
+
+    expect(emitted.update[0]?.[1].role).toBe('admin');
+  });
+
   it('does not emit anything for a form the rules reject', async () => {
     const { emitted } = await mountDialog();
 

@@ -184,6 +184,15 @@ describe('UserGqlFormDialog', () => {
     );
   });
 
+  // * Escape is UIDialog's, but the page only hears about it because this dialog forwards it.
+  it("forwards the dialog's own close request", async () => {
+    const { closes } = await mountDialog(buildUser({ id: 7 }));
+
+    await fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
+
+    expect(closes).toHaveLength(1);
+  });
+
   it('asks to close when Cancel is pressed', async () => {
     const { closes } = await mountDialog(buildUser({ id: 7 }));
 

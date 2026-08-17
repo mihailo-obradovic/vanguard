@@ -213,7 +213,7 @@ Four of `variant/vuetify`'s component behaviours are **not observable at this le
 
 One divergence on `variant/vuetify` worth keeping in view: `handleEnterKey` exists in three near-identical copies. `FormCard` and `FullScreenDialog` guard on `closest('button, a, textarea, .v-select')`; `UserCard` guards on `'button, a'` alone. Removing `UserCard`'s guard changes nothing observable — the Vuetify button already swallows the key, and the card renders neither a textarea nor a select — so it was left as it is rather than widened to match. The guards in the other two are load-bearing: they cover plain slot content, and removing either turns their specs red.
 
-Coverage (re-measure before trusting: `pnpm test:coverage`): `master` **56.95% statements / 56.18% lines**, what remains being almost entirely `pages/`; `variant/vuetify` **77.35% / 77.90%**, what remains being `pages/` at 0%. The variant measures higher than master despite carrying far more component code, because the components it carries are tested where master's equivalent logic sits in pages that stay on the browser walk.
+Coverage (re-measure before trusting: `pnpm test:coverage`): `master` **72.68% statements / 73.21% lines**, what remains being almost entirely `pages/`; `variant/vuetify` **77.35% / 77.90%**, what remains being `pages/` at 0%. The two are now close for the same reason: on both branches the logic that used to sit in pages lives in tested components, and what is left uncovered is the pages themselves plus `error.vue` and the two plugins.
 
 ### Quirks
 

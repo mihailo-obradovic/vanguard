@@ -1,51 +1,29 @@
 <template>
-  <div class="forgot-password-container">
-    <div class="forgot-password-card">
-      <h1 class="forgot-password-title">
-        {{ $t('auth.forgotPassword.title') }}
-      </h1>
+  <AuthCard
+    :title="$t('auth.forgotPassword.title')"
+    :hint="$t('auth.forgotPassword.hint')"
+    :submit-label="$t('auth.forgotPassword.submit')"
+    :submitting-label="$t('auth.forgotPassword.submitting')"
+    :submitting="isSending"
+    :disabled="r$.$invalid"
+    @submit="handleSubmit"
+  >
+    <UIField
+      v-model="form.email"
+      :label="$t('common.fields.email')"
+      :errors="r$.email.$errors"
+      type="email"
+      required
+      :disabled="isSending"
+    />
 
-      <p class="forgot-password-hint">
-        {{ $t('auth.forgotPassword.hint') }}
+    <template #footer>
+      <p>
+        {{ $t('auth.rememberedPassword') }}
+        <NuxtLink to="/login">{{ $t('auth.loginLink') }}</NuxtLink>
       </p>
-
-      <form
-        class="forgot-password-form"
-        novalidate
-        @submit.prevent="handleSubmit"
-      >
-        <UIField
-          v-model="form.email"
-          :label="$t('common.fields.email')"
-          :errors="r$.email.$errors"
-          type="email"
-          required
-          :disabled="isSending"
-        />
-
-        <button
-          type="submit"
-          class="submit-btn"
-          :disabled="isSending || r$.$invalid"
-        >
-          {{
-            isSending
-              ? $t('auth.forgotPassword.submitting')
-              : $t('auth.forgotPassword.submit')
-          }}
-        </button>
-      </form>
-
-      <div class="auth-footer">
-        <p>
-          {{ $t('auth.rememberedPassword') }}
-          <NuxtLink to="/login" class="auth-link">
-            {{ $t('auth.loginLink') }}
-          </NuxtLink>
-        </p>
-      </div>
-    </div>
-  </div>
+    </template>
+  </AuthCard>
 </template>
 
 <script setup lang="ts">
@@ -84,90 +62,3 @@ async function handleSubmit() {
   }
 }
 </script>
-
-<style scoped>
-.forgot-password-container {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-}
-
-.forgot-password-card {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  padding: 32px;
-  width: 100%;
-  max-width: 400px;
-  border: 1px solid #e9ecef;
-}
-
-.forgot-password-title {
-  text-align: center;
-  margin: 0 0 16px 0;
-  color: rgb(0, 102, 255);
-  font-size: 28px;
-  font-weight: 600;
-}
-
-.forgot-password-hint {
-  text-align: center;
-  margin: 0 0 24px 0;
-  color: #495057;
-  font-size: 14px;
-}
-
-.forgot-password-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.submit-btn {
-  background-color: rgb(0, 102, 255);
-  color: white;
-  border: none;
-  padding: 12px 16px;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.25s ease;
-  margin-top: 8px;
-}
-
-.submit-btn:hover:not(:disabled) {
-  background-color: rgba(0, 102, 255, 0.9);
-}
-
-.submit-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.auth-footer {
-  text-align: center;
-  margin-top: 24px;
-  padding-top: 16px;
-  border-top: 1px solid #e9ecef;
-}
-
-.auth-footer p {
-  margin: 0;
-  color: #495057;
-}
-
-.auth-link {
-  color: rgb(0, 102, 255);
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.25s ease;
-}
-
-.auth-link:hover {
-  color: rgba(0, 102, 255, 0.8);
-  text-decoration: underline;
-}
-</style>

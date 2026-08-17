@@ -1,54 +1,45 @@
 <template>
-  <div class="login-container">
-    <div class="login-card">
-      <h1 class="login-title">{{ $t('auth.login.title') }}</h1>
+  <AuthCard
+    :title="$t('auth.login.title')"
+    :submit-label="$t('auth.login.submit')"
+    :submitting-label="$t('auth.login.submitting')"
+    :submitting="isLoggingIn"
+    :disabled="r$.$invalid"
+    @submit="handleLogin"
+  >
+    <UIField
+      v-model="form.email"
+      :label="$t('common.fields.email')"
+      :errors="r$.email.$errors"
+      type="email"
+      required
+      :disabled="isLoggingIn"
+    />
 
-      <form class="login-form" novalidate @submit.prevent="handleLogin">
-        <UIField
-          v-model="form.email"
-          :label="$t('common.fields.email')"
-          :errors="r$.email.$errors"
-          type="email"
-          required
-          :disabled="isLoggingIn"
-        />
+    <UIField
+      v-model="form.password"
+      :label="$t('common.fields.password')"
+      :errors="r$.password.$errors"
+      type="password"
+      required
+      :disabled="isLoggingIn"
+    />
 
-        <UIField
-          v-model="form.password"
-          :label="$t('common.fields.password')"
-          :errors="r$.password.$errors"
-          type="password"
-          required
-          :disabled="isLoggingIn"
-        />
+    <template #footer>
+      <p>
+        {{ $t('auth.login.noAccount') }}
+        <NuxtLink to="/register">
+          {{ $t('auth.login.registerLink') }}
+        </NuxtLink>
+      </p>
 
-        <button
-          type="submit"
-          class="login-btn"
-          :disabled="isLoggingIn || r$.$invalid"
-        >
-          {{
-            isLoggingIn ? $t('auth.login.submitting') : $t('auth.login.submit')
-          }}
-        </button>
-      </form>
-
-      <div class="auth-footer">
-        <p>
-          {{ $t('auth.login.noAccount') }}
-          <NuxtLink to="/register" class="auth-link">
-            {{ $t('auth.login.registerLink') }}
-          </NuxtLink>
-        </p>
-
-        <p>
-          <NuxtLink to="/forgot-password" class="auth-link">
-            {{ $t('auth.login.forgotPasswordLink') }}
-          </NuxtLink>
-        </p>
-      </div>
-    </div>
-  </div>
+      <p>
+        <NuxtLink to="/forgot-password">
+          {{ $t('auth.login.forgotPasswordLink') }}
+        </NuxtLink>
+      </p>
+    </template>
+  </AuthCard>
 </template>
 
 <script setup lang="ts">
@@ -87,83 +78,3 @@ async function handleLogin() {
   }
 }
 </script>
-
-<style scoped>
-.login-container {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-}
-
-.login-card {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  padding: 32px;
-  width: 100%;
-  max-width: 400px;
-  border: 1px solid #e9ecef;
-}
-
-.login-title {
-  text-align: center;
-  margin: 0 0 24px 0;
-  color: rgb(0, 102, 255);
-  font-size: 28px;
-  font-weight: 600;
-}
-
-.login-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.login-btn {
-  background-color: rgb(0, 102, 255);
-  color: white;
-  border: none;
-  padding: 12px 16px;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.25s ease;
-  margin-top: 8px;
-}
-
-.login-btn:hover:not(:disabled) {
-  background-color: rgba(0, 102, 255, 0.9);
-}
-
-.login-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.auth-footer {
-  text-align: center;
-  margin-top: 24px;
-  padding-top: 16px;
-  border-top: 1px solid #e9ecef;
-}
-
-.auth-footer p {
-  margin: 0;
-  color: #495057;
-}
-
-.auth-link {
-  color: rgb(0, 102, 255);
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.25s ease;
-}
-
-.auth-link:hover {
-  color: rgba(0, 102, 255, 0.8);
-  text-decoration: underline;
-}
-</style>

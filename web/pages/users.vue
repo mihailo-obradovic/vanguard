@@ -90,90 +90,15 @@
       </div>
     </div>
 
-    <UIDialog
+    <UserFormDialog
       :open="showUserForm"
-      :title="isEditMode ? $t('users.form.editTitle') : $t('users.create')"
+      :user="userBeingEdited"
+      :submitting="isSubmittingUser"
+      :server-errors="userFormErrors"
+      @create="createUser"
+      @update="handleUpdateUser"
       @close="closeUserForm"
-    >
-      <form class="user-form" novalidate @submit.prevent="handleSubmitUser">
-        <UIField
-          v-model="userForm.name"
-          :label="$t('common.fields.name')"
-          :errors="r$.name.$errors"
-          type="text"
-          required
-          :disabled="isSubmittingUser"
-        />
-
-        <UIField
-          v-model="userForm.email"
-          :label="$t('common.fields.email')"
-          :errors="r$.email.$errors"
-          type="email"
-          required
-          :disabled="isSubmittingUser"
-        />
-
-        <UIField
-          v-model="userForm.password"
-          :label="passwordLabel"
-          :errors="r$.password.$errors"
-          type="password"
-          :required="!isEditMode"
-          :disabled="isSubmittingUser"
-        />
-
-        <UIField
-          v-model="userForm.password_confirmation"
-          :label="passwordConfirmationLabel"
-          :errors="r$.password_confirmation.$errors"
-          type="password"
-          :required="!isEditMode || !!userForm.password"
-          :disabled="isSubmittingUser"
-        />
-
-        <UIField :label="$t('common.fields.role')">
-          <template #default="{ controlId }">
-            <select
-              :id="controlId"
-              v-model="userForm.role"
-              class="ui-field-control"
-              required
-              :disabled="isSubmittingUser"
-            >
-              <option value="user">{{ $t('users.roles.user') }}</option>
-
-              <option value="admin">{{ $t('users.roles.admin') }}</option>
-            </select>
-          </template>
-        </UIField>
-
-        <UIDialogActions>
-          <button
-            type="button"
-            class="cancel-btn"
-            :disabled="isSubmittingUser"
-            @click="closeUserForm"
-          >
-            {{ $t('common.actions.cancel') }}
-          </button>
-
-          <button
-            type="submit"
-            class="submit-btn"
-            :disabled="isSubmittingUser || r$.$invalid"
-          >
-            {{
-              isSubmittingUser
-                ? $t('common.actions.saving')
-                : isEditMode
-                  ? $t('users.form.submitUpdate')
-                  : $t('users.form.submitCreate')
-            }}
-          </button>
-        </UIDialogActions>
-      </form>
-    </UIDialog>
+    />
 
     <UIDialog
       :open="!!userToDelete"
@@ -183,7 +108,8 @@
       @close="cancelDelete"
     >
       <div class="delete-confirmation">
-        <i18n-t keypath="users.delete.confirm" tag="p">
+        <!-- * `scope="global"`: the Translation component resolves against its PARENT's scope by default, and its parent here is UIDialog (slot content), which enables no scope of its own. Without this it warns and falls back to global anyway — this says so out loud. -->
+        <i18n-t keypath="users.delete.confirm" tag="p" scope="global">
           <template #name>
             <strong>"{{ userToDelete?.name }}"</strong>
           </template>
@@ -214,7 +140,7 @@
 </template>
 
 <script setup lang="ts">
-import { maxLength, required } from '@regle/rules';
+import UserFormDialog from '@/components/users/UserFormDialog.vue';
 
 import {
   useFetchUsers,
@@ -223,7 +149,7 @@ import {
   useDeleteUser
 } from '@/services/queries/useUserQueries';
 import type { User } from '@/types/auth';
-import type { CreateUserForm, UpdateUserForm } from '@/types/user';
+import type { UpdateUserForm } from '@/types/user';
 
 const { t } = useI18n();
 
@@ -231,17 +157,9 @@ const { data: usersResponse, isLoading, error } = useFetchUsers();
 
 const userToDelete = ref<User | null>(null);
 
-// * Create/Edit form state
+// * The form's subject: a user to edit, or `null` to create one. It outlives the open flag, so nothing has to be cleared on close.
 const showUserForm = ref(false);
-const isEditMode = ref(false);
-const editingUserId = ref<number | null>(null);
-const userForm = ref<CreateUserForm>({
-  name: '',
-  email: '',
-  password: '',
-  password_confirmation: '',
-  role: 'user'
-});
+const userBeingEdited = ref<User | null>(null);
 
 const {
   mutate: createUser,
@@ -285,44 +203,14 @@ const {
 
 const userFormErrors = useValidationErrors(
   computed(() =>
-    isEditMode.value ? updateUserError.value : createUserError.value
+    userBeingEdited.value ? updateUserError.value : createUserError.value
   )
-);
-
-// * Create requires a password; edit only validates one when entered.
-const { r$ } = useRegle(
-  userForm,
-  () => ({
-    name: labeledRules('validation.fieldNames.name', {
-      required,
-      maxLength: maxLength(255)
-    }),
-    ...accountEmailRules(() => editingUserId.value ?? undefined),
-    ...newPasswordRules(
-      () => userForm.value.password,
-      () => isEditMode.value
-    )
-  }),
-  { externalErrors: useExternalErrors(() => userFormErrors.value) }
 );
 
 const users = computed(() => usersResponse.value?.data ?? []);
 
 const isSubmittingUser = computed(
   () => isCreatingUser.value || isUpdatingUser.value
-);
-
-// * Edit is a change-password form: both password labels carry the "optional" hint the mandatory pair does not.
-const passwordLabel = computed(() =>
-  isEditMode.value
-    ? `${t('common.fields.password')} ${t('users.form.passwordHint')}`
-    : t('common.fields.password')
-);
-
-const passwordConfirmationLabel = computed(() =>
-  isEditMode.value
-    ? `${t('common.fields.passwordConfirmation')} ${t('users.form.passwordConfirmationHint')}`
-    : t('common.fields.passwordConfirmation')
 );
 
 const isDeletingUser = computed(() =>
@@ -345,70 +233,21 @@ function handleDelete() {
 
 // * Create/Edit form functions
 function openCreateForm() {
-  isEditMode.value = false;
-  editingUserId.value = null;
-  userForm.value = {
-    name: '',
-    email: '',
-    password: '',
-    password_confirmation: '',
-    role: 'user'
-  };
-  r$.$reset();
+  userBeingEdited.value = null;
   showUserForm.value = true;
 }
 
 function openEditForm(user: User) {
-  isEditMode.value = true;
-  editingUserId.value = user.id;
-  userForm.value = {
-    name: user.name,
-    email: user.email,
-    password: '',
-    password_confirmation: '',
-    role: user.role
-  };
-  r$.$reset();
+  userBeingEdited.value = user;
   showUserForm.value = true;
 }
 
 function closeUserForm() {
   showUserForm.value = false;
-  isEditMode.value = false;
-  editingUserId.value = null;
-  userForm.value = {
-    name: '',
-    email: '',
-    password: '',
-    password_confirmation: '',
-    role: 'user'
-  };
 }
 
-async function handleSubmitUser() {
-  const { valid } = await r$.$validate();
-
-  if (!valid) {
-    return;
-  }
-
-  if (isEditMode.value && editingUserId.value) {
-    const updateData: UpdateUserForm = {
-      name: userForm.value.name,
-      email: userForm.value.email,
-      role: userForm.value.role
-    };
-
-    // * Only include password if provided
-    if (userForm.value.password) {
-      updateData.password = userForm.value.password;
-      updateData.password_confirmation = userForm.value.password_confirmation;
-    }
-
-    updateUser({ id: editingUserId.value, userData: updateData });
-  } else {
-    createUser(userForm.value);
-  }
+function handleUpdateUser(id: number, userData: UpdateUserForm) {
+  updateUser({ id, userData });
 }
 </script>
 
@@ -613,12 +452,6 @@ async function handleSubmitUser() {
   cursor: not-allowed;
 }
 
-.user-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
 .delete-confirmation p {
   margin: 0 0 8px 0;
   color: #495057;
@@ -643,26 +476,6 @@ async function handleSubmitUser() {
 
 .cancel-btn:hover {
   background-color: #5a6268;
-}
-
-.submit-btn {
-  background-color: rgb(0, 102, 255);
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.25s ease;
-}
-
-.submit-btn:hover:not(:disabled) {
-  background-color: rgba(0, 102, 255, 0.9);
-}
-
-.submit-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
 }
 
 .confirm-delete-btn {

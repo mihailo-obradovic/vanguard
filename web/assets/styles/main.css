@@ -1,3 +1,6 @@
+@import 'tailwindcss';
+@import '@nuxt/ui';
+
 /*
  * The design tokens every component's `<style scoped>` builds on, per the headless UI module
  * (catalyst/stacks/frontend/nuxt/ui/headless.md): nothing global except these definitions and the

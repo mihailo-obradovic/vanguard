@@ -1,11 +1,13 @@
 <template>
-  <NuxtLoadingIndicator />
+  <UApp>
+    <NuxtLoadingIndicator />
 
-  <NuxtLayout>
-    <NuxtPage />
-  </NuxtLayout>
+    <NuxtLayout>
+      <NuxtPage />
+    </NuxtLayout>
 
-  <CookieConsentBanner />
+    <CookieConsentBanner />
+  </UApp>
 </template>
 
 <script setup lang="ts">

@@ -14,9 +14,9 @@ export default defineNuxtConfig({
   },
 
   modules: [
-    '@nuxt/fonts',
     '@nuxt/image',
     '@nuxt/test-utils/module',
+    '@nuxt/ui',
     '@nuxtjs/i18n',
     '@pinia/nuxt',
     '@pinia/colada-nuxt',

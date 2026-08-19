@@ -3,7 +3,7 @@
   <!-- * Transparent on the branded bar, like the buttons beside it. The option list itself is painted by the OS and ignores this, which is why the options restate their own colours. -->
   <select
     v-model="selected"
-    class="ring-inverted/40 text-inverted focus-visible:outline-inverted cursor-pointer rounded-md bg-transparent px-2.5 py-1.5 text-sm ring ring-inset focus-visible:outline-2"
+    class="ring-inverted/40 text-inverted focus-visible:outline-inverted cursor-pointer rounded-md bg-transparent ps-2.5 pe-8 py-1.5 text-sm ring ring-inset focus-visible:outline-2"
     :aria-label="$t('common.language')"
   >
     <option

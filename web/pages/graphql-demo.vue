@@ -21,21 +21,22 @@
       :columns="columns"
       :loading="isPending"
       sticky
-      class="ring-default min-h-0 flex-1 rounded-lg ring"
+      class="bg-default ring-default min-h-0 flex-1 rounded-lg ring"
     >
       <template #role-cell="{ row }">
         <RoleBadge :role="row.original.role" />
       </template>
 
       <template #actions-cell="{ row }">
+        <!-- ! Icon-only, so the accessible name has to carry the row — see the users table. -->
         <u-button
-          size="xs"
-          variant="soft"
+          size="sm"
+          variant="ghost"
           icon="i-lucide-pencil"
+          :aria-label="$t('users.actions.edit', { name: row.original.name })"
+          class="ms-auto flex"
           @click="openEditForm(row.original)"
-        >
-          {{ $t('common.actions.edit') }}
-        </u-button>
+        />
       </template>
     </u-table>
   </div>

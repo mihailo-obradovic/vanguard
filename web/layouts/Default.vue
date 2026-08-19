@@ -39,7 +39,7 @@
       <!-- * Pushes the content aside from `lg` up, the way the vuetify drawer does; below that the same links come in through the slideover instead. A muted surface rather than `bg-secondary`: on this palette secondary is Dracula's pink, where the vuetify drawer's secondary is its grey — `bg-elevated` is the token that actually means "a shade off the page". -->
       <aside
         v-if="desktopDrawer"
-        class="bg-elevated/50 border-default hidden w-56 shrink-0 overflow-y-auto border-e p-2 lg:block"
+        class="bg-default border-default hidden w-56 shrink-0 overflow-y-auto border-e p-2 lg:block"
       >
         <SidebarNav />
       </aside>
@@ -66,7 +66,10 @@
       </main>
     </div>
 
-    <u-footer :ui="{ container: 'max-w-6xl py-4 lg:py-4' }">
+    <u-footer
+      class="bg-default border-default border-t"
+      :ui="{ container: 'max-w-6xl py-4 lg:py-4' }"
+    >
       <template #left>
         <span class="text-muted text-sm">
           {{ $t('common.footer.copyright', { year: currentYear }) }}

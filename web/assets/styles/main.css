@@ -109,6 +109,8 @@
     --ui-warning: var(--ui-color-warning-800);
     --ui-error: var(--ui-color-error-600);
 
+    /* * The page canvas sits a shade under the surfaces, so cards, the table and the footer read as raised rather than painted on. Surfaces keep Dracula's own colour; only the canvas moves. */
+    --app-bg-page: var(--color-dracula-100);
     --ui-bg: var(--ui-color-neutral-50);
     --ui-bg-muted: var(--ui-color-neutral-100);
     /* * The page is already off-white, so a raised surface is lighter than it, not darker. */
@@ -146,6 +148,8 @@
     --ui-warning: var(--ui-color-warning-400);
     --ui-error: var(--ui-color-error-400);
 
+    /* * Dracula's own darker background, the shade its editor themes use behind gutters and sidebars. It is below the ramp's last step, so it is stated rather than derived. */
+    --app-bg-page: #21222c;
     --ui-bg: var(--ui-color-neutral-950);
     --ui-bg-muted: var(--ui-color-neutral-900);
     --ui-bg-elevated: var(--ui-color-neutral-900);
@@ -191,6 +195,8 @@ body,
 
 body {
     font-family: 'Lexend', sans-serif;
+    /* ! Overrides Nuxt UI's own `background: var(--ui-bg)` — that token is the surfaces' colour here, not the page's. */
+    background-color: var(--app-bg-page);
 }
 
 ::selection {

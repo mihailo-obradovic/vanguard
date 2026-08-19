@@ -109,6 +109,10 @@
     }
   },
   "users": {
+    "actions": {
+      "delete": "Delete {name}",
+      "edit": "Edit {name}"
+    },
     "columns": {
       "actions": "Actions",
       "createdAt": "Created At",

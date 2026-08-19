@@ -4,29 +4,40 @@
       <div class="flex items-center justify-between gap-4">
         <h1 class="text-xl font-semibold">{{ $t('profile.title') }}</h1>
 
-        <div class="flex gap-2">
+        <!-- * Icon-only, as on the vuetify variant. Each carries its own accessible name, since there is nothing else in the button to read. -->
+        <div class="flex gap-1">
           <template v-if="editMode">
-            <u-button color="neutral" variant="outline" @click="resetForm">
-              {{ $t('common.actions.cancel') }}
-            </u-button>
+            <u-button
+              color="error"
+              variant="ghost"
+              icon="i-lucide-x"
+              :aria-label="$t('common.actions.cancel')"
+              @click="resetForm"
+            />
 
             <u-button
               type="submit"
               form="profile-form"
-              :loading="isSaving"
-              :disabled="r$.$invalid"
-            >
-              {{
+              color="success"
+              variant="ghost"
+              icon="i-lucide-check"
+              :aria-label="
                 isSaving
                   ? $t('common.actions.saving')
                   : $t('common.actions.save')
-              }}
-            </u-button>
+              "
+              :loading="isSaving"
+              :disabled="r$.$invalid"
+            />
           </template>
 
-          <u-button v-else variant="outline" @click="editMode = true">
-            {{ $t('common.actions.edit') }}
-          </u-button>
+          <u-button
+            v-else
+            variant="ghost"
+            icon="i-lucide-pencil"
+            :aria-label="$t('common.actions.edit')"
+            @click="editMode = true"
+          />
         </div>
       </div>
     </template>

@@ -109,6 +109,10 @@
     }
   },
   "users": {
+    "actions": {
+      "delete": "Obriši {name}",
+      "edit": "Izmeni {name}"
+    },
     "columns": {
       "actions": "Radnje",
       "createdAt": "Datum kreiranja",

@@ -30,7 +30,7 @@
         :columns="columns"
         :loading="isPending"
         sticky
-        class="ring-default min-h-0 flex-1 rounded-lg ring"
+        class="bg-default ring-default min-h-0 flex-1 rounded-lg ring"
       >
         <template #role-cell="{ row }">
           <RoleBadge :role="row.original.role" />
@@ -51,27 +51,28 @@
         </template>
 
         <template #actions-cell="{ row }">
-          <div class="flex gap-2">
+          <!-- ! Icon-only, so the accessible name has to carry the row: 38 buttons all called "Edit" tell a screen-reader user nothing about which user they are about to change. -->
+          <div class="flex justify-end gap-1">
             <u-button
-              size="xs"
-              variant="soft"
+              size="sm"
+              variant="ghost"
               icon="i-lucide-pencil"
-              :aria-label="$t('common.actions.edit')"
+              :aria-label="
+                $t('users.actions.edit', { name: row.original.name })
+              "
               @click="openForm(row.original)"
-            >
-              {{ $t('common.actions.edit') }}
-            </u-button>
+            />
 
             <u-button
-              size="xs"
+              size="sm"
               color="error"
-              variant="soft"
+              variant="ghost"
               icon="i-lucide-trash-2"
-              :aria-label="$t('common.actions.delete')"
+              :aria-label="
+                $t('users.actions.delete', { name: row.original.name })
+              "
               @click="openDelete(row.original)"
-            >
-              {{ $t('common.actions.delete') }}
-            </u-button>
+            />
           </div>
         </template>
       </u-table>

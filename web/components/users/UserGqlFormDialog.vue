@@ -37,7 +37,7 @@
           <select
             :id="roleId"
             v-model="form.role"
-            class="ring-accented text-highlighted bg-default focus-visible:outline-primary w-full rounded-md px-2.5 py-1.5 text-sm ring ring-inset focus-visible:outline-2"
+            class="ring-accented text-highlighted bg-default focus-visible:outline-primary w-full rounded-md ps-2.5 pe-8 py-1.5 text-sm ring ring-inset focus-visible:outline-2"
           >
             <option value="user">{{ $t('users.roles.user') }}</option>
 

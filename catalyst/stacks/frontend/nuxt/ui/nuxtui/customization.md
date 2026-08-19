@@ -53,6 +53,16 @@ Components take colour by semantic alias (`color="primary"`, `color="error"`), n
 
 A component config that names a raw colour (`bg-purple-500`) is a missing alias, the same way a literal hex in a scoped style is a missing token.
 
+## When the theme cannot express it
+
+A theme config sets classes. It cannot change what a component renders, or when — so behaviour a design asks for that the component's own markup forbids has one supported route: a **same-named component in the app's `_shared/` directory**, which shadows the library's and keeps every call site an ordinary `<u-form-field>`. It stays a thin wrapper around the real component, imported by path (`@nuxt/ui/components/<Name>.vue`), forwarding `$attrs` and every slot.
+
+- **No `priority` or other config is needed.** Nuxt scans the app's component directories before any that resolve inside `node_modules`, and the first scan of a name wins unless a later one declares a strictly higher priority — which a module's directory does not. The app file wins on ordering alone.
+- **The shadow is the whole mechanism**: renaming the file un-shadows it and silently restores the stock component everywhere. The file says so, at the top.
+- **Adding the file mid-session is not enough to see it work.** Vite keeps the transformed output of every component that already resolved the library's version, so existing call sites go on importing it until Nuxt restarts. Check the module the dev server actually serves (`curl .../_nuxt/@fs/<path to a caller>.vue | grep <Name>`) before concluding the shadow failed — and note that `.nuxt/components.d.ts` points at the app file either way, so the type stub proves nothing.
+- The bar is the same as for any wrapper (`nuxtui.md`, Avoid By Default): real behaviour the library does not offer, not consistency for its own sake. `web/components/_shared/UFormField.vue` is the standing example — Nuxt UI unmounts a form field's error the instant it clears, so there is nothing left on screen for an exit animation to play on, and the wrapper holds the message for exactly that long.
+- **The classes still belong to the config file.** A wrapper that reaches past the theme to style something is the deep-selector mistake in another costume: what it adds is *when*, not *what*. Classes it applies transiently are named in the component's config beside the ones the theme applies always, and imported from there — the form field's two animation constants and their shared duration sit in `web/config/nuxt-ui/form-field.ts`, so a restyle finds both halves of the transition in the place it already looks. Write each class out in full there: Tailwind generates a utility only for a candidate it can read literally, so a class assembled from parts silently has no CSS behind it.
+
 ## Avoid By Default
 
 - **Using a component without importing its config.** Every Nuxt UI component the project renders has a config file, whether or not it is customized yet — the set of files is the inventory of what the project actually uses, and a component with nowhere to put an override invites a one-off `:ui` prop instead. Components with no theme section at all (`App`, `ColorModeButton`) are the exception: there is nothing to configure, and `ColorModeButton` takes `Button`'s theme.

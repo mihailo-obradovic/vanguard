@@ -1,55 +1,54 @@
+// @vitest-environment nuxt
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { TYPE } from 'vue-toastification';
+import { mockNuxtImport } from '@nuxt/test-utils/runtime';
 
 import { $toast } from '../toast';
 
-// * Only `useToast` is replaced — TYPE stays real so the test asserts the mapping against the
-// * library's own constants rather than against a copy of them.
-const { toast, useToast } = vi.hoisted(() => {
-  const toast = vi.fn<(...args: unknown[]) => void>();
+const { add, useToast } = vi.hoisted(() => {
+  const add = vi.fn<(payload: Record<string, unknown>) => void>();
 
-  return { toast, useToast: vi.fn<() => typeof toast>(() => toast) };
+  return { add, useToast: vi.fn<() => { add: typeof add }>(() => ({ add })) };
 });
 
-vi.mock('vue-toastification', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('vue-toastification')>()),
-  useToast
-}));
+mockNuxtImport('useToast', () => useToast);
 
 describe('$toast', () => {
   beforeEach(() => {
-    toast.mockClear();
+    add.mockClear();
     useToast.mockClear();
   });
 
   it('treats a message with no stated type as a success', () => {
     $toast('Saved.');
 
-    expect(toast).toHaveBeenCalledWith('Saved.', { type: TYPE.SUCCESS });
+    expect(add).toHaveBeenCalledWith({ title: 'Saved.', color: 'success' });
   });
 
-  it('maps each type name to the library constant', () => {
+  // ! The colour is the whole signal a toast carries — an error shown in the success colour reads
+  // ! as the opposite of what happened.
+  it('maps each type name to its colour', () => {
     const expected = {
-      success: TYPE.SUCCESS,
-      error: TYPE.ERROR,
-      default: TYPE.DEFAULT,
-      info: TYPE.INFO,
-      warning: TYPE.WARNING
+      success: 'success',
+      error: 'error',
+      default: 'neutral',
+      info: 'info',
+      warning: 'warning'
     } as const;
 
-    for (const [name, type] of Object.entries(expected)) {
+    for (const [name, color] of Object.entries(expected)) {
       $toast('Message', name as keyof typeof expected);
 
-      expect(toast).toHaveBeenLastCalledWith('Message', { type });
+      expect(add).toHaveBeenLastCalledWith({ title: 'Message', color });
     }
   });
 
-  it('passes caller options through alongside the type', () => {
-    $toast('Message', 'info', { timeout: 1000 });
+  it('passes caller options through alongside the colour', () => {
+    $toast('Message', 'info', { duration: 1000 });
 
-    expect(toast).toHaveBeenCalledWith('Message', {
-      type: TYPE.INFO,
-      timeout: 1000
+    expect(add).toHaveBeenCalledWith({
+      title: 'Message',
+      color: 'info',
+      duration: 1000
     });
   });
 
@@ -57,8 +56,8 @@ describe('$toast', () => {
     $toast('First');
     $toast('Second');
 
-    // * The plugin installs the interface after this module is imported, so caching it once
-    // * would capture an uninstalled one.
+    // * `<UApp>` provides the interface after this module is imported, so caching it once would
+    // * capture an uninstalled one.
     expect(useToast).toHaveBeenCalledTimes(2);
   });
 });

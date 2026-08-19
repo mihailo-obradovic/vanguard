@@ -60,9 +60,6 @@ importers:
       vue:
         specifier: ^3.5.41
         version: 3.5.41(typescript@5.9.3)
-      vue-toastification:
-        specifier: 2.0.0-rc.5
-        version: 2.0.0-rc.5(vue@3.5.41(typescript@5.9.3))
       zod:
         specifier: ^4.4.3
         version: 4.4.3
@@ -6432,11 +6429,6 @@ packages:
         optional: true
       vite:
         optional: true
-
-  vue-toastification@2.0.0-rc.5:
-    resolution: {integrity: sha512-q73e5jy6gucEO/U+P48hqX+/qyXDozAGmaGgLFm5tXX4wJBcVsnGp4e/iJqlm9xzHETYOilUuwOUje2Qg1JdwA==}
-    peerDependencies:
-      vue: ^3.0.2
 
   vue-tsc@3.3.9:
     resolution: {integrity: sha512-TS3Y1ux/IRoE8OCP2PpACAeOseuIs0UvWrcr7u+w3PmfY+SlCfEf8zjrBgnQksHUgLpthi5vHlffcQTQTdPBZA==}
@@ -13612,10 +13604,6 @@ snapshots:
       - rollup
       - unloader
       - webpack
-
-  vue-toastification@2.0.0-rc.5(vue@3.5.41(typescript@5.9.3)):
-    dependencies:
-      vue: 3.5.41(typescript@5.9.3)
 
   vue-tsc@3.3.9(typescript@5.9.3):
     dependencies:

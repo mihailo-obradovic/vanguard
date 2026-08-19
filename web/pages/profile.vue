@@ -2,7 +2,7 @@
   <div class="mx-auto w-full max-w-3xl">
     <UserCard v-if="user" :user="user" />
 
-    <p v-else class="text-muted py-16 text-center">
+    <p v-else class="py-16 text-center text-muted">
       {{ $t('profile.loading') }}
     </p>
   </div>

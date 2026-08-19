@@ -12,7 +12,7 @@
         </template>
       </i18n-t>
 
-      <p class="text-error mt-2 text-sm italic">
+      <p class="mt-2 text-sm text-error italic">
         {{ $t('users.delete.warning') }}
       </p>
     </template>

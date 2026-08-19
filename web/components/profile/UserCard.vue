@@ -103,13 +103,13 @@
 
     <dl class="mt-6 grid gap-4 sm:grid-cols-2">
       <div>
-        <dt class="text-muted text-sm">{{ $t('common.fields.role') }}</dt>
+        <dt class="text-sm text-muted">{{ $t('common.fields.role') }}</dt>
 
         <dd class="mt-1"><RoleBadge :role="user.role" large /></dd>
       </div>
 
       <div>
-        <dt class="text-muted text-sm">
+        <dt class="text-sm text-muted">
           {{ $t('profile.info.emailVerified') }}
         </dt>
 
@@ -139,13 +139,13 @@
       </div>
 
       <div>
-        <dt class="text-muted text-sm">{{ $t('profile.info.memberSince') }}</dt>
+        <dt class="text-sm text-muted">{{ $t('profile.info.memberSince') }}</dt>
 
         <dd class="mt-1">{{ formatDate(user.created_at) }}</dd>
       </div>
 
       <div>
-        <dt class="text-muted text-sm">{{ $t('profile.info.lastUpdated') }}</dt>
+        <dt class="text-sm text-muted">{{ $t('profile.info.lastUpdated') }}</dt>
 
         <dd class="mt-1">{{ formatDate(user.updated_at) }}</dd>
       </div>

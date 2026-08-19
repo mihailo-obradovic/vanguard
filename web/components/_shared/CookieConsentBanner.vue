@@ -7,14 +7,14 @@
   >
     <div
       v-if="isMounted && !isDecided"
-      class="bg-default border-default fixed inset-x-0 bottom-0 z-50 border-t shadow-lg"
+      class="fixed inset-x-0 bottom-0 z-50 border-t border-default bg-default shadow-lg"
       role="region"
       :aria-label="$t('common.cookieConsent.label')"
     >
       <div
         class="mx-auto flex max-w-6xl flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between"
       >
-        <p class="text-muted text-sm">
+        <p class="text-sm text-muted">
           {{ $t('common.cookieConsent.message') }}
         </p>
 

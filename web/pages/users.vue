@@ -2,7 +2,7 @@
   <!-- * A column the height of `main`, so the table below can take the space that is left rather than growing the page. -->
   <div class="flex h-full flex-col">
     <div
-      class="border-default mb-6 flex shrink-0 items-center justify-between border-b pb-4"
+      class="mb-6 flex shrink-0 items-center justify-between border-b border-default pb-4"
     >
       <h1 class="text-2xl font-semibold">{{ $t('users.title') }}</h1>
 
@@ -19,9 +19,9 @@
     />
 
     <template v-else>
-      <p class="text-muted mb-4 shrink-0 text-sm">
+      <p class="mb-4 shrink-0 text-sm text-muted">
         {{ $t('users.total') }}
-        <span class="text-highlighted font-semibold">{{ users.length }}</span>
+        <span class="font-semibold text-highlighted">{{ users.length }}</span>
       </p>
 
       <!-- ! `min-h-0` is what makes this work: a flex child's default `min-height: auto` refuses to shrink below its content, so the table would grow the page instead of scrolling. `sticky` then keeps the column headers in place while its body moves. -->
@@ -30,7 +30,7 @@
         :columns="columns"
         :loading="isPending"
         sticky
-        class="bg-default ring-default min-h-0 flex-1 rounded-lg ring"
+        class="min-h-0 flex-1 rounded-lg bg-default ring ring-default"
       >
         <template #role-cell="{ row }">
           <RoleBadge :role="row.original.role" />

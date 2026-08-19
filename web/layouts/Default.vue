@@ -5,7 +5,7 @@
 
     <!-- * The branded bar, as on the vuetify variant. `text-inverted` is the colour Nuxt UI puts on a solid primary fill, so every control inside inherits it rather than restating white. -->
     <header
-      class="bg-primary text-inverted flex h-14 shrink-0 items-center gap-1 px-2"
+      class="flex h-14 shrink-0 items-center gap-1 bg-primary px-2 text-inverted"
     >
       <u-button
         icon="i-lucide-menu"
@@ -39,7 +39,7 @@
       <!-- * Pushes the content aside from `lg` up, the way the vuetify drawer does; below that the same links come in through the slideover instead. A muted surface rather than `bg-secondary`: on this palette secondary is Dracula's pink, where the vuetify drawer's secondary is its grey — `bg-elevated` is the token that actually means "a shade off the page". -->
       <aside
         v-if="desktopDrawer"
-        class="bg-default border-default hidden w-56 shrink-0 overflow-y-auto border-e p-2 lg:block"
+        class="hidden w-56 shrink-0 overflow-y-auto border-e border-default bg-default p-2 lg:block"
       >
         <SidebarNav />
       </aside>
@@ -68,7 +68,7 @@
 
     <!-- ! The container is only `lg:flex` by default, so below that its three slots stack — and the two this footer leaves empty still contribute their `mt-3` each, making one line of text 77px tall. Flex at every width collapses the empty slots; the margins go with them. -->
     <u-footer
-      class="bg-default border-default border-t"
+      class="border-t border-default bg-default"
       :ui="{
         container: 'max-w-6xl flex items-center justify-center py-4 lg:py-4',
         left: 'mt-0',
@@ -76,7 +76,7 @@
       }"
     >
       <template #left>
-        <span class="text-muted text-sm">
+        <span class="text-sm text-muted">
           {{ $t('common.footer.copyright', { year: currentYear }) }}
         </span>
       </template>

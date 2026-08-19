@@ -5,6 +5,13 @@
   "semi": true,
   "printWidth": 80,
   "tabWidth": 2,
-  "overrides": [{ "files": ["**/*.css"], "options": { "tabWidth": 4 } }],
+  "sortTailwindcss": { "stylesheet": "./web/assets/styles/main.css" },
+  "overrides": [
+    { "files": ["**/*.css"], "options": { "tabWidth": 4 } },
+    {
+      "files": ["web/config/nuxt-ui/**"],
+      "options": { "sortTailwindcss": false }
+    }
+  ],
   "ignorePatterns": ["composer.json"]
 }

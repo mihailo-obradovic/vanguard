@@ -23,6 +23,8 @@ A config file holds the component's **complete upstream default theme**, then th
 
 The cost is real and has to be paid deliberately: **upstream theme changes do not reach a vendored component.** When `@nuxt/ui` takes a minor or major bump, re-import the components whose defaults moved and re-apply the project's edits on top — the annotations below are what makes that a mechanical diff rather than an archaeology exercise. A bump that skips this leaves the app on stale defaults silently.
 
+**Tailwind class sorting is off inside `web/config/nuxt-ui/`**, and on everywhere else. Sorting rewrites a class string into canonical order, which is the right default for the project's own markup and destroys the property that makes vendoring work here: an imported config is only a diffable snapshot of upstream while its class strings are byte-identical to upstream's. The exemption is an `overrides` entry in `.oxfmtrc.json` — the config directory is the only place in the repo where unsorted classes are correct.
+
 A component is imported when the project first renders it, not when it first needs a change — the config directory is meant to mirror the component surface in use. Importing is the `/import-nuxt-ui-component` skill's job; it also refuses to overwrite an existing config, so a re-import is a deliberate act.
 
 ## Never overwrite a default

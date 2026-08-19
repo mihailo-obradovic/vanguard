@@ -1,10 +1,10 @@
 <template>
   <!-- * A column the height of `main`, so the table below can take the space that is left rather than growing the page. -->
   <div class="flex h-full flex-col">
-    <header class="border-default mb-6 shrink-0 border-b pb-4">
+    <header class="mb-6 shrink-0 border-b border-default pb-4">
       <h1 class="text-2xl font-semibold">{{ $t('graphqlDemo.title') }}</h1>
 
-      <p class="text-muted mt-2 text-sm">{{ $t('graphqlDemo.intro') }}</p>
+      <p class="mt-2 text-sm text-muted">{{ $t('graphqlDemo.intro') }}</p>
     </header>
 
     <u-alert
@@ -21,7 +21,7 @@
       :columns="columns"
       :loading="isPending"
       sticky
-      class="bg-default ring-default min-h-0 flex-1 rounded-lg ring"
+      class="min-h-0 flex-1 rounded-lg bg-default ring ring-default"
     >
       <template #role-cell="{ row }">
         <RoleBadge :role="row.original.role" />

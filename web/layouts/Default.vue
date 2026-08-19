@@ -19,6 +19,9 @@
         </div>
 
         <div class="nav-auth">
+          <!-- * Nuxt UI's own toggle over @nuxtjs/color-mode, which @nuxt/ui registers; it reads and writes the preference cookie itself, so there is no hand-rolled theme switching to keep. -->
+          <u-color-mode-button :aria-label="$t('common.nav.colorMode')" />
+
           <LocaleSwitcher />
 
           <template v-if="isLoggedIn">

@@ -28,6 +28,10 @@ export default defineNuxtConfig({
     setupFile: '@/regle-config.ts'
   },
 
+  colorMode: {
+    preference: 'light'
+  },
+
   i18n: {
     // * The module resolves its directory from rootDir, not srcDir — pointing it at web/ keeps the catalogs with the rest of the frontend.
     restructureDir: 'web/i18n',

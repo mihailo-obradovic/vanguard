@@ -56,6 +56,7 @@
     "greeting": "Zdravo, svete!",
     "language": "Jezik",
     "nav": {
+      "colorMode": "Prebaci između svetlog i tamnog režima",
       "graphqlDemo": "GraphQL demo",
       "home": "Početna",
       "login": "Prijava",

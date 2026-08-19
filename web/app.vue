@@ -1,5 +1,5 @@
 <template>
-  <UApp>
+  <u-app>
     <NuxtLoadingIndicator />
 
     <NuxtLayout>
@@ -7,7 +7,7 @@
     </NuxtLayout>
 
     <CookieConsentBanner />
-  </UApp>
+  </u-app>
 </template>
 
 <script setup lang="ts">

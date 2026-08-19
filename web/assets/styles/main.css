@@ -2,6 +2,200 @@
 @import '@nuxt/ui';
 
 /*
+ * The Dracula palette (https://draculatheme.com), the same hexes the vuetify variant carries.
+ * Ramps are named for the SEMANTIC ROLE, not the colour, so a call site never learns that primary
+ * happens to be purple. Dracula publishes one hex per colour; the other ten shades are generated
+ * in OKLCH — hue held, lightness on Tailwind's curve, chroma tapering toward both ends, anything
+ * outside sRGB gamut-mapped by reducing chroma rather than clipping channels (which shifts hue).
+ *
+ * Each accent sits at shade 400 EXACTLY as Dracula publishes it, because Nuxt UI resolves a
+ * semantic colour to 400 in dark mode — so dark mode is true Dracula, the mode it was drawn for.
+ * `static` emits every shade: Nuxt UI reaches them through --ui-color-*, which Tailwind cannot see.
+ */
+@theme static {
+    /* * primary — Dracula purple #bd93f9 */
+    --color-primary-50: #f7f3ff;
+    --color-primary-100: #efe7ff;
+    --color-primary-200: #e4d4ff;
+    --color-primary-300: #d4b8ff;
+    --color-primary-400: #bd93f9;
+    --color-primary-500: #a977ec;
+    --color-primary-600: #975fdc;
+    --color-primary-700: #8144c5;
+    --color-primary-800: #6e2daf;
+    --color-primary-900: #5f1d9b;
+    --color-primary-950: #310058;
+
+    /* * secondary — Dracula pink #ff79c6 */
+    --color-secondary-50: #fff1f8;
+    --color-secondary-100: #ffe3f1;
+    --color-secondary-200: #ffcee7;
+    --color-secondary-300: #ffadd8;
+    --color-secondary-400: #ff79c6;
+    --color-secondary-500: #f052b2;
+    --color-secondary-600: #de2a9f;
+    --color-secondary-700: #bf0086;
+    --color-secondary-800: #9e006e;
+    --color-secondary-900: #86005d;
+    --color-secondary-950: #45002e;
+
+    /* * success — Dracula green #50fa7b */
+    --color-success-50: #e1ffe4;
+    --color-success-100: #d2ffd7;
+    --color-success-200: #baffc3;
+    --color-success-300: #91fea3;
+    --color-success-400: #50fa7b;
+    --color-success-500: #00dc5a;
+    --color-success-600: #00bd4c;
+    --color-success-700: #009a3c;
+    --color-success-800: #007d2f;
+    --color-success-900: #006726;
+    --color-success-950: #002d0c;
+
+    /* * info — Dracula cyan #8be9fd */
+    --color-info-50: #e4faff;
+    --color-info-100: #d9f8ff;
+    --color-info-200: #c9f5ff;
+    --color-info-300: #aff0ff;
+    --color-info-400: #8be9fd;
+    --color-info-500: #00d0ee;
+    --color-info-600: #00b3cd;
+    --color-info-700: #0091a7;
+    --color-info-800: #007687;
+    --color-info-900: #006170;
+    --color-info-950: #002930;
+
+    /* * warning — Dracula orange #ffb86c */
+    --color-warning-50: #fff3e8;
+    --color-warning-100: #ffecd9;
+    --color-warning-200: #ffe1c3;
+    --color-warning-300: #ffd0a1;
+    --color-warning-400: #ffb86c;
+    --color-warning-500: #f29400;
+    --color-warning-600: #d18000;
+    --color-warning-700: #ab6800;
+    --color-warning-800: #8c5400;
+    --color-warning-900: #744500;
+    --color-warning-950: #361d00;
+
+    /* * error — Dracula red #ff5555 */
+    --color-error-50: #fff2f1;
+    --color-error-100: #ffe1de;
+    --color-error-200: #ffc7c2;
+    --color-error-300: #ff9d96;
+    --color-error-400: #ff5555;
+    --color-error-500: #ef2f3a;
+    --color-error-600: #db0026;
+    --color-error-700: #b8001e;
+    --color-error-800: #9b0018;
+    --color-error-900: #850013;
+    --color-error-950: #4a0006;
+
+    /*
+     * * The neutral ramp keeps the Dracula name because it IS Dracula's greyscale, and because
+     * * `neutral` alone would override Tailwind's own palette of that name. Dracula publishes four
+     * * greys, placed at the shades their lightness actually belongs to — foreground 50, comment
+     * * 600, current line 900, background 950 — with the gaps interpolated in OKLab, since hue is
+     * * meaningless near grey and interpolating it swings the light end through pink.
+     */
+    --color-dracula-50: #f8f8f2;
+    --color-dracula-100: #e8eaea;
+    --color-dracula-200: #d4d9e4;
+    --color-dracula-300: #b7c0d6;
+    --color-dracula-400: #939fbf;
+    --color-dracula-500: #7c8ab3;
+    --color-dracula-600: #6272a4;
+    --color-dracula-700: #57638a;
+    --color-dracula-800: #4b526f;
+    --color-dracula-900: #44475a;
+    --color-dracula-950: #282a36;
+}
+
+/*
+ * Light mode. Dracula's own light face: the foreground colour becomes the page, the current-line
+ * colour becomes the text.
+ *
+ * ! The accents cannot keep Dracula's shades here. Nuxt UI fills a solid control with shade 500
+ * ! under inverted (white) text, and against a light page every Dracula pastel lands between
+ * ! 1.8:1 and 4.1:1 — all of them fail WCAG AA. These are the lightest shades reaching 4.5:1, so
+ * ! light mode trades palette fidelity for legibility.
+ */
+:root {
+    color-scheme: light;
+
+    --ui-primary: var(--ui-color-primary-700);
+    --ui-secondary: var(--ui-color-secondary-700);
+    --ui-success: var(--ui-color-success-800);
+    --ui-info: var(--ui-color-info-800);
+    --ui-warning: var(--ui-color-warning-800);
+    --ui-error: var(--ui-color-error-600);
+
+    --ui-bg: var(--ui-color-neutral-50);
+    --ui-bg-muted: var(--ui-color-neutral-100);
+    /* * The page is already off-white, so a raised surface is lighter than it, not darker. */
+    --ui-bg-elevated: var(--color-white);
+    --ui-bg-accented: var(--ui-color-neutral-200);
+    --ui-bg-inverted: var(--ui-color-neutral-950);
+
+    --ui-text-dimmed: var(--ui-color-neutral-600);
+    --ui-text-muted: var(--ui-color-neutral-700);
+    --ui-text-toned: var(--ui-color-neutral-800);
+    --ui-text: var(--ui-color-neutral-900);
+    --ui-text-highlighted: var(--ui-color-neutral-950);
+    --ui-text-inverted: var(--ui-color-neutral-50);
+
+    --ui-border: var(--ui-color-neutral-200);
+    --ui-border-muted: var(--ui-color-neutral-100);
+    --ui-border-accented: var(--ui-color-neutral-300);
+    --ui-border-inverted: var(--ui-color-neutral-950);
+
+    --ui-radius: 0.5rem;
+    --ui-container: 1200px;
+}
+
+/*
+ * Dark mode — the palette as Dracula draws it: background, current line, comment and foreground
+ * land on the tokens they were named for, and every accent returns to shade 400, its published hex.
+ *
+ * ! `:root.dark` rather than a bare `.dark`: this stylesheet is imported after Nuxt UI's, and the
+ * ! light block above matches the same <html> element, so the dark rules need the higher
+ * ! specificity or light mode's values would win in both modes.
+ *
+ * ! The accents must be restored here explicitly. Shade 400 is Nuxt UI's own dark default, but the
+ * ! light block above overrode it unconditionally, so leaving it out paints dark mode in light
+ * ! mode's darkened accents — which is exactly what it did before this line existed.
+ */
+:root.dark,
+.dark {
+    color-scheme: dark;
+
+    --ui-primary: var(--ui-color-primary-400);
+    --ui-secondary: var(--ui-color-secondary-400);
+    --ui-success: var(--ui-color-success-400);
+    --ui-info: var(--ui-color-info-400);
+    --ui-warning: var(--ui-color-warning-400);
+    --ui-error: var(--ui-color-error-400);
+
+    --ui-bg: var(--ui-color-neutral-950);
+    --ui-bg-muted: var(--ui-color-neutral-900);
+    --ui-bg-elevated: var(--ui-color-neutral-900);
+    --ui-bg-accented: var(--ui-color-neutral-800);
+    --ui-bg-inverted: var(--ui-color-neutral-50);
+
+    --ui-text-dimmed: var(--ui-color-neutral-500);
+    --ui-text-muted: var(--ui-color-neutral-400);
+    --ui-text-toned: var(--ui-color-neutral-300);
+    --ui-text: var(--ui-color-neutral-50);
+    --ui-text-highlighted: var(--color-white);
+    --ui-text-inverted: var(--ui-color-neutral-950);
+
+    --ui-border: var(--ui-color-neutral-900);
+    --ui-border-muted: var(--ui-color-neutral-900);
+    --ui-border-accented: var(--ui-color-neutral-800);
+    --ui-border-inverted: var(--ui-color-neutral-50);
+}
+
+/*
  * The design tokens every component's `<style scoped>` builds on, per the headless UI module
  * (catalyst/stacks/frontend/nuxt/ui/headless.md): nothing global except these definitions and the
  * few base-element rules below.

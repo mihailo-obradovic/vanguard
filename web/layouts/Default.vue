@@ -66,9 +66,14 @@
       </main>
     </div>
 
+    <!-- ! The container is only `lg:flex` by default, so below that its three slots stack — and the two this footer leaves empty still contribute their `mt-3` each, making one line of text 77px tall. Flex at every width collapses the empty slots; the margins go with them. -->
     <u-footer
       class="bg-default border-default border-t"
-      :ui="{ container: 'max-w-6xl py-4 lg:py-4' }"
+      :ui="{
+        container: 'max-w-6xl flex items-center justify-center py-4 lg:py-4',
+        left: 'mt-0',
+        center: 'mt-0'
+      }"
     >
       <template #left>
         <span class="text-muted text-sm">

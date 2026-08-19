@@ -23,7 +23,7 @@ A config file holds the component's **complete upstream default theme**, then th
 
 The cost is real and has to be paid deliberately: **upstream theme changes do not reach a vendored component.** When `@nuxt/ui` takes a minor or major bump, re-import the components whose defaults moved and re-apply the project's edits on top — the annotations below are what makes that a mechanical diff rather than an archaeology exercise. A bump that skips this leaves the app on stale defaults silently.
 
-Importing a component's defaults is the `/import-nuxt-ui-component` skill's job; it also refuses to overwrite an existing config, so a re-import is a deliberate act.
+A component is imported when the project first renders it, not when it first needs a change — the config directory is meant to mirror the component surface in use. Importing is the `/import-nuxt-ui-component` skill's job; it also refuses to overwrite an existing config, so a re-import is a deliberate act.
 
 ## Never overwrite a default
 
@@ -53,7 +53,7 @@ A component config that names a raw colour (`bg-purple-500`) is a missing alias,
 
 ## Avoid By Default
 
-- **Vendoring a component nobody has customized.** An imported config that carries zero annotations is pure upstream text that has stopped tracking upstream — it earns nothing and rots. Import when the first real change lands, not in anticipation.
+- **Using a component without importing its config.** Every Nuxt UI component the project renders has a config file, whether or not it is customized yet — the set of files is the inventory of what the project actually uses, and a component with nowhere to put an override invites a one-off `:ui` prop instead. Components with no theme section at all (`App`, `ColorModeButton`) are the exception: there is nothing to configure, and `ColorModeButton` takes `Button`'s theme.
 - **A `:ui` prop where a global change belongs.** If the same override appears at a second call site, it was a theme change; move it. The prop is for the genuinely one-off case.
 - **Deep selectors into Nuxt UI internals** (`:deep(.some-generated-class)`). Slot classes, variants, and the `class` prop are the supported surface; a deep override breaks on a patch bump.
 - **Editing a config to match a design instead of fixing the token.** If `primary` is wrong everywhere, the alias or the ramp is wrong — not thirty component configs.

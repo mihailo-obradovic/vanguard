@@ -1,6 +1,7 @@
 <template>
-  <div>
-    <header class="border-default mb-6 border-b pb-4">
+  <!-- * A column the height of `main`, so the table below can take the space that is left rather than growing the page. -->
+  <div class="flex h-full flex-col">
+    <header class="border-default mb-6 shrink-0 border-b pb-4">
       <h1 class="text-2xl font-semibold">{{ $t('graphqlDemo.title') }}</h1>
 
       <p class="text-muted mt-2 text-sm">{{ $t('graphqlDemo.intro') }}</p>
@@ -13,12 +14,14 @@
       :description="$t('errors.usersLoad', { message: getErrorMessage(error) })"
     />
 
+    <!-- ! `min-h-0` is what makes this work: a flex child's default `min-height: auto` refuses to shrink below its content, so the table would grow the page instead of scrolling. -->
     <u-table
       v-else
       :data="users ?? []"
       :columns="columns"
       :loading="isPending"
-      class="ring-default rounded-lg ring"
+      sticky
+      class="ring-default min-h-0 flex-1 rounded-lg ring"
     >
       <template #role-cell="{ row }">
         <RoleBadge :role="row.original.role" />

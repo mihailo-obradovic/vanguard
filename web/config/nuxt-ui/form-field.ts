@@ -8,7 +8,7 @@ export default {
     label: 'block font-medium text-default',
     container: [
       'relative',
-      // * Changes: reserve the error line's height. Nuxt UI only renders the error when there is one, so a message appearing would otherwise shift every field below it — the reserved band is what the headless UIField got from a min-height.
+      // * Changes: reserve the error line's height. Nuxt UI only renders the error when there is one, so a message appearing would otherwise shift every field below it — the reserved band is what the headless field primitive used to get from a min-height.
       'pb-7'
     ],
     description: 'text-muted',

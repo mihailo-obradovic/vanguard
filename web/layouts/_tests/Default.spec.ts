@@ -28,7 +28,7 @@ describe('the default layout', () => {
     cleanup();
   });
 
-  // ! The landmark two features move focus to — SkipLink's jump and UIDialog's dead-opener fallback — and neither works without the `tabindex`, silently: a fragment link alone only sets the tab-navigation start point, and `.focus()` on a non-focusable element is a no-op.
+  // ! The landmark SkipLink jumps to, and the jump does not work without the `tabindex`, silently: a fragment link alone only sets the tab-navigation start point, and `.focus()` on a non-focusable element is a no-op.
   it('publishes a focusable main landmark', async () => {
     await renderSuspended(Default);
 

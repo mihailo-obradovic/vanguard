@@ -1,32 +1,31 @@
 <template>
-  <Transition name="cookie-slide">
+  <Transition
+    enter-active-class="transition duration-200"
+    leave-active-class="transition duration-200"
+    enter-from-class="translate-y-full opacity-0"
+    leave-to-class="translate-y-full opacity-0"
+  >
     <div
       v-if="isMounted && !isDecided"
-      class="cookie-banner"
+      class="bg-default border-default fixed inset-x-0 bottom-0 z-50 border-t shadow-lg"
       role="region"
       :aria-label="$t('common.cookieConsent.label')"
     >
-      <div class="cookie-content">
-        <p class="cookie-message">
+      <div
+        class="mx-auto flex max-w-6xl flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between"
+      >
+        <p class="text-muted text-sm">
           {{ $t('common.cookieConsent.message') }}
         </p>
 
-        <div class="cookie-actions">
-          <button
-            type="button"
-            class="cookie-btn cookie-btn--decline"
-            @click="decline"
-          >
+        <div class="flex shrink-0 justify-end gap-2">
+          <u-button color="neutral" variant="outline" @click="decline">
             {{ $t('common.cookieConsent.decline') }}
-          </button>
+          </u-button>
 
-          <button
-            type="button"
-            class="cookie-btn cookie-btn--accept"
-            @click="accept"
-          >
+          <u-button @click="accept">
             {{ $t('common.cookieConsent.accept') }}
-          </button>
+          </u-button>
         </div>
       </div>
     </div>
@@ -42,93 +41,3 @@ onMounted(() => {
   isMounted.value = true;
 });
 </script>
-
-<style scoped>
-.cookie-banner {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  background: var(--color-surface);
-  border-top: 1px solid var(--color-border);
-  box-shadow: var(--shadow-card-up);
-}
-
-.cookie-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.cookie-message {
-  margin: 0;
-  color: var(--color-text);
-  font-size: 14px;
-}
-
-.cookie-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-.cookie-btn {
-  font-family: 'Lexend', sans-serif;
-  padding: 8px 16px;
-  border-radius: var(--radius);
-  font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all var(--transition);
-}
-
-.cookie-btn--decline {
-  background-color: transparent;
-  color: var(--color-text);
-  border: 1px solid var(--color-border);
-}
-
-.cookie-btn--decline:hover {
-  background-color: var(--color-border);
-}
-
-.cookie-btn--accept {
-  background-color: var(--color-brand);
-  color: var(--color-on-brand);
-  border: 1px solid var(--color-brand);
-}
-
-.cookie-btn--accept:hover {
-  background-color: var(--color-brand-hover);
-}
-
-.cookie-slide-enter-active,
-.cookie-slide-leave-active {
-  transition:
-    transform var(--transition),
-    opacity var(--transition);
-}
-
-.cookie-slide-enter-from,
-.cookie-slide-leave-to {
-  transform: translateY(100%);
-  opacity: 0;
-}
-
-@media (max-width: 640px) {
-  .cookie-content {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .cookie-actions {
-    justify-content: flex-end;
-  }
-}
-</style>

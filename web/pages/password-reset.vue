@@ -1,39 +1,75 @@
 <template>
-  <AuthCard
-    :title="$t('auth.passwordReset.title')"
-    :submit-label="$t('auth.passwordReset.submit')"
-    :submitting-label="$t('auth.passwordReset.submitting')"
-    :submitting="isResetting"
-    :disabled="r$.$invalid"
-    @submit="handleSubmit"
-  >
-    <UIField
-      v-model="form.email"
-      :label="$t('common.fields.email')"
-      :errors="r$.email.$errors"
-      type="email"
-      required
-      :disabled="isResetting"
-    />
+  <div class="flex flex-1 items-center justify-center p-4">
+    <u-card class="w-full max-w-md">
+      <template #header>
+        <h1 class="text-center text-xl font-semibold">
+          {{ $t('auth.passwordReset.title') }}
+        </h1>
+      </template>
 
-    <UIField
-      v-model="form.password"
-      :label="$t('common.fields.password')"
-      :errors="r$.password.$errors"
-      type="password"
-      required
-      :disabled="isResetting"
-    />
+      <form
+        id="password-reset-form"
+        class="space-y-4"
+        novalidate
+        @submit.prevent="handleSubmit"
+      >
+        <u-form-field
+          :label="$t('common.fields.email')"
+          :error="r$.email.$errors[0]"
+          required
+        >
+          <u-input
+            v-model="form.email"
+            type="email"
+            autocomplete="email"
+            class="w-full"
+          />
+        </u-form-field>
 
-    <UIField
-      v-model="form.password_confirmation"
-      :label="$t('common.fields.passwordConfirmation')"
-      :errors="r$.password_confirmation.$errors"
-      type="password"
-      required
-      :disabled="isResetting"
-    />
-  </AuthCard>
+        <u-form-field
+          :label="$t('common.fields.password')"
+          :error="r$.password.$errors[0]"
+          required
+        >
+          <u-input
+            v-model="form.password"
+            type="password"
+            autocomplete="new-password"
+            class="w-full"
+          />
+        </u-form-field>
+
+        <u-form-field
+          :label="$t('common.fields.passwordConfirmation')"
+          :error="r$.password_confirmation.$errors[0]"
+          required
+        >
+          <u-input
+            v-model="form.password_confirmation"
+            type="password"
+            autocomplete="new-password"
+            class="w-full"
+          />
+        </u-form-field>
+      </form>
+
+      <template #footer>
+        <u-button
+          type="submit"
+          form="password-reset-form"
+          block
+          :loading="isResetting"
+          :disabled="r$.$invalid"
+        >
+          {{
+            isResetting
+              ? $t('auth.passwordReset.submitting')
+              : $t('auth.passwordReset.submit')
+          }}
+        </u-button>
+      </template>
+    </u-card>
+  </div>
 </template>
 
 <script setup lang="ts">

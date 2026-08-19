@@ -1,8 +1,16 @@
 <template>
-  <div class="flex min-h-full flex-col">
+  <!-- * The shell is exactly the viewport's height and never scrolls itself — `main` is the one scrolling region, which is what keeps the header and footer in place. `main.css` pins html/body/#__nuxt to 100% with overflow hidden for the same reason; a `min-h-*` shell here would be clipped by that instead of scrolling. -->
+  <div class="flex h-full flex-col">
     <SkipLink />
 
-    <u-header title="Vanguard" to="/home" :ui="{ container: 'max-w-6xl' }">
+    <!-- ! `menu` names the mobile menu's dialog. Without it Nuxt UI's own untranslated keys
+         ! ("header.title") reach the accessibility tree, leaving the menu with no accessible name. -->
+    <u-header
+      title="Vanguard"
+      to="/home"
+      :menu="{ title: $t('common.nav.menu'), description: '' }"
+      :ui="{ container: 'max-w-6xl' }"
+    >
       <template #default>
         <nav class="flex items-center gap-1">
           <u-button
@@ -46,10 +54,10 @@
       </template>
     </u-header>
 
-    <!-- * `tabindex="-1"` makes the landmark programmatically focusable: it is where SkipLink jumps, and where UIDialog hands focus back when the control it was opened from is gone. Neither moves focus without it — a fragment link alone only sets the browser's tab-navigation start point. -->
+    <!-- * `tabindex="-1"` makes the landmark programmatically focusable: it is where SkipLink jumps. A fragment link alone only sets the browser's tab-navigation start point, so without it the jump moves nothing. -->
     <main
       id="main-content"
-      class="mx-auto flex w-full max-w-6xl flex-1 flex-col p-4"
+      class="mx-auto flex w-full max-w-6xl flex-1 flex-col overflow-y-auto p-4"
       tabindex="-1"
     >
       <slot />

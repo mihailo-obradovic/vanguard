@@ -85,8 +85,6 @@
 </template>
 
 <script setup lang="ts">
-import { maxLength, required } from '@regle/rules';
-
 import { useRegister } from '@/services/queries/useAuthQueries';
 
 import type { AuthDialog, User } from '@/types/auth';
@@ -114,10 +112,7 @@ const {
 const { r$ } = useRegle(
   form,
   {
-    name: labeledRules('validation.fieldNames.name', {
-      required,
-      maxLength: maxLength(255)
-    }),
+    ...nameRules(),
     ...accountEmailRules(),
     ...newPasswordRules(() => form.value.password)
   },

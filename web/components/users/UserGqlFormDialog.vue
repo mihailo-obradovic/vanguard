@@ -87,10 +87,7 @@ const form = ref(formFor(props.user));
 const { r$ } = useRegle(
   form,
   {
-    name: labeledRules('validation.fieldNames.name', {
-      required,
-      maxLength: maxLength(255)
-    }),
+    ...nameRules(),
     email: labeledRules('validation.fieldNames.email', {
       required,
       email,

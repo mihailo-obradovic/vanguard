@@ -70,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import { maxLength, required, requiredIf } from '@regle/rules';
+import { requiredIf } from '@regle/rules';
 
 import type { User } from '@/types/auth';
 import type { ProfileForm } from '@/types/user';
@@ -96,10 +96,7 @@ const form = ref(formFor(props.user));
 const { r$ } = useRegle(
   form,
   () => ({
-    name: labeledRules('validation.fieldNames.name', {
-      required,
-      maxLength: maxLength(255)
-    }),
+    ...nameRules(),
     ...accountEmailRules(() => props.user.id),
     current_password: labeledRules('validation.fieldNames.currentPassword', {
       requiredIf: requiredIf(() => !!form.value.password)

@@ -2,12 +2,7 @@ import type { Toast } from '@nuxt/ui/composables/useToast';
 
 type ToastType = 'success' | 'error' | 'default' | 'info' | 'warning';
 
-/**
- * The colour each type name shows as.
- *
- * * `default` maps to `neutral` rather than `primary`: an untyped message is an announcement, not
- * * a branded one, and the four named types are the ones carrying meaning.
- */
+// * The colour each type name shows as. `default` maps to `neutral` rather than `primary`: an untyped message is an announcement, not a branded one, and the four named types are the ones carrying meaning.
 const COLORS = {
   success: 'success',
   error: 'error',

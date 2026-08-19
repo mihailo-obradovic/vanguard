@@ -24,8 +24,7 @@ describe('$toast', () => {
     expect(add).toHaveBeenCalledWith({ title: 'Saved.', color: 'success' });
   });
 
-  // ! The colour is the whole signal a toast carries — an error shown in the success colour reads
-  // ! as the opposite of what happened.
+  // ! The colour is the whole signal a toast carries — an error shown in the success colour reads as the opposite of what happened.
   it('maps each type name to its colour', () => {
     const expected = {
       success: 'success',
@@ -56,8 +55,7 @@ describe('$toast', () => {
     $toast('First');
     $toast('Second');
 
-    // * `<UApp>` provides the interface after this module is imported, so caching it once would
-    // * capture an uninstalled one.
+    // * `<UApp>` provides the interface after this module is imported, so caching it once would capture an uninstalled one.
     expect(useToast).toHaveBeenCalledTimes(2);
   });
 });

@@ -11,8 +11,7 @@ import { setupQueryErrorHandling } from '../setupQueryErrorHandling';
 import type { Ref } from 'vue';
 import type { ErrorHandlingOptions } from '../handleApiError';
 
-// * The unit under test is the watcher and its dedupe, so the handler it delegates to is the
-// * observable boundary; what the handler then does is handleApiError.spec's subject.
+// * The unit under test is the watcher and its dedupe, so the handler it delegates to is the observable boundary; what the handler then does is handleApiError.spec's subject.
 const { handleApiError, resetUser } = vi.hoisted(() => ({
   handleApiError: vi.fn<(...args: unknown[]) => void>(),
   resetUser: vi.fn<() => void>()
@@ -37,8 +36,7 @@ function apiError(statusCode = 500) {
   return error;
 }
 
-// * Mounted rather than called bare: the watcher belongs to a component scope, which is the
-// * only way `useAppQuery` ever wires it.
+// * Mounted rather than called bare: the watcher belongs to a component scope, which is the only way `useAppQuery` ever wires it.
 function watchErrors(
   errorRef: Ref<FetchError | null>,
   errorHandling?: ErrorHandlingOptions

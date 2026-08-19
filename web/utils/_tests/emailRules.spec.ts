@@ -14,8 +14,7 @@ import type { Ref } from 'vue';
 
 const requests = recordRequests();
 
-// * Driven through a real Regle instance rather than by calling the rule objects: what the forms
-// * depend on is whether a given address can submit, and the async rule only debounces inside one.
+// * Driven through a real Regle instance rather than by calling the rule objects: what the forms depend on is whether a given address can submit, and the async rule only debounces inside one.
 async function setupForm(rules: () => Record<string, unknown>, initial = '') {
   const form: Ref<{ email: string }> = ref({ email: initial });
 
@@ -87,8 +86,7 @@ describe('emailRules', () => {
       expect(errors()).toContain('The email field is already taken.');
     });
 
-    // ! The whole point of the fail-open contract: the backend's `unique` rule is the authority,
-    // ! so a check that cannot complete must not stop a user who would otherwise succeed.
+    // ! The whole point of the fail-open contract: the backend's `unique` rule is the authority, so a check that cannot complete must not stop a user who would otherwise succeed.
     it('stays valid when the check fails', async () => {
       server.use(
         http.get(
@@ -144,8 +142,7 @@ describe('emailRules', () => {
       expect(await validate()).toBe(false);
     });
 
-    // * No request for a value the server would only 422 on — `required` and `email` already
-    // * report those, and asking anyway would spend a round-trip per keystroke on nothing.
+    // * No request for a value the server would only 422 on — `required` and `email` already report those, and asking anyway would spend a round-trip per keystroke on nothing.
     it('does not ask the server about an empty value', async () => {
       respondWith(true);
 
@@ -195,8 +192,7 @@ describe('emailRules', () => {
   });
 
   describe('credentialEmailRules', () => {
-    // * Login and the reset pair read an existing account, so they mirror endpoints that carry
-    // * neither rule. Asking whether a sign-in address is "available" would invert the meaning.
+    // * Login and the reset pair read an existing account, so they mirror endpoints that carry neither rule. Asking whether a sign-in address is "available" would invert the meaning.
     it('accepts a mixed-case address without asking the server', async () => {
       const { validate } = await setupForm(
         () => credentialEmailRules(),

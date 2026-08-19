@@ -64,7 +64,9 @@
       "logout": "Odjava",
       "logoutPending": "Odjavljivanje...",
       "menu": "Meni",
+      "profile": "Profil",
       "register": "Registracija",
+      "toggleMenu": "Prikaži navigaciju",
       "users": "Korisnici"
     },
     "notAvailable": "Nije dostupno",

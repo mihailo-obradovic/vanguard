@@ -64,7 +64,9 @@
       "logout": "Logout",
       "logoutPending": "Logging out...",
       "menu": "Menu",
+      "profile": "Profile",
       "register": "Register",
+      "toggleMenu": "Toggle navigation",
       "users": "Users"
     },
     "notAvailable": "N/A",

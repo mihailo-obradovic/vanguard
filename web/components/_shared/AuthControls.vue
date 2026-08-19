@@ -1,23 +1,15 @@
 <template>
-  <!-- * The session controls, rendered twice by the layout — once in the header's right slot and once inside the mobile menu — so the two can never drift apart. -->
+  <!-- * Chrome on the branded bar: ghost so the bar's colour shows through, inheriting its text colour rather than the neutral one. Matches the other header controls exactly — nothing here is worth a second colour. -->
   <template v-if="isLoggedIn">
-    <u-button
-      to="/profile"
-      icon="i-lucide-user"
-      variant="soft"
-      color="neutral"
-      :block="block"
-      :class="block && 'justify-start'"
-    >
+    <!-- * The signed-in user's own name, which is the account affordance the sidebar's generic "Profile" entry cannot be. -->
+    <u-button to="/profile" icon="i-lucide-user" v-bind="CHROME">
       {{ user?.name }}
     </u-button>
 
     <u-button
-      color="error"
-      icon="i-lucide-log-out"
       :loading="isLoggingOut"
-      :block="block"
-      :class="block && 'justify-start'"
+      icon="i-lucide-log-out"
+      v-bind="CHROME"
       @click="logOut()"
     >
       {{
@@ -27,20 +19,13 @@
   </template>
 
   <template v-else>
-    <u-button
-      icon="i-lucide-log-in"
-      variant="outline"
-      :block="block"
-      :class="block && 'justify-start'"
-      @click="openAuth('login')"
-    >
+    <u-button icon="i-lucide-log-in" v-bind="CHROME" @click="openAuth('login')">
       {{ $t('common.nav.login') }}
     </u-button>
 
     <u-button
       icon="i-lucide-user-plus"
-      :block="block"
-      :class="block && 'justify-start'"
+      v-bind="CHROME"
       @click="openAuth('register')"
     >
       {{ $t('common.nav.register') }}
@@ -57,7 +42,11 @@ import ForgotPasswordDialog from '@/components/auth/ForgotPasswordDialog.vue';
 
 import type { AuthDialog } from '@/types/auth';
 
-defineProps<{ block?: boolean }>();
+const CHROME = {
+  color: 'neutral',
+  variant: 'ghost',
+  class: 'text-inverted hover:bg-inverted/10'
+} as const;
 
 const AUTH_DIALOGS = {
   login: LoginDialog,

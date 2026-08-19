@@ -1,7 +1,9 @@
 // @vitest-environment nuxt
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { renderSuspended } from '@nuxt/test-utils/runtime';
-import { screen, fireEvent, cleanup, waitFor } from '@testing-library/vue';
+import { mountSuspended } from '@nuxt/test-utils/runtime';
+import { waitFor } from '@testing-library/vue';
+
+import { USelect } from '#components';
 
 import { server } from '@/mocks/server';
 import { authHandlers } from '@/mocks/handlers/auth';
@@ -18,24 +20,26 @@ function persistedLocale() {
     ?.split('=')[1];
 }
 
-function switcher() {
-  return screen.getByRole('combobox') as HTMLSelectElement;
+let wrapper: Awaited<ReturnType<typeof mountSuspended>> | null = null;
+
+async function mountSwitcher() {
+  wrapper = await mountSuspended(LocaleSwitcher);
+
+  return wrapper.findComponent(USelect);
 }
 
 /**
- * Pick a locale the way a user does.
+ * Pick a locale the way the control reports one.
  *
- * ! `fireEvent.update` drives `input`, which a `<select>`'s v-model does not listen for — it
- * ! binds `change`. The wrong event leaves the component untouched and the test green only
- * ! against assertions weak enough not to notice. Switching is also asynchronous — it loads the
- * ! catalog — so the assertions wait rather than settling on a fixed delay.
+ * ! Driven through the select's own `update:modelValue` rather than by clicking an option: Nuxt
+ * ! UI's select is a Reka listbox that commits through pointer-capture APIs jsdom does not
+ * ! implement, so no click, pointer sequence or keypress moves it — verified, including with the
+ * ! usual `hasPointerCapture`/`scrollIntoView` stubs. That the listbox commits on a click is the
+ * ! library's own contract to keep; what belongs here is what this component does with the value,
+ * ! which is the part that has a bug in it worth catching.
  */
-async function pick(code: string) {
-  const select = switcher();
-
-  select.value = code;
-
-  await fireEvent.change(select);
+function pick(select: Awaited<ReturnType<typeof mountSwitcher>>, code: string) {
+  select.vm.$emit('update:modelValue', code);
 }
 
 describe('LocaleSwitcher', () => {
@@ -47,30 +51,32 @@ describe('LocaleSwitcher', () => {
   });
 
   afterEach(() => {
-    cleanup();
+    wrapper?.unmount();
+    wrapper = null;
   });
 
   it('offers every configured locale under its own name', async () => {
-    await renderSuspended(LocaleSwitcher);
+    const select = await mountSwitcher();
 
     expect(
-      screen.getAllByRole('option').map((option) => option.textContent?.trim())
+      (select.props('items') as { label: string }[]).map((item) => item.label)
     ).toEqual(['English', 'Srpski', 'Српски']);
   });
 
   it('shows the active locale as the selected one', async () => {
     await useNuxtApp().$i18n.setLocale('sr-Cyrl');
 
-    await renderSuspended(LocaleSwitcher);
+    const select = await mountSwitcher();
 
-    expect(switcher().value).toBe('sr-Cyrl');
+    expect(select.props('modelValue')).toBe('sr-Cyrl');
   });
 
   it('switches the language when a locale is picked', async () => {
-    await renderSuspended(LocaleSwitcher);
+    const select = await mountSwitcher();
 
-    await pick('sr-Latn');
+    pick(select, 'sr-Latn');
 
+    // * Switching loads the catalog, so the assertion waits rather than settling on a fixed delay.
     await waitFor(() =>
       expect(useNuxtApp().$i18n.locale.value).toBe('sr-Latn')
     );
@@ -81,9 +87,9 @@ describe('LocaleSwitcher', () => {
   // ! as visibly and then forgets it on the next page load, which no rendered assertion would
   // ! catch — so the persisted cookie is what this asserts.
   it('persists the choice, so it survives the next page load', async () => {
-    await renderSuspended(LocaleSwitcher);
+    const select = await mountSwitcher();
 
-    await pick('sr-Latn');
+    pick(select, 'sr-Latn');
 
     await waitFor(() => expect(persistedLocale()).toBe('sr-Latn'));
   });

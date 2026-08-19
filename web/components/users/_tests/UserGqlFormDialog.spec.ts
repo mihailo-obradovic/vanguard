@@ -1,11 +1,11 @@
 // @vitest-environment nuxt
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { h } from 'vue';
-import { renderSuspended } from '@nuxt/test-utils/runtime';
+import { h, nextTick } from 'vue';
+import { mountSuspended } from '@nuxt/test-utils/runtime';
 import { screen, fireEvent, cleanup, waitFor } from '@testing-library/vue';
 import { flushPromises } from '@vue/test-utils';
 
-import { UApp } from '#components';
+import { UApp, USelect } from '#components';
 
 import { server } from '@/mocks/server';
 import { authHandlers } from '@/mocks/handlers/auth';
@@ -18,6 +18,8 @@ import UserGqlFormDialog from '../UserGqlFormDialog.vue';
 import type { User } from '@/types/auth';
 
 const requests = recordRequests();
+
+let wrapper: Awaited<ReturnType<typeof mountSuspended>> | null = null;
 
 const MUTATION = `POST ${GRAPHQL_PATH}`;
 
@@ -36,7 +38,7 @@ const ADA = buildUser({
 async function mountDialog(user: User = ADA) {
   const closed: (User | undefined)[] = [];
 
-  await renderSuspended({
+  wrapper = await mountSuspended({
     setup: () => () =>
       h(UApp, null, {
         default: () =>
@@ -76,6 +78,24 @@ function field(label: string) {
   return screen.getByLabelText(label) as HTMLInputElement;
 }
 
+/**
+ * Pick a role the way the control reports one.
+ *
+ * ! Driven through the select's own `update:modelValue` rather than by clicking an option: Nuxt UI's
+ * ! select is a Reka listbox that commits through pointer-capture APIs jsdom does not implement, so
+ * ! no click, pointer sequence or keypress moves it — verified, including with the usual
+ * ! `hasPointerCapture`/`scrollIntoView` stubs. The listbox committing on a click is the library's
+ * ! own contract; what belongs here is that the picked role reaches the wire, which is the field
+ * ! with privilege attached.
+ */
+function pickRole(value: string) {
+  const select = wrapper!.findComponent(USelect);
+
+  select.vm.$emit('update:modelValue', value);
+
+  return nextTick();
+}
+
 function submit() {
   return fireEvent.submit(document.querySelector('form') as HTMLFormElement);
 }
@@ -94,6 +114,9 @@ describe('UserGqlFormDialog', () => {
 
   afterEach(async () => {
     await flushPromises();
+    // * `mountSuspended` is not one of testing-library's renders, so `cleanup()` never sees it — an unmounted wrapper here is what keeps the next test from finding two of every field.
+    wrapper?.unmount();
+    wrapper = null;
     cleanup();
   });
 
@@ -128,7 +151,7 @@ describe('UserGqlFormDialog', () => {
   it('sends a changed role', async () => {
     await mountDialog();
 
-    await fireEvent.update(screen.getByLabelText('Role'), 'admin');
+    await pickRole('admin');
     await submit();
 
     expect(await sentVariables()).toEqual({ id: 7, role: 'admin' });

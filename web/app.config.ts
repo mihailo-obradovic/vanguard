@@ -9,6 +9,7 @@ import formField from './config/nuxt-ui/form-field';
 import header from './config/nuxt-ui/header';
 import input from './config/nuxt-ui/input';
 import modal from './config/nuxt-ui/modal';
+import select from './config/nuxt-ui/select';
 import slideover from './config/nuxt-ui/slideover';
 import table from './config/nuxt-ui/table';
 
@@ -33,6 +34,7 @@ export default defineAppConfig({
     header,
     input,
     modal,
+    select,
     slideover,
     table
   }

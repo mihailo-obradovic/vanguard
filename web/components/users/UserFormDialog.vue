@@ -49,25 +49,14 @@
           />
         </u-form-field>
 
-        <!-- ! Deliberately a native <select>, and deliberately not inside <u-form-field>. Nuxt UI's select is a Reka listbox that commits through pointer-capture APIs jsdom does not implement, so no click, pointer sequence or keypress can drive it in a spec — and the role is the one field with privilege attached, where "an admin was created as a user" has to stay covered. FormField pairs its label with Nuxt UI children through provide/inject, which a native element cannot receive, so the label is paired by hand here. Styled to match the inputs above. -->
-        <div>
-          <label
-            :for="roleId"
-            class="text-default mb-1 block text-sm font-medium"
-          >
-            {{ $t('common.fields.role') }}
-          </label>
-
-          <select
-            :id="roleId"
+        <u-form-field :label="$t('common.fields.role')">
+          <u-select
             v-model="form.role"
-            class="ring-accented text-highlighted bg-default focus-visible:outline-primary w-full rounded-md ps-2.5 pe-8 py-1.5 text-sm ring ring-inset focus-visible:outline-2"
-          >
-            <option value="user">{{ $t('users.roles.user') }}</option>
-
-            <option value="admin">{{ $t('users.roles.admin') }}</option>
-          </select>
-        </div>
+            :items="roleItems"
+            value-key="value"
+            class="w-full"
+          />
+        </u-form-field>
       </form>
     </template>
 
@@ -116,7 +105,10 @@ const open = defineModel<boolean>('open', { default: false });
 
 const { t } = useI18n();
 
-const roleId = useId();
+const roleItems = computed(() => [
+  { label: t('users.roles.user'), value: 'user' },
+  { label: t('users.roles.admin'), value: 'admin' }
+]);
 
 const form = ref<CreateUserForm>(formFor(props.user ?? null));
 

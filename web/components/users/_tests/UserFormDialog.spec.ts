@@ -1,12 +1,12 @@
 // @vitest-environment nuxt
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { h } from 'vue';
-import { renderSuspended } from '@nuxt/test-utils/runtime';
+import { h, nextTick } from 'vue';
+import { mountSuspended } from '@nuxt/test-utils/runtime';
 import { http, HttpResponse } from 'msw';
 import { screen, fireEvent, cleanup, waitFor } from '@testing-library/vue';
 import { flushPromises } from '@vue/test-utils';
 
-import { UApp } from '#components';
+import { UApp, USelect } from '#components';
 
 import { server } from '@/mocks/server';
 import { apiUrl } from '@/mocks/api';
@@ -19,6 +19,8 @@ import UserFormDialog from '../UserFormDialog.vue';
 import type { User } from '@/types/auth';
 
 const requests = recordRequests();
+
+let wrapper: Awaited<ReturnType<typeof mountSuspended>> | null = null;
 
 const CREATE = 'POST /api/users';
 const UPDATE_7 = 'PUT /api/users/7';
@@ -33,7 +35,7 @@ const UPDATE_7 = 'PUT /api/users/7';
 async function mountDialog(user: User | null = null) {
   const closed: (User | undefined)[] = [];
 
-  await renderSuspended({
+  wrapper = await mountSuspended({
     setup: () => () =>
       h(UApp, null, {
         default: () =>
@@ -85,8 +87,22 @@ async function fillValidCreation() {
   await settleValidation();
 }
 
-async function pickRole(value: string) {
-  await fireEvent.update(screen.getByLabelText('Role'), value);
+/**
+ * Pick a role the way the control reports one.
+ *
+ * ! Driven through the select's own `update:modelValue` rather than by clicking an option: Nuxt UI's
+ * ! select is a Reka listbox that commits through pointer-capture APIs jsdom does not implement, so
+ * ! no click, pointer sequence or keypress moves it — verified, including with the usual
+ * ! `hasPointerCapture`/`scrollIntoView` stubs. The listbox committing on a click is the library's
+ * ! own contract; what belongs here is that the picked role reaches the wire, which is the field
+ * ! with privilege attached.
+ */
+function pickRole(value: string) {
+  const select = wrapper!.findComponent(USelect);
+
+  select.vm.$emit('update:modelValue', value);
+
+  return nextTick();
 }
 
 describe('UserFormDialog', () => {
@@ -102,6 +118,9 @@ describe('UserFormDialog', () => {
 
   afterEach(async () => {
     await flushPromises();
+    // * `mountSuspended` is not one of testing-library's renders, so `cleanup()` never sees it — an unmounted wrapper here is what keeps the next test from finding two of every field.
+    wrapper?.unmount();
+    wrapper = null;
     cleanup();
   });
 

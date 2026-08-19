@@ -10,5 +10,6 @@ export type FormFieldConfig = TVConfig<typeof theme>['formField'];
 export type HeaderConfig = TVConfig<typeof theme>['header'];
 export type InputConfig = TVConfig<typeof theme>['input'];
 export type ModalConfig = TVConfig<typeof theme>['modal'];
+export type SelectConfig = TVConfig<typeof theme>['select'];
 export type SlideoverConfig = TVConfig<typeof theme>['slideover'];
 export type TableConfig = TVConfig<typeof theme>['table'];

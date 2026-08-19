@@ -1,37 +1,65 @@
 <template>
-  <div class="layout">
+  <div class="flex h-full flex-col">
     <SkipLink />
 
-    <nav class="navbar">
-      <div class="nav-container">
-        <div class="nav-links">
-          <NuxtLink to="/home" class="nav-link">
+    <nav class="bg-elevated/50 border-default border-b">
+      <div
+        class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 p-2"
+      >
+        <div class="flex items-center gap-1">
+          <u-button
+            to="/home"
+            icon="i-lucide-house"
+            variant="ghost"
+            color="neutral"
+            active-variant="soft"
+          >
             {{ $t('common.nav.home') }}
-          </NuxtLink>
+          </u-button>
 
-          <NuxtLink v-if="isAdmin" to="/users" class="nav-link">
+          <u-button
+            v-if="isAdmin"
+            to="/users"
+            icon="i-lucide-users"
+            variant="ghost"
+            color="neutral"
+            active-variant="soft"
+          >
             {{ $t('common.nav.users') }}
-          </NuxtLink>
+          </u-button>
 
-          <NuxtLink v-if="isAdmin" to="/graphql-demo" class="nav-link">
+          <u-button
+            v-if="isAdmin"
+            to="/graphql-demo"
+            icon="i-lucide-braces"
+            variant="ghost"
+            color="neutral"
+            active-variant="soft"
+          >
             {{ $t('common.nav.graphqlDemo') }}
-          </NuxtLink>
+          </u-button>
         </div>
 
-        <div class="nav-auth">
+        <div class="flex items-center gap-2">
           <!-- * Nuxt UI's own toggle over @nuxtjs/color-mode, which @nuxt/ui registers; it reads and writes the preference cookie itself, so there is no hand-rolled theme switching to keep. -->
           <u-color-mode-button :aria-label="$t('common.nav.colorMode')" />
 
           <LocaleSwitcher />
 
           <template v-if="isLoggedIn">
-            <NuxtLink to="/profile" class="user-name-link">
+            <u-button
+              to="/profile"
+              icon="i-lucide-user"
+              variant="soft"
+              color="neutral"
+            >
               {{ user?.name }}
-            </NuxtLink>
+            </u-button>
 
-            <button
-              class="logout-btn"
-              :disabled="isLoggingOut"
+            <u-button
+              color="error"
+              icon="i-lucide-log-out"
+              :loading="isLoggingOut"
               @click="logOut()"
             >
               {{
@@ -39,24 +67,32 @@
                   ? $t('common.nav.logoutPending')
                   : $t('common.nav.logout')
               }}
-            </button>
+            </u-button>
           </template>
 
           <template v-else>
-            <button class="auth-link" @click="openAuth('login')">
+            <u-button
+              icon="i-lucide-log-in"
+              variant="outline"
+              @click="openAuth('login')"
+            >
               {{ $t('common.nav.login') }}
-            </button>
+            </u-button>
 
-            <button class="auth-link" @click="openAuth('register')">
+            <u-button icon="i-lucide-user-plus" @click="openAuth('register')">
               {{ $t('common.nav.register') }}
-            </button>
+            </u-button>
           </template>
         </div>
       </div>
     </nav>
 
     <!-- * `tabindex="-1"` makes the landmark programmatically focusable: it is where SkipLink jumps, and where UIDialog hands focus back when the control it was opened from is gone. Neither moves focus without it — a fragment link alone only sets the browser's tab-navigation start point. -->
-    <main id="main-content" class="main-content" tabindex="-1">
+    <main
+      id="main-content"
+      class="mx-auto flex w-full max-w-6xl flex-1 flex-col overflow-y-auto p-4"
+      tabindex="-1"
+    >
       <slot />
     </main>
 
@@ -96,109 +132,3 @@ async function openAuth(dialog: AuthDialog) {
   }
 }
 </script>
-
-<style scoped>
-.navbar {
-  background-color: var(--color-brand);
-  border-bottom: 1px solid var(--color-rule);
-  padding: 8px;
-}
-
-.nav-container {
-  padding: 0 8px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.nav-links {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.nav-link {
-  text-decoration: none;
-  color: var(--color-on-brand);
-  padding: 8px 16px;
-  border-radius: var(--radius);
-  transition: all var(--transition);
-}
-
-.nav-link:hover {
-  color: var(--color-brand);
-  background-color: var(--color-border);
-}
-
-.nav-auth {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.user-name-link {
-  text-decoration: none;
-  color: var(--color-brand);
-  background-color: var(--color-border);
-  padding: 8px 16px;
-  /* * Transparent border matches .auth-link so the navbar height doesn't change between logged-in and logged-out states. */
-  border: 1px solid transparent;
-  border-radius: var(--radius);
-  transition: all var(--transition);
-  font-weight: 500;
-}
-
-.user-name-link:hover {
-  color: var(--color-on-brand);
-  background-color: var(--color-danger-hover);
-}
-
-.logout-btn {
-  font-family: 'Lexend', sans-serif;
-  background-color: var(--color-danger);
-  color: var(--color-on-brand);
-  border: 1px solid transparent;
-  padding: 8px 16px;
-  border-radius: var(--radius);
-  cursor: pointer;
-  transition: background-color var(--transition);
-  font-size: 16px;
-  line-height: normal;
-}
-
-.logout-btn:hover {
-  background-color: var(--color-danger-hover);
-}
-
-.auth-link {
-  text-decoration: none;
-  color: var(--color-on-brand);
-  font-weight: 500;
-  padding: 0.5rem 1rem;
-  border: 1px solid var(--color-on-brand);
-  border-radius: 0.375rem;
-  transition: all 0.2s ease;
-}
-
-.auth-link:hover {
-  background-color: var(--color-surface);
-  color: var(--color-brand);
-}
-
-.main-content {
-  padding: 16px;
-  max-width: 1200px;
-  margin: 0 auto;
-  flex: 1;
-  overflow-y: auto;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.layout {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-</style>

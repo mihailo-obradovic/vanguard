@@ -1,7 +1,8 @@
 <template>
+  <!-- ! Deliberately a native <select> rather than <u-select>: this is chrome that should work before hydration and get the OS picker on mobile, and Nuxt UI's listbox would trade both away for styling this matches with utilities anyway. -->
   <select
     v-model="selected"
-    class="locale-select"
+    class="ring-accented text-default bg-default focus-visible:outline-primary cursor-pointer rounded-md px-2.5 py-1.5 text-sm ring ring-inset focus-visible:outline-2"
     :aria-label="$t('common.language')"
   >
     <option v-for="option in locales" :key="option.code" :value="option.code">
@@ -19,29 +20,3 @@ const selected = computed({
   set: (code) => setLocale(code)
 });
 </script>
-
-<style scoped>
-.locale-select {
-  font-family: 'Lexend', sans-serif;
-  background-color: transparent;
-  color: var(--color-on-brand);
-  border: 1px solid white;
-  border-radius: var(--radius);
-  padding: 8px 12px;
-  font-size: 16px;
-  line-height: normal;
-  cursor: pointer;
-  transition: all var(--transition);
-}
-
-.locale-select:hover {
-  background-color: var(--color-surface);
-  color: var(--color-brand);
-}
-
-/* * The dropdown list is painted by the OS, which ignores the transparent background above. */
-.locale-select option {
-  color: var(--color-text-strong);
-  background-color: var(--color-surface);
-}
-</style>

@@ -1,6 +1,7 @@
 // ! Import component theme configs by relative path only — app.config.ts is loaded before the
 // ! alias map exists, so '@/config/nuxt-ui/…' fails the build (catalyst/stacks/frontend/nuxt/ui/nuxtui/customization.md).
 import button from './config/nuxt-ui/button';
+import card from './config/nuxt-ui/card';
 import formField from './config/nuxt-ui/form-field';
 import input from './config/nuxt-ui/input';
 import modal from './config/nuxt-ui/modal';
@@ -18,6 +19,7 @@ export default defineAppConfig({
     },
 
     button,
+    card,
     formField,
     input,
     modal

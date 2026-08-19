@@ -12,11 +12,10 @@ import { apiUrl } from '@/mocks/api';
 import { authHandlers } from '@/mocks/handlers/auth';
 import { buildUser } from '@/mocks/fixtures';
 
-import LoginDialog from '../LoginDialog.vue';
+import RegisterDialog from '../RegisterDialog.vue';
 
 import type { AuthDialog, User } from '@/types/auth';
 
-// * `<u-modal>` needs `<UApp>` above it for its overlay provider, so the harness supplies one.
 async function mountDialog() {
   const closed: (User | AuthDialog | undefined)[] = [];
 
@@ -25,7 +24,7 @@ async function mountDialog() {
       return () =>
         h(UApp, null, {
           default: () =>
-            h(LoginDialog, {
+            h(RegisterDialog, {
               open: true,
               onClose: (result?: User | AuthDialog) => closed.push(result)
             })
@@ -42,16 +41,21 @@ function field(label: string | RegExp) {
   return screen.getByLabelText(label) as HTMLInputElement;
 }
 
+async function fillForm(email = 'new@example.com') {
+  await fireEvent.update(field(/^name/i), 'New Person');
+  await fireEvent.update(field(/^email/i), email);
+  await fireEvent.update(field(/^password$/i), 'password123');
+  await fireEvent.update(field(/confirmation/i), 'password123');
+
+  // * Past the email availability rule's debounce, so $validate() has something settled to read.
+  await new Promise((resolve) => setTimeout(resolve, 700));
+}
+
 function submit() {
   return fireEvent.submit(document.querySelector('form') as HTMLFormElement);
 }
 
-async function fillCredentials(email = 'test@example.com') {
-  await fireEvent.update(field(/email/i), email);
-  await fireEvent.update(field(/password/i), 'password123');
-}
-
-describe('LoginDialog', () => {
+describe('RegisterDialog', () => {
   beforeEach(() => {
     server.use(...authHandlers());
   });
@@ -60,8 +64,8 @@ describe('LoginDialog', () => {
     cleanup();
   });
 
-  it('resolves with the signed-in user once the request succeeds', async () => {
-    const user = buildUser({ email: 'test@example.com' });
+  it('resolves with the registered user', async () => {
+    const user = buildUser({ email: 'new@example.com' });
 
     server.use(
       http.get(apiUrl('/api/user'), () => HttpResponse.json({ data: user }))
@@ -69,32 +73,20 @@ describe('LoginDialog', () => {
 
     const { closed } = await mountDialog();
 
-    await fillCredentials();
+    await fillForm();
     await submit();
 
     await waitFor(() => expect(closed).toHaveLength(1));
-    expect((closed[0] as User)?.email).toBe('test@example.com');
-  });
-
-  it('does not submit while the form is invalid', async () => {
-    const { closed } = await mountDialog();
-
-    // * The dialog opens prefilled, so emptying the email is what makes it invalid.
-    await fireEvent.update(field(/email/i), '');
-    await fireEvent.update(field(/password/i), 'password123');
-    await submit();
-
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    expect(closed).toHaveLength(0);
+    expect((closed[0] as User)?.email).toBe('new@example.com');
   });
 
   it("shows the server's 422 on the field rather than closing", async () => {
     server.use(
-      http.post(apiUrl('/login'), () =>
+      http.post(apiUrl('/register'), () =>
         HttpResponse.json(
           {
             message: 'The given data was invalid.',
-            errors: { email: ['These credentials do not match our records.'] }
+            errors: { email: ['The email has already been taken.'] }
           },
           { status: 422 }
         )
@@ -103,24 +95,22 @@ describe('LoginDialog', () => {
 
     const { closed } = await mountDialog();
 
-    await fillCredentials();
+    await fillForm();
     await submit();
 
     await waitFor(() =>
-      expect(
-        screen.getByText('These credentials do not match our records.')
-      ).toBeTruthy()
+      expect(screen.getByText('The email has already been taken.')).toBeTruthy()
     );
 
     expect(closed).toHaveLength(0);
   });
 
-  it('resolves with nothing when dismissed', async () => {
+  it('asks for the login dialog instead of finishing', async () => {
     const { closed } = await mountDialog();
 
-    await fireEvent.click(screen.getByRole('button', { name: /cancel/i }));
+    await fireEvent.click(screen.getByRole('button', { name: /login here/i }));
 
     await waitFor(() => expect(closed).toHaveLength(1));
-    expect(closed[0]).toBeUndefined();
+    expect(closed[0]).toBe('login');
   });
 });

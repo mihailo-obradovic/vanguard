@@ -5,6 +5,9 @@ export type Credentials = {
   password: string;
 };
 
+// * What an auth dialog resolves with when the user asked for a different one instead of finishing.
+export type AuthDialog = 'login' | 'register' | 'forgot-password';
+
 export const UserSchema = z.object({
   id: z.number(),
   name: z.string(),

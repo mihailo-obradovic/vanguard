@@ -1,11 +1,19 @@
 <template>
   <u-modal
     :open="open"
-    :title="$t('auth.login.title')"
+    :title="$t('auth.register.title')"
     @update:open="handleOpenChange"
   >
     <template #body>
-      <form id="login-form" class="space-y-4" @submit.prevent="handleSubmit">
+      <form id="register-form" class="space-y-4" @submit.prevent="handleSubmit">
+        <u-form-field
+          :label="$t('common.fields.name')"
+          :error="r$.name.$errors[0]"
+          required
+        >
+          <u-input v-model="form.name" autocomplete="name" class="w-full" />
+        </u-form-field>
+
         <u-form-field
           :label="$t('common.fields.email')"
           :error="r$.email.$errors[0]"
@@ -27,7 +35,20 @@
           <u-input
             v-model="form.password"
             type="password"
-            autocomplete="current-password"
+            autocomplete="new-password"
+            class="w-full"
+          />
+        </u-form-field>
+
+        <u-form-field
+          :label="$t('common.fields.passwordConfirmation')"
+          :error="r$.password_confirmation.$errors[0]"
+          required
+        >
+          <u-input
+            v-model="form.password_confirmation"
+            type="password"
+            autocomplete="new-password"
             class="w-full"
           />
         </u-form-field>
@@ -36,19 +57,9 @@
 
     <template #footer>
       <div class="flex w-full items-center justify-between gap-4">
-        <div class="flex flex-col items-start gap-1">
-          <u-button variant="link" size="sm" @click="emit('close', 'register')">
-            {{ $t('auth.login.noAccount') }} {{ $t('auth.login.registerLink') }}
-          </u-button>
-
-          <u-button
-            variant="link"
-            size="sm"
-            @click="emit('close', 'forgot-password')"
-          >
-            {{ $t('auth.login.forgotPasswordLink') }}
-          </u-button>
-        </div>
+        <u-button variant="link" size="sm" @click="emit('close', 'login')">
+          {{ $t('auth.register.haveAccount') }} {{ $t('auth.loginLink') }}
+        </u-button>
 
         <div class="flex gap-2">
           <u-button color="neutral" variant="outline" @click="emit('close')">
@@ -57,14 +68,14 @@
 
           <u-button
             type="submit"
-            form="login-form"
-            :loading="isLoggingIn"
+            form="register-form"
+            :loading="isRegistering"
             :disabled="r$.$invalid"
           >
             {{
-              isLoggingIn
-                ? $t('auth.login.submitting')
-                : $t('auth.login.submit')
+              isRegistering
+                ? $t('auth.register.submitting')
+                : $t('auth.register.submit')
             }}
           </u-button>
         </div>
@@ -74,9 +85,9 @@
 </template>
 
 <script setup lang="ts">
-import { required } from '@regle/rules';
+import { maxLength, required } from '@regle/rules';
 
-import { useLogIn } from '@/services/queries/useAuthQueries';
+import { useRegister } from '@/services/queries/useAuthQueries';
 
 import type { AuthDialog, User } from '@/types/auth';
 
@@ -84,13 +95,18 @@ const emit = defineEmits<{ close: [result?: User | AuthDialog] }>();
 
 const open = defineModel<boolean>('open', { default: false });
 
-const form = ref({ email: 'test@example.com', password: 'gmaz1234' });
+const form = ref({
+  name: '',
+  email: '',
+  password: '',
+  password_confirmation: ''
+});
 
 const {
-  mutate: logIn,
-  isLoading: isLoggingIn,
-  error: loginError
-} = useLogIn({
+  mutate: register,
+  isLoading: isRegistering,
+  error: registerError
+} = useRegister({
   errorHandling: { hideValidationToast: true },
   onSuccess: (user) => emit('close', user)
 });
@@ -98,10 +114,14 @@ const {
 const { r$ } = useRegle(
   form,
   {
-    ...credentialEmailRules(),
-    password: labeledRules('validation.fieldNames.password', { required })
+    name: labeledRules('validation.fieldNames.name', {
+      required,
+      maxLength: maxLength(255)
+    }),
+    ...accountEmailRules(),
+    ...newPasswordRules(() => form.value.password)
   },
-  { externalErrors: useExternalErrors(useValidationErrors(loginError)) }
+  { externalErrors: useExternalErrors(useValidationErrors(registerError)) }
 );
 
 function handleOpenChange(next: boolean) {
@@ -116,7 +136,7 @@ async function handleSubmit() {
   const { valid } = await r$.$validate();
 
   if (valid) {
-    logIn(form.value);
+    register(form.value);
   }
 }
 </script>

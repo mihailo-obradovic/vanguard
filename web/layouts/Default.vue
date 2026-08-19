@@ -43,13 +43,13 @@
           </template>
 
           <template v-else>
-            <button class="auth-link" @click="handleLoginClick">
+            <button class="auth-link" @click="openAuth('login')">
               {{ $t('common.nav.login') }}
             </button>
 
-            <NuxtLink to="/register" class="auth-link">
+            <button class="auth-link" @click="openAuth('register')">
               {{ $t('common.nav.register') }}
-            </NuxtLink>
+            </button>
           </template>
         </div>
       </div>
@@ -68,6 +68,16 @@
 import { useLogOut } from '@/services/queries/useAuthQueries';
 
 import LoginDialog from '@/components/auth/LoginDialog.vue';
+import RegisterDialog from '@/components/auth/RegisterDialog.vue';
+import ForgotPasswordDialog from '@/components/auth/ForgotPasswordDialog.vue';
+
+import type { AuthDialog } from '@/types/auth';
+
+const AUTH_DIALOGS = {
+  login: LoginDialog,
+  register: RegisterDialog,
+  'forgot-password': ForgotPasswordDialog
+};
 
 const overlay = useOverlay();
 
@@ -75,8 +85,15 @@ const { isLoggedIn, isAdmin, user } = storeToRefs(useAuthStore());
 
 const { mutate: logOut, isLoading: isLoggingOut } = useLogOut();
 
-function handleLoginClick() {
-  overlay.create(LoginDialog, { destroyOnClose: true }).open();
+async function openAuth(dialog: AuthDialog) {
+  const result = await overlay
+    .create(AUTH_DIALOGS[dialog], { destroyOnClose: true })
+    .open();
+
+  // * A dialog resolves with the name of another one when the user asked to switch instead of finishing.
+  if (typeof result === 'string') {
+    await openAuth(result);
+  }
 }
 </script>
 

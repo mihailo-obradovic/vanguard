@@ -1,64 +1,48 @@
 <template>
-  <div class="demo-container">
-    <header class="demo-header">
-      <h1 class="demo-title">{{ $t('graphqlDemo.title') }}</h1>
+  <div>
+    <header class="border-default mb-6 border-b pb-4">
+      <h1 class="text-2xl font-semibold">{{ $t('graphqlDemo.title') }}</h1>
 
-      <p class="demo-intro">{{ $t('graphqlDemo.intro') }}</p>
+      <p class="text-muted mt-2 text-sm">{{ $t('graphqlDemo.intro') }}</p>
     </header>
 
-    <div v-if="isPending" class="state-panel">
-      <p>{{ $t('users.loading') }}</p>
-    </div>
-
-    <div v-else-if="error" class="state-panel error-panel">
-      <p>{{ $t('errors.usersLoad', { message: getErrorMessage(error) }) }}</p>
-    </div>
-
-    <div v-else class="table-container">
-      <table class="users-table">
-        <thead>
-          <tr>
-            <th>{{ $t('users.columns.id') }}</th>
-            <th>{{ $t('users.columns.name') }}</th>
-            <th>{{ $t('users.columns.email') }}</th>
-            <th>{{ $t('users.columns.role') }}</th>
-            <th>{{ $t('users.columns.actions') }}</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          <tr v-for="user in users" :key="user.id">
-            <td>{{ user.id }}</td>
-            <td>{{ user.name }}</td>
-            <td class="user-email">{{ user.email }}</td>
-            <td><RoleBadge :role="user.role" /></td>
-            <td>
-              <button class="edit-btn" @click="openEditForm(user)">
-                {{ $t('common.actions.edit') }}
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <UserGqlFormDialog
-      :user="editingUser"
-      :submitting="isUpdating"
-      :server-errors="formErrors"
-      @update="updateUser"
-      @close="closeEditForm"
+    <u-alert
+      v-if="error"
+      color="error"
+      variant="subtle"
+      :description="$t('errors.usersLoad', { message: getErrorMessage(error) })"
     />
+
+    <u-table
+      v-else
+      :data="users ?? []"
+      :columns="columns"
+      :loading="isPending"
+      class="ring-default rounded-lg ring"
+    >
+      <template #role-cell="{ row }">
+        <RoleBadge :role="row.original.role" />
+      </template>
+
+      <template #actions-cell="{ row }">
+        <u-button
+          size="xs"
+          variant="soft"
+          icon="i-lucide-pencil"
+          @click="openEditForm(row.original)"
+        >
+          {{ $t('common.actions.edit') }}
+        </u-button>
+      </template>
+    </u-table>
   </div>
 </template>
 
 <script setup lang="ts">
 import UserGqlFormDialog from '@/components/users/UserGqlFormDialog.vue';
 
-import {
-  useFetchUsersGql,
-  useUpdateUserGql
-} from '@/services/queries/useUserGqlQueries';
+import { useFetchUsersGql } from '@/services/queries/useUserGqlQueries';
+
 import type { User } from '@/types/auth';
 
 // * Worked example for catalyst/features/007_graphql-api.md: this page is written exactly the
@@ -69,115 +53,19 @@ const { t } = useI18n();
 
 const { data: users, isPending, error } = useFetchUsersGql();
 
-const editingUser = ref<User | null>(null);
+const overlay = useOverlay();
 
-const {
-  mutate: updateUser,
-  isLoading: isUpdating,
-  error: updateError
-} = useUpdateUserGql({
-  errorHandling: { hideValidationToast: true },
-  onSuccess: (updatedUser) => {
-    $toast(t('users.toasts.updated', { name: updatedUser.name }), 'success');
-    closeEditForm();
-  }
-});
-
-const formErrors = useValidationErrors(updateError);
+const columns = computed(() => [
+  { accessorKey: 'id', header: t('users.columns.id') },
+  { accessorKey: 'name', header: t('users.columns.name') },
+  { accessorKey: 'email', header: t('users.columns.email') },
+  { accessorKey: 'role', header: t('users.columns.role') },
+  { id: 'actions', header: t('users.columns.actions') }
+]);
 
 function openEditForm(user: User) {
-  editingUser.value = user;
-}
-
-function closeEditForm() {
-  editingUser.value = null;
+  overlay
+    .create(UserGqlFormDialog, { destroyOnClose: true, props: { user } })
+    .open();
 }
 </script>
-
-<style scoped>
-.demo-container {
-  max-width: 1000px;
-  margin: 0 auto;
-}
-
-.demo-header {
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.demo-title {
-  color: var(--color-brand);
-  margin: 0;
-  font-size: 32px;
-  font-weight: 600;
-}
-
-.demo-intro {
-  color: var(--color-text-muted);
-  margin: 8px 0 0 0;
-  font-size: 14px;
-}
-
-.state-panel {
-  text-align: center;
-  padding: 32px;
-  background: var(--color-surface);
-  border-radius: var(--radius);
-  border: 1px solid var(--color-border);
-}
-
-.error-panel {
-  color: var(--color-danger);
-  background-color: var(--color-danger-surface);
-  border-color: var(--color-danger-surface-border);
-}
-
-.table-container {
-  background: var(--color-surface);
-  border-radius: var(--radius);
-  border: 1px solid var(--color-border);
-  overflow: hidden;
-  box-shadow: var(--shadow-subtle);
-}
-
-.users-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.users-table th {
-  background-color: var(--color-brand);
-  color: var(--color-on-brand);
-  padding: 12px 16px;
-  text-align: left;
-  font-weight: 600;
-  font-size: 14px;
-}
-
-.users-table td {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--color-border);
-  font-size: 14px;
-}
-
-.user-email {
-  color: var(--color-text-muted);
-}
-
-.edit-btn {
-  background-color: var(--color-brand);
-  color: var(--color-on-brand);
-  border: none;
-  padding: 6px 12px;
-  border-radius: var(--radius);
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 500;
-  transition: background-color var(--transition);
-}
-
-.edit-btn:hover:not(:disabled) {
-  background-color: var(--color-brand-hover);
-}
-</style>

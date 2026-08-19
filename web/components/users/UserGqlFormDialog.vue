@@ -1,87 +1,105 @@
 <template>
-  <UIDialog
-    :open="user !== null"
-    :title="$t('graphqlDemo.editTitle', { name: user?.name ?? '' })"
-    @close="emit('close')"
+  <u-modal
+    :open="open"
+    :title="$t('graphqlDemo.editTitle', { name: user.name })"
+    @update:open="handleOpenChange"
   >
-    <form class="user-form" novalidate @submit.prevent="handleSubmit">
-      <UIField
-        v-model="form.name"
-        :label="$t('common.fields.name')"
-        :errors="r$.name.$errors"
-        type="text"
-        :disabled="submitting"
-      />
+    <template #body>
+      <form
+        id="user-gql-form"
+        class="space-y-4"
+        novalidate
+        @submit.prevent="handleSubmit"
+      >
+        <u-form-field
+          :label="$t('common.fields.name')"
+          :error="r$.name.$errors[0]"
+        >
+          <u-input v-model="form.name" class="w-full" />
+        </u-form-field>
 
-      <UIField
-        v-model="form.email"
-        :label="$t('common.fields.email')"
-        :errors="r$.email.$errors"
-        type="email"
-        :disabled="submitting"
-      />
+        <u-form-field
+          :label="$t('common.fields.email')"
+          :error="r$.email.$errors[0]"
+        >
+          <u-input v-model="form.email" type="email" class="w-full" />
+        </u-form-field>
 
-      <UIField :label="$t('common.fields.role')">
-        <template #default="{ controlId }">
+        <!-- ! Native <select> and a hand-paired label, for the reason recorded in UserFormDialog: Nuxt UI's select is a Reka listbox no spec can drive, and the role carries privilege. -->
+        <div>
+          <label
+            :for="roleId"
+            class="text-default mb-1 block text-sm font-medium"
+          >
+            {{ $t('common.fields.role') }}
+          </label>
+
           <select
-            :id="controlId"
+            :id="roleId"
             v-model="form.role"
-            class="ui-field-control"
-            :disabled="submitting"
+            class="ring-accented text-highlighted bg-default focus-visible:outline-primary w-full rounded-md px-2.5 py-1.5 text-sm ring ring-inset focus-visible:outline-2"
           >
             <option value="user">{{ $t('users.roles.user') }}</option>
 
             <option value="admin">{{ $t('users.roles.admin') }}</option>
           </select>
-        </template>
-      </UIField>
+        </div>
+      </form>
+    </template>
 
-      <UIDialogActions>
-        <button
-          type="button"
-          class="cancel-btn"
-          :disabled="submitting"
-          @click="emit('close')"
-        >
+    <template #footer>
+      <div class="flex w-full justify-end gap-2">
+        <u-button color="neutral" variant="outline" @click="emit('close')">
           {{ $t('common.actions.cancel') }}
-        </button>
+        </u-button>
 
-        <button
+        <u-button
           type="submit"
-          class="submit-btn"
-          :disabled="submitting || r$.$invalid"
+          form="user-gql-form"
+          :loading="isUpdating"
+          :disabled="r$.$invalid"
         >
           {{
-            submitting
+            isUpdating
               ? $t('common.actions.saving')
               : $t('users.form.submitUpdate')
           }}
-        </button>
-      </UIDialogActions>
-    </form>
-  </UIDialog>
+        </u-button>
+      </div>
+    </template>
+  </u-modal>
 </template>
 
 <script setup lang="ts">
 import { email, maxLength, required } from '@regle/rules';
 
+import { useUpdateUserGql } from '@/services/queries/useUserGqlQueries';
+
 import type { User } from '@/types/auth';
-import type { UpdateUserGqlInput } from '@/types/user';
 
-const props = defineProps<{
-  // * The user being edited — and the open state: this dialog only ever edits, so a subject and an open flag would be the same fact stated twice.
-  user: User | null;
-  submitting: boolean;
-  // * The owning page's 422 map (`useValidationErrors`), mirrored into Regle here.
-  serverErrors: Record<string, string[]>;
-}>();
+const props = defineProps<{ user: User }>();
 
-const emit = defineEmits<{
-  update: [input: UpdateUserGqlInput];
-  close: [];
-}>();
+const emit = defineEmits<{ close: [result?: User] }>();
+
+const open = defineModel<boolean>('open', { default: false });
+
+const { t } = useI18n();
+
+const roleId = useId();
 
 const form = ref(formFor(props.user));
+
+const {
+  mutate: updateUser,
+  isLoading: isUpdating,
+  error: updateError
+} = useUpdateUserGql({
+  errorHandling: { hideValidationToast: true },
+  onSuccess: (updated) => {
+    $toast(t('users.toasts.updated', { name: updated.name }), 'success');
+    emit('close', updated);
+  }
+});
 
 // * Mirrors the GraphQL validator, which has no password field and no availability hint — the REST form's `accountEmailRules` would promise checks this endpoint does not make.
 const { r$ } = useRegle(
@@ -94,80 +112,34 @@ const { r$ } = useRegle(
       maxLength: maxLength(255)
     })
   },
-  { externalErrors: useExternalErrors(() => props.serverErrors) }
+  { externalErrors: useExternalErrors(useValidationErrors(updateError)) }
 );
 
-function formFor(user: User | null) {
+function formFor(user: User) {
   return {
-    name: user?.name ?? '',
-    email: user?.email ?? '',
-    role: user?.role ?? ('user' as User['role'])
+    name: user.name,
+    email: user.email,
+    role: user.role
   };
+}
+
+function handleOpenChange(next: boolean) {
+  open.value = next;
+
+  if (!next) {
+    emit('close');
+  }
 }
 
 async function handleSubmit() {
   const { valid } = await r$.$validate();
 
-  if (!valid || !props.user) return;
+  if (!valid) return;
 
   // * Partial update: only the fields the admin actually changed go on the wire — omitted GraphQL variables never reach the resolver, so untouched fields keep their values.
-  emit('update', {
+  updateUser({
     id: props.user.id,
     ...changedFields(props.user, form.value)
   });
 }
-
-// * Keyed on the subject rather than an open flag, since here they are the same thing.
-watch(
-  () => props.user,
-  (user) => {
-    if (!user) return;
-
-    r$.$reset({ toState: formFor(user), clearExternalErrors: true });
-  }
-);
 </script>
-
-<style scoped>
-.user-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.cancel-btn {
-  background-color: var(--color-secondary);
-  color: var(--color-on-brand);
-  border: none;
-  padding: 8px 16px;
-  border-radius: var(--radius);
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color var(--transition);
-}
-
-.cancel-btn:hover {
-  background-color: var(--color-secondary-hover);
-}
-
-.submit-btn {
-  background-color: var(--color-brand);
-  color: var(--color-on-brand);
-  border: none;
-  padding: 8px 16px;
-  border-radius: var(--radius);
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color var(--transition);
-}
-
-.submit-btn:hover:not(:disabled) {
-  background-color: var(--color-brand-hover);
-}
-
-.submit-btn:disabled,
-.cancel-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-</style>

@@ -22,21 +22,18 @@ export function determineAuthRedirect(
     };
   }
 
-  const guestOnlyPages = ['/login', '/register', '/forgot-password'];
-  // * Pages with dynamic segments, e.g. /password-reset/{token}
-  const guestOnlyPrefixes = ['/password-reset/'];
+  // * Login, register and password recovery are dialogs the layout opens, so the reset page is the only guest-only route left — it is reached from an emailed link rather than from inside the app.
+  const guestOnlyPages = ['/password-reset'];
   const sharedPages = ['/home'];
-  const isGuestOnlyPage =
-    guestOnlyPages.includes(pathWithoutQuery) ||
-    guestOnlyPrefixes.some((prefix) => pathWithoutQuery.startsWith(prefix));
+  const isGuestOnlyPage = guestOnlyPages.includes(pathWithoutQuery);
   const isProtectedPage =
     !isGuestOnlyPage && !sharedPages.includes(pathWithoutQuery);
 
-  // * Redirect unauthenticated users away from protected pages
+  // * Redirect unauthenticated users away from protected pages. Home, not login: there is no login route to send them to, and the layout's Login button is on every page.
   if (!isLoggedIn.value && isProtectedPage) {
     return {
       shouldRedirect: true,
-      redirectTo: '/login',
+      redirectTo: '/home',
       reason: 'protected_page_without_auth'
     };
   }

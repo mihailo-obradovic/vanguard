@@ -74,19 +74,12 @@ describe('the app shell', () => {
   it('sends a user who signs out away from a page they can no longer reach', async () => {
     await signIn('/users', 'out');
 
-    expect(navigateTo).toHaveBeenCalledWith('/login', { replace: true });
-  });
-
-  it('sends a user who signs in away from a guest-only page', async () => {
-    await signIn('/login', 'in');
-
     expect(navigateTo).toHaveBeenCalledWith('/home', { replace: true });
   });
 
-  // * The token-carrying reset page is matched by prefix rather than by exact path, so it is the
-  // * one guest-only route whose classification the watcher could plausibly get wrong.
+  // * The reset page is the only guest-only route left, the rest being dialogs.
   it('sends a user who signs in away from the password-reset link', async () => {
-    await signIn('/password-reset/reset-token', 'in');
+    await signIn('/password-reset', 'in');
 
     expect(navigateTo).toHaveBeenCalledWith('/home', { replace: true });
   });

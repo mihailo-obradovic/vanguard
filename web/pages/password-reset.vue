@@ -33,13 +33,6 @@
       required
       :disabled="isResetting"
     />
-
-    <template #footer>
-      <p>
-        {{ $t('auth.rememberedPassword') }}
-        <NuxtLink to="/login">{{ $t('auth.loginLink') }}</NuxtLink>
-      </p>
-    </template>
   </AuthCard>
 </template>
 
@@ -62,7 +55,7 @@ const {
   errorHandling: { hideValidationToast: true },
   onSuccess: (data) => {
     $toast(data.status, 'success');
-    navigateTo('/login');
+    navigateTo('/home');
   }
 });
 
@@ -81,7 +74,7 @@ async function handleSubmit() {
 
   if (valid) {
     resetPassword({
-      token: String(route.params.token ?? ''),
+      token: String(route.query.token ?? ''),
       ...form.value
     });
   }

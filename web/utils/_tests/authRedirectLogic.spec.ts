@@ -11,40 +11,34 @@ mockNuxtImport('useAuthStore', () => () => ({ isLoggedIn }));
 mockNuxtImport('storeToRefs', () => (store: unknown) => store);
 
 describe('determineAuthRedirect', () => {
-  it('lets unauthenticated users reach the auth pages', () => {
-    isLoggedIn.value = false;
-
-    for (const path of ['/login', '/register', '/forgot-password']) {
-      expect(determineAuthRedirect(path, {})).toEqual({
-        shouldRedirect: false
-      });
-    }
-  });
-
-  it('lets unauthenticated users reach the tokenized password-reset page', () => {
+  it('lets unauthenticated users reach the password-reset page from its emailed link', () => {
     isLoggedIn.value = false;
 
     expect(
-      determineAuthRedirect('/password-reset/abc123', { email: 'a@b.c' })
+      determineAuthRedirect('/password-reset', {
+        token: 'abc123',
+        email: 'a@b.c'
+      })
     ).toEqual({ shouldRedirect: false });
   });
 
-  it('sends authenticated users away from guest-only pages', () => {
+  it('sends authenticated users away from the password-reset page', () => {
     isLoggedIn.value = true;
 
-    const decision = determineAuthRedirect('/login', {});
+    const decision = determineAuthRedirect('/password-reset', {});
 
     expect(decision.shouldRedirect).toBe(true);
     expect(decision.redirectTo).toBe('/home');
   });
 
-  it('redirects unauthenticated users from protected pages to login', () => {
+  // * There is no login route to send them to — the layout opens the dialog instead.
+  it('redirects unauthenticated users from protected pages to home', () => {
     isLoggedIn.value = false;
 
     const decision = determineAuthRedirect('/users', {});
 
     expect(decision.shouldRedirect).toBe(true);
-    expect(decision.redirectTo).toBe('/login');
+    expect(decision.redirectTo).toBe('/home');
   });
 
   it('lets unauthenticated users reach the shared home page', () => {
@@ -58,7 +52,7 @@ describe('determineAuthRedirect', () => {
   it('ignores the query string when classifying a page', () => {
     isLoggedIn.value = true;
 
-    const decision = determineAuthRedirect('/login?redirect=/users', {});
+    const decision = determineAuthRedirect('/password-reset?token=abc', {});
 
     expect(decision.shouldRedirect).toBe(true);
     expect(decision.redirectTo).toBe('/home');

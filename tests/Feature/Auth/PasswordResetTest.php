@@ -79,7 +79,7 @@ test('the reset link resolves to the front-end reset page', function () {
         $email = urlencode($user->email);
 
         expect($notification->toMail($user)->actionUrl)
-            ->toBe(config('app.frontend_url')."/password-reset/{$notification->token}?email={$email}");
+            ->toBe(config('app.frontend_url')."/password-reset?token={$notification->token}&email={$email}");
 
         return true;
     });

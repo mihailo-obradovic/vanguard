@@ -1,17 +1,9 @@
 @import 'tailwindcss';
 @import '@nuxt/ui';
 
-/*
- * The Dracula palette (https://draculatheme.com), the same hexes the vuetify variant carries.
- * Ramps are named for the SEMANTIC ROLE, not the colour, so a call site never learns that primary
- * happens to be purple. Dracula publishes one hex per colour; the other ten shades are generated
- * in OKLCH — hue held, lightness on Tailwind's curve, chroma tapering toward both ends, anything
- * outside sRGB gamut-mapped by reducing chroma rather than clipping channels (which shifts hue).
- *
- * Each accent sits at shade 400 EXACTLY as Dracula publishes it, because Nuxt UI resolves a
- * semantic colour to 400 in dark mode — so dark mode is true Dracula, the mode it was drawn for.
- * `static` emits every shade: Nuxt UI reaches them through --ui-color-*, which Tailwind cannot see.
- */
+/* * The Dracula palette (https://draculatheme.com), named for the semantic role rather than the colour. Dracula publishes one hex each; the other ten shades are generated in OKLCH, gamut-mapped by reducing chroma rather than clipping channels. */
+/* * Each accent sits at shade 400 exactly as published, because Nuxt UI resolves a semantic colour to 400 in dark mode — so dark mode is true Dracula. */
+/* ! `static` is required: Nuxt UI reaches the shades through --ui-color-*, which Tailwind cannot see, so without it they are tree-shaken away. */
 @theme static {
     /* * primary — Dracula purple #bd93f9 */
     --color-primary-50: #f7f3ff;
@@ -91,13 +83,7 @@
     --color-error-900: #850013;
     --color-error-950: #4a0006;
 
-    /*
-     * * The neutral ramp keeps the Dracula name because it IS Dracula's greyscale, and because
-     * * `neutral` alone would override Tailwind's own palette of that name. Dracula publishes four
-     * * greys, placed at the shades their lightness actually belongs to — foreground 50, comment
-     * * 600, current line 900, background 950 — with the gaps interpolated in OKLab, since hue is
-     * * meaningless near grey and interpolating it swings the light end through pink.
-     */
+    /* * Named `dracula` rather than `neutral`, which would override Tailwind's own palette of that name. Its four greys sit where their lightness belongs — foreground 50, comment 600, current line 900, background 950 — and the gaps interpolate in OKLab, since hue near grey is meaningless and interpolating it swings the light end through pink. */
     --color-dracula-50: #f8f8f2;
     --color-dracula-100: #e8eaea;
     --color-dracula-200: #d4d9e4;
@@ -111,15 +97,8 @@
     --color-dracula-950: #282a36;
 }
 
-/*
- * Light mode. Dracula's own light face: the foreground colour becomes the page, the current-line
- * colour becomes the text.
- *
- * ! The accents cannot keep Dracula's shades here. Nuxt UI fills a solid control with shade 500
- * ! under inverted (white) text, and against a light page every Dracula pastel lands between
- * ! 1.8:1 and 4.1:1 — all of them fail WCAG AA. These are the lightest shades reaching 4.5:1, so
- * ! light mode trades palette fidelity for legibility.
- */
+/* * Light mode — Dracula's own light face: the foreground colour becomes the page, the current-line colour becomes the text. */
+/* ! The accents cannot keep Dracula's shades here: Nuxt UI fills a solid control with shade 500 under white text, and every Dracula pastel lands between 1.8:1 and 4.1:1 against a light page. These are the lightest shades reaching 4.5:1. */
 :root {
     color-scheme: light;
 
@@ -153,18 +132,9 @@
     --ui-container: 1200px;
 }
 
-/*
- * Dark mode — the palette as Dracula draws it: background, current line, comment and foreground
- * land on the tokens they were named for, and every accent returns to shade 400, its published hex.
- *
- * ! `:root.dark` rather than a bare `.dark`: this stylesheet is imported after Nuxt UI's, and the
- * ! light block above matches the same <html> element, so the dark rules need the higher
- * ! specificity or light mode's values would win in both modes.
- *
- * ! The accents must be restored here explicitly. Shade 400 is Nuxt UI's own dark default, but the
- * ! light block above overrode it unconditionally, so leaving it out paints dark mode in light
- * ! mode's darkened accents — which is exactly what it did before this line existed.
- */
+/* * Dark mode — the palette as Dracula draws it: background, current line, comment and foreground land on the tokens they were named for. */
+/* ! `:root.dark` rather than a bare `.dark`: this sheet is imported after Nuxt UI's and the light block matches the same <html>, so the dark rules need the higher specificity or light mode wins in both. */
+/* ! The accents look redundant but are not: shade 400 is Nuxt UI's dark default, and the light block above overrode it unconditionally, so removing these paints dark mode in light mode's darkened accents. */
 :root.dark,
 .dark {
     color-scheme: dark;
@@ -193,6 +163,19 @@
     --ui-border-muted: var(--ui-color-neutral-900);
     --ui-border-accented: var(--ui-color-neutral-800);
     --ui-border-inverted: var(--ui-color-neutral-50);
+}
+
+/* ! Tailwind v4 dropped preflight's `cursor: pointer` on buttons, so every button in the app reverts to the arrow without this. Links keep the pointer natively. */
+@layer base {
+    button:not(:disabled),
+    [role='button']:not(:disabled) {
+        cursor: pointer;
+    }
+
+    button:disabled,
+    [role='button'][aria-disabled='true'] {
+        cursor: not-allowed;
+    }
 }
 
 /*

@@ -43,9 +43,9 @@
           </template>
 
           <template v-else>
-            <NuxtLink to="/login" class="auth-link">
+            <button class="auth-link" @click="handleLoginClick">
               {{ $t('common.nav.login') }}
-            </NuxtLink>
+            </button>
 
             <NuxtLink to="/register" class="auth-link">
               {{ $t('common.nav.register') }}
@@ -67,9 +67,17 @@
 <script setup lang="ts">
 import { useLogOut } from '@/services/queries/useAuthQueries';
 
+import LoginDialog from '@/components/auth/LoginDialog.vue';
+
+const overlay = useOverlay();
+
 const { isLoggedIn, isAdmin, user } = storeToRefs(useAuthStore());
 
 const { mutate: logOut, isLoading: isLoggingOut } = useLogOut();
+
+function handleLoginClick() {
+  overlay.create(LoginDialog, { destroyOnClose: true }).open();
+}
 </script>
 
 <style scoped>

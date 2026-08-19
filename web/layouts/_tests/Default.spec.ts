@@ -38,10 +38,12 @@ describe('the default layout', () => {
     expect(main.getAttribute('tabindex')).toBe('-1');
   });
 
+  // * Login opens a dialog rather than navigating, so it is a button here; Register is still a route.
   it('offers a guest the ways in, and nothing else', async () => {
     await renderSuspended(Default);
 
-    expect(linkNames()).toEqual(expect.arrayContaining(['Login', 'Register']));
+    expect(screen.getByRole('button', { name: 'Login' })).not.toBeNull();
+    expect(linkNames()).toEqual(expect.arrayContaining(['Register']));
     expect(screen.queryByRole('button', { name: 'Logout' })).toBeNull();
   });
 

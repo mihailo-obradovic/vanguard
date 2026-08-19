@@ -1,6 +1,7 @@
 import type * as theme from '#build/ui';
 import type { TVConfig } from '#ui/types';
 
+export type BadgeConfig = TVConfig<typeof theme>['badge'];
 export type ButtonConfig = TVConfig<typeof theme>['button'];
 export type CardConfig = TVConfig<typeof theme>['card'];
 export type FooterConfig = TVConfig<typeof theme>['footer'];

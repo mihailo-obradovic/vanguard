@@ -106,4 +106,4 @@ A validation failure the form could have caught belongs on the field that caused
 
 Where the `frontend/ui` choice provides inputs with an error-message prop, pass Regle's `$errors` array straight to it — it is already `string[]`.
 
-Where it does not, the project owns a small presenter component with a **fixed minimum height** (`ui/headless.md`, The field-error presenter).
+Where it does not, the project owns a small presenter component with a **fixed minimum height** — a message that appears and disappears without one shifts every field below it while the user is mid-form.

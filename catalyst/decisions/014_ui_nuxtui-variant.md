@@ -1,0 +1,68 @@
+# Decision: Nuxt UI as this branch's UI layer
+
+## Status
+
+Implemented
+
+## Type
+
+ui
+
+## Task Weight
+
+Medium
+
+## Context
+
+Recorded at the close of the variant build (2026-08-19). `variant/nuxtui` was branched from master to carry a third UI face of the same app, beside `variant/vuetify` (record 010). Master's init design (ADR 001) fixed `frontend/ui = headless` and left each variant to record its own choice here.
+
+## Decision
+
+**`frontend/ui = nuxtui` on `variant/nuxtui`.** The bundle's ui choice switched with it: `stacks/frontend/nuxt/ui/nuxtui/` (`nuxtui.md`, `customization.md`) replaced `headless.md`, the `nuxtui-setup` / `nuxtui-customization` wrappers were added, and the Technical Stack row flipped.
+
+The wrappers are **hand-written in generator format**: Catalyst's `write_skill_wrappers()` has no `nuxtui` entry, since the template's `stacks/frontend/nuxt/ui/` still holds only `headless.md` and `vuetify/`. Until the module is ported upstream, an upgrade leaves them alone but never refreshes them.
+
+No rejected alternative to name — master _is_ the headless one, vuetify the other library; the branches exist to keep all three.
+
+## Variant-only specifics
+
+Product decisions of this branch, not module prescriptions:
+
+- **Dialogs own their own mutations.** Auth and user dialogs are `<u-modal>`s opened through Nuxt UI's `useOverlay`; each owns its mutation, its 422s, its success toast, and resolves with what it saved. This is the sharpest divergence from vuetify, where the layout holds `useMutationDialog()` and the dialogs are dumb `v-model`/`:loading`/`@confirm` children. Vuetify has no `useOverlay` equivalent — the split is a library capability difference, not a disagreement.
+- **Dracula on the seven semantic aliases.** Custom `@theme` ramps in `main.css`, each accent at shade 400 so dark mode is true Dracula; light mode darkens them to reach 4.5:1. The neutral ramp is named `dracula` — `neutral` would shadow Tailwind's own palette.
+- **Per-component vendored theme configs** in `web/config/nuxt-ui/`, holding upstream's complete default theme with every deviation annotated (`customization.md`). Tailwind class sorting is exempted there for exactly that reason.
+- **`@iconify-json/lucide` bundled locally** so Nuxt UI's own icon names — the `:loading` spinner included — resolve without an Iconify HTTP call.
+- **The boot splash needs no cookie script**, unlike vuetify's: `@nuxtjs/color-mode` stamps `dark` on `<html>` from a synchronous head script before the body paints, so plain CSS picks the face.
+- **No native `<select>` survives.** `USelect` is a Reka listbox jsdom cannot drive; specs drive it through `update:modelValue` at the component seam, which is the right seam regardless.
+
+## Known inconsistencies (recorded, not fixed)
+
+- **Stryker silently drops seven spec files (44 tests).** Any spec rendering the `<UApp>`-wrapped dialog or layout tree dies on `ReferenceError: stryMutAct_9fa48 is not defined` out of instrumented SFC template code, and the runner treats a suite that yielded no tests as absent rather than failed. The three auth dialogs, the three user dialogs and `Default.vue` therefore report 0% with every mutant "no coverage" despite all seven being tested — so the **total** score is understated and the **covered** score is the meaningful one. Tracked separately.
+- `LoginDialog.vue` ships prefilled dev credentials. Deliberate, and kept.
+- Ten Markdown documents fail `oxfmt --check`, eight master-owned. Pre-existing; left for a master-side pass.
+
+## Scope
+
+`catalyst/` bundle (ui module documents, Technical Stack row, `validation.md`'s presenter cross-reference), `.claude/skills/`, `.oxfmtrc.json`, `web/CLAUDE.md`. No behavior contract changes: session and auth stay owned by `features/001_session-auth.md`.
+
+## Consequences
+
+- Master → variant merges stay clean on the _stack documents_ — the three ui choices live at different paths and this branch deletes rather than edits `headless.md` — but not on the code, for the reasons record 010 sets out.
+- Porting the module into Catalyst (a follow-up) is what makes the wrappers generated rather than hand-kept, and is where the branch-only AI tooling — the MCP server and the vendored `nuxt-ui` skill — has to become a module prescription.
+
+## Contracts Touched
+
+- `project-summary.md` — Technical Stack row (`frontend/ui | nuxtui`), ADR Index row for this record.
+- `web/CLAUDE.md` — the ui governing-document pointer and the form-field invariant.
+- `stacks/frontend/nuxt/ui/nuxtui/customization.md` — the class-sorting exemption.
+- `stacks/frontend/nuxt/validation.md` — the field-error presenter reference, which named the deleted `headless.md`.
+
+## Open Questions
+
+(none)
+
+## Verification
+
+Suites green on the branch at close-out: Vitest 44 files / 325 tests, `oxlint`, `nuxt typecheck`, `validate.py` 0 errors. The Tailwind-sorting change reformatted eight Vue files and no vendored config, and the suites were re-run green after it.
+
+Mutation run 2026-08-19 over 865 mutants: **64.51% total, 94.10% covered** — 558 killed, 35 survived, 272 without coverage, 0 timed out. Of those 272, roughly 233 sit in the seven components whose specs Stryker drops (above); the genuinely untested remainder is `SidebarNav.vue`, `AuthControls.vue` and `hide-devtools-webcomponents.client.ts`. Services, stores and queries score 100%; `utils/` 94.90%.

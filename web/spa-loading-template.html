@@ -1,0 +1,44 @@
+<!-- * Shown from HTML load until the app mounts — this covers auth-loader's two blocking requests (CSRF cookie + current user), which would otherwise be a blank screen. Pre-i18n, so no text. -->
+<div id="boot-splash">
+  <div id="boot-splash-spinner" role="progressbar" aria-label="Loading"></div>
+</div>
+<style>
+  /* ! The colours are literals, not the --ui-* / --app-bg-page tokens they mirror: this markup is inlined into the HTML ahead of the stylesheet, and in dev the sheet arrives via JS, so the tokens do not exist yet at paint time. Change a value in assets/styles/main.css, change it here. */
+  /* * No cookie-reading script, unlike variant/vuetify: @nuxtjs/color-mode pushes a synchronous script into <head> that puts `dark` on <html> before the body paints, so the class is already there for these rules to match. */
+  #boot-splash {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* * --app-bg-page, light: --color-dracula-100 */
+    background: #e8eaea;
+  }
+
+  /* * --app-bg-page, dark */
+  :root.dark #boot-splash {
+    background: #21222c;
+  }
+
+  #boot-splash-spinner {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    /* * --ui-primary, light: --color-primary-700, the shade the light face darkens Dracula purple to for contrast. */
+    border: 4px solid rgba(129, 68, 197, 0.25);
+    border-top-color: #8144c5;
+    animation: boot-splash-spin 1.4s linear infinite;
+  }
+
+  /* * --ui-primary, dark: --color-primary-400, Dracula purple as published. */
+  :root.dark #boot-splash-spinner {
+    border-color: rgba(189, 147, 249, 0.25);
+    border-top-color: #bd93f9;
+  }
+
+  @keyframes boot-splash-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+</style>

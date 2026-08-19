@@ -191,7 +191,7 @@ No raw z-index literals and no `9999`. A new layer is **added to the scale** wit
 
 ## 9. Iconography
 
-**One icon set for the whole product** — mixing sets is visible immediately in stroke weight and optical size. Under **vuetify** the set is `@mdi/js` SVG paths (`ui/vuetify/setup.md`); under **headless** the set is `<icon set>`, recorded at instantiation — adding the package is a Dependency Change.
+**One icon set for the whole product** — mixing sets is visible immediately in stroke weight and optical size. Under **vuetify** the set is `@mdi/js` SVG paths (`ui/vuetify/setup.md`); under **nuxtui** it is Lucide, bundled locally from `@iconify-json/lucide` (`ui/nuxtui/nuxtui.md`, Icons); under **headless** the set is `<icon set>`, recorded at instantiation — adding the package is a Dependency Change.
 
 - **Sizes:** `<16 / 20 / 24>` px only, keyed to the adjacent text role — 16 with `small`, 20 with `body`, 24 standalone. Icon-only buttons keep the control height from §4.
 - **Color:** `currentColor` (inherit from the text color). Never a hardcoded fill.

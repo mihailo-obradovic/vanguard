@@ -10,6 +10,14 @@ Vue's first-party-adjacent component library for the Nuxt module, built on Reka 
 - **Colour comes from the seven semantic aliases** (`primary`, `secondary`, `success`, `info`, `warning`, `error`, `neutral`), never a palette name and never a hex. The ramps behind them, and the per-mode token set, live in the project's stylesheet.
 - Nuxt UI **registers `@nuxt/icon`, `@nuxt/fonts` and `@nuxtjs/color-mode` itself** — none of them belongs in the `modules` array, and none needs a direct dependency entry. They are configured through root-level keys in `nuxt.config.ts`.
 
+## Icons
+
+Nuxt UI resolves every icon name — its own defaults included, like the `:loading` spinner's `lucide:loader-circle` — through `@nuxt/icon`. Without a matching collection package installed, that resolution goes over the Iconify HTTP API at runtime, so icons silently fail to render offline and cost a request when they do work.
+
+The project therefore installs **`@iconify-json/lucide`** as a dev dependency, which `@nuxt/icon` bundles locally. Lucide because it is Nuxt UI's own default prefix: leaving it means every stock component icon keeps working with no per-icon aliasing.
+
+This is not a contradiction of the "never add `@nuxt/icon` yourself" rule below. The **module** is Nuxt UI's to own; the **collection data** it resolves against is the project's choice, and is exactly the `<icon set>` the design system's Iconography section asks each project to record. A second collection is a Dependency Change and a design-system violation both — one icon set, product-wide.
+
 ## Module Documents
 
 | Document                               | What it holds                                    | Load                                                                                            |
@@ -44,4 +52,5 @@ Re-sync: re-clone `skills/nuxt-ui/` at the branch tip, normalize it through oxfm
 - Restating a component's API — props, slots, events — in a bundle document. The MCP server is the source, and a copied API list is stale the next release.
 - Wrapping every Nuxt UI component in a project component "for consistency". Wrap only where the project adds real behaviour or a genuinely repeated composition.
 - Reaching past the theme with deep selectors into generated classes. Slot classes, variants, and the `class` prop are the supported surface.
-- Adding `@nuxt/icon`, `@nuxt/fonts`, or `@nuxtjs/color-mode` to `modules` or to dependencies — Nuxt UI already owns them, and a duplicate registration is a silent double-install.
+- Adding `@nuxt/icon`, `@nuxt/fonts`, or `@nuxtjs/color-mode` to `modules` or to dependencies — Nuxt UI already owns them, and a duplicate registration is a silent double-install. The icon *collection* is the exception and is deliberate (Icons).
+- Reaching for an icon outside the installed collection. A name from another prefix resolves over the network at runtime rather than failing the build, so it looks like it works locally and breaks offline.

@@ -47,6 +47,12 @@ Local deviations from upstream:
 
 Re-sync: re-clone `skills/nuxt-ui/` at the branch tip, normalize it through oxfmt with this repo's config, diff against `.claude/skills/nuxt-ui/`, and apply upstream's changes while re-applying the deviation above. Update the `Upstream:` line's commit and date in the same change.
 
+## Components Not Used
+
+A handful of the library's components are declined on purpose, because another module in the stack already owns the job they do. They are listed here so a reader who reaches for one — or an agent that finds it in the MCP server — meets the reason rather than the silence.
+
+- **`<u-form>`** — it is a validation component, not a layout one: it takes a `schema` or a `validate` function, holds the error state, gates `@submit` on validity, and injects each field's errors into the `<u-form-field>` matching its `name`. Regle owns all four here (`../../validation.md`), so the two would contend for the same state, and a `:schema` would put Zod on the request side, which that document forbids in both directions. Forms are a native `<form novalidate @submit.prevent>` around ordinary `<u-form-field>`s, each bound to its own `$errors` — which is also what lets a submit button rendered outside the element reach it by `form="…"`. The field and input components are unaffected and remain mandatory; only the form wrapper is declined.
+
 ## Avoid By Default
 
 - Restating a component's API — props, slots, events — in a bundle document. The MCP server is the source, and a copied API list is stale the next release.

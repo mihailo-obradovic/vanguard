@@ -1,9 +1,6 @@
 @import 'tailwindcss';
 @import '@nuxt/ui';
 
-/* * The Dracula palette (https://draculatheme.com), named for the semantic role rather than the colour. Dracula publishes one hex each; the other ten shades are generated in OKLCH, gamut-mapped by reducing chroma rather than clipping channels. */
-/* * Each accent sits at shade 400 exactly as published, because Nuxt UI resolves a semantic colour to 400 in dark mode — so dark mode is true Dracula. */
-/* ! `static` is required: Nuxt UI reaches the shades through --ui-color-*, which Tailwind cannot see, so without it they are tree-shaken away. */
 @theme static {
     /* * primary — Dracula purple #bd93f9 */
     --color-primary-50: #f7f3ff;
@@ -132,6 +129,8 @@
 
     --ui-radius: 0.5rem;
     --ui-container: 1200px;
+    /* * Default: 4rem. The layout's own bar is what this measures, and every Nuxt UI header that reads the token — the slideover's and the modal's — lines up with it because of this one value. */
+    --ui-header-height: 3.5rem;
 }
 
 /* * Dark mode — the palette as Dracula draws it: background, current line, comment and foreground land on the tokens they were named for. */
@@ -182,8 +181,7 @@
     }
 }
 
-/* * The shell owns the viewport and never scrolls: the layout's `main` is the single scrolling
-   region, so the header and footer stay put while the page moves under them. */
+/* * The shell owns the viewport and never scrolls: the layout's `main` is the single scrolling region, so the header and footer stay put while the page moves under them. */
 html,
 body,
 #__nuxt {

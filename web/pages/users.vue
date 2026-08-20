@@ -1,5 +1,4 @@
 <template>
-  <!-- * A column the height of `main`, so the table below can take the space that is left rather than growing the page. -->
   <div class="flex h-full flex-col">
     <div
       class="mb-6 flex shrink-0 items-center justify-between border-b border-default pb-4"
@@ -24,7 +23,6 @@
         <span class="font-semibold text-highlighted">{{ users.length }}</span>
       </p>
 
-      <!-- ! `min-h-0` is what makes this work: a flex child's default `min-height: auto` refuses to shrink below its content, so the table would grow the page instead of scrolling. `sticky` then keeps the column headers in place while its body moves. -->
       <u-table
         :data="users"
         :columns="columns"

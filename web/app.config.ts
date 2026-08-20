@@ -6,7 +6,6 @@ import button from './config/nuxt-ui/button';
 import card from './config/nuxt-ui/card';
 import footer from './config/nuxt-ui/footer';
 import formField from './config/nuxt-ui/form-field';
-import header from './config/nuxt-ui/header';
 import input from './config/nuxt-ui/input';
 import modal from './config/nuxt-ui/modal';
 import select from './config/nuxt-ui/select';
@@ -31,7 +30,6 @@ export default defineAppConfig({
     card,
     footer,
     formField,
-    header,
     input,
     modal,
     select,

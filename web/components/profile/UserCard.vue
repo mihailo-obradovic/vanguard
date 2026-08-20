@@ -4,7 +4,6 @@
       <div class="flex items-center justify-between gap-4">
         <h1 class="text-xl font-semibold">{{ $t('profile.title') }}</h1>
 
-        <!-- * Icon-only, as on the vuetify variant. Each carries its own accessible name, since there is nothing else in the button to read. -->
         <div class="flex gap-1">
           <template v-if="editMode">
             <u-button
@@ -191,7 +190,6 @@ const {
   }
 });
 
-// * Mirrors ProfileUpdateRequest: the current password is only needed when setting a new one.
 const { r$ } = useRegle(
   form,
   {
@@ -206,7 +204,6 @@ const { r$ } = useRegle(
   { externalErrors: useExternalErrors(useValidationErrors(updateProfileError)) }
 );
 
-// * The three password fields always start empty — a form seeded with them filled would be offering to re-send a password the user never typed.
 function formFor(user: User) {
   return {
     name: user.name,

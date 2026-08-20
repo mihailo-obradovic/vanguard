@@ -1,5 +1,4 @@
 <template>
-  <!-- * A column the height of `main`, so the table below can take the space that is left rather than growing the page. -->
   <div class="flex h-full flex-col">
     <header class="mb-6 shrink-0 border-b border-default pb-4">
       <h1 class="text-2xl font-semibold">{{ $t('graphqlDemo.title') }}</h1>
@@ -14,7 +13,6 @@
       :description="$t('errors.usersLoad', { message: getErrorMessage(error) })"
     />
 
-    <!-- ! `min-h-0` is what makes this work: a flex child's default `min-height: auto` refuses to shrink below its content, so the table would grow the page instead of scrolling. -->
     <u-table
       v-else
       :data="users ?? []"

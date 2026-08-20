@@ -36,7 +36,6 @@
     </header>
 
     <div class="flex min-h-0 flex-1">
-      <!-- * Pushes the content aside from `lg` up, the way the vuetify drawer does; below that the same links come in through the slideover instead. A muted surface rather than `bg-secondary`: on this palette secondary is Dracula's pink, where the vuetify drawer's secondary is its grey — `bg-elevated` is the token that actually means "a shade off the page". -->
       <aside
         v-if="desktopDrawer"
         class="hidden w-56 shrink-0 overflow-y-auto border-e border-default bg-default p-2 lg:block"
@@ -44,7 +43,6 @@
         <SidebarNav />
       </aside>
 
-      <!-- ! A separate flag from the aside's, not the same one behind a CSS class: a slideover left open is a live modal, and it would keep the whole app aria-hidden and focus-trapped on desktop while `hidden` merely stopped it being drawn. -->
       <u-slideover
         v-model:open="mobileDrawer"
         side="left"
@@ -56,7 +54,6 @@
         </template>
       </u-slideover>
 
-      <!-- * `tabindex="-1"` makes the landmark programmatically focusable: it is where SkipLink jumps. A fragment link alone only sets the browser's tab-navigation start point, so without it the jump moves nothing. -->
       <main
         id="main-content"
         class="mx-auto flex w-full max-w-6xl min-w-0 flex-1 flex-col overflow-y-auto p-4"
@@ -66,7 +63,6 @@
       </main>
     </div>
 
-    <!-- ! The container is only `lg:flex` by default, so below that its three slots stack — and the two this footer leaves empty still contribute their `mt-3` each, making one line of text 77px tall. Flex at every width collapses the empty slots; the margins go with them. -->
     <u-footer
       class="border-t border-default bg-default"
       :ui="{
@@ -75,21 +71,19 @@
         center: 'mt-0'
       }"
     >
-      <template #left>
-        <span class="text-sm text-muted">
-          {{ $t('common.footer.copyright', { year: currentYear }) }}
-        </span>
-      </template>
+      <span class="text-sm text-muted">
+        {{ $t('common.footer.copyright', { year: currentYear }) }}
+      </span>
     </u-footer>
   </div>
 </template>
 
 <script setup lang="ts">
 import { Temporal } from 'temporal-polyfill';
+import { breakpointsTailwind } from '@vueuse/core';
 
 import AuthControls from '@/components/_shared/AuthControls.vue';
 
-// * Every control on the branded bar looks the same: ghost so the bar's own colour shows through, and inheriting its text colour rather than the neutral one.
 const CHROME = {
   color: 'neutral',
   variant: 'ghost',

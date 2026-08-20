@@ -13,10 +13,20 @@
 </template>
 
 <script setup lang="ts">
+import { breakpointsTailwind } from '@vueuse/core';
+
 const { locale, locales, setLocale } = useI18n();
 
+const breakpoints = useBreakpoints(breakpointsTailwind);
+
+const isCompactHeader = breakpoints.smaller('sm');
+
 const items = computed(() =>
-  locales.value.map((option) => ({ label: option.name, value: option.code }))
+  locales.value.map((option) => ({
+    // * `short` is a custom locale property (`nuxt.config.ts`), so the module hands it back as `unknown`.
+    label: isCompactHeader.value ? (option.short as string) : option.name,
+    value: option.code
+  }))
 );
 
 // * Writing through setLocale rather than to `locale` directly is what persists the choice to the detection cookie.

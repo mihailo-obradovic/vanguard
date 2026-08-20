@@ -1,11 +1,9 @@
 <template>
-  <!-- * The shell is exactly the viewport's height and never scrolls itself — `main` is the one scrolling region, which is what keeps the header, sidebar and footer in place. `main.css` pins html/body/#__nuxt to 100% with overflow hidden for the same reason. -->
   <div class="flex h-full flex-col">
     <SkipLink />
 
-    <!-- * The branded bar, as on the vuetify variant. `text-inverted` is the colour Nuxt UI puts on a solid primary fill, so every control inside inherits it rather than restating white. -->
     <header
-      class="flex h-14 shrink-0 items-center gap-1 bg-primary px-2 text-inverted"
+      class="flex h-(--ui-header-height) shrink-0 items-center gap-1 bg-primary px-2 text-inverted"
     >
       <u-button
         icon="i-lucide-menu"
@@ -21,7 +19,9 @@
         v-bind="CHROME"
       />
 
-      <span class="ms-1 text-lg font-bold select-none">Vanguard</span>
+      <span v-if="!isCompactHeader" class="ms-1 text-lg font-bold select-none">
+        Vanguard
+      </span>
 
       <div class="flex-1" />
 
@@ -92,12 +92,14 @@ const CHROME = {
 
 const currentYear = Temporal.Now.plainDateISO().year;
 
-// * Matches the `lg` breakpoint the aside is shown at, so the toggle always drives whichever of the two is actually on screen.
-const isDesktop = useMediaQuery('(min-width: 1024px)');
+// * The Tailwind scale itself, so a breakpoint is named where the classes name it rather than restated as a pixel width that drifts from them.
+const breakpoints = useBreakpoints(breakpointsTailwind);
 
-// * Open by default, as the vuetify drawer is. The aside is CSS-hidden below `lg`, so it costs nothing there.
+const isDesktop = breakpoints.greaterOrEqual('lg');
+// * Below `sm` the bar cannot hold its labels: the wordmark goes, and the controls fall back to icons and language codes.
+const isCompactHeader = breakpoints.smaller('sm');
+
 const desktopDrawer = ref(true);
-
 const mobileDrawer = ref(false);
 
 function toggleDrawer() {

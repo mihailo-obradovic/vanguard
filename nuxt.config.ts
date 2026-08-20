@@ -39,18 +39,27 @@ export default defineNuxtConfig({
     defaultLocale: 'en',
     // * No locale in the URL: this is a client-only SPA behind login with no SEO surface, so prefixes would only cost localePath() on every link (ADR 006).
     strategy: 'no_prefix',
+    // ! `short` is a custom property, not one the module reads — the locale switcher shows it where the full name does not fit. It cannot be derived from the code: both Serbian locales reduce to `sr`, so the two are told apart by the script their own letters are written in.
     locales: [
-      { code: 'en', language: 'en-US', name: 'English', file: 'en.json' },
+      {
+        code: 'en',
+        language: 'en-US',
+        name: 'English',
+        short: 'EN',
+        file: 'en.json'
+      },
       {
         code: 'sr-Latn',
         language: 'sr-Latn-RS',
         name: 'Srpski',
+        short: 'SR',
         file: 'sr-Latn.json'
       },
       {
         code: 'sr-Cyrl',
         language: 'sr-Cyrl-RS',
         name: 'Српски',
+        short: 'СР',
         file: 'sr-Cyrl.json'
       }
     ],

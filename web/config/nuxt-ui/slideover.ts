@@ -5,13 +5,16 @@ export default {
     overlay: 'fixed inset-0 bg-elevated/75',
     content:
       'fixed bg-default divide-y divide-default sm:ring ring-default sm:shadow-lg flex flex-col focus:outline-none',
-    header: 'flex items-center gap-1.5 p-4 sm:px-6 min-h-(--ui-header-height)',
+    // * Changes: `relative` added, so the close button below centres against this header rather than the panel.
+    header:
+      'relative flex items-center gap-1.5 p-4 sm:px-6 min-h-(--ui-header-height)',
     wrapper: '',
     body: 'flex-1 overflow-y-auto p-4 sm:p-6',
     footer: 'flex items-center gap-1.5 p-4 sm:px-6',
     title: 'text-highlighted font-semibold',
     description: 'mt-1 text-muted text-sm',
-    close: 'absolute top-4 end-4'
+    // * Default: `absolute top-4 end-4`, which only reads as centred at the stock 4rem header height. Centring on the header keeps it right whatever `--ui-header-height` is and however the title wraps.
+    close: 'absolute top-1/2 -translate-y-1/2 end-4'
   },
   variants: {
     side: {

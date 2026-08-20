@@ -1,6 +1,7 @@
 <template>
-  <div class="mx-auto w-full max-w-3xl">
-    <UserCard v-if="user" :user="user" />
+  <div class="mx-auto flex h-full w-full max-w-3xl flex-col">
+    <!-- * `min-h-0` without `flex-1`: the card keeps hugging its content, but may now shrink to the column instead of growing past it, which is what hands the overflow to its own body. -->
+    <UserCard v-if="user" :user="user" class="min-h-0" />
 
     <p v-else class="py-16 text-center text-muted">
       {{ $t('profile.loading') }}

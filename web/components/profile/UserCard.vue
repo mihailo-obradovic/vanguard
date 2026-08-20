@@ -1,5 +1,12 @@
 <template>
-  <u-card>
+  <!-- * The edit, save and cancel controls live in the header, so the body is what scrolls — a card that scrolled whole would carry them off the screen. -->
+  <u-card
+    :ui="{
+      root: 'flex flex-col',
+      header: 'shrink-0',
+      body: 'min-h-0 flex-1 overflow-y-auto'
+    }"
+  >
     <template #header>
       <div class="flex items-center justify-between gap-4">
         <h1 class="text-xl font-semibold">{{ $t('profile.title') }}</h1>

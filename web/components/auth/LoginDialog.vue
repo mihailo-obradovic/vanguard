@@ -32,42 +32,44 @@
           />
         </u-form-field>
       </form>
+
+      <div class="flex w-full flex-col items-start justify-center gap-1 pt-4">
+        <u-button
+          variant="link"
+          size="sm"
+          @click="emit('close', 'register')"
+          class="self-center"
+        >
+          {{ $t('auth.login.noAccount') }} {{ $t('auth.login.registerLink') }}
+        </u-button>
+
+        <u-button
+          class="self-center"
+          variant="link"
+          size="sm"
+          @click="emit('close', 'forgot-password')"
+        >
+          {{ $t('auth.login.forgotPasswordLink') }}
+        </u-button>
+      </div>
     </template>
 
     <template #footer>
-      <div class="flex w-full items-center justify-between gap-4">
-        <div class="flex flex-col items-start gap-1">
-          <u-button variant="link" size="sm" @click="emit('close', 'register')">
-            {{ $t('auth.login.noAccount') }} {{ $t('auth.login.registerLink') }}
-          </u-button>
+      <div class="flex w-full justify-end gap-2">
+        <u-button color="neutral" variant="outline" @click="emit('close')">
+          {{ $t('common.actions.cancel') }}
+        </u-button>
 
-          <u-button
-            variant="link"
-            size="sm"
-            @click="emit('close', 'forgot-password')"
-          >
-            {{ $t('auth.login.forgotPasswordLink') }}
-          </u-button>
-        </div>
-
-        <div class="flex gap-2">
-          <u-button color="neutral" variant="outline" @click="emit('close')">
-            {{ $t('common.actions.cancel') }}
-          </u-button>
-
-          <u-button
-            type="submit"
-            form="login-form"
-            :loading="isLoggingIn"
-            :disabled="r$.$invalid"
-          >
-            {{
-              isLoggingIn
-                ? $t('auth.login.submitting')
-                : $t('auth.login.submit')
-            }}
-          </u-button>
-        </div>
+        <u-button
+          type="submit"
+          form="login-form"
+          :loading="isLoggingIn"
+          :disabled="r$.$invalid"
+        >
+          {{
+            isLoggingIn ? $t('auth.login.submitting') : $t('auth.login.submit')
+          }}
+        </u-button>
       </div>
     </template>
   </u-modal>

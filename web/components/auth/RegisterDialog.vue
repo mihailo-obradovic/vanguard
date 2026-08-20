@@ -53,32 +53,37 @@
           />
         </u-form-field>
       </form>
+
+      <div class="flex w-full flex-col items-start justify-center pt-4">
+        <u-button
+          class="self-center"
+          size="sm"
+          variant="link"
+          @click="emit('close', 'login')"
+        >
+          {{ $t('auth.register.haveAccount') }} {{ $t('auth.loginLink') }}
+        </u-button>
+      </div>
     </template>
 
     <template #footer>
-      <div class="flex w-full items-center justify-between gap-4">
-        <u-button variant="link" size="sm" @click="emit('close', 'login')">
-          {{ $t('auth.register.haveAccount') }} {{ $t('auth.loginLink') }}
+      <div class="flex w-full justify-end gap-2">
+        <u-button color="neutral" variant="outline" @click="emit('close')">
+          {{ $t('common.actions.cancel') }}
         </u-button>
 
-        <div class="flex gap-2">
-          <u-button color="neutral" variant="outline" @click="emit('close')">
-            {{ $t('common.actions.cancel') }}
-          </u-button>
-
-          <u-button
-            type="submit"
-            form="register-form"
-            :loading="isRegistering"
-            :disabled="r$.$invalid"
-          >
-            {{
-              isRegistering
-                ? $t('auth.register.submitting')
-                : $t('auth.register.submit')
-            }}
-          </u-button>
-        </div>
+        <u-button
+          type="submit"
+          form="register-form"
+          :loading="isRegistering"
+          :disabled="r$.$invalid"
+        >
+          {{
+            isRegistering
+              ? $t('auth.register.submitting')
+              : $t('auth.register.submit')
+          }}
+        </u-button>
       </div>
     </template>
   </u-modal>

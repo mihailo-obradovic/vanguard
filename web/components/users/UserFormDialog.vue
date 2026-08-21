@@ -82,8 +82,6 @@
 </template>
 
 <script setup lang="ts">
-import { maxLength, required } from '@regle/rules';
-
 import type { User } from '@/types/auth';
 import type { CreateUserForm, UpdateUserForm } from '@/types/user';
 
@@ -112,10 +110,7 @@ const isEdit = computed(() => props.user !== null);
 const { r$ } = useRegle(
   form,
   () => ({
-    name: labeledRules('validation.fieldNames.name', {
-      required,
-      maxLength: maxLength(255)
-    }),
+    ...nameRules(),
     ...accountEmailRules(() => props.user?.id),
     ...newPasswordRules(
       () => form.value.password,

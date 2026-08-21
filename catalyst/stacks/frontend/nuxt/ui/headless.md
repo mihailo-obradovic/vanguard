@@ -14,6 +14,7 @@ Adopting a library later is a decision record and a real migration, not a config
 - **Styling** is `<style scoped>` per component, over the design tokens the project defines. Nothing global except the token definitions and rare base-element defaults.
 - **Primitives** live in the auto-registered shared component directory (`../../_vue/component-naming.md`) and follow the `UI*` naming rule when they carry no domain content.
 - **Accessible behaviour is the project's problem.** A hand-rolled dialog needs a focus trap, an escape handler, `aria-modal`, and focus restoration on close; a hand-rolled menu needs arrow-key navigation. Budget for it, or take a library. The style audit checks the outcome, not the effort.
+- **Icons.** This module ships no icon tooling and names no default set — there are no component internals here needing an alias map, so nothing constrains the choice. The project picks one set, installs and wires it itself, and records it at instantiation (`../../design-system.md` §9 for the rules it then follows). A Dependency Change like any other.
 
 ## The field-error presenter
 

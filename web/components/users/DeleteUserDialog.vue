@@ -48,7 +48,10 @@ const props = defineProps<{ user: User }>();
 
 const emit = defineEmits<{ close: [deleted?: true] }>();
 
+// ! A compiler macro's arguments are hoisted out of setup(), away from Stryker's locally declared helpers — instrumenting them breaks the component at import time (`catalyst/operations.md`).
+// Stryker disable all
 const open = defineModel<boolean>('open', { default: false });
+// Stryker restore all
 
 const { t } = useI18n();
 

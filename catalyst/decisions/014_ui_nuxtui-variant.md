@@ -37,7 +37,6 @@ Product decisions of this branch, not module prescriptions:
 
 ## Known inconsistencies (recorded, not fixed)
 
-- **Stryker silently drops seven spec files (44 tests).** Any spec rendering the `<UApp>`-wrapped dialog or layout tree dies on `ReferenceError: stryMutAct_9fa48 is not defined` out of instrumented SFC template code, and the runner treats a suite that yielded no tests as absent rather than failed. The three auth dialogs, the three user dialogs and `Default.vue` therefore report 0% with every mutant "no coverage" despite all seven being tested — so the **total** score is understated and the **covered** score is the meaningful one. Tracked separately.
 - `LoginDialog.vue` ships prefilled dev credentials. Deliberate, and kept.
 - Ten Markdown documents fail `oxfmt --check`, eight master-owned. Pre-existing; left for a master-side pass.
 
@@ -65,4 +64,4 @@ Product decisions of this branch, not module prescriptions:
 
 Suites green on the branch at close-out: Vitest 44 files / 325 tests, `oxlint`, `nuxt typecheck`, `validate.py` 0 errors. The Tailwind-sorting change reformatted eight Vue files and no vendored config, and the suites were re-run green after it.
 
-Mutation run 2026-08-19 over 865 mutants: **64.51% total, 94.10% covered** — 558 killed, 35 survived, 272 without coverage, 0 timed out. Of those 272, roughly 233 sit in the seven components whose specs Stryker drops (above); the genuinely untested remainder is `SidebarNav.vue`, `AuthControls.vue` and `hide-devtools-webcomponents.client.ts`. Services, stores and queries score 100%; `utils/` 94.90%.
+Mutation run 2026-08-21, with the compiler-macro disable pairs restoring the seven previously dropped specs (`catalyst/operations.md`): **78.19% total, 84.91% covered** over 885 scored mutants — 692 killed, 123 survived, 70 without coverage, plus 51 ignored inside the pairs. The no-coverage remainder is genuinely unexecuted code: `hide-devtools-webcomponents.client.ts`, `AuthControls.vue`, and a uniform handful of module-scope mutants per dialog that per-test coverage cannot attribute. The newly executed dialog mutants surface survivors not yet triaged — tracked as its own task per the ADR 013 audit rule. Services, stores and queries score 100%; `utils/` 94.90%.

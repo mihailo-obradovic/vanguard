@@ -21,7 +21,10 @@ import type { FormFieldProps } from '@nuxt/ui/components/FormField.vue';
 // * Taken from the component being wrapped, so a slot renamed upstream fails here rather than at a call site.
 type FieldUi = FormFieldProps['ui'];
 
+// ! A compiler macro's arguments are hoisted out of setup(), away from Stryker's locally declared helpers — instrumenting them is a compile error here (`catalyst/operations.md`).
+// Stryker disable all
 defineOptions({ inheritAttrs: false });
+// Stryker restore all
 
 // * The only two props the wrapper reads. Everything else the field accepts rides `$attrs` untouched.
 const props = defineProps<{

@@ -96,7 +96,10 @@ import type { AuthDialog, User } from '@/types/auth';
 
 const emit = defineEmits<{ close: [result?: User | AuthDialog] }>();
 
+// ! A compiler macro's arguments are hoisted out of setup(), away from Stryker's locally declared helpers — instrumenting them breaks the component at import time (`catalyst/operations.md`).
+// Stryker disable all
 const open = defineModel<boolean>('open', { default: false });
+// Stryker restore all
 
 const form = ref({
   name: '',

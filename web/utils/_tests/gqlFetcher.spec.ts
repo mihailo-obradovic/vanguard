@@ -12,8 +12,7 @@ import { gqlFetcher } from '../gqlFetcher';
 
 const requests = recordRequests();
 
-// * Mirrors the envelopes asserted in tests/Feature/GraphQL — the client contract is only
-// * honest if these shapes stay the ones the server actually sends.
+// * Mirrors the envelopes asserted in tests/Feature/GraphQL — the client contract is only honest if these shapes stay the ones the server actually sends.
 function graphqlError(
   message: string,
   extensions: Record<string, unknown> = {}

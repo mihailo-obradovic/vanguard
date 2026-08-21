@@ -19,9 +19,7 @@ describe('chainAfter', () => {
     expect(order).toEqual(['internal', 'caller']);
   });
 
-  // ! The reason this exists. Without the `await`, a caller reading the store or the cache in its
-  // ! own hook sees the state as it was BEFORE the composable finished updating it — and nothing
-  // ! about the call site looks wrong.
+  // ! The reason this exists. Without the `await`, a caller reading the store or the cache in its own hook sees the state as it was BEFORE the composable finished updating it — and nothing about the call site looks wrong.
   it('waits for a slow internal hook before starting the caller', async () => {
     const order: string[] = [];
 

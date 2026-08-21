@@ -34,14 +34,8 @@ function toValidationBody(validation: unknown): Record<string, string[]> {
   );
 }
 
-/**
- * Rebuild a GraphQL error as the FetchError the REST path would have thrown.
- *
- * The server states the equivalence in `extensions.status` (see App\GraphQL\ErrorHandlers\
- * RestStatusHandler), so nothing here has to match on message text. Producing a real
- * FetchError matters beyond typing: `setupQueryErrorHandling` dedupes on object identity in
- * a WeakSet, and Pinia Colada is configured with FetchError as its error type project-wide.
- */
+// * Rebuilds a GraphQL error as the FetchError the REST path would have thrown. The server states the equivalence in `extensions.status` (see App\GraphQL\ErrorHandlers\RestStatusHandler), so nothing here has to match on message text.
+// * A real FetchError matters beyond typing: `setupQueryErrorHandling` dedupes on object identity in a WeakSet, and Pinia Colada is configured with FetchError as its error type project-wide.
 function toFetchError(errors: GqlError[]): FetchError {
   const first = errors[0] ?? {};
 
@@ -61,8 +55,7 @@ function toFetchError(errors: GqlError[]): FetchError {
 
   error.statusCode = statusCode;
   error.status = statusCode;
-  // * handleApiError reads `errors` for 422s and falls back to `message` for everything else,
-  // * exactly as it does for a Laravel JSON body.
+  // * handleApiError reads `errors` for 422s and falls back to `message` for everything else, exactly as it does for a Laravel JSON body.
   error.data =
     Object.keys(validationErrors).length > 0
       ? { message, errors: validationErrors }
@@ -71,20 +64,9 @@ function toFetchError(errors: GqlError[]): FetchError {
   return error;
 }
 
-/**
- * Send a GraphQL operation and return its `data` payload.
- *
- * Rides the project's own `fetcher`, so credentialed cookies, the CSRF header, and the
- * one-shot 419 refresh-and-retry all apply unchanged — the GraphQL layer adds a body format
- * and an error translation, nothing more.
- *
- * GraphQL reports failures as HTTP 200 with an `errors` array. Any `errors` entry is treated
- * as a failure and thrown, so partial data never reaches a call site; transport-level
- * failures (500, network) surface as the ordinary FetchError `fetcher` already throws.
- *
- * Returns `unknown` on purpose: services must run the result through `parseResponse`, the
- * same rule `fetcher` enforces for REST.
- */
+// * Sends a GraphQL operation and returns its `data` payload. Rides the project's own `fetcher`, so credentialed cookies, the CSRF header, and the one-shot 419 refresh-and-retry all apply unchanged — the GraphQL layer adds a body format and an error translation, nothing more.
+// * GraphQL reports failures as HTTP 200 with an `errors` array, so any `errors` entry is thrown and partial data never reaches a call site; transport-level failures (500, network) surface as the ordinary FetchError `fetcher` already throws.
+// * Returns `unknown` on purpose: services must run the result through `parseResponse`, the same rule `fetcher` enforces for REST.
 export async function gqlFetcher(
   document: string,
   variables?: GqlVariables

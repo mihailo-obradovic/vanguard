@@ -9,9 +9,7 @@ import type { Ref } from 'vue';
 
 type PasswordForm = { password: string; password_confirmation: string };
 
-// * Driven through a real Regle instance and asserted on validity alone. Asserting the rule
-// * objects themselves would only restate @regle/rules; what the forms depend on is which
-// * field/mode combinations are allowed to submit.
+// * Driven through a real Regle instance and asserted on validity alone. Asserting the rule objects themselves would only restate @regle/rules; what the forms depend on is which field/mode combinations are allowed to submit.
 async function setupForm(optional?: MaybeRefOrGetter<boolean>) {
   const form: Ref<PasswordForm> = ref({
     password: '',
@@ -50,8 +48,7 @@ describe('newPasswordRules', () => {
     });
 
     it('flags the password field itself, not only the confirmation', async () => {
-      // * The pair is invalid either way; what this pins is which field carries the error,
-      // * because that is the field the form renders it under.
+      // * The pair is invalid either way; what this pins is which field carries the error, because that is the field the form renders it under.
       const { validate, passwordErrors } = await setupForm();
 
       await validate();
@@ -70,8 +67,7 @@ describe('newPasswordRules', () => {
       expect(await validate()).toBe(true);
     });
 
-    // * Seven and eight rather than an arbitrary short string: the pair pins the minimum where
-    // * the backend states it, so a drift to 6 or 7 fails here instead of at a user's submit.
+    // * Seven and eight rather than an arbitrary short string: the pair pins the minimum where the backend states it, so a drift to 6 or 7 fails here instead of at a user's submit.
     it('rejects a password under eight characters', async () => {
       const { form, validate } = await setupForm();
 

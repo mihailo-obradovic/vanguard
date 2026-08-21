@@ -292,4 +292,14 @@ describe('UserFormDialog', () => {
     expect(closed.length).toBe(1);
     expect(closed[0]).toBeUndefined();
   });
+
+  // ! Dismissing through the modal's own chrome is a different path than Cancel: the overlay reports the close and the dialog has to forward it, or the opener is left holding a promise that never settles.
+  it('resolves with nothing when the modal itself is dismissed', async () => {
+    const { closed } = await mountDialog();
+
+    await fireEvent.keyDown(document.body, { key: 'Escape' });
+
+    await waitFor(() => expect(closed.length).toBe(1));
+    expect(closed[0]).toBeUndefined();
+  });
 });

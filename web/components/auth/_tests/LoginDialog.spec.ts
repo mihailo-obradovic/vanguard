@@ -123,4 +123,14 @@ describe('LoginDialog', () => {
     await waitFor(() => expect(closed).toHaveLength(1));
     expect(closed[0]).toBeUndefined();
   });
+
+  // ! Dismissing through the modal's own chrome is a different path than the footer's links, and it has to resolve with nothing rather than a dialog name — an opener that read a dismissal as a switch request would reopen the pair forever.
+  it('resolves with nothing when the modal itself is dismissed', async () => {
+    const { closed } = await mountDialog();
+
+    await fireEvent.keyDown(document.body, { key: 'Escape' });
+
+    await waitFor(() => expect(closed).toHaveLength(1));
+    expect(closed[0]).toBeUndefined();
+  });
 });

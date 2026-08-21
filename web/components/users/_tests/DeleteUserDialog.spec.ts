@@ -81,6 +81,17 @@ describe('DeleteUserDialog', () => {
     expect(closed[0]).toBe(true);
   });
 
+  // ! Dismissing through the modal's own chrome goes through a different path than the cancel button: the overlay reports the close and the dialog has to forward it, or the opener is left holding a promise that never settles and the overlay never unmounts.
+  it('resolves when the modal itself is dismissed', async () => {
+    const { closed } = await mountDialog();
+
+    await fireEvent.keyDown(document.body, { key: 'Escape' });
+
+    await waitFor(() => expect(closed.length).toBe(1));
+    expect(closed[0]).toBeUndefined();
+    expect(requests.trace()).not.toContain(DELETE_7);
+  });
+
   it('sends nothing when the delete is called off', async () => {
     const { closed } = await mountDialog();
 

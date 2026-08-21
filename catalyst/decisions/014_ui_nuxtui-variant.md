@@ -20,7 +20,7 @@ Recorded at the close of the variant build (2026-08-19). `variant/nuxtui` was br
 
 **`frontend/ui = nuxtui` on `variant/nuxtui`.** The bundle's ui choice switched with it: `stacks/frontend/nuxt/ui/nuxtui/` (`nuxtui.md`, `customization.md`) replaced `headless.md`, the `nuxtui-setup` / `nuxtui-customization` wrappers were added, and the Technical Stack row flipped.
 
-The wrappers are **hand-written in generator format**: Catalyst's `write_skill_wrappers()` has no `nuxtui` entry, since the template's `stacks/frontend/nuxt/ui/` still holds only `headless.md` and `vuetify/`. Until the module is ported upstream, an upgrade leaves them alone but never refreshes them.
+The module was ported upstream in Catalyst 1.7.0 (a third `nuxt` UI choice beside headless and vuetify), and this project upgraded to that release: the wrappers are now generator-owned — `nuxtui-setup`, `nuxtui-customization`, and `import-nuxt-ui-component` all refresh on upgrade — and the bundle's two module documents track the template's, with this repo's deviations (the `web/` srcDir paths, the `UI`-prefix naming note, the standing `UFormField` example, and the recorded vendor pin) re-applied on top.
 
 No rejected alternative to name — master _is_ the headless one, vuetify the other library; the branches exist to keep all three.
 
@@ -47,7 +47,7 @@ Product decisions of this branch, not module prescriptions:
 ## Consequences
 
 - Master → variant merges stay clean on the _stack documents_ — the three ui choices live at different paths and this branch deletes rather than edits `headless.md` — but not on the code, for the reasons record 010 sets out.
-- Porting the module into Catalyst (a follow-up) is what makes the wrappers generated rather than hand-kept, and is where the branch-only AI tooling — the MCP server and the vendored `nuxt-ui` skill — has to become a module prescription.
+- The port (Catalyst 1.7.0) made the wrappers generated rather than hand-kept and turned the branch-only AI tooling into module prescriptions: the scaffolder writes the MCP server entry, and the `nuxt-ui` skill is a prescribed day-zero vendor from `github.com/nuxt/ui` with the pin recorded in `stacks/frontend/nuxt/ui/nuxtui/nuxtui.md`.
 
 ## Contracts Touched
 

@@ -14,9 +14,9 @@ Vue's first-party-adjacent component library for the Nuxt module, built on Reka 
 
 Nuxt UI resolves every icon name — its own defaults included, like the `:loading` spinner's `lucide:loader-circle` — through `@nuxt/icon`. Without a matching collection package installed, that resolution goes over the Iconify HTTP API at runtime, so icons silently fail to render offline and cost a request when they do work.
 
-The project therefore installs **`@iconify-json/lucide`** as a dev dependency, which `@nuxt/icon` bundles locally. Lucide because it is Nuxt UI's own default prefix: leaving it means every stock component icon keeps working with no per-icon aliasing.
+The project therefore installs **`@iconify-json/lucide`** as a dev dependency, which `@nuxt/icon` bundles locally. Lucide because it is Nuxt UI's own default prefix: the roughly forty stock component icons resolve through the `ui.icons` map in `app.config.ts`, and leaving them on their default prefix means every one keeps working with no per-icon aliasing.
 
-This is not a contradiction of the "never add `@nuxt/icon` yourself" rule below. The **module** is Nuxt UI's to own; the **collection data** it resolves against is the project's choice, and is exactly the `<icon set>` the design system's Iconography section asks each project to record. A second collection is a Dependency Change and a design-system violation both — one icon set, product-wide.
+This is not a contradiction of the "never add `@nuxt/icon` yourself" rule below. The **module** is Nuxt UI's to own; the **collection data** it resolves against is the project's choice, and is exactly the `<icon set>` the design system's Iconography section asks each project to record. One icon set, product-wide — a second collection is a Dependency Change and a design-system violation both, with a single carve-out: Lucide ships no logos, so brand marks may come from `@iconify-json/simple-icons` under the Iconography section's brand-mark exception.
 
 ## Module Documents
 
@@ -26,26 +26,28 @@ This is not a contradiction of the "never add `@nuxt/icon` yourself" rule below.
 
 ## AI Tooling
 
-This module expects two things the library publishes for agents, both branch-local to the variant that runs it:
+This module expects two things the library publishes for agents:
 
-- The **Nuxt UI MCP server** (`.mcp.json`, project scope) — the authority on component APIs: props, slots, events, and the default theme an import copies. Component API questions go there rather than to a bundle document, which is why no document here restates them.
-- The **vendored `nuxt-ui` skill** (`.claude/skills/nuxt-ui/`) — upstream's own guidance on component selection, layouts, and recipes.
+- The **Nuxt UI MCP server** (`.mcp.json`, project scope, `https://ui.nuxt.com/mcp`) — the authority on component APIs: props, slots, events, and the default theme an import copies. Component API questions go there rather than to a bundle document, which is why no document here restates them. The scaffolder writes the entry at spawn; a project adopting this module later adds it by hand.
+- The **vendored `nuxt-ui` skill** (`.claude/skills/nuxt-ui/`) — upstream's own guidance on component selection, layouts, and recipes. It is not part of the bundle; the project vendors it from upstream on day zero (below).
 
-## Provenance
+## Vendoring The Upstream Skill
 
-Vendored 2026-08-19 from Nuxt UI's own `nuxt-ui` agent skill. It lands at `.claude/skills/nuxt-ui/` rather than inside this bundle: upstream ships `SKILL.md` and its `references/` as one unit with relative links between them, so splitting the substance into the bundle would mean rewriting every internal link and maintaining that as a permanent deviation. The trade is recorded rather than hidden — Phase 7 revisits it when the module is ported to Catalyst.
+Nuxt UI maintains its own agent skill in the library repository: https://github.com/nuxt/ui — `skills/nuxt-ui/` (branch `v4`). Vendoring it is a **day-zero step** for a project on this module: do it before the first UI task, and record the pin here.
+
+It lands at `.claude/skills/nuxt-ui/` rather than inside this bundle: upstream ships `SKILL.md` and its `references/` as one unit with relative links between them, so splitting the substance into the bundle would mean rewriting every internal link and maintaining that as a permanent deviation.
 
 The copy is oxfmt-canonical like every other document here, per the no-ignore-patterns rule in `../../../../_lang/typescript/toolchain.md`; a re-sync normalizes upstream through the same oxfmt before diffing, so formatting never reads as drift.
+
+The vendor step, and every later re-sync: clone `skills/nuxt-ui/` at the `v4` branch tip, normalize it through oxfmt with this repo's config, diff against `.claude/skills/nuxt-ui/` (first vendor: land it wholesale), and apply upstream's changes while re-applying the one prescribed deviation — a note above `SKILL.md`'s intro that points at this section and subordinates upstream guidance to the `catalyst/` documents. Record the pin in this document in the same change:
 
 Upstream: https://github.com/nuxt/ui — `skills/nuxt-ui/` (branch `v4`) · commit: `14ac243804bc02c6c1226823d1da3092cfcc9df3` · synced: 2026-08-19
 
 Local deviations from upstream:
 
-| File       | Deviation                                                                                                                     |
-| ---------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `SKILL.md` | Note added above the intro: points at this Provenance section and subordinates upstream guidance to the `catalyst/` documents |
-
-Re-sync: re-clone `skills/nuxt-ui/` at the branch tip, normalize it through oxfmt with this repo's config, diff against `.claude/skills/nuxt-ui/`, and apply upstream's changes while re-applying the deviation above. Update the `Upstream:` line's commit and date in the same change.
+| File       | Deviation                                                                                                                    |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `SKILL.md` | Note added above the intro: points at this Vendoring section and subordinates upstream guidance to the `catalyst/` documents |
 
 ## Components Not Used
 
@@ -58,5 +60,5 @@ A handful of the library's components are declined on purpose, because another m
 - Restating a component's API — props, slots, events — in a bundle document. The MCP server is the source, and a copied API list is stale the next release.
 - Wrapping every Nuxt UI component in a project component "for consistency". Wrap only where the project adds real behaviour or a genuinely repeated composition.
 - Reaching past the theme with deep selectors into generated classes. Slot classes, variants, and the `class` prop are the supported surface.
-- Adding `@nuxt/icon`, `@nuxt/fonts`, or `@nuxtjs/color-mode` to `modules` or to dependencies — Nuxt UI already owns them, and a duplicate registration is a silent double-install. The icon *collection* is the exception and is deliberate (Icons).
+- Adding `@nuxt/icon`, `@nuxt/fonts`, or `@nuxtjs/color-mode` to `modules` or to dependencies — Nuxt UI already owns them, and a duplicate registration is a silent double-install. The icon _collection_ is the exception and is deliberate (Icons).
 - Reaching for an icon outside the installed collection. A name from another prefix resolves over the network at runtime rather than failing the build, so it looks like it works locally and breaks offline.

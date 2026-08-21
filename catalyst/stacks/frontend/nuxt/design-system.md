@@ -1,13 +1,13 @@
 # Design System — Template
 
 **Layer:** Frontend
-**Tool:** CSS design tokens (headless) · Vuetify theme (vuetify)
+**Tool:** CSS design tokens (headless) · Vuetify theme (vuetify) · Tailwind `@theme` ramps (nuxtui)
 
 This is a **template**, not a project convention. At Init Design (or when the design system firms up), instantiate it into a project-owned convention annex indexed by `architecture.md` (per `references/convention-annexes.md`), replacing every `<placeholder>` with measured, project-specific values. Leave the template file itself pristine. A section whose values are not yet decided stays out of the annex.
 
 The pre-filled values — the semantic token names, the spacing scale, the transition tiers, the icon and elevation defaults — are **house defaults, not settled decisions**: confirm each against the project at instantiation and change what does not fit. Inheriting them silently is the failure mode. The accessibility floors in §14 are the exception — those are standards, not preferences.
 
-The instantiated annex's source of truth depends on the `frontend/ui` choice: **headless** — the global stylesheet's `:root`/`.dark` token definitions; **vuetify** — color tokens live in the Vuetify theme file (`ui/vuetify/setup.md`, "the single source"). Under both choices the non-color scales — spacing, z-index, durations, radii — are CSS custom properties in the global stylesheet; the annex documents and constrains all of it.
+The instantiated annex's source of truth depends on the `frontend/ui` choice: **headless** — the global stylesheet's `:root`/`.dark` token definitions; **vuetify** — color tokens live in the Vuetify theme file (`ui/vuetify/setup.md`, "the single source"); **nuxtui** — color ramps are `@theme` definitions in the global stylesheet, mapped to the seven semantic aliases in `app.config.ts`'s `ui.colors` (`ui/nuxtui/customization.md`, Colour comes from the aliases). Under every choice the non-color scales — spacing, z-index, durations, radii — are CSS custom properties in the global stylesheet; the annex documents and constrains all of it.
 
 Every property a component sets — size, weight, leading, color, margin, padding, width, height, shadow, radius, border width, opacity — comes from a scale in this document. §13 collects the resulting values per element; the sections before it define the scales those values are drawn from.
 
@@ -36,7 +36,7 @@ Use as `var(--color-*)` in `<style scoped>` (e.g. `background: var(--color-card)
 
 ### Dark mode
 
-Both themes are defined: `:root` (light) and `.dark` (dark) — under vuetify, the paired `light`/`dark` theme definitions. **Every color must be able to flip** — components reference semantic tokens, so they adapt automatically. The only exception is a fill that is deliberately theme-independent because it is an object in the scene rather than paper — say so in a comment, and keep any text on it legible against that fixed fill.
+Both themes are defined: `:root` (light) and `.dark` (dark) — under vuetify, the paired `light`/`dark` theme definitions; under nuxtui, the per-mode alias values beside the `@theme` ramps. **Every color must be able to flip** — components reference semantic tokens, so they adapt automatically. The only exception is a fill that is deliberately theme-independent because it is an object in the scene rather than paper — say so in a comment, and keep any text on it legible against that fixed fill.
 
 ---
 
@@ -191,11 +191,12 @@ No raw z-index literals and no `9999`. A new layer is **added to the scale** wit
 
 ## 9. Iconography
 
-**One icon set for the whole product** — mixing sets is visible immediately in stroke weight and optical size. Under **vuetify** the set is `@mdi/js` SVG paths (`ui/vuetify/setup.md`); under **nuxtui** it is Lucide, bundled locally from `@iconify-json/lucide` (`ui/nuxtui/nuxtui.md`, Icons); under **headless** the set is `<icon set>`, recorded at instantiation — adding the package is a Dependency Change.
+**One icon set for the whole product** — mixing sets is visible immediately in stroke weight and optical size. The UI module in use names its own default set and how that set binds (**vuetify**: `@mdi/js` SVG paths, `ui/vuetify/setup.md`; **nuxtui**: Lucide, bundled locally from `@iconify-json/lucide`, `ui/nuxtui/nuxtui.md`, Icons); a module that names none leaves the set entirely to the project, chosen and recorded at instantiation — **headless** ships no icon tooling at all, so the package, the wiring, and the choice are the project's. A default is a default: swapping the set is a project decision, not a rule change. Either way the package is a Dependency Change.
 
 - **Sizes:** `<16 / 20 / 24>` px only, keyed to the adjacent text role — 16 with `small`, 20 with `body`, 24 standalone. Icon-only buttons keep the control height from §4.
 - **Color:** `currentColor` (inherit from the text color). Never a hardcoded fill.
 - **Semantics:** decorative icons get `aria-hidden="true"`; an icon that _is_ the control's label needs an accessible name on the control (`_vue/style-audit.md` checks both).
+- **Brand marks are the one exception** to the single-set rule: vendor logos have no house stroke weight to match, so a dedicated logo set beside the UI set breaks nothing the rule exists to protect. Scope it to logos — anything that is a UI icon comes from the one set. Needed only when the chosen set carries no marks of its own.
 
 ---
 

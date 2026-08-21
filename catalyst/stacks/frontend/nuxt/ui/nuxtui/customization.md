@@ -3,7 +3,9 @@
 **Layer:** Frontend / UI
 **Tool:** Nuxt UI 4 · Tailwind CSS 4 · Tailwind Variants
 
-How this project changes what a Nuxt UI component looks like. Component APIs (props, slots, events) are the library's own documentation — reach for the Nuxt UI MCP server; this document owns only the shape the project keeps its overrides in.
+How a project on this module changes what a Nuxt UI component looks like. Component APIs (props, slots, events) are the library's own documentation — reach for the Nuxt UI MCP server; this document owns only the shape the project keeps its overrides in.
+
+Paths below use this project's `web/` srcDir (the template writes them for Nuxt's default `app/`).
 
 ## The layout
 
@@ -23,9 +25,18 @@ A config file holds the component's **complete upstream default theme**, then th
 
 The cost is real and has to be paid deliberately: **upstream theme changes do not reach a vendored component.** When `@nuxt/ui` takes a minor or major bump, re-import the components whose defaults moved and re-apply the project's edits on top — the annotations below are what makes that a mechanical diff rather than an archaeology exercise. A bump that skips this leaves the app on stale defaults silently.
 
-**Tailwind class sorting is off inside `web/config/nuxt-ui/`**, and on everywhere else. Sorting rewrites a class string into canonical order, which is the right default for the project's own markup and destroys the property that makes vendoring work here: an imported config is only a diffable snapshot of upstream while its class strings are byte-identical to upstream's. The exemption is an `overrides` entry in `.oxfmtrc.json` — the config directory is the only place in the repo where unsorted classes are correct.
+**Tailwind class sorting is off inside the config directory**, and on everywhere else. Sorting rewrites a class string into canonical order, which is the right default for the project's own markup and destroys the property that makes vendoring work here: an imported config is only a diffable snapshot of upstream while its class strings are byte-identical to upstream's. The exemption is an `overrides` entry in `.oxfmtrc.json` — the config directory is the only place in the repo where unsorted classes are correct.
 
-A component is imported when the project first renders it, not when it first needs a change — the config directory is meant to mirror the component surface in use. Importing is the `/import-nuxt-ui-component` skill's job; it also refuses to overwrite an existing config, so a re-import is a deliberate act.
+A component is imported when the project first renders it, not when it first needs a change — the config directory is meant to mirror the component surface in use. Importing is the `/import-nuxt-ui-component` skill's job (Importing A Component, below); it also refuses to overwrite an existing config, so a re-import is a deliberate act.
+
+## Importing A Component
+
+The import lands a component's **complete, unmodified upstream defaults** — no customization in the same step. Changes come afterwards, each one annotated, so the diff that introduces them shows only what the project actually decided.
+
+1. **Stop if the config already exists.** An existing `web/config/nuxt-ui/<name>.ts` carries the project's own customizations, and importing over it silently discards them. Continue only when the user asks for a re-import (an `@nuxt/ui` bump) — and then keep the annotated edits and re-apply them on top of the fresh defaults.
+2. **Fetch the defaults from the MCP server**: read the component's `#theme` section and take the _inner_ theme object only — `slots`, `variants`, `compoundVariants`, `defaultVariants` — not the `export default defineAppConfig({ ui: { … } })` wrapper the docs show it inside.
+3. **Land it per the Wiring rules below**: the config file verbatim from upstream, the type entry, the `app.config.ts` import and key.
+4. **Verify**: the key matches the name Nuxt UI itself uses (a mismatch fails silently at runtime, not at build), and the project typechecks.
 
 ## Never overwrite a default
 
@@ -45,7 +56,7 @@ An un-annotated line in a config file is read as an upstream default, so an unma
 - **`app.config.ts` imports by relative path**, never the `@/` or `~/` alias — the file is loaded before the alias map exists, and an aliased import there fails the build.
 - `switch` is a reserved word: import it as `switchConfig` and register it as `switch: switchConfig`.
 - Imports and keys stay alphabetical; the list is long and only stays reviewable if it is ordered.
-- Every config file ends with `satisfies <Name>Config` against its type from `web/types/nuxt-ui.d.ts`. Without it a typo in a slot name is silently ignored at runtime.
+- Every config file ends with `satisfies <Name>Config` against its type from `web/types/nuxt-ui.d.ts` (`export type <Name>Config = TVConfig<typeof theme>['<camelCaseName>'];`, created with its `#build/ui` and `#ui/types` imports on the first import). Without it a typo in a slot name is silently ignored at runtime.
 
 ## Colour comes from the aliases
 
@@ -55,13 +66,13 @@ A component config that names a raw colour (`bg-purple-500`) is a missing alias,
 
 ## When the theme cannot express it
 
-A theme config sets classes. It cannot change what a component renders, or when — so behaviour a design asks for that the component's own markup forbids has one supported route: a **same-named component in the app's `_shared/` directory**, which shadows the library's and keeps every call site an ordinary `<u-form-field>`. It stays a thin wrapper around the real component, imported by path (`@nuxt/ui/components/<Name>.vue`), forwarding `$attrs` and every slot.
+A theme config sets classes. It cannot change what a component renders, or when — so behaviour a design asks for that the component's own markup forbids has one supported route: a **same-named component in the app's shared-primitives directory** (`components/_shared/`), which shadows the library's and keeps every call site an ordinary `<u-form-field>`. It stays a thin wrapper around the real component, imported by path (`@nuxt/ui/components/<Name>.vue`), forwarding `$attrs` and every slot.
 
 - **No `priority` or other config is needed.** Nuxt scans the app's component directories before any that resolve inside `node_modules`, and the first scan of a name wins unless a later one declares a strictly higher priority — which a module's directory does not. The app file wins on ordering alone.
 - **The shadow is the whole mechanism**: renaming the file un-shadows it and silently restores the stock component everywhere. The file says so, at the top.
 - **Adding the file mid-session is not enough to see it work.** Vite keeps the transformed output of every component that already resolved the library's version, so existing call sites go on importing it until Nuxt restarts. Check the module the dev server actually serves (`curl .../_nuxt/@fs/<path to a caller>.vue | grep <Name>`) before concluding the shadow failed — and note that `.nuxt/components.d.ts` points at the app file either way, so the type stub proves nothing.
 - The bar is the same as for any wrapper (`nuxtui.md`, Avoid By Default): real behaviour the library does not offer, not consistency for its own sake. `web/components/_shared/UFormField.vue` is the standing example — Nuxt UI unmounts a form field's error the instant it clears, so there is nothing left on screen for an exit animation to play on, and the wrapper holds the message for exactly that long.
-- **The classes still belong to the config file.** A wrapper that reaches past the theme to style something is the deep-selector mistake in another costume: what it adds is *when*, not *what*. Classes it applies transiently are named in the component's config beside the ones the theme applies always, and imported from there — the form field's two animation constants and their shared duration sit in `web/config/nuxt-ui/form-field.ts`, so a restyle finds both halves of the transition in the place it already looks. Write each class out in full there: Tailwind generates a utility only for a candidate it can read literally, so a class assembled from parts silently has no CSS behind it.
+- **The classes still belong to the config file.** A wrapper that reaches past the theme to style something is the deep-selector mistake in another costume: what it adds is _when_, not _what_. Classes it applies transiently are named in the component's config beside the ones the theme applies always, and imported from there — the form field's two animation constants and their shared duration sit in `web/config/nuxt-ui/form-field.ts`, so a restyle finds both halves of the transition in the place it already looks. Write each class out in full there: Tailwind generates a utility only for a candidate it can read literally, so a class assembled from parts silently has no CSS behind it.
 
 ## Avoid By Default
 

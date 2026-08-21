@@ -272,6 +272,43 @@ describe('UserFormDialog', () => {
     expect(
       await screen.findByText('That email is already taken.')
     ).toBeTruthy();
+
+    // ! And only on the field: the dialog suppresses the 422 toast the central handler would otherwise raise, so the verdict appears once. Without that the user reads the same sentence twice, once where it cannot be acted on.
+    await flushPromises();
+    expect(screen.queryAllByText('That email is already taken.')).toHaveLength(
+      1
+    );
+  });
+
+  it('renders an update verdict on the field, without a second copy in a toast', async () => {
+    server.use(
+      http.put(apiUrl('/api/users/7'), () =>
+        HttpResponse.json(
+          {
+            message: 'The given data was invalid.',
+            errors: { email: ['That email is already taken.'] }
+          },
+          { status: 422 }
+        )
+      )
+    );
+
+    await mountDialog(
+      buildUser({ id: 7, name: 'Ada', email: 'ada@example.com' })
+    );
+
+    await fireEvent.update(field('Name'), 'Ada Lovelace');
+    await settleValidation();
+    await submit();
+
+    expect(
+      await screen.findByText('That email is already taken.')
+    ).toBeTruthy();
+
+    await flushPromises();
+    expect(screen.queryAllByText('That email is already taken.')).toHaveLength(
+      1
+    );
   });
 
   it('resolves with the created user and says so', async () => {

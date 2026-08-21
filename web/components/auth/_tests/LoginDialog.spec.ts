@@ -4,6 +4,7 @@ import { defineComponent, h } from 'vue';
 import { renderSuspended } from '@nuxt/test-utils/runtime';
 import { http, HttpResponse } from 'msw';
 import { screen, fireEvent, cleanup, waitFor } from '@testing-library/vue';
+import { flushPromises } from '@vue/test-utils';
 
 import { UApp } from '#components';
 
@@ -111,6 +112,12 @@ describe('LoginDialog', () => {
         screen.getByText('These credentials do not match our records.')
       ).toBeTruthy()
     );
+
+    // ! And only on the field: the dialog suppresses the 422 toast the central handler would otherwise raise, so the verdict appears once rather than twice.
+    await flushPromises();
+    expect(
+      screen.queryAllByText('These credentials do not match our records.')
+    ).toHaveLength(1);
 
     expect(closed).toHaveLength(0);
   });

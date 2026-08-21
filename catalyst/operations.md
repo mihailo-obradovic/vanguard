@@ -221,7 +221,7 @@ Four of `variant/vuetify`'s component behaviours are **not observable at this le
 
 - **`after-leave`** (`CardDialog`, `UserDetailsDialog`, and the whole reset in each of the three auth dialogs) — `v-dialog` fades through `VDialogTransition`, whose leave hook measures the activator and drives the fade with the Web Animations API. happy-dom has no `Element.prototype.animate` and no layout, so the hook never reaches its `done()` callback: the dialog closes, silently. This is the contract that lets a dialog hold its subject's name in the title without it blanking mid-fade.
 - **`FormCard`'s scroll borders** — `isOverflowing` compares `scrollHeight` to `clientHeight`, both `0` without layout, and its only output is a CSS class.
-- **Viewport-bounded heights** (`UsersTable`, `LoadingSpinner`) — `useElementBounding` reports every element at top `0`, and the output is a `calc()` string bound into a scoped style.
+- **Viewport-bounded heights** (`UsersTable`, `LoadingSpinner`) — the cap is a `min-height: 0` flex chain in scoped CSS, and happy-dom performs no layout, so no resulting height is observable.
 - **`CardDialog`'s `xs` fullscreen branch** — "fullscreen" exists only as a CSS class.
 
 The three near-identical `handleEnterKey` copies that used to sit on `variant/vuetify` — `FormCard` and `FullScreenDialog` guarding on `closest('button, a, textarea, .v-select')`, `UserCard` on `'button, a'` alone — are now one `useConfirmOnEnter`, so the guard list cannot drift again. Its own spec covers the four self-handling elements directly; the three components' specs still cover their own reasons to stay out of the way (the `confirmOnEnter` opt-out, disabled, loading, read-only mode), and those guards remain load-bearing — removing one turns its spec red.

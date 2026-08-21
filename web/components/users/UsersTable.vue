@@ -1,9 +1,9 @@
 <template>
+  <!-- ! `min-height: 0` down the chain below is what makes the cap work: a flex child's default `min-height: auto` refuses to shrink below its content, so the table would grow the page instead of scrolling. `fixed-header` then keeps the column headers in place while the body moves. -->
   <GapContainer
-    ref="root"
     type="VSheet"
     elevation="1"
-    class="rounded-lg position-relative"
+    class="users-table-sheet rounded-lg position-relative flex-1-1"
   >
     <!-- * Background refetch (isLoading upstream): the stale rows stay visible, this bar is the only affordance. Absolute, so appearing costs no layout shift. -->
     <v-progress-linear
@@ -94,7 +94,6 @@
 <script setup lang="ts">
 import { mdiDelete, mdiPencil } from '@mdi/js';
 
-import type { ComponentPublicInstance } from 'vue';
 import type { User } from '@/types/auth';
 
 // ! Stryker instruments this block with locally declared coverage helpers, and a compiler
@@ -127,22 +126,27 @@ const emit = defineEmits<{
   delete: [user: User];
 }>();
 // Stryker restore all
-
-const root = useTemplateRef<ComponentPublicInstance>('root');
-
-// * Where the table starts in the viewport, so it can cap at the space below it (footer and page padding included)
-const { top } = useElementBounding(root, { windowScroll: false });
-
-// * --page-padding-bottom is published by the layout's page container; the fallback keeps this usable outside it
-const maxHeight = computed(
-  () =>
-    `calc(100dvh - ${top.value}px - var(--v-layout-bottom, 0px) - var(--page-padding-bottom, 0px))`
-);
 </script>
 
 <style scoped>
-/* * Cap the body at the available page height; fixed-header keeps the thead visible while it scrolls */
+/* * The sheet is a column so the table can take the height that is left in it, and the table is
+   one so its scrolling wrapper can do the same inside that. Flexbox arrives at the same cap the
+   measured version computed, and re-adapts on resize without watching anything. */
+.users-table-sheet {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.users-table {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
 .users-table :deep(.v-table__wrapper) {
-  max-height: v-bind(maxHeight);
+  min-height: 0;
+  flex: 1 1 auto;
 }
 </style>

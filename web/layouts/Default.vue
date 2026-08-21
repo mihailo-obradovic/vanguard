@@ -224,6 +224,16 @@ function useThemeSwitching() {
   background: rgb(var(--v-theme-background));
 }
 
+/* * `v-main` carries the app bar's and footer's offsets as its own padding, so a column the full
+   height of it is exactly the room a page has. `min-height: 0` lets that column shrink below its
+   content, which is what hands the overflow to the page's own scrolling child. */
+.layout :deep(.v-main) {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
 /* * The page's own bottom gap, published to descendants so a full-height child can subtract it.
    Vuetify's own padding is the shorthand `padding: $container-padding-x`, so restate the bottom
    from the variable — the gap and the value handed down can never disagree. */
@@ -231,5 +241,9 @@ function useThemeSwitching() {
   --page-padding-bottom: #{settings.$container-padding-x};
 
   padding-bottom: var(--page-padding-bottom);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
 }
 </style>

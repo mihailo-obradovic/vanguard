@@ -163,7 +163,7 @@ describe('UsersTable', () => {
   });
 });
 
-// ! The table caps its own height at the space left below it (`useElementBounding` plus the
-// ! layout's published padding). That has no case here and cannot have one: happy-dom reports
-// ! every element at top 0 with no layout, and the only output is a `calc()` string bound into a
-// ! scoped style — an implementation detail the conventions rule out asserting. Live browser walk.
+// ! The table caps its own height at the space left below it, through a `min-height: 0` flex chain
+// ! from the layout down to the table's scrolling wrapper. That has no case here and cannot have
+// ! one: happy-dom performs no layout, so nothing about the resulting heights is observable, and
+// ! the mechanism is scoped CSS — which the conventions rule out asserting. Live browser walk.

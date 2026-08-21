@@ -1,8 +1,8 @@
 <template>
+  <!-- * `fillHeight` spans the space left in the parent rather than a measured slice of the viewport: it needs a parent that is a bounded flex column, which is what the layout's page container is. -->
   <div
-    ref="wrapper"
     class="d-flex justify-center align-center pa-4 w-100"
-    :style="wrapperStyle"
+    :class="{ 'loading-spinner-fill': fillHeight }"
   >
     <v-progress-circular
       :indeterminate="isLoading"
@@ -17,21 +17,18 @@
 // ! macro is hoisted out of setup() — referencing them there is a compile error, not a
 // ! warning. The defaults inside go unmutated as a result (`catalyst/operations.md`).
 // Stryker disable all
-const props = defineProps<{
+defineProps<{
   fillHeight?: boolean;
 }>();
 
 const isLoading = defineModel<boolean>({ required: true });
 // Stryker restore all
-
-const wrapper = useTemplateRef('wrapper');
-
-// * Where the wrapper starts in the viewport, so fillHeight spans exactly the space below it (app bar and siblings included)
-const { top } = useElementBounding(wrapper, { windowScroll: false });
-
-const wrapperStyle = computed(() =>
-  props.fillHeight
-    ? { height: `calc(100dvh - ${top.value}px - var(--v-layout-bottom, 0px))` }
-    : undefined
-);
 </script>
+
+<style scoped>
+/* ! `min-height: 0` is the part that matters: a flex child's default `min-height: auto` refuses to shrink below its content, so without it this would grow its parent rather than fill it. */
+.loading-spinner-fill {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+</style>

@@ -71,6 +71,8 @@ B4 claim-by-claim pass (2026-08-02): every wiring, dependency, icon, dialog-base
 
 2026-08-17: first sync run under Branch sync above. 21 conflicts resolved by the table, 14 master-only UI files deleted, `features/002` and `007` corrected after auto-merging into claims untrue here. Post-merge suites green (Vitest 51 files / 434 tests, oxlint, typecheck, `validate.py`).
 
+2026-08-21: second sync run under Branch sync, plus the height-cap parity port. Ten conflicts resolved by the table; two things it does not catch were caught by reading the result — `nuxt.config.ts` auto-merged into a duplicate `spaLoadingTemplate` key, and `renovate.json` corrected this branch's own icon rule from `@mdi/font` to `@mdi/js`, a package `package.json` shows the branch does not carry. The measured cap (`useElementBounding`) is retired branch-wide for a `min-height: 0` flex chain, and `UserCard` now scrolls its fields; both walked live — the tables scroll under pinned headers with the page itself unscrollable, the card shrinks and scrolls in edit mode while its header controls stay put, and both re-adapt to a shrunken viewport without measuring. Suites green (Vitest 51 files / 434 tests, oxlint, oxfmt, typecheck, `validate.py`).
+
 ## Contracts Touched
 
 - `project-summary.md` — Technical Stack row (`frontend/ui | vuetify`), ADR Index row for this record.

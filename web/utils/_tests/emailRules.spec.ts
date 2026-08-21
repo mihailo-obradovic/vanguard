@@ -146,19 +146,38 @@ describe('emailRules', () => {
     it('does not ask the server about an empty value', async () => {
       respondWith(true);
 
-      const { validate } = await setupForm(() => accountEmailRules(), '');
+      const { validate, errors } = await setupForm(
+        () => accountEmailRules(),
+        ''
+      );
 
       expect(await validate()).toBe(false);
 
       await requests.settle();
 
       expect(requests.count()).toBe(0);
+      // ! Invalid for being absent, never for being taken: an unasked question must not answer itself, or an empty field reports a verdict the server never gave.
+      expect(errors()).not.toContain('The email field is already taken.');
+    });
+
+    // ! `required` is the only complaint an empty field earns. The lowercase rule passes a blank value on purpose — reporting both would tell the user to fix something they have not typed yet.
+    it('does not call an empty address badly cased', async () => {
+      respondWith(true);
+
+      const { validate, errors } = await setupForm(
+        () => accountEmailRules(),
+        ''
+      );
+
+      expect(await validate()).toBe(false);
+      expect(errors()).not.toContain('The email field must be lowercase.');
+      expect(errors()).toContain('The email field is required.');
     });
 
     it('does not ask the server about a malformed address', async () => {
       respondWith(true);
 
-      const { validate } = await setupForm(
+      const { validate, errors } = await setupForm(
         () => accountEmailRules(),
         'not-an-email'
       );
@@ -168,6 +187,28 @@ describe('emailRules', () => {
       await requests.settle();
 
       expect(requests.count()).toBe(0);
+      expect(errors()).not.toContain('The email field is already taken.');
+    });
+
+    // ! The edit forms pass an `ignoreId` getter; register and profile pass nothing at all, and the optional call has to survive that — an availability check that throws here would be swallowed by the fail-open catch and read as "available".
+    it('still asks the server when no user is being ignored', async () => {
+      let requestUrl = '';
+
+      server.use(
+        http.get(apiUrl('/api/email-availability'), ({ request }) => {
+          requestUrl = request.url;
+
+          return HttpResponse.json({ available: false });
+        })
+      );
+
+      const { validate } = await setupForm(
+        () => accountEmailRules(),
+        'taken@example.com'
+      );
+
+      expect(await validate()).toBe(false);
+      expect(new URL(requestUrl).searchParams.has('ignore_id')).toBe(false);
     });
 
     it('forwards the ignored user so an unchanged address stays valid', async () => {
@@ -204,6 +245,17 @@ describe('emailRules', () => {
       await requests.settle();
 
       expect(requests.count()).toBe(0);
+    });
+
+    // ! The label is pinned on the account variant but was never pinned here, and this is the one every login and password-recovery message interpolates — a wrong field name misnames the field in the only form an unauthenticated user ever sees.
+    it('names the email field in its messages', async () => {
+      const { validate, errors } = await setupForm(
+        () => credentialEmailRules(),
+        ''
+      );
+
+      expect(await validate()).toBe(false);
+      expect(errors()).toContain('The email field is required.');
     });
 
     it('still requires a well-formed address within the length bound', async () => {

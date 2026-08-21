@@ -1,0 +1,32 @@
+<!-- * Shown from HTML load until the app mounts — this covers auth-loader's two blocking requests (CSRF cookie + current user), which would otherwise be a blank screen. Pre-i18n, so no text. -->
+<div id="boot-splash">
+  <div id="boot-splash-spinner" role="progressbar" aria-label="Loading"></div>
+</div>
+<style>
+  /* ! The colours are literals, not the --color-* tokens they mirror: this markup is inlined into the HTML ahead of the stylesheet, and in dev the sheet arrives via JS, so the tokens do not exist yet at paint time. Change a value in assets/styles/main.css, change it here. */
+  #boot-splash {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* * The page ground: --color-surface. */
+    background: #ffffff;
+  }
+
+  #boot-splash-spinner {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    /* * --color-brand. */
+    border: 4px solid rgba(0, 102, 255, 0.25);
+    border-top-color: rgb(0, 102, 255);
+    animation: boot-splash-spin 1.4s linear infinite;
+  }
+
+  @keyframes boot-splash-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+</style>

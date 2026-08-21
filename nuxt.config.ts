@@ -7,6 +7,9 @@ export default defineNuxtConfig({
 
   ssr: false,
 
+  // * Explicit: the template only renders when this is on, and with ssr: false every reload shows it.
+  spaLoadingTemplate: true,
+
   runtimeConfig: {
     public: {
       apiBaseUrl: ''

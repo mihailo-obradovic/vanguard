@@ -1,4 +1,5 @@
 <template>
+  <!-- * A column filling `main`, so the table below can take the space that is left rather than growing the page. -->
   <div class="demo-container">
     <header class="demo-header">
       <h1 class="demo-title">{{ $t('graphqlDemo.title') }}</h1>
@@ -98,12 +99,17 @@ function closeEditForm() {
 .demo-container {
   max-width: 1000px;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
 }
 
 .demo-header {
   margin-bottom: 24px;
   padding-bottom: 16px;
   border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
 }
 
 .demo-title {
@@ -133,11 +139,13 @@ function closeEditForm() {
   border-color: var(--color-danger-surface-border);
 }
 
+/* ! `min-height: 0` is what makes this work: a flex child's default `min-height: auto` refuses to shrink below its content, so the table would grow the page instead of scrolling. Sticky `th`s then keep the column headers in place while the body moves. */
 .table-container {
   background: var(--color-surface);
   border-radius: var(--radius);
   border: 1px solid var(--color-border);
-  overflow: hidden;
+  overflow-y: auto;
+  min-height: 0;
   box-shadow: var(--shadow-subtle);
 }
 
@@ -153,6 +161,9 @@ function closeEditForm() {
   text-align: left;
   font-weight: 600;
   font-size: 14px;
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 .users-table td {

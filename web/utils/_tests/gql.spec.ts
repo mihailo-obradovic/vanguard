@@ -2,9 +2,7 @@ import { describe, it, expect } from 'vitest';
 
 import { gql } from '../gql';
 
-// * Documents are asserted through direct calls rather than tagged literals wherever the exact
-// * text is the point: oxfmt reformats a `gql` template as GraphQL, so its whitespace belongs
-// * to the formatter, not to the test.
+// * Documents are asserted through direct calls rather than tagged literals wherever the exact text is the point: oxfmt reformats a `gql` template as GraphQL, so its whitespace belongs to the formatter, not to the test.
 function templateParts(...strings: string[]): TemplateStringsArray {
   return Object.assign([...strings], {
     raw: [...strings]

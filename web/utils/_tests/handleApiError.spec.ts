@@ -5,8 +5,7 @@ import { FetchError } from 'ofetch';
 
 import { handleApiError } from '../handleApiError';
 
-// * Only the two side effects are replaced. `getErrorMessage` and `getValidationErrors` stay
-// * real so these cases assert the message a user would actually see, not a stub of it.
+// * Only the two side effects are replaced. `getErrorMessage` and `getValidationErrors` stay real so these cases assert the message a user would actually see, not a stub of it.
 const { $toast, navigateTo } = vi.hoisted(() => ({
   $toast: vi.fn<(...args: unknown[]) => void>(),
   navigateTo: vi.fn<(...args: unknown[]) => void>()
@@ -119,14 +118,12 @@ describe('handleApiError', () => {
       { hideValidationToast: true }
     );
 
-    // * Suppression covers field messages only — a 422 with nothing to render inline would
-    // * otherwise fail silently.
+    // * Suppression covers field messages only — a 422 with nothing to render inline would otherwise fail silently.
     expect(toastedMessages()).toEqual(['The given data was invalid.']);
   });
 
   it('ignores field errors on a status other than 422', () => {
-    // * Only a 422 states a validation failure; an `errors` bag on anything else is not one,
-    // * and listing it would bury the message that actually explains the failure.
+    // * Only a 422 states a validation failure; an `errors` bag on anything else is not one, and listing it would bury the message that actually explains the failure.
     handleApiError(
       apiError(500, {
         message: 'Server error',

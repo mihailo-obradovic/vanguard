@@ -13,8 +13,7 @@ import type { FetcherOptions } from '../fetcher';
 
 const requests = recordRequests();
 
-// * How many more times /api/things answers 419. Set per test; the handler counts down, so
-// * `1` reproduces a single expired token and `2` an expiry that survives the re-prime.
+// * How many more times /api/things answers 419. Set per test; the handler counts down, so `1` reproduces a single expired token and `2` an expiry that survives the re-prime.
 let expiredTokenResponses = 0;
 let csrfCookieStatus = 200;
 

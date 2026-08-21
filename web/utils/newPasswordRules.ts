@@ -20,8 +20,7 @@ export function newPasswordRules(
     password: labeledRules(passwordName, {
       required: requiredIf(() => !toValue(optional)),
       minLength: minLength(8),
-      // * Mirrors `Password::defaults()` — 8–255. The ceiling is bcrypt's 72-byte truncation made
-      // * explicit; without it the server would 422 on a length the form said nothing about.
+      // * Mirrors `Password::defaults()` — 8–255. The ceiling is bcrypt's 72-byte truncation made explicit; without it the server would 422 on a length the form said nothing about.
       maxLength: maxLength(255)
     }),
     password_confirmation: labeledRules(confirmationName, {

@@ -6,7 +6,7 @@
 
 The Vue-side frontend module: a Nuxt 4 app running **as an SPA** (`ssr: false`) — pages render on the client and the app deploys as static assets against a separate API. Server-side rendering is the `ssr` addon; `addons/ssr.md` owns the adoption criteria. Binds the Universal Rules (Client And UI) to Nuxt; never restates a Universal Rule.
 
-- Data fetching goes through the two-layer data access described in `data-layer.md` — a pure service function per endpoint, a Pinia Colada composable per operation.
+- Data fetching goes through the two-layer data access described in `data-layer.md` — a pure service function per endpoint, a Pinia Colada composable per operation. A GraphQL API keeps that contract and swaps the transport beneath it (`addons/graphql.md`).
 - Every response is parsed against a Zod schema rather than asserted with a generic — a removed or renamed field fails at the boundary, not three components deep.
 - Forms: Regle for client-side rules, mirroring the backend's validation for the endpoint. Server 422s render inline on the field, never as a toast.
 - Errors are handled centrally, once, at the query layer — components carry no try-catch and no manual loading flags.

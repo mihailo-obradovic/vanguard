@@ -22,8 +22,7 @@ describe('changedFields', () => {
   });
 
   it('includes keys absent from the original object', () => {
-    // ! Callers must therefore exclude optional inputs like passwords themselves — an empty
-    // ! string differs from undefined and would be sent as a change.
+    // ! Callers must therefore exclude optional inputs like passwords themselves — an empty string differs from undefined and would be sent as a change.
     expect(
       changedFields({ name: 'Ada' }, { name: 'Ada', password: '' })
     ).toEqual({ password: '' });

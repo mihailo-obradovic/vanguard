@@ -30,7 +30,7 @@ export type User = z.infer<typeof UserSchema>;
 
 ## Regle — requests only
 
-Forms validate client-side with Regle, wired as the **`@regle/nuxt` module** — one entry in `modules`, no plugin file. (The `ui/vuetify` choice goes the other way and says so in `ui/vuetify/setup.md`; neither call generalises to the other library.)
+Forms validate client-side with Regle, wired as the **`@regle/nuxt` module** — one entry in `modules`, no plugin file. (The `ui/vuetify` choice goes the other way and says so in `ui/vuetify/setup.md`; neither call generalises to the other library. The `ui/nuxtui` choice declines the library's own `<u-form>` so Regle stays the only validation owner — `ui/nuxtui/nuxtui.md`, Components Not Used.)
 
 ### Dependencies
 

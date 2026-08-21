@@ -213,6 +213,9 @@ describe('UserGqlFormDialog', () => {
 
     await waitFor(() => expect(closed.length).toBe(1));
     expect(closed[0]?.name).toBe('Ada Lovelace');
+    expect(
+      await screen.findAllByText('User "Ada Lovelace" updated successfully')
+    ).not.toHaveLength(0);
   });
 
   it('asks to close when Cancel is pressed', async () => {

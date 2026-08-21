@@ -274,7 +274,7 @@ describe('UserFormDialog', () => {
     ).toBeTruthy();
   });
 
-  it('resolves with the created user so the opener can react', async () => {
+  it('resolves with the created user and says so', async () => {
     const { closed } = await mountDialog();
 
     await fillValidCreation();
@@ -282,6 +282,26 @@ describe('UserFormDialog', () => {
 
     await waitFor(() => expect(closed.length).toBe(1));
     expect(closed[0]?.name).toBe('Ada');
+    expect(
+      await screen.findAllByText('User "Ada" created successfully')
+    ).not.toHaveLength(0);
+  });
+
+  // ! The update half of the success path had no test at all — its whole body could be deleted and every spec stayed green, because the others assert only what went over the wire.
+  it('resolves with the updated user and says so', async () => {
+    const { closed } = await mountDialog(
+      buildUser({ id: 7, name: 'Ada', email: 'ada@example.com' })
+    );
+
+    await fireEvent.update(field('Name'), 'Ada Lovelace');
+    await settleValidation();
+    await submit();
+
+    await waitFor(() => expect(closed.length).toBe(1));
+    expect(closed[0]?.name).toBe('Ada Lovelace');
+    expect(
+      await screen.findAllByText('User "Ada Lovelace" updated successfully')
+    ).not.toHaveLength(0);
   });
 
   it('asks to close when Cancel is pressed', async () => {

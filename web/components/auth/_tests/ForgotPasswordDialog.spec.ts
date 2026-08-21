@@ -49,7 +49,7 @@ describe('ForgotPasswordDialog', () => {
     cleanup();
   });
 
-  it('closes once the reset link is on its way', async () => {
+  it('closes once the reset link is on its way, passing on what the server said', async () => {
     const { closed } = await mountDialog();
 
     await fireEvent.update(screen.getByLabelText(/email/i), 'test@example.com');
@@ -57,6 +57,9 @@ describe('ForgotPasswordDialog', () => {
 
     await waitFor(() => expect(closed).toHaveLength(1));
     expect(closed[0]).toBeUndefined();
+    expect(
+      await screen.findAllByText('We have emailed your password reset link.')
+    ).not.toHaveLength(0);
   });
 
   it("shows the server's 422 on the field rather than closing", async () => {

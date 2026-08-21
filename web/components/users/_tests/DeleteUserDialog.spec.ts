@@ -79,6 +79,9 @@ describe('DeleteUserDialog', () => {
 
     await waitFor(() => expect(closed.length).toBe(1));
     expect(closed[0]).toBe(true);
+    expect(
+      await screen.findAllByText('User "Ada" deleted successfully')
+    ).not.toHaveLength(0);
   });
 
   // ! Dismissing through the modal's own chrome goes through a different path than the cancel button: the overlay reports the close and the dialog has to forward it, or the opener is left holding a promise that never settles and the overlay never unmounts.

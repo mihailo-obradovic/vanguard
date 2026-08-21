@@ -1,14 +1,15 @@
 <template>
-  <v-row no-gutters>
-    <v-col cols="12" md="6">
+  <v-row no-gutters class="user-card-row">
+    <v-col cols="12" md="6" class="user-card-col d-flex">
+      <!-- * The edit, save and cancel controls live in the header, so the fields are what scroll — a card that scrolled whole would carry them off the screen. -->
       <GapContainer
         type="VSheet"
-        class="pa-4 rounded-lg"
+        class="user-card w-100 pa-4 rounded-lg"
         column
         elevation="1"
         @keydown.enter="handleEnterKey"
       >
-        <GapContainer class="justify-space-between align-center mb-2">
+        <GapContainer class="justify-space-between align-center mb-2 flex-0-0">
           <h2>{{ $t('profile.title') }}</h2>
 
           <GapContainer>
@@ -54,7 +55,7 @@
           </GapContainer>
         </GapContainer>
 
-        <GapContainer column class="w-100">
+        <GapContainer column class="user-card-fields w-100">
           <v-text-field
             v-model="form.name"
             :error-messages="r$.name.$errors"
@@ -237,3 +238,37 @@ onKeyStroke('Escape', () => {
   }
 });
 </script>
+
+<style scoped>
+/* ! `min-height: 0` is what hands the overflow to the fields: a flex child's default
+   `min-height: auto` refuses to shrink below its content, so the card would spill past the page
+   instead — and with the page itself unscrollable, spilled content is unreachable. */
+/* ! `flex-wrap: nowrap` matters as much: a wrapping row sizes its line to the tallest item and
+   lets it overflow rather than shrinking it, so the chain stops dead at the column. One column
+   here, so nothing wraps either way. */
+.user-card-row {
+  min-height: 0;
+  flex-wrap: nowrap;
+}
+
+.user-card-col {
+  min-height: 0;
+}
+
+/* * `align-self` and `max-height` rather than stretching: the card keeps hugging its content, but
+   may now shrink to the column instead of growing past it, which is what hands its own fields the
+   overflow. */
+.user-card {
+  min-height: 0;
+  align-self: flex-start;
+  max-height: 100%;
+}
+
+/* ! The padding is not decoration: a floating field label sits above its own border box, so the
+   first field's label is clipped by this container's top edge without room reserved for it. */
+.user-card-fields {
+  min-height: 0;
+  overflow-y: auto;
+  padding-top: 10px;
+}
+</style>

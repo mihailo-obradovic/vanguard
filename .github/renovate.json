@@ -36,11 +36,22 @@
       "description": "Re-enable Vuetify's branch-specific front-end deps on variant/vuetify (not present on master).",
       "matchManagers": ["npm"],
       "matchBaseBranches": ["variant/vuetify"],
-      "matchPackageNames": ["@mdi/font", "vite-plugin-vuetify", "vuetify"],
+      "matchPackageNames": ["@mdi/js", "vite-plugin-vuetify", "vuetify"],
       "enabled": true,
       "addLabels": ["front-end", "vuetify"],
       "semanticCommitType": "Dependency",
       "semanticCommitScope": "FE - Vuetify",
+      "assignees": ["mihailo-obradovic"]
+    },
+    {
+      "description": "Re-enable Nuxt UI's branch-specific front-end deps on variant/nuxtui (not present on master).",
+      "matchManagers": ["npm"],
+      "matchBaseBranches": ["variant/nuxtui"],
+      "matchPackageNames": ["@iconify-json/lucide", "@nuxt/ui", "tailwindcss"],
+      "enabled": true,
+      "addLabels": ["front-end", "nuxtui"],
+      "semanticCommitType": "Dependency",
+      "semanticCommitScope": "FE - NuxtUI",
       "assignees": ["mihailo-obradovic"]
     },
     {

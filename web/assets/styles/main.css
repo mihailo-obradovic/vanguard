@@ -2,83 +2,30 @@
 @import '@nuxt/ui';
 
 @theme static {
-    /* * primary — Dracula purple #bd93f9 */
-    --color-primary-50: #f7f3ff;
-    --color-primary-100: #efe7ff;
-    --color-primary-200: #e4d4ff;
-    --color-primary-300: #d4b8ff;
+    /* * Each accent carries only the two shades something reads: 400 is Dracula's own pastel and paints the dark face, and the darker step is the light face's, chosen per hue as the darkest that still clears 4.5:1 under white — the ratios are in decisions/014. Nuxt UI's components never name an accent shade; they read `--ui-<accent>` and alpha-derive every variant from it, so the nine intervening steps of each ramp fed nothing. */
+    /* * primary — Dracula purple */
     --color-primary-400: #bd93f9;
-    --color-primary-500: #a977ec;
-    --color-primary-600: #975fdc;
     --color-primary-700: #8144c5;
-    --color-primary-800: #6e2daf;
-    --color-primary-900: #5f1d9b;
-    --color-primary-950: #310058;
 
-    /* * secondary — Dracula pink #ff79c6 */
-    --color-secondary-50: #fff1f8;
-    --color-secondary-100: #ffe3f1;
-    --color-secondary-200: #ffcee7;
-    --color-secondary-300: #ffadd8;
+    /* * secondary — Dracula pink */
     --color-secondary-400: #ff79c6;
-    --color-secondary-500: #f052b2;
-    --color-secondary-600: #de2a9f;
     --color-secondary-700: #bf0086;
-    --color-secondary-800: #9e006e;
-    --color-secondary-900: #86005d;
-    --color-secondary-950: #45002e;
 
-    /* * success — Dracula green #50fa7b */
-    --color-success-50: #e1ffe4;
-    --color-success-100: #d2ffd7;
-    --color-success-200: #baffc3;
-    --color-success-300: #91fea3;
+    /* * success — Dracula green */
     --color-success-400: #50fa7b;
-    --color-success-500: #00dc5a;
-    --color-success-600: #00bd4c;
-    --color-success-700: #009a3c;
     --color-success-800: #007d2f;
-    --color-success-900: #006726;
-    --color-success-950: #002d0c;
 
-    /* * info — Dracula cyan #8be9fd */
-    --color-info-50: #e4faff;
-    --color-info-100: #d9f8ff;
-    --color-info-200: #c9f5ff;
-    --color-info-300: #aff0ff;
+    /* * info — Dracula cyan */
     --color-info-400: #8be9fd;
-    --color-info-500: #00d0ee;
-    --color-info-600: #00b3cd;
-    --color-info-700: #0091a7;
     --color-info-800: #007687;
-    --color-info-900: #006170;
-    --color-info-950: #002930;
 
-    /* * warning — Dracula orange #ffb86c */
-    --color-warning-50: #fff3e8;
-    --color-warning-100: #ffecd9;
-    --color-warning-200: #ffe1c3;
-    --color-warning-300: #ffd0a1;
+    /* * warning — Dracula orange */
     --color-warning-400: #ffb86c;
-    --color-warning-500: #f29400;
-    --color-warning-600: #d18000;
-    --color-warning-700: #ab6800;
     --color-warning-800: #8c5400;
-    --color-warning-900: #744500;
-    --color-warning-950: #361d00;
 
-    /* * error — Dracula red #ff5555 */
-    --color-error-50: #fff2f1;
-    --color-error-100: #ffe1de;
-    --color-error-200: #ffc7c2;
-    --color-error-300: #ff9d96;
+    /* * error — Dracula red */
     --color-error-400: #ff5555;
-    --color-error-500: #ef2f3a;
     --color-error-600: #db0026;
-    --color-error-700: #b8001e;
-    --color-error-800: #9b0018;
-    --color-error-900: #850013;
-    --color-error-950: #4a0006;
 
     /* * Named `dracula` rather than `neutral`, which would override Tailwind's own palette of that name. Its four greys sit where their lightness belongs — foreground 50, comment 600, current line 900, background 950 — and the gaps interpolate in OKLab, since hue near grey is meaningless and interpolating it swings the light end through pink. */
     --color-dracula-50: #f8f8f2;
@@ -134,9 +81,7 @@
 }
 
 /* * Dark mode — the palette as Dracula draws it: background, current line, comment and foreground land on the tokens they were named for. */
-/* ! `:root.dark` rather than a bare `.dark`: this sheet is imported after Nuxt UI's and the light block matches the same <html>, so the dark rules need the higher specificity or light mode wins in both. */
-/* ! The accents look redundant but are not: shade 400 is Nuxt UI's dark default, and the light block above overrode it unconditionally, so removing these paints dark mode in light mode's darkened accents. */
-:root.dark,
+/* ! The accents look redundant against Nuxt UI's own dark defaults but are not: the light block above matches <html> in both faces and is declared later than Nuxt UI's `.dark`, so deleting these paints dark mode in the light face's darkened accents — measured, not assumed. */
 .dark {
     color-scheme: dark;
 

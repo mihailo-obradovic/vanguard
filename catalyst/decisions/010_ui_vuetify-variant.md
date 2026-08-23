@@ -27,7 +27,20 @@ There is no rejected alternative to name — master _is_ the headless alternativ
 Product decisions of this branch, not module prescriptions (the module's components document says exactly this about borrowing compositions):
 
 - **Auth lives in dialogs, not routes.** `LoginDialog`/`RegisterDialog`/`ForgotPasswordDialog` mount in `layouts/Default.vue`, one `useMutationDialog()` call each; the four auth pages are deleted. Follow-on: `utils/authRedirectLogic.ts` shrinks guest-only routes to `['/password-reset']` and redirects unauthenticated users to `/home`, and the flattened `pages/password-reset.vue` reads `?token=&email=` — the backend's emailed reset URL must match, so this composition reaches into route policy and server config (why it is recorded here).
-- **Dracula palette with custom theme tokens.** `link`, `highlight`, and `foreground` beyond Vuetify's built-ins, used as ordinary `color=` props and `--v-theme-*` variables; no `surface` override.
+- **Dracula palette with custom theme tokens, split per face.** `link`, `highlight`, and `foreground` beyond Vuetify's built-ins, used as ordinary `color=` props and `--v-theme-*` variables; no `surface` override. The accents are **not** one shared set: Dracula is drawn for a dark ground, and `variant="text"` / `variant="outlined"` buttons paint their label with the colour itself, so a shared palette puts real text between 1.29:1 and 4.41:1 on the light page. The light face therefore takes the darkest shade of each hue that still clears 4.5:1 — the same values `variant/nuxtui` derived for its own light face — and the dark face keeps Dracula as published. `secondary` (current-line grey behind the drawer, the empty layout and the role chip) and `highlight` stay shared: they are fill-only, and Vuetify computes the contrast text that lands on them. Worst case of each accent as foreground, measured across the page and the surface of its own face (§14.1, `stacks/frontend/nuxt/design-system.md`):
+
+  | Role      | Light     | Ratio  | Dark      | Ratio   |
+  | --------- | --------- | ------ | --------- | ------- |
+  | `primary` | `#8144c5` | 5.52:1 | `#bd93f9` | 5.90:1  |
+  | `accent`  | `#bf0086` | 5.53:1 | `#ff79c6` | 5.97:1  |
+  | `error`   | `#db0026` | 4.88:1 | `#ff5555` | 4.53:1  |
+  | `warning` | `#8c5400` | 5.82:1 | `#ffb86c` | 8.36:1  |
+  | `info`    | `#007687` | 5.00:1 | `#8be9fd` | 10.29:1 |
+  | `success` | `#007d2f` | 4.96:1 | `#50fa7b` | 10.38:1 |
+  | `link`    | `#57638a` | 5.54:1 | `#939fbf` | 5.39:1  |
+
+  `web/plugins/_tests/vuetify.spec.ts` recomputes every one of these from `theme.computedThemes` rather than trusting the table, so re-measuring after a token change is automatic.
+
 - **Project idioms:** `GapContainer` (polymorphic `d-flex`/gap wrapper; imports `VSheet`/`VCard` explicitly for `<component :is>`), `PasswordField`'s second `visible` model shared across a password/confirmation pair, `UserCard`'s inline edit mode owning its own update, so the page renders `<UserCard />` bare.
 
 ## Known inconsistencies (recorded, not fixed)
@@ -72,6 +85,8 @@ B4 claim-by-claim pass (2026-08-02): every wiring, dependency, icon, dialog-base
 2026-08-17: first sync run under Branch sync above. 21 conflicts resolved by the table, 14 master-only UI files deleted, `features/002` and `007` corrected after auto-merging into claims untrue here. Post-merge suites green (Vitest 51 files / 434 tests, oxlint, typecheck, `validate.py`).
 
 2026-08-21: second sync run under Branch sync, plus the height-cap parity port. Ten conflicts resolved by the table; two things it does not catch were caught by reading the result — `nuxt.config.ts` auto-merged into a duplicate `spaLoadingTemplate` key, and `renovate.json` corrected this branch's own icon rule from `@mdi/font` to `@mdi/js`, a package `package.json` shows the branch does not carry. The measured cap (`useElementBounding`) is retired branch-wide for a `min-height: 0` flex chain, and `UserCard` now scrolls its fields; both walked live — the tables scroll under pinned headers with the page itself unscrollable, the card shrinks and scrolls in edit mode while its header controls stay put, and both re-adapt to a shrunken viewport without measuring. Suites green (Vitest 51 files / 434 tests, oxlint, oxfmt, typecheck, `validate.py`).
+
+2026-08-23: the Dracula accents split per face. Shipped unchanged on the light page they were failing WCAG AA as text — primary 2.26:1, error 2.95:1, info 1.30:1, success 1.29:1, `link` 4.41:1 — and `link` failed the dark face too at 3.03:1. The seven foreground roles now carry a light and a dark value and all fourteen clear 4.5:1 against both the page and a surface; the fourteen new assertions were sabotage-proven by restoring the shared palette, which turns all seven light-theme cases red with exactly the ratios above. Suites green (Vitest 51 files / 448 tests, `oxlint`, `oxfmt`, `nuxt typecheck`, `validate.py`).
 
 ## Contracts Touched
 

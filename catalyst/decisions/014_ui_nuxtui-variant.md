@@ -38,7 +38,7 @@ Product decisions of this branch, not module prescriptions:
 ## Known inconsistencies (recorded, not fixed)
 
 - `LoginDialog.vue` ships prefilled dev credentials. Deliberate, and kept.
-- Ten Markdown documents fail `oxfmt --check`, eight master-owned. Pre-existing; left for a master-side pass.
+- Nine Markdown documents fail `oxfmt --check`, all nine master-owned — each one fails on `master` too. Pre-existing; left for a master-side pass.
 
 ## Scope
 
@@ -46,8 +46,25 @@ Product decisions of this branch, not module prescriptions:
 
 ## Consequences
 
-- Master → variant merges stay clean on the _stack documents_ — the three ui choices live at different paths and this branch deletes rather than edits `headless.md` — but not on the code, for the reasons record 010 sets out.
+- Master → variant merges stay clean on the _stack documents_ — the three ui choices live at different paths and this branch deletes rather than edits `headless.md` — but not on the code, where this branch's UI is a rewrite rather than a variation. Branch sync below is the standing resolution.
 - The port (Catalyst 1.7.0) made the wrappers generated rather than hand-kept and turned the branch-only AI tooling into module prescriptions: the scaffolder writes the MCP server entry, and the `nuxt-ui` skill is a prescribed day-zero vendor from `github.com/nuxt/ui` with the pin recorded in `stacks/frontend/nuxt/ui/nuxtui/nuxtui.md`.
+
+## Branch sync
+
+Master is the source; this branch is a **variant** (`context/domain-glossary.md`) — synced from master, never merged back. What syncs is decided by path, not by reading each diff:
+
+| Path                                                                                                                                | Resolution                                                                                                                                                |
+| ----------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `web/composables/`, `web/services/`, `web/utils/`, `catalyst/stacks/`                                                               | **Master wins.** Framework-agnostic; this is the layer the sync exists to carry.                                                                          |
+| `web/pages/`, `web/layouts/`, `web/components/`, `web/assets/`, `web/config/nuxt-ui/`, `web/i18n/`, `web/spa-loading-template.html` | **Variant wins**, always, including a file this branch has deleted (`login`, `register` and `forgot-password` — auth lives in the layout's dialogs here). |
+| `web/CLAUDE.md`, `catalyst/operations.md`, `catalyst/features/*`                                                                    | **By hand.** Both branches hold real content, and these describe both.                                                                                    |
+
+Two things the table does not catch on its own:
+
+- **Master-only UI files arrive as clean additions**, not conflicts — git has nothing on this branch to compare them against. They are deleted in the merge commit. Left in, they would be unreferenced components styled against master's tokens, with specs that run and pad this branch's coverage and mutation figures. Every later master commit touching one raises a modify/delete conflict, resolved as _delete_ each time — that friction is the signal, not a defect.
+- **A shared document can auto-merge into a lie**, pointing this branch at components it does not have. Read every `catalyst/features/*` and `catalyst/operations.md` diff after the merge, conflicted or not.
+
+A change genuinely wanted in more than one UI layer is ported deliberately, as its own commit on each branch. It is never a merge resolution.
 
 ## Contracts Touched
 
@@ -65,3 +82,5 @@ Product decisions of this branch, not module prescriptions:
 Suites green on the branch at close-out: Vitest 44 files / 325 tests, `oxlint`, `nuxt typecheck`, `validate.py` 0 errors. The Tailwind-sorting change reformatted eight Vue files and no vendored config, and the suites were re-run green after it.
 
 Mutation run 2026-08-21, after the survivor triage: **76.61% total, 88.86% covered** over 885 scored mutants — 678 killed, 85 survived, 122 without coverage, plus 51 ignored inside the compiler-macro disable pairs. The triage added fourteen tests across the dialogs, `UFormField` and `emailRules`, each verified by breaking its target in the source; the survivors it accepted are recorded with their evidence in `operations.md`. The no-coverage rise over the pre-triage run is unexplained and flagged there.
+
+2026-08-23: first sync run under Branch sync above. Nine conflicts resolved by the table; the two things it does not catch were checked by reading the result rather than the conflict list — no master-only UI file arrived as a clean addition, and `nuxt.config.ts` did not repeat vuetify's duplicate `spaLoadingTemplate` key. Master's `nameRules` extraction and table height cap were already here, reached independently through Tailwind rather than master's hand-rolled CSS, so the merge's net effect is three files: the Renovate rule for this branch's own deps, the glossary's table-height-cap term, and one `operations.md` correction. Suites green (Vitest 45 files / 343 tests, `oxlint`, `nuxt typecheck`, `validate.py`).

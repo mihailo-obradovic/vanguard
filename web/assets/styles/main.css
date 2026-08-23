@@ -28,10 +28,11 @@
     --color-error-600: #db0026;
 
     /* * Named `dracula` rather than `neutral`, which would override Tailwind's own palette of that name. Its four greys sit where their lightness belongs — foreground 50, comment 600, current line 900, background 950 — and the gaps interpolate in OKLab, since hue near grey is meaningless and interpolating it swings the light end through pink. */
+    /* * Default (interpolated): 200 #d4d9e4, 300 #b7c0d6. Damped toward neutral at the same lightness and hue, because these two are the greys that show against the cream canvas — borders, the accented surface and the input ring — and the interpolation carries enough blue there to read as a second, colder grey. 100's interpolation already lands neutral, so it keeps its computed value. */
     --color-dracula-50: #f8f8f2;
     --color-dracula-100: #e8eaea;
-    --color-dracula-200: #d4d9e4;
-    --color-dracula-300: #b7c0d6;
+    --color-dracula-200: #d7d9de;
+    --color-dracula-300: #bac0d0;
     --color-dracula-400: #939fbf;
     --color-dracula-500: #7c8ab3;
     --color-dracula-600: #6272a4;

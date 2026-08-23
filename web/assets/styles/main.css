@@ -53,12 +53,11 @@
     --ui-warning: var(--ui-color-warning-800);
     --ui-error: var(--ui-color-error-600);
 
-    /* * The page canvas sits a shade under the surfaces, so cards, the table and the footer read as raised rather than painted on. Surfaces keep Dracula's own colour; only the canvas moves. */
-    --app-bg-page: var(--color-dracula-100);
-    --ui-bg: var(--ui-color-neutral-50);
-    --ui-bg-muted: var(--ui-color-neutral-100);
-    /* * The page is already off-white, so a raised surface is lighter than it, not darker. */
-    --ui-bg-elevated: var(--color-white);
+    /* * The canvas takes Dracula's own foreground cream and the surfaces sit white above it, so cards, the table and the footer read as raised. That puts the ladder back the way Nuxt UI draws it — emphasis darkens — which the old grey canvas had inverted. */
+    --app-bg-page: var(--color-dracula-50);
+    --ui-bg: var(--color-white);
+    --ui-bg-muted: var(--ui-color-neutral-50);
+    --ui-bg-elevated: var(--ui-color-neutral-100);
     --ui-bg-accented: var(--ui-color-neutral-200);
     --ui-bg-inverted: var(--ui-color-neutral-950);
 

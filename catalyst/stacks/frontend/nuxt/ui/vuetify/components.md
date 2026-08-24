@@ -97,37 +97,40 @@ Keep a second, near-empty layout for standalone pages — a centred `v-layout` w
 
 ## Sizing to the viewport
 
-**Measure, don't assume.** An element capped with hardcoded `calc(100vh - 64px - …)` math encodes the app bar's height, its own offset, and every sibling above it — and silently breaks when any of them changes. Measure instead:
+**The chain, not a measurement.** Height comes from the unbroken chain in [`../../page-layout.md`](../../page-layout.md) — the shell pins the viewport, the layout is a column, one region scrolls. Nothing here re-derives it: no `calc(100vh - …)` arithmetic over the app bar, and no reading an element's box at runtime to feed a `max-height`. Both forms encode, in a page, what the layout already knows, and both are wrong the moment the chrome changes.
 
-```ts
-const { top } = useElementBounding(root, { windowScroll: false });
-
-const maxHeight = computed(
-  () => `calc(100dvh - ${top.value}px - var(--v-layout-bottom, 0px))`
-);
-```
-
-- `useElementBounding` (VueUse) gives the element's actual top, whatever ended up above it; `windowScroll: false` stops the value from tracking page scroll.
-- **`100dvh`, not `100vh`** — mobile browser chrome makes `100vh` overflow the visible viewport.
-- **`var(--v-layout-bottom)`** is Vuetify's own accounting for layout-registered footers and bottom bars — read it rather than restating a footer height.
-- Apply the result in a scoped style via `v-bind(maxHeight)` when the target is inside a Vuetify component's internals (e.g. `:deep(.v-table__wrapper)`) — a justified exception to the deep-selector caution in [`vuetify.md`](vuetify.md), since `v-table` exposes no height prop.
-
-**The layout publishes the spacing it applies.** A descendant must not guess the page container's bottom gap (or find "some" container with `closest('.v-container')`). The layout defines a CSS variable on its page container and derives the actual padding from it, so the applied gap and the published value can never disagree:
+Vuetify's form of the chain's middle links differs from the generic one, and the difference is load-bearing:
 
 ```scss
-.page-container {
-  --page-padding-bottom: #{settings.$container-padding-x};
+.layout {
+  height: 100%;
+  width: 100%;
+}
 
-  padding-bottom: var(--page-padding-bottom);
+/* * `v-main` carries the app bar's and footer's offsets as its own padding, so a column the full height of it is exactly the room a page has — `height: 100%`, never `flex: 1`. `min-height: 0` lets that column shrink below its content, which is what hands the overflow to the page's own scrolling child. */
+.layout :deep(.v-main) {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+/* * The page container inside it is the flex child that absorbs the leftover. */
+.page-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
 }
 ```
 
-Descendants then subtract `var(--page-padding-bottom, 0px)` — the fallback keeps them usable outside that layout.
+- **`v-layout` registers the chrome, so nothing subtracts it.** `v-app-bar` and `v-navigation-drawer` reserve their own space and Vuetify expresses that as padding on `v-main` — which is why `v-main` takes `height: 100%` where the generic chain uses `flex: 1`, and why `--v-layout-bottom` is not something a page reads.
+- **The `:deep()` is a justified exception** to the deep-selector caution in [`vuetify.md`](vuetify.md): `v-main` is Vuetify's own element rendered inside a scoped layout, and it exposes no prop for this. That is the whole exception — reaching into a component's internals to _inject a computed height_ is the mistake this section replaced.
 
 Two compositions this pays for:
 
-- **A table capped at the page**: `v-table fixed-header` plus the measured `max-height` on `.v-table__wrapper` gives a sticky header over a body that scrolls within the page, with no page-level scrollbar.
-- **The loading indicator's `fillHeight`**: the same formula spans exactly the space below wherever the spinner landed, instead of a full-viewport overlay that centres relative to content it does not cover.
+- **A table capped at the page**: `v-table fixed-header` on a `min-height: 0; flex: 1` child gives a sticky header over a body that scrolls within the page, with no page-level scrollbar — the same shape as any other scrolling region, with no height value written anywhere.
+- **A full-height loading indicator**: the same flex child spans exactly the space below wherever it landed, instead of a full-viewport overlay that centres relative to content it does not cover.
 
 ## On borrowing compositions from a reference implementation
 

@@ -20,15 +20,32 @@
     <template v-else>
       <p class="mb-4 shrink-0 text-sm text-muted">
         {{ $t('users.total') }}
-        <span class="font-semibold text-highlighted">{{ users.length }}</span>
+
+        <!-- * Left live this reads "0" under a screen of skeleton rows, then snaps. -->
+        <u-skeleton
+          v-if="isPending"
+          class="inline-block h-4 w-8 align-middle"
+        />
+
+        <span v-else class="font-semibold text-highlighted">
+          {{ users.length }}
+        </span>
+      </p>
+
+      <!-- * `u-table` has no per-row attribute hook, so the placeholder grid is hidden whole rather than announced as thirty empty rows. This line carries the state. -->
+      <p v-if="isPending" class="sr-only" role="status">
+        {{ $t('users.loading') }}
       </p>
 
       <u-table
-        :data="users"
-        :columns="columns"
-        :loading="isPending"
+        :data="tableData"
+        :columns="tableColumns"
+        :loading="isLoading"
+        :empty="$t('users.empty')"
+        :aria-hidden="isPending || undefined"
         sticky
         class="min-h-0 flex-1 rounded-lg bg-default ring ring-default"
+        :class="isPending && 'overflow-hidden'"
       >
         <template #role-cell="{ row }">
           <RoleBadge :role="row.original.role" />
@@ -83,17 +100,19 @@ import DeleteUserDialog from '@/components/users/DeleteUserDialog.vue';
 
 import { useFetchUsers } from '@/services/queries/useUserQueries';
 
+import type { TableColumn } from '@nuxt/ui';
 import type { User } from '@/types/auth';
 
 const { t } = useI18n();
 
-const { data: usersResponse, isPending, error } = useFetchUsers();
+// * `isPending` is the first load and gets the skeleton; `isLoading` also spans refetches, which keep stale rows mounted under the table's own bar.
+const { data: usersResponse, isPending, isLoading, error } = useFetchUsers();
 
 const users = computed(() => usersResponse.value?.data ?? []);
 
 const overlay = useOverlay();
 
-const columns = computed(() => [
+const columns = computed<TableColumn<User>[]>(() => [
   { accessorKey: 'id', header: t('users.columns.id') },
   { accessorKey: 'name', header: t('users.columns.name') },
   { accessorKey: 'email', header: t('users.columns.email') },
@@ -105,6 +124,12 @@ const columns = computed(() => [
   { accessorKey: 'created_at', header: t('users.columns.createdAt') },
   { id: 'actions', header: t('users.columns.actions') }
 ]);
+
+const { data: tableData, columns: tableColumns } = useUserTableSkeleton(
+  columns,
+  users,
+  isPending
+);
 
 function openForm(user: User | null = null) {
   overlay

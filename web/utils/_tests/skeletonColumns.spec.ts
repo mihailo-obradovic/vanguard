@@ -21,7 +21,7 @@ const columns: TableColumn<User>[] = [
 ];
 
 // * Renders a column's `cell` in isolation so the placeholder's classes can be asserted. The context is never read — the whole point is that skeleton cells ignore their row.
-function renderCell(column: TableColumn<Record<string, never>>) {
+function renderCell<T>(column: TableColumn<T>) {
   const cell = column.cell as () => ReturnType<typeof h>;
 
   return mount({ render: () => cell() });

@@ -129,6 +129,7 @@
       "title": "Confirm Delete",
       "warning": "This action cannot be undone."
     },
+    "empty": "No users found.",
     "form": {
       "editTitle": "Edit User",
       "passwordConfirmationHint": "(required if changing password)",

@@ -14,7 +14,11 @@
       rounded
     />
 
-    <v-table fixed-header class="w-100 users-table">
+    <v-table
+      fixed-header
+      class="w-100 users-table"
+      :class="{ 'users-table--clipped': loading }"
+    >
       <thead>
         <tr>
           <th class="font-weight-bold">{{ $t('users.columns.id') }}</th>
@@ -30,7 +34,7 @@
       <tbody :aria-busy="loading || undefined">
         <!-- * First-load skeleton: placeholder rows keep the header and column layout in place (`isPending` upstream). aria-hidden — aria-busy on the tbody already tells AT the region is loading. -->
         <template v-if="loading">
-          <tr v-for="row in 6" :key="row" aria-hidden="true">
+          <tr v-for="row in SKELETON_ROW_COUNT" :key="row" aria-hidden="true">
             <td v-for="column in 4" :key="column">
               <v-skeleton-loader type="text" />
             </td>
@@ -96,6 +100,9 @@ import { mdiDelete, mdiPencil } from '@mdi/js';
 
 import type { User } from '@/types/auth';
 
+// * Enough placeholder rows to overflow any viewport. The wrapper clips the surplus while they show, which makes overshoot free and undershoot — a skeleton shorter than the data replacing it — the only visible failure.
+const SKELETON_ROW_COUNT = 30;
+
 // ! Stryker instruments this block with locally declared coverage helpers, and a compiler
 // ! macro is hoisted out of setup() — referencing them there is a compile error, not a
 // ! warning. The defaults inside go unmutated as a result (`catalyst/operations.md`).
@@ -148,5 +155,11 @@ const emit = defineEmits<{
 .users-table :deep(.v-table__wrapper) {
   min-height: 0;
   flex: 1 1 auto;
+}
+
+/* * The placeholder rows overflow on purpose, so the wrapper stops scrolling while they show:
+   otherwise a scrollbar appears for the skeleton and vanishes again as the real rows arrive. */
+.users-table--clipped :deep(.v-table__wrapper) {
+  overflow: hidden;
 }
 </style>

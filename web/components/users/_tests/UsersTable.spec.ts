@@ -139,7 +139,7 @@ describe('UsersTable', () => {
 
   // ! Placeholder rows stand in for the data, so the header and column widths hold still. They are
   // ! `aria-hidden` and the body is marked busy: a screen reader is told the table is loading
-  // ! rather than read six rows of nothing. Only the header row is left in the tree.
+  // ! rather than read a screenful of rows of nothing. Only the header row is left in the tree.
   it('stands in placeholder rows for the data while the first load is in flight', async () => {
     await renderTable({ users: [], loading: true });
 

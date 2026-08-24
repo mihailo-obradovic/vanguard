@@ -49,7 +49,6 @@
         </template>
 
         <template #actions-cell="{ row }">
-          <!-- ! Icon-only, so the accessible name has to carry the row: 38 buttons all called "Edit" tell a screen-reader user nothing about which user they are about to change. -->
           <div class="flex justify-end gap-1">
             <u-button
               size="sm"
@@ -92,7 +91,6 @@ const { data: usersResponse, isPending, error } = useFetchUsers();
 
 const users = computed(() => usersResponse.value?.data ?? []);
 
-// * The dialogs own their own mutations and the list is invalidated by the query layer, so the page only has to open them.
 const overlay = useOverlay();
 
 const columns = computed(() => [

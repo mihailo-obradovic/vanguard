@@ -26,7 +26,6 @@
       </template>
 
       <template #actions-cell="{ row }">
-        <!-- ! Icon-only, so the accessible name has to carry the row — see the users table. -->
         <u-button
           size="sm"
           variant="ghost"
@@ -47,9 +46,7 @@ import { useFetchUsersGql } from '@/services/queries/useUserGqlQueries';
 
 import type { User } from '@/types/auth';
 
-// * Worked example for catalyst/features/007_graphql-api.md: this page is written exactly the
-// * way the REST pages are — query composables, no loading refs, no try/catch, inline 422s.
-// * The only difference from users.vue is which composables it imports.
+// * Worked example for catalyst/features/007_graphql-api.md: written exactly the way the REST pages are — query composables, no loading refs, no try/catch, inline 422s — so the only difference from users.vue is which composables it imports.
 
 const { t } = useI18n();
 

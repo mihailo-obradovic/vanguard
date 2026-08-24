@@ -92,11 +92,9 @@ const CHROME = {
 
 const currentYear = Temporal.Now.plainDateISO().year;
 
-// * The Tailwind scale itself, so a breakpoint is named where the classes name it rather than restated as a pixel width that drifts from them.
 const breakpoints = useBreakpoints(breakpointsTailwind);
 
 const isDesktop = breakpoints.greaterOrEqual('lg');
-// * Below `sm` the bar cannot hold its labels: the wordmark goes, and the controls fall back to icons and language codes.
 const isCompactHeader = breakpoints.smaller('sm');
 
 const desktopDrawer = ref(true);

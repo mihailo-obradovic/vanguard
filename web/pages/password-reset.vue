@@ -108,11 +108,11 @@ const { r$ } = useRegle(
 async function handleSubmit() {
   const { valid } = await r$.$validate();
 
-  if (valid) {
-    resetPassword({
-      token: String(route.query.token ?? ''),
-      ...form.value
-    });
-  }
+  if (!valid) return;
+
+  resetPassword({
+    token: String(route.query.token ?? ''),
+    ...form.value
+  });
 }
 </script>

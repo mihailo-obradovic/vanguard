@@ -234,13 +234,8 @@ function useThemeSwitching() {
   min-height: 0;
 }
 
-/* * The page's own bottom gap, published to descendants so a full-height child can subtract it.
-   Vuetify's own padding is the shorthand `padding: $container-padding-x`, so restate the bottom
-   from the variable — the gap and the value handed down can never disagree. */
 .page-container {
-  --page-padding-bottom: #{settings.$container-padding-x};
-
-  padding-bottom: var(--page-padding-bottom);
+  padding-bottom: settings.$container-padding-x;
   display: flex;
   flex-direction: column;
   flex: 1;

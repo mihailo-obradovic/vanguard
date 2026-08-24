@@ -82,10 +82,11 @@ Master is the source; this branch is a **variant** (`context/domain-glossary.md`
 | `web/pages/`, `web/layouts/`, `web/components/`, `web/assets/`, `web/i18n/` | **Variant wins**, always, including a file this branch has deleted (the four auth pages — auth lives in the layout's dialogs here). |
 | `web/CLAUDE.md`, `catalyst/operations.md`, `catalyst/features/*`            | **By hand.** Both branches hold real content, and these describe both.                                                              |
 
-Two things this does not catch on its own:
+Three things this does not catch on its own:
 
 - **Master-only UI files arrive as clean additions**, not conflicts — git has nothing on this branch to compare them against. They are deleted in the merge commit (the 2026-08-17 sync deleted 14: the `UI*`/`AuthCard`/badge primitives, `ProfileFormDialog`, `UserGqlFormDialog` and their specs). Left in, they would be unreferenced components styled against master's tokens, with specs that run and pad this branch's coverage and mutation figures. Every later master commit touching one of those paths raises a modify/delete conflict, resolved as _delete_ each time — that friction is the signal, not a defect.
 - **A shared document can auto-merge into a lie.** `features/002` and `007` took master's entry-point edits cleanly in the 2026-08-17 sync and pointed this branch at components it does not have. Read every `catalyst/features/*` diff after the merge, conflicted or not.
+- **A bundle document this branch carries and master does not never arrives by merge at all** — `stacks/frontend/nuxt/ui/vuetify/` is master's blind spot. A Catalyst release that changes one reaches this branch only through `tools/upgrade_project.py`, run here. And the merge brings master's bumped `Catalyst version` stamp, which the upgrader reads: it reports "already on vX.Y.Z — nothing to do" while these documents sit a version behind. Set the stamp back to what this branch actually holds, run the upgrader, let it bump. Hit on 1.8.0, whose one Changed entry was `ui/vuetify/components.md`.
 
 A change genuinely wanted in both UI layers is ported deliberately, as its own commit on each branch. It is never a merge resolution.
 

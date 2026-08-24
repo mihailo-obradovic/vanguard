@@ -150,7 +150,7 @@ Guest and non-admin refusals: see Roles And Access; client behavior is under Err
 
 ## Verification
 
-Backend `php artisan test` green, including the payload-parity case and the untouched REST suite; frontend `pnpm test`/`typecheck`/`lint`/`format` green. Live walk at `/graphql-demo`: list loads, a duplicate email renders inline with no toast, a successful update closes the dialog and refetches, a non-admin lands on `/home`, a guest gets 401. Remaining risk: the client keys on `extensions.status` from `RestStatusHandler`; a Lighthouse upgrade changing exception wrapping would degrade errors to generic toasts — the Pest tests assert the status per error class, so that fails the suite instead.
+Backend `php artisan test` green, including the payload-parity case and the untouched REST suite; frontend `pnpm test`/`typecheck`/`lint`/`format` green. Live walk at `/graphql-demo`: list loads, a duplicate email renders inline with no toast, a successful update closes the dialog and refetches, a non-admin lands on `/home`, a guest gets 401. Remaining risk: the client keys on `extensions.status` from `RestStatusHandler`; a Lighthouse upgrade changing exception wrapping would degrade 401s and 403s to generic toasts — the Pest tests assert the status per error class, so that fails the suite instead. Validation is no longer exposed to it: `toFetchError` infers 422 from the presence of field messages when no status was stamped, so the row above holds whether or not the server marks it.
 
 ## Agent Change Rules
 

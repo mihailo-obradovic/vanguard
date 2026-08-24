@@ -79,6 +79,23 @@ function field(label: string) {
 }
 
 /**
+ * A duplicate-email rejection shaped the way the server actually sends one.
+ *
+ * * `category` and `validation` are Lighthouse's; `status` is `RestStatusHandler`'s, and the pair
+ * * is asserted together in `tests/Feature/GraphQL/UpdateUserMutationTest.php`.
+ */
+function emailTakenError() {
+  return {
+    message: 'Validation failed.',
+    extensions: {
+      category: 'validation',
+      status: 422,
+      validation: { email: ['That email is already taken.'] }
+    }
+  };
+}
+
+/**
  * Pick a role the way the control reports one.
  *
  * ! Driven through the select's own `update:modelValue` rather than by clicking an option: Nuxt UI's
@@ -178,20 +195,12 @@ describe('UserGqlFormDialog', () => {
 
   // ! GraphQL reports a failed mutation as HTTP 200 with an `errors` array, so the 422 bridge only
   // ! works because `gqlFetcher` translates that shape into the REST-equivalent FetchError.
+  // ! `extensions.status` is not decoration: `RestStatusHandler` stamps it server-side and
+  // ! `tests/Feature/GraphQL/UpdateUserMutationTest.php` asserts it on this very mutation. Without
+  // ! it here, `toFetchError` falls back to 500, `handleApiError`'s `statusCode === 422` gate never
+  // ! opens, and the fixture quietly tests a path the server cannot produce.
   it('renders the server verdict on the field it names', async () => {
-    server.use(
-      graphqlHandler({
-        errors: [
-          {
-            message: 'Validation failed.',
-            extensions: {
-              category: 'validation',
-              validation: { email: ['That email is already taken.'] }
-            }
-          }
-        ]
-      })
-    );
+    server.use(graphqlHandler({ errors: [emailTakenError()] }));
 
     await mountDialog();
 
@@ -201,6 +210,26 @@ describe('UserGqlFormDialog', () => {
     expect(
       await screen.findByText('That email is already taken.')
     ).toBeTruthy();
+  });
+
+  // ! What `hideValidationToast` is for. The message belongs on the field the server named, and
+  // ! nowhere else — without the flag the same text arrives a second time as a toast, which is the
+  // ! behaviour the REST dialogs assert too. This is only observable now that the fixture carries
+  // ! `extensions.status`; at the 500 the old one produced, the toast branch was never reached.
+  it('keeps the server verdict off the toast', async () => {
+    server.use(graphqlHandler({ errors: [emailTakenError()] }));
+
+    await mountDialog();
+
+    await fireEvent.update(field('Email'), 'taken@example.com');
+    await submit();
+
+    await screen.findByText('That email is already taken.');
+    await flushPromises();
+
+    expect(screen.queryAllByText('That email is already taken.')).toHaveLength(
+      1
+    );
   });
 
   it('resolves with the saved user so the opener can react', async () => {

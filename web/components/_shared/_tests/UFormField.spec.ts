@@ -4,7 +4,10 @@ import { nextTick } from 'vue';
 import { renderSuspended } from '@nuxt/test-utils/runtime';
 import { screen, cleanup, waitFor } from '@testing-library/vue';
 
-import { ERROR_EXIT_ANIMATION } from '@/config/nuxt-ui/form-field';
+import {
+  ERROR_EXIT_ANIMATION,
+  ERROR_TRANSITION_MS
+} from '@/config/nuxt-ui/form-field';
 
 import UFormField from '../UFormField.vue';
 
@@ -47,7 +50,11 @@ describe('UFormField', () => {
     expect(held?.className).not.toContain('slide-in-from-top-and-fade');
   });
 
-  it('drops the message once the exit has played', async () => {
+  // ! Asserted at two fixed points either side of the boundary rather than through `vi.waitFor`:
+  // ! under fake timers that helper ticks the clock itself, so "still there at 199ms" is the only
+  // ! half that pins the duration — a `waitFor` alone passes for any timeout at all, including one
+  // ! that fired immediately.
+  it('drops the message once the exit has played, and not before', async () => {
     vi.useFakeTimers();
 
     const { rerender } = await renderSuspended(UFormField, {
@@ -56,8 +63,15 @@ describe('UFormField', () => {
 
     await rerender({ error: undefined });
 
-    vi.advanceTimersByTime(200);
-    await vi.waitFor(() => expect(errorElement(MESSAGE)).toBeNull());
+    vi.advanceTimersByTime(ERROR_TRANSITION_MS - 1);
+    await nextTick();
+
+    expect(errorElement(MESSAGE)).toBeTruthy();
+
+    vi.advanceTimersByTime(1);
+    await nextTick();
+
+    expect(errorElement(MESSAGE)).toBeNull();
   });
 
   // ! The exit class is appended to whatever the call site asked for rather than replacing it — a field styled at its call site must not lose that styling for the length of the exit.

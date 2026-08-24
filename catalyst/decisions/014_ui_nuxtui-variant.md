@@ -54,21 +54,7 @@ Product decisions of this branch, not module prescriptions:
 
 ## Branch sync
 
-Master is the source; this branch is a **variant** (`context/domain-glossary.md`) — synced from master, never merged back. What syncs is decided by path, not by reading each diff:
-
-| Path                                                                                                                                | Resolution                                                                                                                                                |
-| ----------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `web/composables/`, `web/services/`, `web/utils/`, `catalyst/stacks/`                                                               | **Master wins.** Framework-agnostic; this is the layer the sync exists to carry.                                                                          |
-| `web/pages/`, `web/layouts/`, `web/components/`, `web/assets/`, `web/config/nuxt-ui/`, `web/i18n/`, `web/spa-loading-template.html` | **Variant wins**, always, including a file this branch has deleted (`login`, `register` and `forgot-password` — auth lives in the layout's dialogs here). |
-| `web/CLAUDE.md`, `catalyst/operations.md`, `catalyst/features/*`                                                                    | **By hand.** Both branches hold real content, and these describe both.                                                                                    |
-
-Three things the table does not catch on its own:
-
-- **Master-only UI files arrive as clean additions**, not conflicts — git has nothing on this branch to compare them against. They are deleted in the merge commit. Left in, they would be unreferenced components styled against master's tokens, with specs that run and pad this branch's coverage and mutation figures. Every later master commit touching one raises a modify/delete conflict, resolved as _delete_ each time — that friction is the signal, not a defect.
-- **A shared document can auto-merge into a lie**, pointing this branch at components it does not have. Read every `catalyst/features/*` and `catalyst/operations.md` diff after the merge, conflicted or not.
-- **A bundle document this branch carries and master does not never arrives by merge at all** — `stacks/frontend/nuxt/ui/nuxtui/` is master's blind spot the way `ui/vuetify/` is. A Catalyst release that changes one reaches this branch only through `tools/upgrade_project.py`, run here. And the merge brings master's bumped `Catalyst version` stamp, which the upgrader reads: it reports "already on vX.Y.Z — nothing to do" while the ui documents sit a version behind. Set the stamp back to what this branch actually holds, run the upgrader, let it bump. Hit on 1.8.0, by the vuetify branch.
-
-A change genuinely wanted in more than one UI layer is ported deliberately, as its own commit on each branch. It is never a merge resolution.
+Master is the source and this branch is never merged back, so every sync is a one-way resolution against a UI that is a rewrite rather than a variation. Deciding each file on its merits does not scale and is not reproducible; deciding by **path** is. The procedure — the path table, the three failures the table cannot catch, and the run — is `conventions/branch-sync.md`, which is where it is read from. It lives outside this record because it is a rule applied repeatedly, not a decision taken once.
 
 ## Contracts Touched
 
@@ -76,6 +62,7 @@ A change genuinely wanted in more than one UI layer is ported deliberately, as i
 - `web/CLAUDE.md` — the ui governing-document pointer and the form-field invariant.
 - `stacks/frontend/nuxt/ui/nuxtui/customization.md` — the class-sorting exemption.
 - `stacks/frontend/nuxt/validation.md` — the field-error presenter reference, which named the deleted `headless.md`.
+- `conventions/branch-sync.md` — the sync procedure this record decided and points at.
 
 ## Open Questions
 
@@ -87,5 +74,5 @@ What holds now, not how it got here — the dated narrative is in `git log` and,
 
 - **Suites green on the branch**: Vitest 47 files / 367 tests, `oxlint`, `oxfmt`, `nuxt typecheck`, `validate.py` 0 errors.
 - **Mutation**: 90.17% total, 92.15% covered over 884 scored mutants, plus 51 ignored inside the compiler-macro disable pairs. Every accepted survivor is recorded with its evidence in `operations.md`; the figures there are the ones to re-measure against.
-- **Branch sync** has been run under the policy above and the two failures the path table cannot catch — a master-only UI file arriving as a clean addition, and a shared document auto-merging into a claim untrue here — were checked by reading the merged result rather than the conflict list. Both are now standing steps of the flow, not observations.
+- **Branch sync** has been run under the procedure in `conventions/branch-sync.md`. Two of the three failures the path table cannot catch — a master-only UI file arriving as a clean addition, and a shared document auto-merging into a claim untrue here — were checked by reading the merged result rather than the conflict list, and are standing steps of the flow. The third, a ui document that no merge can carry, was found on the 1.8.0 upgrade and is recorded there; it has since been run once, on 1.8.1.
 - **Walked live** in a browser: the auth dialogs and their handovers, the profile card's inline edit, the users table and its dialogs, both colour modes.

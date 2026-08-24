@@ -137,6 +137,18 @@ describe('UserGqlFormDialog', () => {
     cleanup();
   });
 
+  // ! Read off the control rather than the rendered listbox, at the same seam `pickRole` drives it
+  // ! through — Reka commits through pointer APIs jsdom does not implement, so no option is
+  // ! clickable here. The set itself is contract: these are the two roles the schema accepts.
+  it('offers exactly the two assignable roles', async () => {
+    await mountDialog(buildUser({ id: 7 }));
+
+    expect(wrapper!.findComponent(USelect).props('items')).toEqual([
+      { label: 'User', value: 'user' },
+      { label: 'Admin', value: 'admin' }
+    ]);
+  });
+
   it('opens on the user it is given, named in the title', async () => {
     await mountDialog();
 

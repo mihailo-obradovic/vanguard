@@ -124,10 +124,28 @@ describe('UserFormDialog', () => {
     cleanup();
   });
 
+  // ! Read off the control rather than the rendered listbox, at the same seam `pickRole` drives it
+  // ! through and for the same reason — Reka commits through pointer APIs jsdom does not implement,
+  // ! so no option is clickable here. The set itself is still contract: these are the two roles the
+  // ! backend enum accepts, and an empty or mislabelled list is a role nobody can assign.
+  it('offers exactly the two assignable roles', async () => {
+    await mountDialog();
+
+    expect(wrapper!.findComponent(USelect).props('items')).toEqual([
+      { label: 'User', value: 'user' },
+      { label: 'Admin', value: 'admin' }
+    ]);
+  });
+
   it('opens blank when there is no user to edit', async () => {
     await mountDialog();
 
+    // * Every seeded field, not just the first: `formFor` falls back per key, so one wrong fallback
+    // * puts a value in a create form that the user never typed and may not notice before saving.
     expect(field('Name').value).toBe('');
+    expect(field('Email').value).toBe('');
+    expect(field(/^Password$/).value).toBe('');
+    expect(field(/^Password confirmation$/).value).toBe('');
     expect(screen.getByRole('button', { name: 'Create User' })).toBeTruthy();
   });
 
@@ -309,6 +327,71 @@ describe('UserFormDialog', () => {
     expect(screen.queryAllByText('That email is already taken.')).toHaveLength(
       1
     );
+  });
+
+  // ! `isSaving` is `isCreating || isUpdating`, and it drives both halves of the submit button: the
+  // ! spinner and the label. An `&&` there reads as false for either mutation alone, so the button
+  // ! would stay live and re-submittable through the whole request — the double-submit the loading
+  // ! state exists to prevent. Held open by a handler that never resolves, so "in flight" is a real
+  // ! state and not a race with the response.
+  it('reports itself saving while the create is in flight', async () => {
+    server.use(http.post(apiUrl('/api/users'), () => new Promise(() => {})));
+
+    await mountDialog();
+
+    await fillValidCreation();
+    await submit();
+
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Saving...' })).toBeTruthy()
+    );
+
+    expect(screen.queryByRole('button', { name: 'Create User' })).toBeNull();
+  });
+
+  it('reports itself saving while the update is in flight', async () => {
+    server.use(http.put(apiUrl('/api/users/7'), () => new Promise(() => {})));
+
+    await mountDialog(
+      buildUser({ id: 7, name: 'Ada', email: 'ada@example.com' })
+    );
+
+    await fireEvent.update(field('Name'), 'Ada Lovelace');
+    await settleValidation();
+    await submit();
+
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Saving...' })).toBeTruthy()
+    );
+  });
+
+  // ! The edited user owns the address already, so the availability check has to be told to ignore
+  // ! them. Without the `ignore_id` the backend answers "taken" about the user's own email and an
+  // ! edit that never touched the address cannot be saved. Asserted through a handler that answers
+  // ! honestly rather than the blanket `available: true` the other tests use.
+  it('does not call an edited user’s own address taken', async () => {
+    server.use(
+      http.get(apiUrl('/api/email-availability'), ({ request }) => {
+        const query = new URL(request.url).searchParams;
+
+        return HttpResponse.json({
+          available: query.get('ignore_id') === '7'
+        });
+      })
+    );
+
+    await mountDialog(
+      buildUser({ id: 7, name: 'Ada', email: 'ada@example.com' })
+    );
+
+    await fireEvent.update(field('Name'), 'Ada Lovelace');
+    await settleValidation();
+
+    expect(screen.queryByText(/already taken/i)).toBeNull();
+
+    await submit();
+
+    await waitFor(() => expect(requests.trace()).toContain(UPDATE_7));
   });
 
   it('resolves with the created user and says so', async () => {

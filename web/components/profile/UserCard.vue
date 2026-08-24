@@ -68,43 +68,58 @@
         />
       </u-form-field>
 
-      <template v-if="editMode">
-        <u-form-field
-          :label="$t('common.fields.currentPassword')"
-          :error="r$.current_password.$errors[0]"
-        >
-          <u-input
-            v-model="form.current_password"
-            type="password"
-            autocomplete="current-password"
-            class="w-full"
-          />
-        </u-form-field>
+      <!-- * The password fields arrive and leave together, so the card grows and shrinks rather
+           than snapping. The height is animated through `grid-template-rows: 0fr → 1fr` — the one
+           way to transition to a content height CSS will not interpolate directly — which needs
+           the grid parent and the `min-h-0` child below to work; neither is decoration.
+           `motion-safe:` is the reduced-motion guard (§14.4), matching the exit animation in
+           `config/nuxt-ui/form-field.ts` in both duration and easing. -->
+      <Transition
+        enter-active-class="motion-safe:transition-all motion-safe:duration-200 motion-safe:ease-out"
+        leave-active-class="motion-safe:transition-all motion-safe:duration-200 motion-safe:ease-out"
+        enter-from-class="grid-rows-[0fr]! opacity-0"
+        leave-to-class="grid-rows-[0fr]! opacity-0"
+      >
+        <div v-if="editMode" class="grid grid-rows-[1fr]">
+          <div class="min-h-0 space-y-4 overflow-hidden">
+            <u-form-field
+              :label="$t('common.fields.currentPassword')"
+              :error="r$.current_password.$errors[0]"
+            >
+              <u-input
+                v-model="form.current_password"
+                type="password"
+                autocomplete="current-password"
+                class="w-full"
+              />
+            </u-form-field>
 
-        <u-form-field
-          :label="$t('profile.form.newPassword')"
-          :error="r$.password.$errors[0]"
-        >
-          <u-input
-            v-model="form.password"
-            type="password"
-            autocomplete="new-password"
-            class="w-full"
-          />
-        </u-form-field>
+            <u-form-field
+              :label="$t('profile.form.newPassword')"
+              :error="r$.password.$errors[0]"
+            >
+              <u-input
+                v-model="form.password"
+                type="password"
+                autocomplete="new-password"
+                class="w-full"
+              />
+            </u-form-field>
 
-        <u-form-field
-          :label="$t('profile.form.confirmNewPassword')"
-          :error="r$.password_confirmation.$errors[0]"
-        >
-          <u-input
-            v-model="form.password_confirmation"
-            type="password"
-            autocomplete="new-password"
-            class="w-full"
-          />
-        </u-form-field>
-      </template>
+            <u-form-field
+              :label="$t('profile.form.confirmNewPassword')"
+              :error="r$.password_confirmation.$errors[0]"
+            >
+              <u-input
+                v-model="form.password_confirmation"
+                type="password"
+                autocomplete="new-password"
+                class="w-full"
+              />
+            </u-form-field>
+          </div>
+        </div>
+      </Transition>
     </form>
 
     <dl class="mt-6 grid gap-4 sm:grid-cols-2">

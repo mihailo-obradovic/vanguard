@@ -12,6 +12,8 @@ A **context document** (`references/context-documents.md`): the project's domain
 
 **Field label** — the string rendered on or above an input ("New password"). Carries the field's name only; guidance such as "optional" belongs in a hint, never in the label. Replaces the loose use of "label" for both the visible string and the interpolated name (see Field name).
 
+**Page canvas** — the colour the page itself is painted in, behind everything. Distinct from a **surface**: the ground a card, table, modal, input or menu sits on, which rises off the canvas rather than matching it. The two are separate colours in both faces, and a component asking for "the background" means the surface, never the canvas — the distinction is easy to lose, and painting a surface in the canvas's colour silently flattens every raised element on the page.
+
 **Table height cap** — capping a data table's body at the space remaining below it in the viewport, so the table scrolls under a pinned header instead of growing the page. The canonical implementation is flexbox (`min-height: 0` chain + sticky header) on every branch; the older measured form (element-bounds watch feeding a `max-height`) is superseded. Avoid "height calculation" — the canonical form calculates nothing.
 
 **Variant** — a long-lived branch carrying the same product on an alternative `frontend/ui` module; synced from master, never merged back. Its UI-composition decisions are variant-only, ported only by deliberate decision, never by merge.

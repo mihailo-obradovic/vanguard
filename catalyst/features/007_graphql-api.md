@@ -74,13 +74,14 @@ Authorization is enforced per field by `UserPolicy` (`viewAny`, `update`), not b
 
 ## Examples
 
-| Input                                                     | Expected Output                                                | Notes                                       |
-| --------------------------------------------------------- | -------------------------------------------------------------- | ------------------------------------------- |
-| Admin: `{ users { id name email role } }`                 | `data.users` — all users, newest first                         | Same order and shape as `GET /api/users`    |
-| Admin: `updateUser(id: 3, name: "Ada")`                   | `data.updateUser` — user 3 with the new name                   | Untouched fields keep their values          |
-| Admin: `updateUser(id: 3, email: <another user's email>)` | `errors[0].extensions.validation.email` — "already been taken" | Client shows it inline on the email field   |
-| Admin: `updateUser(id: 3, email: "new@example.com")`      | `data.updateUser.email_verified_at` is `null`                  | Verification notification queued            |
-| `updateUser(id: 99999, name: "X")`                        | `errors[0]` — model not found                                  | `@canFind` fails closed before the resolver |
+Named tests in `tests/Feature/GraphQL/`, not a table: these are parity claims, and a parity claim restated in prose beside the test that executes it is a second description free to drift.
+
+- `admins can list users newest first` — same order and shape as `GET /api/users`
+- `the graphql payload for a user matches the rest payload` — the parity `UserSchema` depends on
+- `admins can update a user`; `omitted arguments leave their fields untouched`
+- `a duplicate email is reported as a validation error keyed by field`
+- `changing the email resets verification and queues the notice`
+- `updating an unknown user fails before the resolver runs` — `@canFind` fails closed
 
 Guest and non-admin refusals: see Roles And Access; client behavior is under Error Handling.
 

@@ -95,7 +95,7 @@ Every account type gets the same profile page; admins additionally manage others
 - `routes/api.php` — `PUT /api/profile` (no name, no throttle, PUT only).
 - `app/Http/Controllers/ProfileController.php` / `app/Http/Requests/ProfileUpdateRequest.php` — the contract's server half.
 - `app/Models/User.php` — `changeEmail()` + overridden `sendEmailVerificationNotification()` (queued).
-- `web/pages/profile.vue` (the read-only view, resend, `?verified=1`) + `web/components/profile/ProfileFormDialog.vue` (the edit form, its rules and the payload it emits) + `web/services/queries/useAuthQueries.ts` (`useUpdateProfile`) + `web/services/auth.api.ts` (`updateProfile`) — the SPA half.
+- `web/components/profile/UserCard.vue` (inline edit: its rules and the payload it emits) + `web/services/queries/useAuthQueries.ts` (`useUpdateProfile`) + `web/services/auth.api.ts` (`updateProfile`) — the SPA half; `web/pages/profile.vue` only renders the card and handles `?verified=1`.
 
 ## Dependencies
 
@@ -108,7 +108,7 @@ Every account type gets the same profile page; admins additionally manage others
 ## Tests
 
 - `tests/Feature/ProfileTest.php` — name update; password change happy / wrong / missing `current_password`; `confirmed`-mismatch, email-uniqueness, malformed-email and overlong-name/uppercase-email 422s; email change resets and resends; same-email no-op; role escalation blocked; guest 401. `tests/Unit/UserTest.php` covers `changeEmail()` and the role helpers; the response field set is pinned in `UserManagementTest.php` (same `UserResource`). `updateProfile` and `useUpdateProfile`, including the store update on success, are covered in `web/services/_tests/auth.api.spec.ts` and `web/services/queries/_tests/useAuthQueries.spec.ts`.
-- Known gaps: no test for the password min-length 422 or the empty-body no-op; `profile.vue` and its Regle schema have no component test.
+- Known gaps: no test for the password min-length 422 or the empty-body no-op; `profile.vue` has no component test, though the card it renders — which owns the form and its Regle schema — is covered by `web/components/profile/_tests/UserCard.spec.ts`.
 
 ## Verification
 

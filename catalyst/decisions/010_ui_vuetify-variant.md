@@ -74,21 +74,7 @@ Product decisions of this branch, not module prescriptions (the module's compone
 
 ## Branch sync
 
-Master is the source; this branch is a **variant** (`context/domain-glossary.md`) — synced from master, never merged back. What syncs is decided by path, not by reading each diff:
-
-| Path                                                                        | Resolution                                                                                                                          |
-| --------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| `web/composables/`, `web/services/`, `web/utils/`, `catalyst/stacks/`       | **Master wins.** Framework-agnostic; this is the layer the sync exists to carry.                                                    |
-| `web/pages/`, `web/layouts/`, `web/components/`, `web/assets/`, `web/i18n/` | **Variant wins**, always, including a file this branch has deleted (the four auth pages — auth lives in the layout's dialogs here). |
-| `web/CLAUDE.md`, `catalyst/operations.md`, `catalyst/features/*`            | **By hand.** Both branches hold real content, and these describe both.                                                              |
-
-Three things this does not catch on its own:
-
-- **Master-only UI files arrive as clean additions**, not conflicts — git has nothing on this branch to compare them against. They are deleted in the merge commit (the 2026-08-17 sync deleted 14: the `UI*`/`AuthCard`/badge primitives, `ProfileFormDialog`, `UserGqlFormDialog` and their specs). Left in, they would be unreferenced components styled against master's tokens, with specs that run and pad this branch's coverage and mutation figures. Every later master commit touching one of those paths raises a modify/delete conflict, resolved as _delete_ each time — that friction is the signal, not a defect.
-- **A shared document can auto-merge into a lie.** `features/002` and `007` took master's entry-point edits cleanly in the 2026-08-17 sync and pointed this branch at components it does not have. Read every `catalyst/features/*` diff after the merge, conflicted or not.
-- **A bundle document this branch carries and master does not never arrives by merge at all** — `stacks/frontend/nuxt/ui/vuetify/` is master's blind spot. A Catalyst release that changes one reaches this branch only through `tools/upgrade_project.py`, run here. And the merge brings master's bumped `Catalyst version` stamp, which the upgrader reads: it reports "already on vX.Y.Z — nothing to do" while these documents sit a version behind. Set the stamp back to what this branch actually holds, run the upgrader, let it bump. Hit on 1.8.0, whose one Changed entry was `ui/vuetify/components.md`.
-
-A change genuinely wanted in both UI layers is ported deliberately, as its own commit on each branch. It is never a merge resolution.
+Master is the source and this branch is never merged back, so every sync is a one-way resolution against a UI that is a rewrite rather than a variation — the 2026-08-17 sync took 21 conflicts. Deciding each file on its merits does not scale and is not reproducible; deciding by **path** is. The procedure — the path table, the three failures the table cannot catch, and the run — is `conventions/branch-sync.md`, which is where it is read from. It lives outside this record because it is a rule applied repeatedly, not a decision taken once.
 
 ## Verification
 
@@ -99,12 +85,13 @@ What holds now, not how it got here — the dated narrative is in `git log` and,
 - **Both contrast axes are measured, per face, from the computed tokens** — accents as foreground against the page and a surface, and content against every fill — so neither a reintroduced shared palette nor a dropped `on-` token can pass. Ratios are in the palette table above.
 - **Walked live** in a browser on both faces, measuring rendered pixels: the app bar, the fullscreen dialog's toolbar, `UserCard`'s flat buttons, the consent banner and `error.vue`.
 - **The layout holds without measuring**: tables scroll under pinned headers with the page itself unscrollable, and `UserCard` shrinks and scrolls its fields in edit mode while its header controls stay put, both re-adapting to a shrunken viewport.
-- **Branch sync** has been run under the policy above, and the two failures the path table cannot catch — a master-only UI file arriving as a clean addition, and a shared document auto-merging into a claim untrue here — were checked by reading the merged result rather than the conflict list. Both are now standing steps of the flow, not observations.
+- **Branch sync** has been run under the procedure in `conventions/branch-sync.md`. Two of the three failures the path table cannot catch — a master-only UI file arriving as a clean addition, and a shared document auto-merging into a claim untrue here — were checked by reading the merged result rather than the conflict list, and are standing steps of the flow. The third, a ui document that no merge can carry, was found on the 1.8.0 upgrade and has since been run once, on 1.8.1.
 
 ## Contracts Touched
 
 - `project-summary.md` — Technical Stack row (`frontend/ui | vuetify`), ADR Index row for this record.
 - `web/CLAUDE.md` — layouts, pages, plugins, and the ui governing-document pointer.
+- `conventions/branch-sync.md` — the sync procedure this record decided and points at.
 
 ## Open Questions
 

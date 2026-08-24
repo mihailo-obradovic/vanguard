@@ -44,12 +44,20 @@ function toFetchError(errors: GqlError[]): FetchError {
       ? first.message
       : 'GraphQL request failed.';
 
+  const validationErrors = toValidationBody(first.extensions?.validation);
+
+  // ! The fallback is 422 when field messages came back, not 500, and that keeps two independent
+  // ! readers of this error agreeing. `useValidationErrors` asks "are there field messages?" while
+  // ! `handleApiError` asks "is the status 422?" — so an error carrying messages under any other
+  // ! status renders inline AND toasts a generic failure on top. `RestStatusHandler` always stamps
+  // ! the status today, which is why that has never happened; this makes the split impossible at
+  // ! the one place it could originate rather than relying on the server never slipping.
   const statusCode =
     typeof first.extensions?.status === 'number'
       ? first.extensions.status
-      : 500;
-
-  const validationErrors = toValidationBody(first.extensions?.validation);
+      : Object.keys(validationErrors).length > 0
+        ? 422
+        : 500;
 
   const error = new FetchError(message);
 

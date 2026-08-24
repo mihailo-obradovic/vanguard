@@ -97,6 +97,38 @@ describe('gqlFetcher', () => {
     expect(error.statusCode).toBe(500);
   });
 
+  // ! The invariant two independent readers depend on: `useValidationErrors` keys off field messages
+  // ! and `handleApiError` keys off the 422, so an error carrying messages under any other status
+  // ! renders inline AND toasts a generic failure on top. `RestStatusHandler` stamps the status on
+  // ! every validation error today; this pins the fallback so a server that ever stopped could not
+  // ! split the two.
+  it('infers 422 from field messages when no status was stamped', async () => {
+    server.use(
+      graphqlHandler(
+        graphqlError('Validation failed.', {
+          validation: { email: ['The email has already been taken.'] }
+        })
+      )
+    );
+
+    const error = await expectRejection(gqlFetcher('mutation {}'));
+
+    expect(error.statusCode).toBe(422);
+    expect(error.data.errors).toEqual({
+      email: ['The email has already been taken.']
+    });
+  });
+
+  it('still defaults to 500 when a status-less error carries no messages', async () => {
+    server.use(
+      graphqlHandler(graphqlError('Boom.', { validation: { email: [] } }))
+    );
+
+    const error = await expectRejection(gqlFetcher('mutation {}'));
+
+    expect(error.statusCode).toBe(500);
+  });
+
   it('ignores a validation payload that arrives as null', async () => {
     server.use(
       graphqlHandler(

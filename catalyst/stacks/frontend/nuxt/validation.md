@@ -56,8 +56,8 @@ Where a project needs custom rules or shared error messages, the module injects 
 
 Two things to know about that message layer:
 
-- **Messages match on the key a form declares a rule under, not the rule's internal type.** A field declaring `requiredIf` is not covered by a `required` entry — every rule name forms actually use needs its own entry, or it falls back to the library's hardcoded English.
-- **The setup file cannot name the field** — Regle's message context (`$value`, `$params`, rule state) carries no field name. Copy that names the field ("The email field is required.") is attached where the field is known: a small helper (`utils/labeledRules.ts` here) wraps one field's rules with `withMessage`, resolving the field's name and the message lazily inside the getter so open forms follow locale changes. The name the message interpolates is its own catalog entry, not the label the input renders — a name sitting mid-sentence and a label heading an input want different casing, and which one differs is per locale, so a transform in code cannot serve both. The setup file's generic messages remain the fallback for any unwrapped rule.
+- **Messages match on the key a form declares a rule under, not the rule's internal type.** A field declaring `requiredIf` is not covered by a `required` entry — every rule name the project's forms actually use needs its own entry, or it falls back to the library's hardcoded English.
+- **The setup file cannot name the field.** Regle's message context (`$value`, `$params`, rule state) carries no field name, so copy that names the field ("The email field is required.") is attached where the field is known — a small helper (`utils/labeledRules.ts` here) that wraps one field's rules with `withMessage`, resolving the name and the message lazily inside the getter so open forms follow a locale change. The name the message interpolates is its own catalogue entry, not the label the input renders: a name sitting mid-sentence and a label heading an input want different casing, and which one differs is per locale, so a transform in code cannot serve both. The setup file's generic messages stay the fallback for any unwrapped rule.
 
 ### The auto-import boundary
 
@@ -106,4 +106,4 @@ A validation failure the form could have caught belongs on the field that caused
 
 Where the `frontend/ui` choice provides inputs with an error-message prop, pass Regle's `$errors` array straight to it — it is already `string[]`.
 
-Where it does not, the project owns a small presenter component with a **fixed minimum height** (`ui/headless.md`, The field-error presenter).
+Where it does not, the project owns a small presenter component with a **fixed minimum height** — a message that appears and disappears without one shifts every field below it while the user is mid-form. The `headless` choice carries the component (`ui/headless.md`, The field-error presenter); a choice whose inputs reserve the line already solves it.

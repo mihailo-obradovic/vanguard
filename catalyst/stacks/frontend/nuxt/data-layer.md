@@ -66,7 +66,9 @@ export function useUpdateUser(
     ...options,
     onSettled: chainAfter(async (_data, _error, vars) => {
       await queryCache.invalidateQueries({ key: usersQueryKeys.fetchUsers });
-      await queryCache.invalidateQueries({ key: [...usersQueryKeys.fetchUser, vars.id] });
+      await queryCache.invalidateQueries({
+        key: [...usersQueryKeys.fetchUser, vars.id]
+      });
     }, options.onSettled)
   });
 }
@@ -74,7 +76,7 @@ export function useUpdateUser(
 
 The signature says `MutationOptions<TData, TVars>` — exported beside `useAppMutation`, and `QueryOptions<T>` beside `useAppQuery` — rather than repeating `Omit<AppMutationOptions<TData, TVars>, 'key' | 'mutation'>` at every composable. The `Omit` is the point of the alias: `mutation`/`query` and `key` are the composable's own to declare, never the caller's to replace.
 
-**Test the await, not just the order.** An internal hook whose effect is synchronous (`setUser(data)`) runs in order whether or not it is awaited, and an invalidation asserts the refetch was *sent*, not that it finished — so a composable-level spec can pass with the `await` removed. The guarantee is pinned once, in `chainAfter`'s own spec, with a deliberately slow internal hook.
+**Test the await, not just the order.** An internal hook whose effect is synchronous (`setUser(data)`) runs in order whether or not it is awaited, and an invalidation asserts the refetch was _sent_, not that it finished — so a composable-level spec can pass with the `await` removed. The guarantee is pinned once, in `chainAfter`'s own spec, with a deliberately slow internal hook.
 
 **Store side effects belong to the query layer's internal hook**, not to services and not to components — syncing the authenticated user after a login is the composable's job.
 

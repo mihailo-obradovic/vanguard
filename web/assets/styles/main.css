@@ -2,7 +2,7 @@
 @import '@nuxt/ui';
 
 @theme static {
-    /* * Each accent carries only the two shades something reads: 400 is Dracula's own pastel and paints the dark face, and the darker step is the light face's, chosen per hue as the darkest that still clears 4.5:1 under white — the ratios are in decisions/014. Nuxt UI's components never name an accent shade; they read `--ui-<accent>` and alpha-derive every variant from it, so the nine intervening steps of each ramp fed nothing. */
+    /* * Two shades per accent: 400 is Dracula's own pastel and paints the dark face, the darker step is the lightest clearing 4.5:1 under white — ratios in decisions/014. Nuxt UI alpha-derives every variant from `--ui-<accent>` and never names a shade, so the intervening steps fed nothing. */
     /* * primary — Dracula purple */
     --color-primary-400: #bd93f9;
     --color-primary-700: #8144c5;
@@ -27,8 +27,8 @@
     --color-error-400: #ff5555;
     --color-error-600: #db0026;
 
-    /* * Named `dracula` rather than `neutral`, which would override Tailwind's own palette of that name. Its four greys sit where their lightness belongs — foreground 50, comment 600, current line 900, background 950 — and the gaps interpolate in OKLab, since hue near grey is meaningless and interpolating it swings the light end through pink. */
-    /* * Default (interpolated): 200 #d4d9e4, 300 #b7c0d6. Damped toward neutral at the same lightness and hue, because these two are the greys that show against the cream canvas — borders, the accented surface and the input ring — and the interpolation carries enough blue there to read as a second, colder grey. 100's interpolation already lands neutral, so it keeps its computed value. */
+    /* * Named `dracula`, not `neutral`, which would override Tailwind's own palette of that name. The four greys sit where their lightness belongs — foreground 50, comment 600, current line 900, background 950 — and the gaps interpolate in OKLab, since hue near grey is meaningless and interpolating it swings the light end through pink. */
+    /* * Default: 200 #d4d9e4, 300 #b7c0d6. Damped toward neutral at the same lightness and hue: these are the greys that show against the cream canvas — borders, the accented surface, the input ring — where the interpolation's blue reads as a second, colder grey. 100 already lands neutral and keeps its computed value. */
     --color-dracula-50: #f8f8f2;
     --color-dracula-100: #e8eaea;
     --color-dracula-200: #d7d9de;
@@ -54,8 +54,8 @@
     --ui-warning: var(--ui-color-warning-800);
     --ui-error: var(--ui-color-error-600);
 
-    /* * The canvas takes Dracula's own foreground cream and the surfaces sit white above it, so cards, the table and the footer read as raised. That puts the ladder back the way Nuxt UI draws it — emphasis darkens — which the old grey canvas had inverted. */
-    --app-bg-page: var(--color-dracula-50);
+    /* * Dracula's own foreground cream is the canvas and the surfaces sit white above it, so cards, the table and the footer read as raised — emphasis darkens, the way Nuxt UI draws it. The old grey canvas had that ladder inverted. */
+    --ui-bg-page: var(--color-dracula-50);
     --ui-bg: var(--color-white);
     --ui-bg-muted: var(--ui-color-neutral-50);
     --ui-bg-elevated: var(--ui-color-neutral-100);
@@ -76,12 +76,12 @@
 
     --ui-radius: 0.5rem;
     --ui-container: 1200px;
-    /* * Default: 4rem. The layout's own bar is what this measures, and every Nuxt UI header that reads the token — the slideover's and the modal's — lines up with it because of this one value. */
+    /* * Default: 4rem. Measures the layout's own bar, and every Nuxt UI header that reads the token — the slideover's, the modal's — lines up because of this one value. */
     --ui-header-height: 3.5rem;
 }
 
 /* * Dark mode — the palette as Dracula draws it: background, current line, comment and foreground land on the tokens they were named for. */
-/* ! The accents look redundant against Nuxt UI's own dark defaults but are not: the light block above matches <html> in both faces and is declared later than Nuxt UI's `.dark`, so deleting these paints dark mode in the light face's darkened accents — measured, not assumed. */
+/* ! The accents only look redundant against Nuxt UI's own dark defaults: the light block above matches <html> in both faces and is declared later than Nuxt UI's `.dark`, so deleting these paints dark mode in the light face's darkened accents — measured, not assumed. */
 .dark {
     color-scheme: dark;
 
@@ -92,8 +92,8 @@
     --ui-warning: var(--ui-color-warning-400);
     --ui-error: var(--ui-color-error-400);
 
-    /* * Dracula's own darker background, the shade its editor themes use behind gutters and sidebars. It is below the ramp's last step, so it is stated rather than derived. */
-    --app-bg-page: #21222c;
+    /* * Dracula's own darker background, the shade its editor themes use behind gutters and sidebars. Below the ramp's last step, so stated rather than derived. */
+    --ui-bg-page: #21222c;
     --ui-bg: var(--ui-color-neutral-950);
     --ui-bg-muted: var(--ui-color-neutral-900);
     --ui-bg-elevated: var(--ui-color-neutral-900);
@@ -113,14 +113,15 @@
     --ui-border-inverted: var(--ui-color-neutral-50);
 }
 
-/* ! Tailwind v4 dropped preflight's `cursor: pointer` on buttons, so every button in the app reverts to the arrow without this. Links keep the pointer natively. */
+/* ! Tailwind v4 dropped preflight's `cursor: pointer` on buttons, so every button reverts to the arrow without this. Links keep the pointer natively. */
 @layer base {
-    button:not(:disabled),
-    [role='button']:not(:disabled) {
+    button:not(:disabled):not([aria-disabled='true']),
+    [role='button']:not([aria-disabled='true']) {
         cursor: pointer;
     }
 
     button:disabled,
+    button[aria-disabled='true'],
     [role='button'][aria-disabled='true'] {
         cursor: not-allowed;
     }
@@ -131,15 +132,13 @@ html,
 body,
 #__nuxt {
     height: 100%;
-    width: 100%;
-    overflow-y: hidden !important;
-    margin: 0;
+    overflow-y: hidden;
 }
 
 body {
     font-family: 'Lexend', sans-serif;
     /* ! Overrides Nuxt UI's own `background: var(--ui-bg)` — that token is the surfaces' colour here, not the page's. */
-    background-color: var(--app-bg-page);
+    background-color: var(--ui-bg-page);
 }
 
 ::selection {

@@ -97,32 +97,38 @@
             </v-btn>
           </GapContainer>
 
-          <template v-if="editMode">
-            <PasswordField
-              v-model="form.current_password"
-              :error-messages="r$.current_password.$errors"
-              :label="$t('common.fields.currentPassword')"
-              variant="outlined"
-            />
+          <!-- * The password fields arrive and leave together, so the card grows and shrinks rather
+               than snapping. `v-expand-transition` animates height, needs a single child — hence the
+               `GapContainer` wrapper, which also keeps the gap between the three fields — and
+               disables itself under `prefers-reduced-motion` on its own (§14.4). -->
+          <v-expand-transition>
+            <GapContainer v-if="editMode" column class="w-100">
+              <PasswordField
+                v-model="form.current_password"
+                :error-messages="r$.current_password.$errors"
+                :label="$t('common.fields.currentPassword')"
+                variant="outlined"
+              />
 
-            <PasswordField
-              v-model="form.password"
-              v-model:visible="showNewPassword"
-              :error-messages="r$.password.$errors"
-              :label="$t('common.fields.newPassword')"
-              :hint="$t('common.fields.newPasswordHint')"
-              persistent-hint
-              variant="outlined"
-            />
+              <PasswordField
+                v-model="form.password"
+                v-model:visible="showNewPassword"
+                :error-messages="r$.password.$errors"
+                :label="$t('common.fields.newPassword')"
+                :hint="$t('common.fields.newPasswordHint')"
+                persistent-hint
+                variant="outlined"
+              />
 
-            <PasswordField
-              v-model="form.password_confirmation"
-              v-model:visible="showNewPassword"
-              :error-messages="r$.password_confirmation.$errors"
-              :label="$t('common.fields.confirmNewPassword')"
-              variant="outlined"
-            />
-          </template>
+              <PasswordField
+                v-model="form.password_confirmation"
+                v-model:visible="showNewPassword"
+                :error-messages="r$.password_confirmation.$errors"
+                :label="$t('common.fields.confirmNewPassword')"
+                variant="outlined"
+              />
+            </GapContainer>
+          </v-expand-transition>
         </GapContainer>
       </GapContainer>
     </v-col>

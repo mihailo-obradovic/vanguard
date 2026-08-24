@@ -8,6 +8,14 @@ process.env.NUXT_PUBLIC_API_BASE_URL = 'http://api.test';
 export default defineVitestConfig({
   test: {
     setupFiles: ['web/mocks/setup.ts'],
+    // ! Raised from vitest's 10s default for `@nuxt/test-utils`'s `setupNuxt()`, which runs once
+    // ! per nuxt-environment spec file. Ten seconds is enough against a warm transform cache and
+    // ! not enough against a cold one, which is exactly what a Stryker sandbox is: the hook times
+    // ! out, vitest SKIPS the whole file while still reporting its tests, and Stryker records the
+    // ! file as covered by nothing — every mutant in it reads `NoCoverage` rather than failing
+    // ! loudly. `pnpm test` stays green throughout, so the only symptom is a mutation score that
+    // ! silently drops. It is also why the same commit could measure differently run to run.
+    hookTimeout: 60_000,
     // ! Nested checkouts of this repo are collected as if they were part of it, and every spec
     // ! then runs twice — once against the wrong tree. A crashed Stryker run leaves its sandbox
     // ! behind, and `.claude/worktrees/` holds agent worktrees; vitest's defaults skip neither.

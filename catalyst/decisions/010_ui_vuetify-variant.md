@@ -27,7 +27,7 @@ There is no rejected alternative to name — master _is_ the headless alternativ
 Product decisions of this branch, not module prescriptions (the module's components document says exactly this about borrowing compositions):
 
 - **Auth lives in dialogs, not routes.** `LoginDialog`/`RegisterDialog`/`ForgotPasswordDialog` mount in `layouts/Default.vue`, one `useMutationDialog()` call each; the four auth pages are deleted. Follow-on: `utils/authRedirectLogic.ts` shrinks guest-only routes to `['/password-reset']` and redirects unauthenticated users to `/home`, and the flattened `pages/password-reset.vue` reads `?token=&email=` — the backend's emailed reset URL must match, so this composition reaches into route policy and server config (why it is recorded here).
-- **Dracula palette with custom theme tokens, split per face.** `link`, `highlight`, and `foreground` beyond Vuetify's built-ins, used as ordinary `color=` props and `--v-theme-*` variables; no `surface` override. The accents are **not** one shared set: Dracula is drawn for a dark ground, and `variant="text"` / `variant="outlined"` buttons paint their label with the colour itself, so a shared palette puts real text between 1.29:1 and 4.41:1 on the light page. The light face therefore takes the darkest shade of each hue that still clears 4.5:1 — the same values `variant/nuxtui` derived for its own light face — and the dark face keeps Dracula as published. `secondary` (current-line grey behind the drawer, the empty layout and the role chip) and `highlight` stay shared: they are fill-only, and Vuetify computes the contrast text that lands on them. Worst case of each accent as foreground, measured across the page and the surface of its own face (§14.1, `stacks/frontend/nuxt/design-system.md`):
+- **Dracula palette with custom theme tokens, split per face.** `link` and `foreground` beyond Vuetify's built-ins, used as ordinary `color=` props and `--v-theme-*` variables; no `surface` override. (`highlight` was a third, declared for palette parity and referenced nowhere; it is dropped rather than left as a token no component asks for.) The accents are **not** one shared set: Dracula is drawn for a dark ground, and `variant="text"` / `variant="outlined"` buttons paint their label with the colour itself, so a shared palette puts real text between 1.29:1 and 4.41:1 on the light page. The light face therefore takes the darkest shade of each hue that still clears 4.5:1 — the same values `variant/nuxtui` derived for its own light face — and the dark face keeps Dracula as published. `secondary` (current-line grey behind the drawer, the empty layout and the role chip) stays shared: it is fill-only, and it is the one fill Vuetify's own contrast pick gets right on both faces. Worst case of each accent as foreground, measured across the page and the surface of its own face (§14.1, `stacks/frontend/nuxt/design-system.md`):
 
   | Role      | Light     | Ratio  | Dark      | Ratio   |
   | --------- | --------- | ------ | --------- | ------- |
@@ -41,11 +41,24 @@ Product decisions of this branch, not module prescriptions (the module's compone
 
   `web/plugins/_tests/vuetify.spec.ts` recomputes every one of these from `theme.computedThemes` rather than trusting the table, so re-measuring after a token change is automatic.
 
+  **What lands on a filled accent is the other axis, and Vuetify cannot be left to decide it.** Its pick is `whiteContrast > Math.min(blackContrast, 50)` (APCA, `vuetify/lib/util/colorUtils.js`) — deliberately biased to white, with no threshold to configure. On the dark face that bias is wrong on four roles, one of which is the app bar, so it was the most visible text in the app. Declaring `on-<role>` short-circuits the pick (`theme.js`: `if (color.startsWith('on-') || colors['on-' + color]) continue`), and only the four are declared — the rest are Vuetify's own pick, guarded by the spec rather than assumed:
+
+  | Fill        | Light content | Ratio  | Dark content    | Ratio   |
+  | ----------- | ------------- | ------ | --------------- | ------- |
+  | `primary`   | white         | 5.89:1 | **black** (set) | 8.71:1  |
+  | `accent`    | white         | 5.90:1 | **black** (set) | 8.80:1  |
+  | `error`     | white         | 5.20:1 | **black** (set) | 6.68:1  |
+  | `success`   | white         | 5.28:1 | **black** (set) | 15.30:1 |
+  | `warning`   | white         | 6.21:1 | black           | 12.32:1 |
+  | `info`      | white         | 5.33:1 | black           | 15.17:1 |
+  | `secondary` | white         | 9.15:1 | white           | 9.15:1  |
+
+  The `on-success: '#ffffff'` that used to be forced across both faces is why this axis went unnoticed: it was written when `success` was one shared `#50fa7b`, and the per-face split left it forcing white onto the dark green at 1.37:1 while the light face reached white on its own anyway. Only the dark half is declared now.
+
 - **Project idioms:** `GapContainer` (polymorphic `d-flex`/gap wrapper; imports `VSheet`/`VCard` explicitly for `<component :is>`), `PasswordField`'s second `visible` model shared across a password/confirmation pair, `UserCard`'s inline edit mode owning its own update, so the page renders `<UserCard />` bare.
 
 ## Known inconsistencies (recorded, not fixed)
 
-- `CookieConsentBanner.vue` is hand-rolled HTML/CSS with hardcoded colours that ignore the theme (arrived from master unconverted).
 - `LoginDialog.vue` ships hardcoded dev credentials in `initialForm`.
 - `useThemeSwitching()` is declared inside `layouts/Default.vue` rather than in `composables/`. It is pure logic — cookie-backed theme persistence — so it is testable the moment it moves, and untestable where it is. Extracting it is deferred with the rest of the component work, not blocked by it. (`useUserDialogs()` sat beside it and is gone: the three auth dialogs are now one `useMutationDialog()` call each.)
 
@@ -87,6 +100,8 @@ B4 claim-by-claim pass (2026-08-02): every wiring, dependency, icon, dialog-base
 2026-08-21: second sync run under Branch sync, plus the height-cap parity port. Ten conflicts resolved by the table; two things it does not catch were caught by reading the result — `nuxt.config.ts` auto-merged into a duplicate `spaLoadingTemplate` key, and `renovate.json` corrected this branch's own icon rule from `@mdi/font` to `@mdi/js`, a package `package.json` shows the branch does not carry. The measured cap (`useElementBounding`) is retired branch-wide for a `min-height: 0` flex chain, and `UserCard` now scrolls its fields; both walked live — the tables scroll under pinned headers with the page itself unscrollable, the card shrinks and scrolls in edit mode while its header controls stay put, and both re-adapt to a shrunken viewport without measuring. Suites green (Vitest 51 files / 434 tests, oxlint, oxfmt, typecheck, `validate.py`).
 
 2026-08-23: the Dracula accents split per face. Shipped unchanged on the light page they were failing WCAG AA as text — primary 2.26:1, error 2.95:1, info 1.30:1, success 1.29:1, `link` 4.41:1 — and `link` failed the dark face too at 3.03:1. The seven foreground roles now carry a light and a dark value and all fourteen clear 4.5:1 against both the page and a surface; the fourteen new assertions were sabotage-proven by restoring the shared palette, which turns all seven light-theme cases red with exactly the ratios above. Suites green (Vitest 51 files / 448 tests, `oxlint`, `oxfmt`, `nuxt typecheck`, `validate.py`).
+
+2026-08-24: the on-fill axis, which 2026-08-23 did not cover and 2026-08-13 got backwards. Vuetify's own pick put white on four dark fills — `primary` 2.41:1 (the app bar, so the app's most visible text), `accent` 2.39:1, `error` 3.14:1 — and the forced `on-success` put white on the dark green at 1.37:1 where black measures 15.30:1, which supersedes the "a change is a legibility regression" claim recorded on 2026-08-13 for the shared-palette era. Four `on-<role>` overrides on the dark face only; `warning`, `info` and `secondary` are left to Vuetify, which gets them right, and are measured anyway. `FullScreenDialog.vue`'s hardcoded `text-white` on the primary toolbar is gone — it bypassed the token entirely. The fourteen new fill assertions were sabotage-proven by dropping `on-primary`, which fails with exactly 2.41:1. Suites green (Vitest 51 files / 462 tests, `oxlint`, `oxfmt`, `nuxt typecheck`, `validate.py`).
 
 ## Contracts Touched
 

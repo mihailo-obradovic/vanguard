@@ -70,18 +70,31 @@ function contrastRatio(foreground: string, background: string): number {
 // * Vuetify types a theme colour as its whole accepted input union (hex, HSV, RGB). By the time one
 // * reaches `computedThemes` it is a resolved hex string, which is what these ratios need — so this
 // * throws on anything else rather than casting the problem away.
+// ! Shorthand is expanded rather than rejected: the `on-` colours Vuetify computes itself come from
+// ! its `theme-on-dark` / `theme-on-light` variables, which ship as `#FFF` and `#000`. Only the
+// ! declared colours are six digits, so a six-digit-only guard would pass every overridden token
+// ! and throw on exactly the ones left to Vuetify's pick — the half most worth measuring.
 function hexOf(color: unknown): string {
-  if (typeof color !== 'string' || !/^#[0-9a-f]{6}$/i.test(color)) {
+  if (
+    typeof color !== 'string' ||
+    !/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(color)
+  ) {
     throw new TypeError(`Expected a resolved hex colour, got ${String(color)}`);
   }
 
-  return color;
+  const expanded =
+    color.length === 4
+      ? `#${color.slice(1).replace(/./g, (digit) => digit + digit)}`
+      : color;
+
+  // * Lowercased so the result is comparable, not only measurable: Vuetify's own values arrive
+  // * upper-case (`#FFF`) and the theme's declared ones lower-case.
+  return expanded.toLowerCase();
 }
 
 // * The roles that render as foreground somewhere: `variant="text"` and `variant="outlined"` buttons
-// * paint their label and border with the colour itself, so these are real text. `secondary` and
-// * `highlight` are excluded on purpose — they are only ever fills, and Vuetify computes what lands
-// * on top of them.
+// * paint their label and border with the colour itself, so these are real text. `secondary` is
+// * excluded because it is never a foreground — it is covered by FILL_ROLES below instead.
 const FOREGROUND_ROLES = [
   'primary',
   'accent',
@@ -90,6 +103,20 @@ const FOREGROUND_ROLES = [
   'info',
   'success',
   'link'
+] as const;
+
+// * The roles that get painted as a surface with content on top: `variant="flat"` buttons, the app
+// * bar, the drawer, the fullscreen dialog's toolbar. `link` is absent because nothing fills with
+// * it. Every entry is measured whether or not the theme declares its `on-` token, so the ones
+// * left to Vuetify's own pick are guarded rather than trusted.
+const FILL_ROLES = [
+  'primary',
+  'secondary',
+  'accent',
+  'error',
+  'warning',
+  'info',
+  'success'
 ] as const;
 
 describe('the Vuetify plugin', () => {
@@ -118,14 +145,16 @@ describe('the Vuetify plugin', () => {
     expect(themes.dark).toMatchObject({ dark: true });
   });
 
-  // ! Asserted on the computed themes rather than the declared ones: Vuetify derives contrast text
-  // ! per surface and picks black over this light green, so dropping the override does not leave a
-  // ! hole here — it silently yields black. A change is a legibility regression, not a preference.
-  it('forces white content on success surfaces in both themes', () => {
+  // ! The success fill is the one role where the two faces need opposite content, and the case that
+  // ! exposed the whole bug: a single forced `on-success: #ffffff` used to serve both, which the
+  // ! light face reaches on its own anyway (5.28:1) but which put the dark face at 1.37:1. Only the
+  // ! dark half is declared now; the light half is Vuetify's own pick, and asserting both here says
+  // ! the two must stay opposite however each is arrived at. Legibility itself is the ratio test.
+  it('lands opposite content on the two success fills', () => {
     const themes = install().theme.computedThemes.value;
 
-    expect(themes.light).toMatchObject({ colors: { 'on-success': '#ffffff' } });
-    expect(themes.dark).toMatchObject({ colors: { 'on-success': '#ffffff' } });
+    expect(hexOf(themes.light!.colors['on-success'])).toBe('#ffffff');
+    expect(hexOf(themes.dark!.colors['on-success'])).toBe('#000000');
   });
   // ! The regression that guards the per-mode split. Dracula is drawn for a dark ground: shipped
   // ! unchanged on the light face, every accent lands between 1.29:1 and 4.41:1 as text. Measured
@@ -151,5 +180,22 @@ describe('the Vuetify plugin', () => {
         }
       }
     );
+
+    // ! The other axis, and the one Vuetify cannot be left to decide: what lands ON a filled
+    // ! accent. Its pick is biased to white (`whiteContrast > Math.min(blackContrast, 50)`, APCA)
+    // ! with no threshold to configure, which on the dark pastels put the app bar's own title at
+    // ! 2.41:1. Reading `on-<role>` off the computed theme covers both the roles the theme
+    // ! overrides and the roles it leaves to that pick, so removing an override fails here.
+    it.each(FILL_ROLES)('keeps content legible on a `%s` fill', (role) => {
+      const theme = install().theme.computedThemes.value[name]!;
+      const fill = hexOf(theme.colors[role]);
+      const content = hexOf(theme.colors[`on-${role}`]);
+      const ratio = contrastRatio(content, fill);
+
+      expect(
+        ratio,
+        `${content} on ${role} ${fill} is ${ratio.toFixed(2)}:1`
+      ).toBeGreaterThanOrEqual(4.5);
+    });
   });
 });

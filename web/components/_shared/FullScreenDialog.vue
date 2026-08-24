@@ -12,7 +12,7 @@
           </v-btn>
         </v-toolbar-items>
 
-        <v-toolbar-title class="font-weight-medium text-white">
+        <v-toolbar-title class="font-weight-medium">
           {{ title }}
         </v-toolbar-title>
 

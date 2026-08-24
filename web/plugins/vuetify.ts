@@ -3,14 +3,11 @@ import { aliases, mdi } from 'vuetify/iconsets/mdi-svg';
 import { createVueI18nAdapter } from 'vuetify/locale/adapters/vue-i18n';
 import { useI18n } from 'vue-i18n';
 
-// * Fill-only roles, so one value serves both faces: Vuetify computes the contrast text that lands on
-// * them. `secondary` is Dracula's current-line grey behind the drawer, the empty layout and the role
-// * chip; `highlight` is declared for parity with the palette and is not yet used anywhere.
+// * Dracula's current-line grey, behind the drawer, the empty layout and the role chip. One value
+// * serves both faces, and it is the one fill Vuetify's own contrast pick gets right on both:
+// * white content at 9.15:1 either way.
 const fillColors = {
-  // * Force white content on success surfaces; Vuetify's computed contrast would pick black on this light green
-  'on-success': '#ffffff',
-  secondary: '#44475a',
-  highlight: '#f1fa8c'
+  secondary: '#44475a'
 };
 
 // ! The accents cannot be one shared set. Dracula is drawn for a dark ground, and every pastel here
@@ -36,6 +33,23 @@ const darkAccents = {
   info: '#8be9fd',
   success: '#50fa7b',
   link: '#939fbf'
+};
+
+// ! What lands ON a filled accent is the other axis from the split above, and Vuetify cannot be
+// ! trusted with it here. Its pick is `whiteContrast > Math.min(blackContrast, 50)` (APCA, in
+// ! `vuetify/lib/util/colorUtils.js`) — deliberately biased to white, with no threshold to
+// ! configure. On Dracula's dark pastels that bias is wrong by a wide margin: white on `primary`
+// ! measures 2.41:1 where black measures 8.71:1, and `primary` is the app bar, so it is the most
+// ! visible text in the app. Declaring `on-<role>` short-circuits the pick entirely
+// ! (`theme.js`: `if (color.startsWith('on-') || colors['on-' + color]) continue`).
+// * Only the four Vuetify gets wrong are listed. It already picks black on the dark `warning` and
+// * `info`, and white on the light face throughout — the spec measures every fill on both faces,
+// * so a role left out here is guarded, not assumed. Ratios are in decisions/010.
+const darkOnAccents = {
+  'on-primary': '#000000',
+  'on-accent': '#000000',
+  'on-error': '#000000',
+  'on-success': '#000000'
 };
 
 const options = {
@@ -67,7 +81,8 @@ const options = {
           background: '#282a36',
           foreground: '#f8f8f2',
           ...fillColors,
-          ...darkAccents
+          ...darkAccents,
+          ...darkOnAccents
         }
       }
     }

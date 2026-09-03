@@ -88,7 +88,7 @@ const {
   isLoading: isResetting,
   error: resetError
 } = useResetPassword({
-  errorHandling: { hideValidationToast: true },
+  errorHandling: { suppressToasts: 'validation' },
   onSuccess: (data) => {
     $toast(data.status, 'success');
     navigateTo('/home');
@@ -108,7 +108,9 @@ const { r$ } = useRegle(
 async function handleSubmit() {
   const { valid } = await r$.$validate();
 
-  if (!valid) return;
+  if (!valid) {
+    return;
+  }
 
   resetPassword({
     token: String(route.query.token ?? ''),

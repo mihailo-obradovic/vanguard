@@ -16,16 +16,16 @@ Put a backend validation error on the field that caused it. Without this the onl
 
 ## Inputs
 
-| Input           | Type       | Source                           | Constraints                                         |
-| --------------- | ---------- | -------------------------------- | --------------------------------------------------- |
-| Server 422 body | JSON       | API via a mutation's `error` ref | `{ errors: { field: [messages] } }` — Laravel shape |
-| Opt-in flag     | option     | a mutation's `errorHandling`     | `hideValidationToast` — per form, default off       |
-| Field edits     | form state | the form the bridge is bound to  | Regle clears an entry as its field is edited        |
+| Input           | Type       | Source                           | Constraints                                            |
+| --------------- | ---------- | -------------------------------- | ------------------------------------------------------ |
+| Server 422 body | JSON       | API via a mutation's `error` ref | `{ errors: { field: [messages] } }` — Laravel shape    |
+| Opt-in flag     | option     | a mutation's `errorHandling`     | `suppressToasts: 'validation'` — per form, default off |
+| Field edits     | form state | the form the bridge is bound to  | Regle clears an entry as its field is edited           |
 
 ## Outputs And Side Effects
 
-| Output / Side Effect        | Type | Description                                                                              |
-| --------------------------- | ---- | ---------------------------------------------------------------------------------------- |
+| Output / Side Effect        | Type | Description                                                                               |
+| --------------------------- | ---- | ----------------------------------------------------------------------------------------- |
 | Field-keyed error map       | data | `useValidationErrors` derives it from the mutation's `error` ref; `{}` when there is none |
 | Regle `externalErrors` ref  | data | `useExternalErrors` copies the map into a ref Regle owns and may clear                    |
 | Inline field errors         | UI   | the copied messages render under the field beside Regle's own                             |
@@ -33,7 +33,7 @@ Put a backend validation error on the field that caused it. Without this the onl
 
 ## Scope And Non-Goals
 
-In scope: extracting the field map from a 422 (`getValidationErrors`); the `useValidationErrors` → `useExternalErrors` → rendered-error chain; the per-form `hideValidationToast` opt-out; what happens to an entry when its field is edited.
+In scope: extracting the field map from a 422 (`getValidationErrors`); the `useValidationErrors` → `useExternalErrors` → rendered-error chain; the per-form `suppressToasts` opt-out; what happens to an entry when its field is edited.
 
 Non-goals: the client-side rules and their copy (feature 006); routing any status other than 422, which is the central handler's (feature 005); the backend rules that produce the 422 (features 001–003).
 
@@ -43,7 +43,7 @@ Non-goals: the client-side rules and their copy (feature 006); routing any statu
 - `useExternalErrors` **copies** that map into a ref handed to Regle as its `externalErrors` modifier. Copied rather than shared, because Regle clears entries in that ref as the user edits — writing back into the mutation's error would mean mutating another layer's state.
 - Each field renders its combined Regle and external messages together, so a server error and a client error occupy the same place under the input and the user never has to tell them apart.
 - Editing a field clears its server-supplied error. The next failing submit replaces the whole map, so errors from an earlier attempt cannot linger beside a fresh verdict.
-- A form opts into the inline path by passing `hideValidationToast` on its mutation. Without it, `handleApiError` toasts the 422 like any other failure — the inline path is opt-in, never assumed.
+- A form opts into the inline path by passing `suppressToasts: 'validation'` on its mutation. Without it, `handleApiError` toasts the 422 like any other failure — the inline path is opt-in, never assumed.
 
 ## Roles And Access
 
@@ -66,7 +66,7 @@ Not role-specific — the bridge applies to every form regardless of role.
 
 ## Edge Cases
 
-- A 422 carrying no field errors leaves the map empty; with `hideValidationToast` set, the form shows nothing rather than a toast — the client rules are expected to have caught anything the user can act on.
+- A 422 carrying no field errors leaves the map empty, and `suppressToasts: 'validation'` still toasts the generic message — suppression covers field messages only, so a failure with nothing to render inline is not swallowed. `'all'` suppresses that toast too, and a form choosing it owns rendering the failure itself.
 - A 422 for a field the form does not render has no inline home. Forms are expected to cover the fields they submit.
 
 ## Invariants
@@ -87,7 +87,7 @@ No protected area of its own — the 422 shapes it consumes are owned by feature
 - `web/utils/getValidationErrors.ts` — the 422-to-field-map extraction.
 - `web/composables/useValidationErrors.ts` → `useExternalErrors.ts` — the bridge: a field-keyed map from a mutation's `error` ref, mirrored into a Regle-owned `externalErrors` ref.
 - `web/components/_shared/UIField.vue` — the field primitive: renders the first combined Regle + server message under the control, and points the control at it (`aria-describedby`, `aria-invalid`).
-- `web/utils/handleApiError.ts` — the `hideValidationToast` opt-out that keeps a 422 off the toast.
+- `web/utils/handleApiError.ts` — the `suppressToasts` opt-out that keeps a 422 off the toast.
 
 ## Dependencies
 
@@ -100,7 +100,7 @@ No protected area of its own — the 422 shapes it consumes are owned by feature
 ## Tests
 
 - `web/utils/_tests/getValidationErrors.spec.ts` — the extraction: a Laravel 422 body, a non-422 error, a missing error, and a malformed entry.
-- `web/utils/_tests/handleApiError.spec.ts` — the `hideValidationToast` path keeping a 422 inline, including a 422 carrying no field errors.
+- `web/utils/_tests/handleApiError.spec.ts` — the `suppressToasts` paths: `'validation'` keeping a 422 inline while a 422 with no field errors and a 500 still toast, and `'all'` silencing both.
 - `web/composables/_tests/` — the bridge itself (`useValidationErrors`, `useExternalErrors`): the empty map a form binds to before anything has failed, server errors arriving, the copy-not-share that lets Regle clear an entry without reaching back into the source, replacement on a differently-failing submit, and a getter source.
 - Per-form coverage that a server 422 lands on its own field rather than in a toast lives with the form specs (feature 006).
 

@@ -10,6 +10,28 @@ export type FetcherOptions = Omit<
 
 const CSRF_COOKIE_PATH = '/sanctum/csrf-cookie';
 
+export async function fetcher<T>(
+  path: string,
+  params: FetcherOptions = {}
+): Promise<T> {
+  try {
+    return await makeRequest<T>(path, params);
+  } catch (error) {
+    // * An expired CSRF token (419) is recoverable: refresh the cookie and retry the request once with the new token.
+    if (
+      error instanceof FetchError &&
+      error.statusCode === 419 &&
+      path !== CSRF_COOKIE_PATH
+    ) {
+      await makeRequest(CSRF_COOKIE_PATH, {});
+
+      return makeRequest<T>(path, params);
+    }
+
+    throw error;
+  }
+}
+
 function makeRequest<T>(path: string, params: FetcherOptions): Promise<T> {
   const { apiBaseUrl } = useRuntimeConfig().public;
 
@@ -35,26 +57,4 @@ function makeRequest<T>(path: string, params: FetcherOptions): Promise<T> {
   };
 
   return $fetch<T>(apiBaseUrl + path, options);
-}
-
-export async function fetcher<T>(
-  path: string,
-  params: FetcherOptions = {}
-): Promise<T> {
-  try {
-    return await makeRequest<T>(path, params);
-  } catch (error) {
-    // * An expired CSRF token (419) is recoverable: refresh the cookie and retry the request once with the new token.
-    if (
-      error instanceof FetchError &&
-      error.statusCode === 419 &&
-      path !== CSRF_COOKIE_PATH
-    ) {
-      await makeRequest(CSRF_COOKIE_PATH, {});
-
-      return makeRequest<T>(path, params);
-    }
-
-    throw error;
-  }
 }

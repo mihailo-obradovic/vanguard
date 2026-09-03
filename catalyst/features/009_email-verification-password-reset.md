@@ -14,22 +14,22 @@ Close the two mail-driven account-lifecycle loops that sit around the session ra
 
 ## Inputs
 
-| Input                                          | Type       | Source                                | Constraints                                                                     |
-| ---------------------------------------------- | ---------- | ------------------------------------- | ------------------------------------------------------------------------------- |
-| `email`                                        | string     | `POST /forgot-password`               | required, valid email, max 255; `guest` group                                   |
-| `token`, `email`, `password`(+`_confirmation`) | strings    | `POST /reset-password`                | token required; email as above; password `confirmed`, `Password::defaults()`    |
-| `id`, `hash` + signature                       | URL params | `GET /verify-email/{id}/{hash}`       | signed URL (60 min), `auth` + `throttle:6,1`; hash = sha1 of the user's email   |
-| —                                              | —          | `POST /email/verification-notification` | no body; `auth` + `throttle:6,1`; acts on the session user                     |
+| Input                                          | Type       | Source                                  | Constraints                                                                   |
+| ---------------------------------------------- | ---------- | --------------------------------------- | ----------------------------------------------------------------------------- |
+| `email`                                        | string     | `POST /forgot-password`                 | required, valid email, max 255; `guest` group                                 |
+| `token`, `email`, `password`(+`_confirmation`) | strings    | `POST /reset-password`                  | token required; email as above; password `confirmed`, `Password::defaults()`  |
+| `id`, `hash` + signature                       | URL params | `GET /verify-email/{id}/{hash}`         | signed URL (60 min), `auth` + `throttle:6,1`; hash = sha1 of the user's email |
+| —                                              | —          | `POST /email/verification-notification` | no body; `auth` + `throttle:6,1`; acts on the session user                    |
 
 ## Outputs And Side Effects
 
-| Output / Side Effect  | Type         | Description                                                                                                                  |
-| --------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------- |
-| `200 {"status": ...}` | JSON         | forgot/reset return the translated password-broker status; resend returns `verification-link-sent` or `already-verified`      |
-| Verify redirect       | 302          | the signed link bounces to `FRONTEND_URL/profile?verified=1` — the one auth route that answers with a redirect               |
-| `email_verified_at`   | DB           | set on the first successful verify only, firing `Verified`                                                                   |
-| Password rewritten    | DB           | `Password::reset()` re-hashes the password and rotates `remember_token`, firing `PasswordReset`                               |
-| Queued mail           | notification | `VerifyEmailNotification` (registration + resend); `ResetPasswordNotification`, whose link points at the SPA reset page       |
+| Output / Side Effect  | Type         | Description                                                                                                              |
+| --------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------ |
+| `200 {"status": ...}` | JSON         | forgot/reset return the translated password-broker status; resend returns `verification-link-sent` or `already-verified` |
+| Verify redirect       | 302          | the signed link bounces to `FRONTEND_URL/profile?verified=1` — the one auth route that answers with a redirect           |
+| `email_verified_at`   | DB           | set on the first successful verify only, firing `Verified`                                                               |
+| Password rewritten    | DB           | `Password::reset()` re-hashes the password and rotates `remember_token`, firing `PasswordReset`                          |
+| Queued mail           | notification | `VerifyEmailNotification` (registration + resend); `ResetPasswordNotification`, whose link points at the SPA reset page  |
 
 ## Scope And Non-Goals
 
@@ -51,14 +51,14 @@ Not role-specific — no endpoint here is role-gated. Forgot/reset sit in the `g
 
 ## Examples
 
-| Input                                                | Expected Output                                          | Notes                                                     |
-| ---------------------------------------------------- | -------------------------------------------------------- | --------------------------------------------------------- |
-| `POST /forgot-password` known email                  | 200 `{status}`, reset mail queued                        | link resolves to the SPA reset page                       |
-| `POST /forgot-password` unknown email                | 422 on `email`                                           | **leaks account existence** — recorded, not smoothed over |
-| `POST /forgot-password` twice in a row               | 422 on `email` (broker throttle)                         | the broker, not a route rate limiter                      |
-| `POST /reset-password` valid token                   | 200 `{status}`, password rewritten, SPA → `/login`       | `remember_token` rotated                                  |
-| `POST /reset-password` invalid or expired token      | 422 on `email`                                           | surfaces under the email input                            |
-| `GET /verify-email/{id}/{bad-hash}`                  | 403, still unverified                                    | signature/hash mismatch                                   |
+| Input                                                 | Expected Output                                          | Notes                                                     |
+| ----------------------------------------------------- | -------------------------------------------------------- | --------------------------------------------------------- |
+| `POST /forgot-password` known email                   | 200 `{status}`, reset mail queued                        | link resolves to the SPA reset page                       |
+| `POST /forgot-password` unknown email                 | 422 on `email`                                           | **leaks account existence** — recorded, not smoothed over |
+| `POST /forgot-password` twice in a row                | 422 on `email` (broker throttle)                         | the broker, not a route rate limiter                      |
+| `POST /reset-password` valid token                    | 200 `{status}`, password rewritten, SPA → `/login`       | `remember_token` rotated                                  |
+| `POST /reset-password` invalid or expired token       | 422 on `email`                                           | surfaces under the email input                            |
+| `GET /verify-email/{id}/{bad-hash}`                   | 403, still unverified                                    | signature/hash mismatch                                   |
 | `GET /verify-email/{id}/{hash}` when already verified | 302 to `/profile?verified=1`, no second `Verified` event | idempotent                                                |
 | `POST /email/verification-notification` when verified | 200 `{"status":"already-verified"}`, no mail             |                                                           |
 

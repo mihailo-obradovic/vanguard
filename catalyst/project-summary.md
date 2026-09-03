@@ -1,6 +1,6 @@
 # vanguard
 
-Catalyst version: 1.8.1
+Catalyst version: 1.11.0
 
 ## Project Purpose
 
@@ -10,57 +10,57 @@ Context documents: `context/product-description.md`, `context/domain-glossary.md
 
 ## Feature Index
 
-| ### | Feature              | Status | Summary                                                                                                                                                                    | Document                                                                     |
-| --- | -------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| 001 | Session Auth Flow    | Active | Sanctum stateful cookie auth for the SPA: register/login/logout, `GET /api/user`, CSRF flow, auth store, boot plugin and route guarding.                                   | [features/001_session-auth.md](features/001_session-auth.md)                 |
-| 002 | User Management      | Active | Admin-gated user CRUD behind the `admin` middleware: list/create/update/hard-delete, two-role RBAC (`user`/`admin`), self-delete guard.                                    | [features/002_user-management.md](features/002_user-management.md)           |
-| 003 | Self-Service Profile | Active | `PUT /api/profile`: own name/email/password updates; email change resets verification; `current_password` challenge; role untouchable.                                     | [features/003_self-service-profile.md](features/003_self-service-profile.md) |
-| 004 | Cookie Consent       | Active | Accept/decline banner (`web/app.vue`) persisting a `cookie_consent` cookie for a year; consent recorded but not yet gating anything.                                       | [features/004_cookie-consent.md](features/004_cookie-consent.md)             |
-| 005 | Client Data Layer    | Active | Demonstration contract: two-layer `services` → `queries` composables (Pinia Colada), one fetcher, Zod response parsing, central error routing.                             | [features/005_client-data-layer.md](features/005_client-data-layer.md)       |
-| 006 | Form Validation UX   | Active | Demonstration contract: Regle rules mirror the backend through shared factories, in localized field-named copy; Zod validates responses only.                              | [features/006_form-validation-ux.md](features/006_form-validation-ux.md)     |
-| 007 | GraphQL API          | Active | Demonstration contract: a Lighthouse `/graphql` endpoint (users query + updateUser mutation) and the client wrappers that make a GraphQL call cost what a REST call costs. | [features/007_graphql-api.md](features/007_graphql-api.md)                   |
-| 008 | Email Availability   | Active | Public `GET /api/email-availability` + a debounced async Regle rule: "already taken" while typing, failing open so the backend `unique` rules stay authoritative.          | [features/008_email-availability.md](features/008_email-availability.md)     |
-| 009 | Email Verification & Password Reset | Active | The mail-driven lifecycle around the session: forgot/reset password, the signed verification link and its resend, and the SPA pages that drive them.  | [features/009_email-verification-password-reset.md](features/009_email-verification-password-reset.md) |
-| 010 | Server Validation Errors Inline | Active | The 422 bridge: a field-keyed map from a mutation's error ref, copied into Regle's `externalErrors` so the server's verdict lands on the field and not in a toast. | [features/010_server-validation-errors.md](features/010_server-validation-errors.md) |
+| ### | Feature                             | Status | Summary                                                                                                                                                                    | Document                                                                                               |
+| --- | ----------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| 001 | Session Auth Flow                   | Active | Sanctum stateful cookie auth for the SPA: register/login/logout, `GET /api/user`, CSRF flow, auth store, boot plugin and route guarding.                                   | [features/001_session-auth.md](features/001_session-auth.md)                                           |
+| 002 | User Management                     | Active | Admin-gated user CRUD behind the `admin` middleware: list/create/update/hard-delete, two-role RBAC (`user`/`admin`), self-delete guard.                                    | [features/002_user-management.md](features/002_user-management.md)                                     |
+| 003 | Self-Service Profile                | Active | `PUT /api/profile`: own name/email/password updates; email change resets verification; `current_password` challenge; role untouchable.                                     | [features/003_self-service-profile.md](features/003_self-service-profile.md)                           |
+| 004 | Cookie Consent                      | Active | Accept/decline banner (`web/app.vue`) persisting a `cookie_consent` cookie for a year; consent recorded but not yet gating anything.                                       | [features/004_cookie-consent.md](features/004_cookie-consent.md)                                       |
+| 005 | Client Data Layer                   | Active | Demonstration contract: two-layer `services` → `queries` composables (Pinia Colada), one fetcher, Zod response parsing, central error routing.                             | [features/005_client-data-layer.md](features/005_client-data-layer.md)                                 |
+| 006 | Form Validation UX                  | Active | Demonstration contract: Regle rules mirror the backend through shared factories, in localized field-named copy; Zod validates responses only.                              | [features/006_form-validation-ux.md](features/006_form-validation-ux.md)                               |
+| 007 | GraphQL API                         | Active | Demonstration contract: a Lighthouse `/graphql` endpoint (users query + updateUser mutation) and the client wrappers that make a GraphQL call cost what a REST call costs. | [features/007_graphql-api.md](features/007_graphql-api.md)                                             |
+| 008 | Email Availability                  | Active | Public `GET /api/email-availability` + a debounced async Regle rule: "already taken" while typing, failing open so the backend `unique` rules stay authoritative.          | [features/008_email-availability.md](features/008_email-availability.md)                               |
+| 009 | Email Verification & Password Reset | Active | The mail-driven lifecycle around the session: forgot/reset password, the signed verification link and its resend, and the SPA pages that drive them.                       | [features/009_email-verification-password-reset.md](features/009_email-verification-password-reset.md) |
+| 010 | Server Validation Errors Inline     | Active | The 422 bridge: a field-keyed map from a mutation's error ref, copied into Regle's `externalErrors` so the server's verdict lands on the field and not in a toast.         | [features/010_server-validation-errors.md](features/010_server-validation-errors.md)                   |
 
 ## Architecture Decision Record (ADR) Index
 
 One line per record: type, status, title, link.
 
-| ### | Type        | Status      | Decision                                                            | Document                                                                                             |
-| --- | ----------- | ----------- | ------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| 001 | init-design | Implemented | Init design — Vanguard brownfield stack                             | [decisions/001_init-design_vanguard-stack.md](decisions/001_init-design_vanguard-stack.md)           |
-| 002 | infra       | Implemented | Sanctum session-cookie auth for the SPA pairing (over token mode)   | [decisions/002_infra_sanctum-session-spa.md](decisions/002_infra_sanctum-session-spa.md)             |
-| 003 | tooling     | Implemented | oxlint + oxfmt for the frontend toolchain (over ESLint + Prettier)  | [decisions/003_tooling_oxlint-oxfmt.md](decisions/003_tooling_oxlint-oxfmt.md)                       |
-| 004 | tooling     | Implemented | Hold TypeScript at 5.9.x (TS 7 unsupported by vue-tsc)              | [decisions/004_tooling_typescript-version-hold.md](decisions/004_tooling_typescript-version-hold.md) |
-| 005 | infra       | Implemented | Client-only SPA (`ssr: false`), paired with cookie-session auth     | [decisions/005_infra_spa-no-ssr.md](decisions/005_infra_spa-no-ssr.md)                               |
-| 006 | infra       | Accepted    | Adopt the i18n addon (`@nuxtjs/i18n`) with en / sr-Latn / sr-Cyrl   | [decisions/006_infra_i18n-adoption.md](decisions/006_infra_i18n-adoption.md)                         |
-| 007 | infra       | Implemented | Serve GraphQL alongside REST (Lighthouse + a fetcher-based client)  | [decisions/007_infra_graphql-alongside-rest.md](decisions/007_infra_graphql-alongside-rest.md)       |
-| 012 | tooling     | Implemented | mattpocock-skills run inside Catalyst structures (Workflowy tracker, single ADR home, glossary as context doc) | [decisions/012_tooling_mattpocock-skills-integration.md](decisions/012_tooling_mattpocock-skills-integration.md) |
-| 013 | process     | Implemented | Testing rulebook: strategy, quality doctrine, mutation and coverage stance in one record (supersedes 008/009/011, deleted) | [decisions/013_process_testing-rulebook.md](decisions/013_process_testing-rulebook.md)               |
-| 014 | ui          | Implemented | Nuxt UI as this branch's UI layer (`frontend/ui = nuxtui`), with the variant-only compositions it implies | [decisions/014_ui_nuxtui-variant.md](decisions/014_ui_nuxtui-variant.md)                             |
+| ### | Type        | Status      | Decision                                                                                                                   | Document                                                                                                         |
+| --- | ----------- | ----------- | -------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| 001 | init-design | Implemented | Init design — Vanguard brownfield stack                                                                                    | [decisions/001_init-design_vanguard-stack.md](decisions/001_init-design_vanguard-stack.md)                       |
+| 002 | infra       | Implemented | Sanctum session-cookie auth for the SPA pairing (over token mode)                                                          | [decisions/002_infra_sanctum-session-spa.md](decisions/002_infra_sanctum-session-spa.md)                         |
+| 003 | tooling     | Implemented | oxlint + oxfmt for the frontend toolchain (over ESLint + Prettier)                                                         | [decisions/003_tooling_oxlint-oxfmt.md](decisions/003_tooling_oxlint-oxfmt.md)                                   |
+| 004 | tooling     | Implemented | Hold TypeScript at 5.9.x (TS 7 unsupported by vue-tsc)                                                                     | [decisions/004_tooling_typescript-version-hold.md](decisions/004_tooling_typescript-version-hold.md)             |
+| 005 | infra       | Implemented | Client-only SPA (`ssr: false`), paired with cookie-session auth                                                            | [decisions/005_infra_spa-no-ssr.md](decisions/005_infra_spa-no-ssr.md)                                           |
+| 006 | infra       | Accepted    | Adopt the i18n addon (`@nuxtjs/i18n`) with en / sr-Latn / sr-Cyrl                                                          | [decisions/006_infra_i18n-adoption.md](decisions/006_infra_i18n-adoption.md)                                     |
+| 007 | infra       | Implemented | Serve GraphQL alongside REST (Lighthouse + a fetcher-based client)                                                         | [decisions/007_infra_graphql-alongside-rest.md](decisions/007_infra_graphql-alongside-rest.md)                   |
+| 012 | tooling     | Implemented | mattpocock-skills run inside Catalyst structures (Workflowy tracker, single ADR home, glossary as context doc)             | [decisions/012_tooling_mattpocock-skills-integration.md](decisions/012_tooling_mattpocock-skills-integration.md) |
+| 013 | process     | Implemented | Testing rulebook: strategy, quality doctrine, mutation and coverage stance in one record (supersedes 008/009/011, deleted) | [decisions/013_process_testing-rulebook.md](decisions/013_process_testing-rulebook.md)                           |
+| 014 | ui          | Implemented | Nuxt UI as this branch's UI layer (`frontend/ui = nuxtui`), with the variant-only compositions it implies                  | [decisions/014_ui_nuxtui-variant.md](decisions/014_ui_nuxtui-variant.md)                                         |
 
 ## Domain Decision Index
 
 Present only when the project has standing, cross-cutting domain or method decisions that must stay visible and locked (e.g. "negative values are signal, never clipped"). Pre-resolved judgment calls the agent follows and does not re-litigate — distinct from decision records (architectural why, lazy-loaded) and Protected Areas (load-bearing contracts). One line each: the decision + short rationale. A local decision in a feature or experiment graduates here when it proves cross-cutting.
 
-| Decision                                                                                             | Rationale                                                                                              |
-| ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
-| Feature documents carry the current contract only — no history, dates, commit hashes, or retro-narration | Git holds the history; the repo is a template base, so a document must read as the contract it is today |
-| Superseded decision records are deleted, not kept — the superseding record and git history hold the why    | Same template-base reasoning; `Superseded by <nnn>` stays available for a record genuinely worth keeping |
-| Document numbers are never reused or compacted — holes are expected under delete-at-supersession           | A number is a stable identifier across branches, git history, and the tracker; compacting breaks every reference to it |
+| Decision                                                                                                 | Rationale                                                                                                              |
+| -------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Feature documents carry the current contract only — no history, dates, commit hashes, or retro-narration | Git holds the history; the repo is a template base, so a document must read as the contract it is today                |
+| Superseded decision records are deleted, not kept — the superseding record and git history hold the why  | Same template-base reasoning; `Superseded by <nnn>` stays available for a record genuinely worth keeping               |
+| Document numbers are never reused or compacted — holes are expected under delete-at-supersession         | A number is a stable identifier across branches, git history, and the tracker; compacting breaks every reference to it |
 
 ## Protected Areas
 
 Pointer index of protections declared in feature/decision documents (lazy-loaded, so they would otherwise be easy to miss). One row per area: name + owning document — never the rule text itself. Protections declared in folder documents are not indexed here; those documents are in context whenever their folder is worked on.
 
-| Area                                                                       | Owner                                |
-| -------------------------------------------------------------------------- | ------------------------------------ |
-| Session mechanics + register/login/logout and `GET /api/user`              | features/001_session-auth.md         |
-| Forgot/reset password, verification link and resend endpoints              | features/009_email-verification-password-reset.md |
-| User management API (`apiResource` users)                                  | features/002_user-management.md      |
-| Profile endpoint (`PUT /api/profile`)                                      | features/003_self-service-profile.md |
-| GraphQL schema + `/graphql` endpoint                                       | features/007_graphql-api.md          |
+| Area                                                          | Owner                                             |
+| ------------------------------------------------------------- | ------------------------------------------------- |
+| Session mechanics + register/login/logout and `GET /api/user` | features/001_session-auth.md                      |
+| Forgot/reset password, verification link and resend endpoints | features/009_email-verification-password-reset.md |
+| User management API (`apiResource` users)                     | features/002_user-management.md                   |
+| Profile endpoint (`PUT /api/profile`)                         | features/003_self-service-profile.md              |
+| GraphQL schema + `/graphql` endpoint                          | features/007_graphql-api.md                       |
 
 ## Technical Stack
 

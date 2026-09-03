@@ -89,7 +89,7 @@ const {
   isLoading: isUpdating,
   error: updateError
 } = useUpdateUserGql({
-  errorHandling: { hideValidationToast: true },
+  errorHandling: { suppressToasts: 'validation' },
   onSuccess: (updated) => {
     $toast(t('users.toasts.updated', { name: updated.name }), 'success');
     emit('close', updated);
@@ -129,7 +129,9 @@ function handleOpenChange(next: boolean) {
 async function handleSubmit() {
   const { valid } = await r$.$validate();
 
-  if (!valid) return;
+  if (!valid) {
+    return;
+  }
 
   // * Partial update: only the fields the admin actually changed go on the wire — omitted GraphQL variables never reach the resolver, so untouched fields keep their values.
   updateUser({

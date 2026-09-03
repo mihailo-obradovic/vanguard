@@ -47,7 +47,9 @@ const { start, stop } = useTimeoutFn(
 
 // * Appended rather than replacing, so tailwind-merge drops only the enter animation it collides with and any `ui.error` a call site passed survives.
 const fieldUi = computed<FieldUi | undefined>(() => {
-  if (!isLeaving.value) return props.ui;
+  if (!isLeaving.value) {
+    return props.ui;
+  }
 
   return {
     ...props.ui,
@@ -67,7 +69,9 @@ watch(
     }
 
     // * Nothing on screen to play out — a field that never errored, or one already mid-exit.
-    if (!displayedError.value || isLeaving.value) return;
+    if (!displayedError.value || isLeaving.value) {
+      return;
+    }
 
     isLeaving.value = true;
     start();

@@ -69,6 +69,12 @@
             "@putenv XDEBUG_MODE=coverage",
             "vendor/bin/pest --mutate --everything --covered-only"
         ],
+        "format": [
+            "vendor/bin/pint"
+        ],
+        "format:check": [
+            "vendor/bin/pint --test"
+        ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"

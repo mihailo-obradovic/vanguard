@@ -122,7 +122,7 @@ const {
   isLoading: isCreating,
   error: createError
 } = useCreateUser({
-  errorHandling: { hideValidationToast: true },
+  errorHandling: { suppressToasts: 'validation' },
   onSuccess: (created) => {
     $toast(t('users.toasts.created', { name: created.name }), 'success');
     emit('close', created);
@@ -134,7 +134,7 @@ const {
   isLoading: isUpdating,
   error: updateError
 } = useUpdateUser({
-  errorHandling: { hideValidationToast: true },
+  errorHandling: { suppressToasts: 'validation' },
   onSuccess: (updated) => {
     $toast(t('users.toasts.updated', { name: updated.name }), 'success');
     emit('close', updated);
@@ -155,7 +155,7 @@ const { r$ } = useRegle(
     ...accountEmailRules(() => props.user?.id),
     ...newPasswordRules(
       () => form.value.password,
-      () => isEdit.value
+      () => (isEdit.value ? 'change' : 'set')
     )
   }),
   { externalErrors: useExternalErrors(useValidationErrors(serverError)) }
@@ -196,7 +196,9 @@ function updatePayloadFrom(values: CreateUserForm): UpdateUserForm {
     role: values.role
   };
 
-  if (!values.password) return payload;
+  if (!values.password) {
+    return payload;
+  }
 
   return {
     ...payload,
@@ -216,7 +218,9 @@ function handleOpenChange(next: boolean) {
 async function handleSubmit() {
   const { valid } = await r$.$validate();
 
-  if (!valid) return;
+  if (!valid) {
+    return;
+  }
 
   if (!props.user) {
     createUser({ ...form.value });

@@ -204,7 +204,7 @@ const {
   isLoading: isSaving,
   error: updateProfileError
 } = useUpdateProfile({
-  errorHandling: { hideValidationToast: true },
+  errorHandling: { suppressToasts: 'validation' },
   onSuccess: () => {
     $toast(t('profile.toasts.updated'), 'success');
 
@@ -221,7 +221,7 @@ const { r$ } = useRegle(
     current_password: labeledRules('validation.fieldNames.currentPassword', {
       requiredIf: requiredIf(() => !!form.value.password)
     }),
-    ...newPasswordRules(() => form.value.password, true)
+    ...newPasswordRules(() => form.value.password, 'change')
   },
   { externalErrors: useExternalErrors(useValidationErrors(updateProfileError)) }
 );
@@ -245,7 +245,9 @@ function resetForm() {
 async function handleSubmit() {
   const { valid } = await r$.$validate();
 
-  if (!valid) return;
+  if (!valid) {
+    return;
+  }
 
   const payload: ProfileForm = {
     name: form.value.name,
@@ -264,6 +266,8 @@ async function handleSubmit() {
 
 // * Window-level so Esc cancels editing even when focus has left the card.
 onKeyStroke('Escape', () => {
-  if (editMode.value) resetForm();
+  if (editMode.value) {
+    resetForm();
+  }
 });
 </script>

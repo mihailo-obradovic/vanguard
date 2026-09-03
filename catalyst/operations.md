@@ -76,6 +76,8 @@ pnpm test:coverage              # frontend coverage (text + html + lcov into cov
 pnpm test:ui                    # Vitest browser dashboard, watch mode with coverage embedded
 composer test:mutation          # backend mutation audit (below)
 pnpm test:mutation              # frontend mutation audit (below; preflight-checked)
+composer format                 # backend formatter (Pint, laravel preset); composer format:check to verify only
+pnpm format                     # frontend formatter (oxfmt); pnpm format:check to verify only
 ```
 
 Mutation audit (ADR 013; run after a test-writing push, not on a schedule): `composer test:mutation` mutates `app/` (Pest's built-in mutation testing; `--everything` because classes carry no `covers()` annotations, `--covered-only` to skip mutations no test executes) and reruns the covering tests per mutant. **Do not add `--parallel`** — mutant processes share the `vanguard_testing` database and would trample each other. Every listed _untested_ mutation is a change no test noticed — fix the test it exposes or record here why the mutant is acceptable. Score is a measurement, never a gate.

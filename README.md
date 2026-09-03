@@ -96,3 +96,4 @@ pnpm test       # front-end (Vitest)
 ```
 
 Other front-end scripts: `pnpm typecheck`, `pnpm lint` / `pnpm lint:fix`, `pnpm format` / `pnpm format:check`.
+Back-end formatting is Pint: `composer format` / `composer format:check`.

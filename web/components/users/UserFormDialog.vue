@@ -114,7 +114,7 @@ const { r$ } = useRegle(
     ...accountEmailRules(() => props.user?.id),
     ...newPasswordRules(
       () => form.value.password,
-      () => isEdit.value
+      () => (isEdit.value ? 'change' : 'set')
     )
   }),
   { externalErrors: useExternalErrors(() => props.serverErrors) }

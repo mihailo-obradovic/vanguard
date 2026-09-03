@@ -5,12 +5,14 @@ import { defineComponent, ref } from 'vue';
 
 import { newPasswordRules } from '../newPasswordRules';
 
+import type { PasswordMode } from '../newPasswordRules';
+
 import type { Ref } from 'vue';
 
 type PasswordForm = { password: string; password_confirmation: string };
 
 // * Driven through a real Regle instance and asserted on validity alone. Asserting the rule objects themselves would only restate @regle/rules; what the forms depend on is which field/mode combinations are allowed to submit.
-async function setupForm(optional?: MaybeRefOrGetter<boolean>) {
+async function setupForm(mode?: MaybeRefOrGetter<PasswordMode>) {
   const form: Ref<PasswordForm> = ref({
     password: '',
     password_confirmation: ''
@@ -24,7 +26,7 @@ async function setupForm(optional?: MaybeRefOrGetter<boolean>) {
     defineComponent({
       setup() {
         const { r$ } = useRegle(form, () => ({
-          ...newPasswordRules(() => form.value.password, optional)
+          ...newPasswordRules(() => form.value.password, mode)
         }));
 
         validate = async () => (await r$.$validate()).valid;
@@ -40,7 +42,7 @@ async function setupForm(optional?: MaybeRefOrGetter<boolean>) {
 }
 
 describe('newPasswordRules', () => {
-  describe('when a password is required', () => {
+  describe("in 'set' mode", () => {
     it('rejects an empty pair', async () => {
       const { validate } = await setupForm();
 
@@ -143,15 +145,15 @@ describe('newPasswordRules', () => {
     });
   });
 
-  describe('when the password is optional', () => {
+  describe("in 'change' mode", () => {
     it('accepts an untouched pair', async () => {
-      const { validate } = await setupForm(true);
+      const { validate } = await setupForm('change');
 
       expect(await validate()).toBe(true);
     });
 
     it('requires the confirmation once a password has been typed', async () => {
-      const { form, validate } = await setupForm(true);
+      const { form, validate } = await setupForm('change');
 
       form.value = { password: 'correct-horse', password_confirmation: '' };
 
@@ -159,7 +161,7 @@ describe('newPasswordRules', () => {
     });
 
     it('still enforces the length and the match', async () => {
-      const { form, validate } = await setupForm(true);
+      const { form, validate } = await setupForm('change');
 
       form.value = { password: 'shortpw', password_confirmation: 'shortpw' };
 
@@ -174,7 +176,7 @@ describe('newPasswordRules', () => {
     });
 
     it('accepts a complete pair', async () => {
-      const { form, validate } = await setupForm(true);
+      const { form, validate } = await setupForm('change');
 
       form.value = {
         password: 'correct-horse',
@@ -187,7 +189,7 @@ describe('newPasswordRules', () => {
     it('names the new-password fields in its messages', async () => {
       // * A change-password form labels its inputs "New password" / "Confirm new password" — and may show a separate "Current password" input at the same time — so the copy must name the field the user actually sees, not the "password" of a set-password form.
       const { form, validate, passwordErrors, confirmationErrors } =
-        await setupForm(true);
+        await setupForm('change');
 
       form.value = { password: 'shortpw', password_confirmation: '' };
       await validate();
@@ -205,7 +207,9 @@ describe('newPasswordRules', () => {
   it('re-evaluates when a form switches mode at runtime', async () => {
     // * The create/edit toggle in users.vue passes a getter for exactly this reason.
     const isEditMode = ref(true);
-    const { validate } = await setupForm(() => isEditMode.value);
+    const { validate } = await setupForm(() =>
+      isEditMode.value ? 'change' : 'set'
+    );
 
     expect(await validate()).toBe(true);
 
@@ -216,8 +220,8 @@ describe('newPasswordRules', () => {
 
   it('switches the field names in its messages when the mode flips at runtime', async () => {
     const isEditMode = ref(false);
-    const { form, validate, passwordErrors } = await setupForm(
-      () => isEditMode.value
+    const { form, validate, passwordErrors } = await setupForm(() =>
+      isEditMode.value ? 'change' : 'set'
     );
 
     form.value = { password: 'shortpw', password_confirmation: 'shortpw' };

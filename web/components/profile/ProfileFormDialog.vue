@@ -101,7 +101,7 @@ const { r$ } = useRegle(
     current_password: labeledRules('validation.fieldNames.currentPassword', {
       requiredIf: requiredIf(() => !!form.value.password)
     }),
-    ...newPasswordRules(() => form.value.password, true)
+    ...newPasswordRules(() => form.value.password, 'change')
   }),
   { externalErrors: useExternalErrors(() => props.serverErrors) }
 );

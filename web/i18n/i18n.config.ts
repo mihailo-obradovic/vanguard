@@ -1,3 +1,4 @@
+// ! Helper first, default export last: @nuxtjs/i18n's transform fails to parse this file when anything follows the export, which breaks every suite that loads a message catalog. The principal-export-first rule's framework-imposed-order carve-out (`catalyst/conventions/code-style.md`) covers it.
 // * Serbian pluralization: `one` for n1 except 11, `few` for n2-4 except 12-14, `other` for the rest. Vue I18n's default rule is two-branch and English-shaped, so every pluralized Serbian key needs three `|` branches and this rule to pick between them.
 function serbianPluralRule(choice: number): number {
   const mod10 = choice % 10;

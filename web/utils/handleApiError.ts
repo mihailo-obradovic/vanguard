@@ -10,10 +10,6 @@ export interface ErrorHandlingOptions {
   suppressToasts?: 'all' | 'validation';
 }
 
-function getValidationMessages(error: FetchError): string[] {
-  return Object.values(getValidationErrors(error)).flat();
-}
-
 export function handleApiError(
   error: FetchError,
   context: HandleApiErrorContext,
@@ -49,4 +45,8 @@ export function handleApiError(
   } else if (options?.suppressToasts !== 'all') {
     $toast(getErrorMessage(error), 'error');
   }
+}
+
+function getValidationMessages(error: FetchError): string[] {
+  return Object.values(getValidationErrors(error)).flat();
 }

@@ -5,10 +5,13 @@ export type RedirectDecision = {
 };
 
 // * The whole redirect policy, and genuinely pure: the session state arrives as an argument rather than out of the store, so the signature states everything the answer depends on and the callers — middleware and the login-state watcher — stay the only places that touch the framework (`catalyst/stacks/frontend/nuxt/routing.md`).
+export type SessionState = 'guest' | 'signed-in';
+
 export function determineAuthRedirect(
   path: string,
-  isLoggedIn: boolean
+  session: SessionState
 ): RedirectDecision {
+  const isLoggedIn = session === 'signed-in';
   const pathWithoutQuery = path.split('?')[0] ?? path;
 
   if (pathWithoutQuery === '/') {

@@ -24,6 +24,13 @@ function renderCard() {
   return renderSuspended(UserCardContent, { props: { user: ANA } });
 }
 
+/** Ignore the reserved-label ghosts: they are a measuring device, not text a user is offered. */
+const SHOWN = { ignore: '[aria-hidden="true"]' };
+
+function resendButton() {
+  return screen.getByRole('button', { name: /Resend|resend/ });
+}
+
 /**
  * The body of the profile update the card sent. The card owns its own mutation, so what it
  * decided to save is only observable on the wire — which is also the contract
@@ -274,5 +281,31 @@ describe('UserCardContent', () => {
 
     expect(await screen.findByText('The name field is required.')).toBeTruthy();
     expect(await settledTrace()).not.toContain(PROFILE_UPDATE);
+  });
+
+  describe('the verification row', () => {
+    it('offers an unverified address another confirmation email', async () => {
+      await renderSuspended(UserCardContent, {
+        props: { user: buildUser({ email_verified_at: null }) }
+      });
+
+      expect(screen.getByText('Not Verified', SHOWN)).toBeTruthy();
+      expect(resendButton()).toHaveProperty('inert', false);
+    });
+
+    // ! The control is not removed once the address is verified: it is what gives this row its
+    // ! height, so removing it pulls the rest of the list up. It stays, reserved and made
+    // ! unofferable with `inert`. happy-dom does not act on `inert`, so the attribute is what is
+    // ! asserted here and the visual half is on the browser walk.
+    it('keeps the resend control in the row, unofferable, once verified', async () => {
+      await renderSuspended(UserCardContent, {
+        props: {
+          user: buildUser({ email_verified_at: '2026-08-01T00:00:00.000000Z' })
+        }
+      });
+
+      expect(screen.getByText('Verified', SHOWN)).toBeTruthy();
+      expect(resendButton()).toHaveProperty('inert', true);
+    });
   });
 });

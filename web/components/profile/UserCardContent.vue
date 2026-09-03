@@ -1,10 +1,11 @@
 <template>
   <!-- * The edit, save and cancel controls live in the header, so the body is what scrolls — a card that scrolled whole would carry them off the screen. -->
   <u-card
+    ref="card"
     :ui="{
       root: 'flex flex-col',
       header: 'shrink-0',
-      body: 'min-h-0 flex-1 overflow-y-auto'
+      body: bodyClasses
     }"
   >
     <template #header>
@@ -136,25 +137,31 @@
 
         <dd class="mt-1 flex items-center gap-2">
           <VerificationBadge :verified="!!user.email_verified_at" large>
-            {{
-              user.email_verified_at
-                ? $t('profile.info.verified')
-                : $t('profile.info.notVerified')
-            }}
+            <ReservedLabel
+              :variants="{
+                verified: $t('profile.info.verified'),
+                unverified: $t('profile.info.notVerified')
+              }"
+              :active="user.email_verified_at ? 'verified' : 'unverified'"
+            />
           </VerificationBadge>
 
+          <!-- * Stays in the row once the address is verified, reserved rather than removed: it is what gives this row its height, and dropping it pulls the rest of the list up. `inert` keeps a control nobody can see out of the tab order and the accessibility tree. -->
           <u-button
-            v-if="!user.email_verified_at"
             variant="link"
             size="sm"
+            :class="user.email_verified_at && 'invisible'"
+            :inert="Boolean(user.email_verified_at)"
             :loading="isResending"
             @click="resendVerification()"
           >
-            {{
-              isResending
-                ? $t('profile.info.resending')
-                : $t('profile.info.resend')
-            }}
+            <ReservedLabel
+              :variants="{
+                idle: $t('profile.info.resend'),
+                pending: $t('profile.info.resending')
+              }"
+              :active="isResending ? 'pending' : 'idle'"
+            />
           </u-button>
         </dd>
       </div>
@@ -186,6 +193,47 @@ import type { User } from '@/types/auth';
 import type { ProfileForm } from '@/types/user';
 
 const props = defineProps<{ user: User }>();
+
+const card = useTemplateRef<{ $el: HTMLElement }>('card');
+
+const edges = ref({ top: false, bottom: false, left: false, right: false });
+
+// * Nuxt UI takes the body's classes as a string, so the edge state is folded into it rather than bound separately.
+const bodyClasses = computed(() =>
+  [
+    'min-h-0 flex-1 overflow-y-auto card-scroll',
+    edges.value.top && 'edge-top',
+    edges.value.bottom && 'edge-bottom'
+  ]
+    .filter(Boolean)
+    .join(' ')
+);
+
+const scroller = computed(
+  () => card.value?.$el?.querySelector<HTMLElement>('.card-scroll') ?? undefined
+);
+
+// ! Per edge, never one boolean for the region: at the top a top border claims content above that is not there, and at the end a bottom border claims more below. The arithmetic and its tolerance live in `utils/scrollEdges.ts`.
+function measure() {
+  const el = scroller.value;
+
+  if (el) {
+    edges.value = scrollEdges(el);
+  }
+}
+
+// * The container, the content inside it, and scroll — missing any one leaves a border stale.
+useResizeObserver(
+  computed(() =>
+    [scroller.value, scroller.value?.firstElementChild].filter(
+      (el): el is HTMLElement => el instanceof HTMLElement
+    )
+  ),
+  measure
+);
+useEventListener(scroller, 'scroll', measure, { passive: true });
+
+onMounted(measure);
 
 const { t } = useI18n();
 
@@ -271,3 +319,18 @@ onKeyStroke('Escape', () => {
   }
 });
 </script>
+
+<style scoped>
+:deep(.card-scroll) {
+  border-top: 1px solid transparent;
+  border-bottom: 1px solid transparent;
+}
+
+:deep(.card-scroll.edge-top) {
+  border-top-color: var(--ui-scroll-edge);
+}
+
+:deep(.card-scroll.edge-bottom) {
+  border-bottom-color: var(--ui-scroll-edge);
+}
+</style>

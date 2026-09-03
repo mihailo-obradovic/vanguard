@@ -169,6 +169,20 @@ Accepted surviving mutants — recheck when touching the code they live in:
 - **`const form = ref({…})` → `{}`** in `ForgotPasswordDialog` and `RegisterDialog` (variant) — the fields render an absent key and an empty string identically through `v-model`, and Regle's `required` refuses both. On `variant/vuetify` `LoginDialog` is the exception, its initial value being the development credentials the spec asserts; on `variant/nuxtui` it survives there too, because that branch's spec fills the fields itself rather than reading what they came with.
 - **Environment-bound template behaviours** (variant) — the not-observable list after the table (overflow borders, viewport `calc()` strings, `after-leave`); `UsersTable`'s five script mutants are all measurement machinery while its actual row policy is template-only and never mutated.
 
+### Layout stability and scroll edges on `variant/nuxtui`
+
+This branch's own decisions; the tables above cover the other two branches' disjoint component sets.
+
+`--ui-scroll-edge` is a new token on both faces — `dracula-600` light (4.41:1), `dracula-400` dark (5.39:1). `--ui-border` could not carry it: it measures 1.32:1 on the light face and 1.56:1 on the dark, against the 3:1 an indicator owes under WCAG 1.4.11.
+
+| Element                                                 | Rule                                                | Decision                                                                                                                                                                                                           |
+| ------------------------------------------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `UserCardContent`'s card body                           | scroll affordance                                   | **Per edge**, folded into the `:ui` body classes because Nuxt UI takes them as a string. The header above it is `shrink-0` chrome, so only the bottom edge normally lights.                                        |
+| `UserCardContent` verification badge and resend control | copy varies by state; an affix that mounts on state | **Reserved.** The control stays in the row with `invisible` and `inert` — it is what gives the row its height, and this branch had no spec asserting either half until now.                                        |
+| `layouts/Default.vue` sidebar `aside`                   | scroll affordance                                   | **Outstanding**, latent. Its `border-e` is on the inline-end edge while the scroll is vertical, so nothing doubles and no shell split is owed — it simply has no indicator yet, and today the nav never overflows. |
+| `layouts/Default.vue` `main`                            | scroll affordance                                   | **Exempt.** It is the app's de-facto page scroll, bounded by the pinned header above and the footer below.                                                                                                         |
+| `users.vue` / `graphql-demo.vue` skeleton clip          | layout stability                                    | **Reserved already**, the same overshoot-and-clip the other branches use. Skeleton-to-empty stays **outstanding**, as on both of them.                                                                             |
+
 ### Browser walk, 2026-09-03 — the scroll and layout rules
 
 The half that cannot be unit-tested, measured in Chromium at 393x760 DPR 2.625 and 760x393 landscape, against the real API. Redo this walk when either rule's implementation changes.

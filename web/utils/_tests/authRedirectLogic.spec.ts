@@ -2,8 +2,8 @@ import { describe, it, expect } from 'vitest';
 
 import { determineAuthRedirect } from '../authRedirectLogic';
 
-const GUEST = false;
-const SIGNED_IN = true;
+const GUEST = 'guest';
+const SIGNED_IN = 'signed-in';
 
 // * This branch has no guest auth pages — login, register and forgot-password are dialogs in the default layout — so /password-reset is the only guest-only route, and it carries its token in the query string rather than a path segment.
 describe('determineAuthRedirect', () => {

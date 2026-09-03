@@ -69,6 +69,13 @@
     --ui-text-highlighted: var(--ui-color-neutral-950);
     --ui-text-inverted: var(--ui-color-neutral-50);
 
+    /*
+     * ! The 1px rule marking an edge a scroll region is currently hiding content past. It carries
+     * information rather than separating things, so it answers to WCAG 1.4.11 at 3:1 against the
+     * surface behind it — 4.41:1 here, against both --ui-bg-page and --ui-bg. --ui-border is the
+     * decorative divider and stays quiet at 1.32:1; it cannot do this job.
+     */
+    --ui-scroll-edge: var(--color-dracula-600);
     --ui-border: var(--ui-color-neutral-200);
     --ui-border-muted: var(--ui-color-neutral-100);
     --ui-border-accented: var(--ui-color-neutral-300);
@@ -107,6 +114,8 @@
     --ui-text-highlighted: var(--color-white);
     --ui-text-inverted: var(--ui-color-neutral-950);
 
+    /* * The dark face takes a lighter step for the same floor: 5.39:1 against both of its surfaces, where --ui-border manages 1.56:1. */
+    --ui-scroll-edge: var(--color-dracula-400);
     --ui-border: var(--ui-color-neutral-900);
     --ui-border-muted: var(--ui-color-neutral-900);
     --ui-border-accented: var(--ui-color-neutral-800);

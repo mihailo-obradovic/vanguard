@@ -22,9 +22,16 @@ const lightAccents = {
   warning: '#8c5400',
   info: '#007687',
   success: '#007d2f',
-  link: '#57638a'
+  link: '#57638a',
+  'scroll-edge': '#6272a4'
 };
 
+// ! `scroll-edge` is split across the two faces for the same reason the accents are, but against a
+// ! different floor: it marks an edge that is hiding content, so it carries information and answers
+// ! to WCAG 1.4.11 at 3:1 against the ground behind it, not the 4.5:1 text floor. One shared value
+// ! would have to sit in the narrow band that clears 3:1 on both `#f8f8f2` and `#282a36`; Dracula's
+// ! comment `#6272a4` only just does on the dark face (3.03:1), so each face takes its own —
+// ! 4.41:1 light, 4.10:1 dark. Ratios in decisions/010.
 const darkAccents = {
   primary: '#bd93f9',
   accent: '#ff79c6',
@@ -32,7 +39,8 @@ const darkAccents = {
   warning: '#ffb86c',
   info: '#8be9fd',
   success: '#50fa7b',
-  link: '#939fbf'
+  link: '#939fbf',
+  'scroll-edge': '#8189a3'
 };
 
 // ! What lands ON a filled accent is the other axis from the split above, and Vuetify cannot be

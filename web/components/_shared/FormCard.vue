@@ -6,7 +6,8 @@
 
     <v-card-text
       ref="body"
-      :class="['px-4', 'py-2', { 'scroll-borders': isOverflowing }]"
+      :class="['px-4', 'py-2', edgeClasses]"
+      @scroll.passive="measure"
     >
       <GapContainer ref="content" column>
         <slot name="default" />
@@ -75,16 +76,29 @@ const emit = defineEmits<{
 const body = useTemplateRef<ComponentPublicInstance>('body');
 const content = useTemplateRef<ComponentPublicInstance>('content');
 
-const isOverflowing = ref(false);
+const edges = ref({ top: false, bottom: false, left: false, right: false });
 
-// * Show the body's scroll borders only while its content actually overflows; observing both elements catches window resizes and slot content changes
+const edgeClasses = computed(() => ({
+  'edge-top': edges.value.top,
+  'edge-bottom': edges.value.bottom
+}));
+
+// ! Per edge, never one boolean for the region: at the top of the scroll a top border claims content above that is not there, and at the end a bottom border claims more below. The arithmetic and its 1px tolerance live in `utils/scrollEdges.ts`, unit-tested there.
+function measure() {
+  const el = body.value?.$el as HTMLElement | undefined;
+
+  if (el) {
+    edges.value = scrollEdges(el);
+  }
+}
+
+// * Observing both elements catches a window resize and slot content growing inside a body that never changed size; the scroll listener above is the third source, and the edge state changes on every scroll.
 useResizeObserver(
   computed(() => [body.value?.$el, content.value?.$el].filter(Boolean)),
-  () => {
-    const el = body.value?.$el as HTMLElement | undefined;
-    isOverflowing.value = !!el && el.scrollHeight > el.clientHeight;
-  }
+  measure
 );
+
+onMounted(measure);
 
 const handleEnterKey = useConfirmOnEnter(
   () => emit('confirm'),
@@ -93,8 +107,22 @@ const handleEnterKey = useConfirmOnEnter(
 </script>
 
 <style scoped>
-.scroll-borders {
-  border-top: 1px solid rgba(var(--v-theme-secondary), 0.25);
-  border-bottom: 1px solid rgba(var(--v-theme-secondary), 0.25);
+/*
+ * ! The 1px is reserved on both edges and only its colour changes; toggling border-width would move
+ * the body by a pixel each time an edge appeared. The old colour — secondary at 25% — painted
+ * 1.51:1 on the light ground and 1.11:1 on the dark one, well under the 3:1 this border owes as an
+ * indicator rather than a divider (WCAG 1.4.11).
+ */
+.v-card-text {
+  border-top: 1px solid transparent;
+  border-bottom: 1px solid transparent;
+}
+
+.edge-top {
+  border-top-color: rgb(var(--v-theme-scroll-edge));
+}
+
+.edge-bottom {
+  border-bottom-color: rgb(var(--v-theme-scroll-edge));
 }
 </style>

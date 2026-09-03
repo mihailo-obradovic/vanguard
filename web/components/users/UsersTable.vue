@@ -15,9 +15,10 @@
     />
 
     <v-table
+      ref="table"
       fixed-header
       class="w-100 users-table"
-      :class="{ 'users-table--clipped': loading }"
+      :class="[{ 'users-table--clipped': loading }, edgeClasses]"
     >
       <thead>
         <tr>
@@ -107,7 +108,7 @@ const SKELETON_ROW_COUNT = 30;
 // ! macro is hoisted out of setup() — referencing them there is a compile error, not a
 // ! warning. The defaults inside go unmutated as a result (`catalyst/operations.md`).
 // Stryker disable all
-withDefaults(
+const props = withDefaults(
   defineProps<{
     users: User[];
     deletingId?: number | null;
@@ -133,6 +134,42 @@ const emit = defineEmits<{
   delete: [user: User];
 }>();
 // Stryker restore all
+
+const table = useTemplateRef<ComponentPublicInstance>('table');
+
+// * Vuetify owns the scrolling element inside v-table, so the edge state is measured on it and the classes ride on the root.
+const scroller = computed(
+  () =>
+    (table.value?.$el as HTMLElement | undefined)?.querySelector<HTMLElement>(
+      '.v-table__wrapper'
+    ) ?? undefined
+);
+
+const edges = ref({ top: false, bottom: false, left: false, right: false });
+
+const edgeClasses = computed(() => ({
+  'edge-top': edges.value.top,
+  'edge-bottom': edges.value.bottom
+}));
+
+// ! Suppressed while the skeleton shows: those rows overflow on purpose and the wrapper is clipped, so a rule there would assert hidden content the user is not being kept from.
+function measure() {
+  const el = scroller.value;
+
+  edges.value =
+    el && !props.loading
+      ? scrollEdges(el)
+      : { top: false, bottom: false, left: false, right: false };
+}
+
+useResizeObserver(
+  computed(() => [scroller.value, table.value?.$el].filter(Boolean)),
+  measure
+);
+useEventListener(scroller, 'scroll', measure, { passive: true });
+watch(() => [props.loading, props.users], measure, { flush: 'post' });
+
+onMounted(measure);
 </script>
 
 <style scoped>
@@ -161,5 +198,24 @@ const emit = defineEmits<{
    otherwise a scrollbar appears for the skeleton and vanishes again as the real rows arrive. */
 .users-table--clipped :deep(.v-table__wrapper) {
   overflow: hidden;
+}
+
+/*
+ * ! Reserved on both edges with only the colour changing, so an edge appearing never moves a row.
+ * The sticky header covers neither: it begins inside the wrapper's border box, so the top rule is
+ * visible above it — kept, because the header band is there whether or not content is hidden above
+ * and so says nothing on its own.
+ */
+.users-table :deep(.v-table__wrapper) {
+  border-top: 1px solid transparent;
+  border-bottom: 1px solid transparent;
+}
+
+.users-table.edge-top :deep(.v-table__wrapper) {
+  border-top-color: rgb(var(--v-theme-scroll-edge));
+}
+
+.users-table.edge-bottom :deep(.v-table__wrapper) {
+  border-bottom-color: rgb(var(--v-theme-scroll-edge));
 }
 </style>

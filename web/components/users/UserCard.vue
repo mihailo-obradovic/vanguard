@@ -4,12 +4,14 @@
       <!-- * The edit, save and cancel controls live in the header, so the fields are what scroll — a card that scrolled whole would carry them off the screen. -->
       <GapContainer
         type="VSheet"
-        class="user-card w-100 pa-4 rounded-lg"
+        class="user-card w-100 py-4 rounded-lg"
         column
         elevation="1"
         @keydown.enter="handleEnterKey"
       >
-        <GapContainer class="justify-space-between align-center mb-2 flex-0-0">
+        <GapContainer
+          class="justify-space-between align-center mb-2 flex-0-0 px-4"
+        >
           <h2>{{ $t('profile.title') }}</h2>
 
           <GapContainer>
@@ -55,81 +57,83 @@
           </GapContainer>
         </GapContainer>
 
-        <GapContainer column class="user-card-fields w-100">
-          <v-text-field
-            v-model="form.name"
-            :error-messages="r$.name.$errors"
-            :label="$t('common.fields.name')"
-            variant="outlined"
-            :readonly="!editMode"
-          />
+        <ScrollArea class="user-card-fields w-100">
+          <GapContainer column>
+            <v-text-field
+              v-model="form.name"
+              :error-messages="r$.name.$errors"
+              :label="$t('common.fields.name')"
+              variant="outlined"
+              :readonly="!editMode"
+            />
 
-          <v-text-field
-            v-model="form.email"
-            :error-messages="r$.email.$errors"
-            :label="$t('common.fields.email')"
-            variant="outlined"
-            :readonly="!editMode"
-          />
+            <v-text-field
+              v-model="form.email"
+              :error-messages="r$.email.$errors"
+              :label="$t('common.fields.email')"
+              variant="outlined"
+              :readonly="!editMode"
+            />
 
-          <GapContainer class="align-center">
-            <v-chip
-              :color="user?.email_verified_at ? 'success' : 'warning'"
-              variant="flat"
-              size="small"
-            >
-              {{
-                user?.email_verified_at
-                  ? $t('profile.info.verified')
-                  : $t('profile.info.notVerified')
-              }}
-            </v-chip>
+            <GapContainer class="align-center">
+              <v-chip
+                :color="user?.email_verified_at ? 'success' : 'warning'"
+                variant="flat"
+                size="small"
+              >
+                {{
+                  user?.email_verified_at
+                    ? $t('profile.info.verified')
+                    : $t('profile.info.notVerified')
+                }}
+              </v-chip>
 
-            <v-btn
-              v-if="!user?.email_verified_at"
-              variant="text"
-              size="small"
-              color="primary"
-              :loading="isResending"
-              @click="resendVerification()"
-            >
-              {{ $t('profile.info.resend') }}
-            </v-btn>
-          </GapContainer>
+              <v-btn
+                v-if="!user?.email_verified_at"
+                variant="text"
+                size="small"
+                color="primary"
+                :loading="isResending"
+                @click="resendVerification()"
+              >
+                {{ $t('profile.info.resend') }}
+              </v-btn>
+            </GapContainer>
 
-          <!-- * The password fields arrive and leave together, so the card grows and shrinks rather
+            <!-- * The password fields arrive and leave together, so the card grows and shrinks rather
                than snapping. `v-expand-transition` animates height, needs a single child — hence the
                `GapContainer` wrapper, which also keeps the gap between the three fields — and
                disables itself under `prefers-reduced-motion` on its own (§14.4). -->
-          <v-expand-transition>
-            <GapContainer v-if="editMode" column class="w-100">
-              <PasswordField
-                v-model="form.current_password"
-                :error-messages="r$.current_password.$errors"
-                :label="$t('common.fields.currentPassword')"
-                variant="outlined"
-              />
+            <v-expand-transition>
+              <GapContainer v-if="editMode" column class="w-100">
+                <PasswordField
+                  v-model="form.current_password"
+                  :error-messages="r$.current_password.$errors"
+                  :label="$t('common.fields.currentPassword')"
+                  variant="outlined"
+                />
 
-              <PasswordField
-                v-model="form.password"
-                v-model:visible="showNewPassword"
-                :error-messages="r$.password.$errors"
-                :label="$t('common.fields.newPassword')"
-                :hint="$t('common.fields.newPasswordHint')"
-                persistent-hint
-                variant="outlined"
-              />
+                <PasswordField
+                  v-model="form.password"
+                  v-model:visible="showNewPassword"
+                  :error-messages="r$.password.$errors"
+                  :label="$t('common.fields.newPassword')"
+                  :hint="$t('common.fields.newPasswordHint')"
+                  persistent-hint
+                  variant="outlined"
+                />
 
-              <PasswordField
-                v-model="form.password_confirmation"
-                v-model:visible="showNewPassword"
-                :error-messages="r$.password_confirmation.$errors"
-                :label="$t('common.fields.confirmNewPassword')"
-                variant="outlined"
-              />
-            </GapContainer>
-          </v-expand-transition>
-        </GapContainer>
+                <PasswordField
+                  v-model="form.password_confirmation"
+                  v-model:visible="showNewPassword"
+                  :error-messages="r$.password_confirmation.$errors"
+                  :label="$t('common.fields.confirmNewPassword')"
+                  variant="outlined"
+                />
+              </GapContainer>
+            </v-expand-transition>
+          </GapContainer>
+        </ScrollArea>
       </GapContainer>
     </v-col>
   </v-row>
@@ -270,11 +274,15 @@ onKeyStroke('Escape', () => {
   max-height: 100%;
 }
 
-/* ! The padding is not decoration: a floating field label sits above its own border box, so the
-   first field's label is clipped by this container's top edge without room reserved for it. */
+/*
+ * ! The top padding is not decoration: a floating field label sits above its own border box, so the
+ * first field's label is clipped by this container's top edge without room reserved for it.
+ *
+ * * The horizontal padding is this element's rather than the card's so the scroll-edge rules span
+ * the card and the fields scroll under them, instead of reading as a divider inset from both sides.
+ */
 .user-card-fields {
   min-height: 0;
-  overflow-y: auto;
-  padding-top: 10px;
+  padding: 10px 16px 0 16px;
 }
 </style>

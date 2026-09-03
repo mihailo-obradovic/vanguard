@@ -5,13 +5,13 @@ import { ref, nextTick } from 'vue';
 import { useDialogForm } from '../useDialogForm';
 
 // * Stands in for Regle's `r$`: records the reset it was asked for and answers `$validate` with whatever the test set.
-function fakeValidation(valid = true) {
+function fakeValidation(verdict: 'valid' | 'invalid' = 'valid') {
   const resets: Record<string, unknown>[] = [];
 
   return {
     resets,
     $validate: vi.fn<() => Promise<{ valid: boolean }>>(async () => ({
-      valid
+      valid: verdict === 'valid'
     })),
     $reset: vi.fn<(options: Record<string, unknown>) => void>((options) => {
       resets.push(options);
@@ -39,7 +39,7 @@ describe('useDialogForm', () => {
     const form = ref({ email: 'a@b.c' });
     const onSubmit = vi.fn<(form: Record<string, unknown>) => void>();
 
-    const { handleConfirm } = useDialogForm(dialog, fakeValidation(true), {
+    const { handleConfirm } = useDialogForm(dialog, fakeValidation('valid'), {
       form,
       onSubmit
     });
@@ -53,7 +53,7 @@ describe('useDialogForm', () => {
     const dialog = ref(true);
     const onSubmit = vi.fn<(form: Record<string, unknown>) => void>();
 
-    const { handleConfirm } = useDialogForm(dialog, fakeValidation(false), {
+    const { handleConfirm } = useDialogForm(dialog, fakeValidation('invalid'), {
       form: ref({ email: '' }),
       onSubmit
     });

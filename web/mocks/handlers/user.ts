@@ -11,11 +11,13 @@ import type { User } from '@/types/auth';
  * * Stands alone because the forms that carry an account email — the register and user dialogs,
  * * the profile card — need it without needing the rest of `/api/users`. Every one of them fires
  * * this the moment a syntactically valid address is typed, and an unhandled request fails the run.
- * * A spec that wants the address taken overrides it with `emailAvailabilityHandler(false)`.
+ * * A spec that wants the address taken overrides it with `emailAvailabilityHandler('taken')`.
  */
-export function emailAvailabilityHandler(available = true) {
+export function emailAvailabilityHandler(
+  verdict: 'available' | 'taken' = 'available'
+) {
   return http.get(apiUrl('/api/email-availability'), () =>
-    HttpResponse.json({ available })
+    HttpResponse.json({ available: verdict === 'available' })
   );
 }
 

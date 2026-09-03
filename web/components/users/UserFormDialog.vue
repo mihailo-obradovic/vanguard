@@ -68,13 +68,14 @@
           class="submit-btn"
           :disabled="submitting || r$.$invalid"
         >
-          {{
-            submitting
-              ? $t('common.actions.saving')
-              : isEdit
-                ? $t('users.form.submitUpdate')
-                : $t('users.form.submitCreate')
-          }}
+          <UIReservedLabel
+            :variants="{
+              create: $t('users.form.submitCreate'),
+              update: $t('users.form.submitUpdate'),
+              saving: $t('common.actions.saving')
+            }"
+            :active="submitting ? 'saving' : isEdit ? 'update' : 'create'"
+          />
         </button>
       </UIDialogActions>
     </form>

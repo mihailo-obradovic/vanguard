@@ -60,9 +60,13 @@
           class="submit-btn"
           :disabled="submitting || r$.$invalid"
         >
-          {{
-            submitting ? $t('common.actions.saving') : $t('profile.form.submit')
-          }}
+          <UIReservedLabel
+            :variants="{
+              idle: $t('profile.form.submit'),
+              saving: $t('common.actions.saving')
+            }"
+            :active="submitting ? 'saving' : 'idle'"
+          />
         </button>
       </UIDialogActions>
     </form>

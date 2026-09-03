@@ -126,11 +126,13 @@
           :disabled="isDeleting"
           @click="handleDelete"
         >
-          {{
-            isDeleting
-              ? $t('common.actions.deleting')
-              : $t('users.delete.submit')
-          }}
+          <UIReservedLabel
+            :variants="{
+              idle: $t('users.delete.submit'),
+              pending: $t('common.actions.deleting')
+            }"
+            :active="isDeleting ? 'pending' : 'idle'"
+          />
         </button>
       </UIDialogActions>
     </UIDialog>

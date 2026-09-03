@@ -50,7 +50,7 @@
     "@vue/test-utils": "^2.4.11",
     "happy-dom": "^20.11.2",
     "msw": "^2.15.0",
-    "oxfmt": "^0.63.0",
+    "oxfmt": "^0.66.0",
     "oxlint": "^1.78.0",
     "typescript": "5.9.3",
     "vitest": "^4.1.10",

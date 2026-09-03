@@ -22,6 +22,13 @@
     --color-border: #e9ecef;
     /* The hard separator under the nav bar and over the footer. */
     --color-rule: #000000;
+    /*
+     * The 1px rule marking an edge a scroll region is currently hiding content past. It carries
+     * information rather than decorating, so it answers to WCAG 1.4.11 at 3:1 against the surface
+     * behind it — 3.32:1 on --color-surface, 3.15:1 on --color-surface-muted. --color-border is the
+     * decorative divider and stays quiet at 1.19:1; it cannot do this job.
+     */
+    --color-scroll-edge: #868e96;
     --color-overlay: rgb(0 0 0 / 0.5);
 
     /* Text */

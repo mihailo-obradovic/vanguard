@@ -89,13 +89,13 @@ describe('setupQueryErrorHandling', () => {
   it('forwards the caller error-handling options', async () => {
     const error = shallowRef<FetchError | null>(null);
 
-    watchErrors(error, { hideValidationToast: true });
+    watchErrors(error, { suppressToasts: 'validation' });
 
     error.value = apiError(422);
     await nextTick();
 
     expect(handleApiError.mock.calls[0]?.[2]).toEqual({
-      hideValidationToast: true
+      suppressToasts: 'validation'
     });
   });
 

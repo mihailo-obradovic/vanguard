@@ -59,7 +59,7 @@ const {
   isLoading: isResetting,
   error: resetError
 } = useResetPassword({
-  errorHandling: { hideValidationToast: true },
+  errorHandling: { suppressToasts: 'validation' },
   onSuccess: (data) => {
     $toast(data.status, 'success');
     navigateTo('/login');

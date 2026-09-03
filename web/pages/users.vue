@@ -160,7 +160,7 @@ const {
   isLoading: isCreatingUser,
   error: createUserError
 } = useCreateUser({
-  errorHandling: { hideValidationToast: true },
+  errorHandling: { suppressToasts: 'validation' },
   onSuccess: (newUser) => {
     $toast(t('users.toasts.created', { name: newUser.name }), 'success');
     closeUserForm();
@@ -172,7 +172,7 @@ const {
   isLoading: isUpdatingUser,
   error: updateUserError
 } = useUpdateUser({
-  errorHandling: { hideValidationToast: true },
+  errorHandling: { suppressToasts: 'validation' },
   onSuccess: (updatedUser) => {
     $toast(t('users.toasts.updated', { name: updatedUser.name }), 'success');
     closeUserForm();

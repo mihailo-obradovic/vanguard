@@ -57,7 +57,7 @@ const {
   isLoading: isLoggingIn,
   error: loginError
 } = useLogIn({
-  errorHandling: { hideValidationToast: true },
+  errorHandling: { suppressToasts: 'validation' },
   onSuccess: () => navigateTo('/home')
 });
 

@@ -38,7 +38,7 @@ const {
   isLoading: isSending,
   error: sendError
 } = useGeneratePasswordResetEmail({
-  errorHandling: { hideValidationToast: true },
+  errorHandling: { suppressToasts: 'validation' },
   onSuccess: (data) => {
     $toast(data.status, 'success');
     form.value.email = '';

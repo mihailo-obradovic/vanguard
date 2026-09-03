@@ -137,7 +137,7 @@ const {
   isLoading: isSubmittingProfile,
   error: updateProfileError
 } = useUpdateProfile({
-  errorHandling: { hideValidationToast: true },
+  errorHandling: { suppressToasts: 'validation' },
   onSuccess: () => {
     $toast(t('profile.toasts.updated'), 'success');
     closeEditForm();

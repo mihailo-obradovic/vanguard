@@ -77,7 +77,7 @@ const {
   isLoading: isUpdating,
   error: updateError
 } = useUpdateUserGql({
-  errorHandling: { hideValidationToast: true },
+  errorHandling: { suppressToasts: 'validation' },
   onSuccess: (updatedUser) => {
     $toast(t('users.toasts.updated', { name: updatedUser.name }), 'success');
     closeEditForm();

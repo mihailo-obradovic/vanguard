@@ -25,7 +25,9 @@ export function labeledRules<TRules extends Record<string, RegleRuleRaw>>(
     Object.entries(rules).map(([ruleName, rule]) => {
       const messageKey = MESSAGE_KEYS[ruleName];
 
-      if (!messageKey) return [ruleName, rule];
+      if (!messageKey) {
+        return [ruleName, rule];
+      }
 
       const labeled = withMessage(
         rule as RegleRuleDefinition<string, unknown, unknown[]>,

@@ -7,7 +7,7 @@ import { useMutationDialog } from '../useMutationDialog';
 import type { FetchError } from 'ofetch';
 
 type CapturedOptions = {
-  errorHandling?: { hideValidationToast?: boolean };
+  errorHandling?: { suppressToasts?: 'all' | 'validation' };
   onSuccess?: (data: { status: string }) => void;
 };
 
@@ -49,7 +49,7 @@ describe('useMutationDialog', () => {
     useMutationDialog(mutation.composable);
 
     expect(mutation.options().errorHandling).toEqual({
-      hideValidationToast: true
+      suppressToasts: 'validation'
     });
   });
 
@@ -187,10 +187,10 @@ describe('useMutationDialog, given a mutation per mode', () => {
     dialogFor();
 
     expect(create.options().errorHandling).toEqual({
-      hideValidationToast: true
+      suppressToasts: 'validation'
     });
     expect(update.options().errorHandling).toEqual({
-      hideValidationToast: true
+      suppressToasts: 'validation'
     });
   });
 

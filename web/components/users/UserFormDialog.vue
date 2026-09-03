@@ -129,7 +129,7 @@ function buildRules() {
     ...accountEmailRules(() => (props.editMode ? props.user?.id : undefined)),
     ...newPasswordRules(
       () => form.value.password,
-      () => props.editMode
+      () => (props.editMode ? 'change' : 'set')
     )
   };
 }

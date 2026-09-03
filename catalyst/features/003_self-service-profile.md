@@ -55,13 +55,13 @@ Every account type gets the same profile page; admins additionally manage others
 
 ## Examples
 
-| Input                                                            | Expected Output                                         | Notes                                                                          |
-| ---------------------------------------------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| `{ name: "New Name" }`                                           | 200, name persisted                                     | name-only save; the `current_password` key is absent                           |
-| `{ name: "New Name", current_password: "" }`                     | 422 on `current_password`, name unchanged               | a present-but-empty value is validated, not skipped                            |
-| `{ email: <changed> }`                                           | 200, `email_verified_at` null, verification mail queued |                                                                                |
-| `{ password, password_confirmation, current_password: <wrong> }` | 422 on `current_password`, old password still valid     | no partial write                                                               |
-| `{ role: "admin" }`                                              | 200, role unchanged                                     | escalation blocked twice: rules + fillable                                     |
+| Input                                                            | Expected Output                                         | Notes                                                |
+| ---------------------------------------------------------------- | ------------------------------------------------------- | ---------------------------------------------------- |
+| `{ name: "New Name" }`                                           | 200, name persisted                                     | name-only save; the `current_password` key is absent |
+| `{ name: "New Name", current_password: "" }`                     | 422 on `current_password`, name unchanged               | a present-but-empty value is validated, not skipped  |
+| `{ email: <changed> }`                                           | 200, `email_verified_at` null, verification mail queued |                                                      |
+| `{ password, password_confirmation, current_password: <wrong> }` | 422 on `current_password`, old password still valid     | no partial write                                     |
+| `{ role: "admin" }`                                              | 200, role unchanged                                     | escalation blocked twice: rules + fillable           |
 
 ## Business Rules
 

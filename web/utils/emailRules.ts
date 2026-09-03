@@ -7,7 +7,9 @@ import type { Maybe } from '@regle/core';
 // * Mirrors the backend's `lowercase` rule, which only the endpoints that *write* a user carry (register, users, profile). Login and the reset pair deliberately omit it: the column collates case-insensitively, so a mixed-case address still signs in.
 const lowercase = createRule({
   validator(value: Maybe<string>) {
-    if (!isFilled(value)) return true;
+    if (!isFilled(value)) {
+      return true;
+    }
 
     return value === value.toLowerCase();
   },
@@ -19,7 +21,9 @@ const lowercase = createRule({
 const emailAvailable = createRule({
   async validator(value: Maybe<string>, ignoreId?: number) {
     // * Nothing to ask about until the value is a syntactically valid address — `required` and `email` report those cases, and asking anyway would spend a request on a certain 422.
-    if (!isFilled(value) || !email.exec(value)) return true;
+    if (!isFilled(value) || !email.exec(value)) {
+      return true;
+    }
 
     try {
       return await checkEmailAvailability(value, ignoreId);

@@ -180,7 +180,7 @@ const {
   error: updateProfileError
 } = useUpdateProfile({
   // * A validation failure this form could have caught belongs on its field, not in a toast.
-  errorHandling: { hideValidationToast: true },
+  errorHandling: { suppressToasts: 'validation' },
   onSuccess: () => {
     $toast(t('profile.toasts.updated'), 'success');
 
@@ -202,7 +202,7 @@ const { r$ } = useRegle(
     current_password: labeledRules('validation.fieldNames.currentPassword', {
       requiredIf: requiredIf(() => !!form.value.password)
     }),
-    ...newPasswordRules(() => form.value.password, true)
+    ...newPasswordRules(() => form.value.password, 'change')
   },
   { externalErrors }
 );

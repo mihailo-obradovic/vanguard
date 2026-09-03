@@ -97,7 +97,7 @@ describe('handleApiError', () => {
         errors: { email: ['The email has already been taken.'] }
       }),
       context(),
-      { hideValidationToast: true }
+      { suppressToasts: 'validation' }
     );
 
     expect($toast).not.toHaveBeenCalled();
@@ -105,17 +105,35 @@ describe('handleApiError', () => {
 
   it('still toasts a non-validation failure for a form that suppresses 422s', () => {
     handleApiError(apiError(500, { message: 'Server error' }), context(), {
-      hideValidationToast: true
+      suppressToasts: 'validation'
     });
 
     expect(toastedMessages()).toEqual(['Server error']);
+  });
+
+  it('silences every toast for a call that renders the failure itself', () => {
+    handleApiError(apiError(500, { message: 'Server error' }), context(), {
+      suppressToasts: 'all'
+    });
+
+    expect($toast).not.toHaveBeenCalled();
+  });
+
+  it("silences a 422 with no field errors under 'all', which 'validation' still toasts", () => {
+    handleApiError(
+      apiError(422, { message: 'The given data was invalid.' }),
+      context(),
+      { suppressToasts: 'all' }
+    );
+
+    expect($toast).not.toHaveBeenCalled();
   });
 
   it('falls back to the generic message when a 422 carries no field errors', () => {
     handleApiError(
       apiError(422, { message: 'The given data was invalid.' }),
       context(),
-      { hideValidationToast: true }
+      { suppressToasts: 'validation' }
     );
 
     // * Suppression covers field messages only — a 422 with nothing to render inline would otherwise fail silently.

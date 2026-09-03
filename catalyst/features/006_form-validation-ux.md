@@ -16,17 +16,17 @@ Give forms immediate, inline feedback that mirrors the backend's own constraints
 
 ## Inputs
 
-| Input           | Type       | Source                             | Constraints                                           |
-| --------------- | ---------- | ---------------------------------- | ----------------------------------------------------- |
-| Field values    | form state | login/register/profile/users forms | validated by Regle rules mirroring the backend        |
-| API response    | JSON       | `fetcher` → `parseResponse`        | validated by Zod (response-only, not form validation) |
+| Input        | Type       | Source                             | Constraints                                           |
+| ------------ | ---------- | ---------------------------------- | ----------------------------------------------------- |
+| Field values | form state | login/register/profile/users forms | validated by Regle rules mirroring the backend        |
+| API response | JSON       | `fetcher` → `parseResponse`        | validated by Zod (response-only, not form validation) |
 
 ## Outputs And Side Effects
 
-| Output / Side Effect        | Type | Description                                                                              |
-| --------------------------- | ---- | ---------------------------------------------------------------------------------------- |
-| Inline field messages | UI | localized, field-named copy rendered under the input by Vuetify's `error-messages` |
-| Submit gating         | UX | an invalid form blocks submission client-side; a valid one calls its mutation      |
+| Output / Side Effect  | Type | Description                                                                        |
+| --------------------- | ---- | ---------------------------------------------------------------------------------- |
+| Inline field messages | UI   | localized, field-named copy rendered under the input by Vuetify's `error-messages` |
+| Submit gating         | UX   | an invalid form blocks submission client-side; a valid one calls its mutation      |
 
 ## Scope And Non-Goals
 
@@ -40,7 +40,7 @@ Non-goals: the server-422 bridge and the toast opt-out (feature 010); the backen
 - Mirroring runs through shared factories, never per-form literals: `nameRules()` carries the required 255-max display name; `newPasswordRules()` carries the 8–255 password pair; `emailRules.ts` splits the email rules the way the backend does — `accountEmailRules(ignoreId?)` for endpoints that _write_ a user (register, users, profile: adds `lowercase` and feature 008's debounced availability check), `credentialEmailRules()` for those that _read_ one (login, forgot-password, reset: neither rule).
 - Every form takes its email rules from these factories rather than declaring its own; the account forms pass `ignoreId` for the user being edited (register passes none — nobody owns the address yet), and excluding the subject is what lets a form whose address never changed still save.
 - The availability rule is debounced 500ms, and the debounce covers the field's synchronous rules too, so on an account form a malformed address is reported a beat after typing rather than immediately. Since every dialog binds `:confirm-disabled="r$.$invalid"`, the confirmation is also disabled while the check is in flight — a deliberate trade for catching a taken address before the round-trip.
-- Client messages are localized and name the field: each field's rules are wrapped by `labeledRules(nameKey, rules)`, resolving `validation.field.*` copy with the field's `validation.fieldNames.*` name ("The email field is required."). Every field a user can see does this, so one form never mixes the two voices. That name is a catalog entry of its own, not the `common.fields.*` label the input renders: English drops it mid-sentence, lowercase, matching what Laravel's own 422 sends for that field, while the label is capitalized — and Serbian, quoting the name, keeps the label's casing. No transform serves both. `web/regle-config.ts` supplies generic `validation.*` fallbacks for any rule that is not wrapped, including an explicit `requiredIf` entry — Regle matches messages by the declared rule key, not the rule's type. Both layers resolve `t` lazily, so an open form's errors follow a locale switch. The name always matches the label on screen: `newPasswordRules()` derives its name keys from its `optional` flag, so a change-password form's messages say "new password" / "confirm new password" rather than naming the "password" of a set-password form — `nameKey` accepts a getter so the switch follows a create/edit mode flip at runtime.
+- Client messages are localized and name the field: each field's rules are wrapped by `labeledRules(nameKey, rules)`, resolving `validation.field.*` copy with the field's `validation.fieldNames.*` name ("The email field is required."). Every field a user can see does this, so one form never mixes the two voices. That name is a catalog entry of its own, not the `common.fields.*` label the input renders: English drops it mid-sentence, lowercase, matching what Laravel's own 422 sends for that field, while the label is capitalized — and Serbian, quoting the name, keeps the label's casing. No transform serves both. `web/regle-config.ts` supplies generic `validation.*` fallbacks for any rule that is not wrapped, including an explicit `requiredIf` entry — Regle matches messages by the declared rule key, not the rule's type. Both layers resolve `t` lazily, so an open form's errors follow a locale switch. The name always matches the label on screen: `newPasswordRules()` derives its name keys from its `mode` argument (`'set'` / `'change'`), so a change-password form's messages say "new password" / "confirm new password" rather than naming the "password" of a set-password form — `nameKey` accepts a getter so the switch follows a create/edit mode flip at runtime.
 - On submit, an invalid form is blocked client-side; a valid form calls its mutation.
 - Dialog forms run their cancel, validate-then-submit and reset through `useDialogForm`, so the reset-timing rule is decided in one place: a form whose fresh state is constant resets from the dialog's after-close hook (nothing, passwords included, lingers while it is shut); a form whose fresh state depends on props the parent assigns right before opening resets on open instead, and declares itself as such by passing `initialState`. The submitted payload is always a copy of the form, never the ref the reset then blanks.
 - Every field binds `:error-messages="r$.<field>.$errors"`, so Vuetify renders its Regle messages and the server errors feature 010 supplies in one place under the input — this branch has no shared error component, and the user never has to tell the two sources apart.
@@ -52,11 +52,11 @@ Not role-specific — validation UX applies to every form regardless of role.
 
 ## Examples
 
-| Input                             | Expected Output                           | Notes                                                 |
-| --------------------------------- | ----------------------------------------- | ----------------------------------------------------- |
-| Empty required field, blur        | inline "required" message                 | Regle, no network call                                |
-| Password mismatch on register     | inline error on confirmation              | Regle `sameAs`                                        |
-| Address typed in mixed case       | inline "must be lowercase" on an account form | the write path only; `/login` accepts it         |
+| Input                         | Expected Output                               | Notes                                    |
+| ----------------------------- | --------------------------------------------- | ---------------------------------------- |
+| Empty required field, blur    | inline "required" message                     | Regle, no network call                   |
+| Password mismatch on register | inline error on confirmation                  | Regle `sameAs`                           |
+| Address typed in mixed case   | inline "must be lowercase" on an account form | the write path only; `/login` accepts it |
 
 ## Business Rules
 
@@ -98,7 +98,7 @@ No protected area of its own — the backend validation contracts are owned by f
 
 ## Tests
 
-- `web/utils/_tests/` — `nameRules` (required, the 255/256 bound both sides, the labelled message it single-sources); `newPasswordRules` and `emailRules`, driven through a real Regle instance rather than asserting rule objects: validity per mode (required, optional, the create/edit switch), the mode-appropriate field names in the copy (including across a runtime mode flip), both length bounds on both sides (7/8, 255/256), `lowercase`, the availability check invalidating a taken address and naming the field, failing open on a 500 and a 429, skipping empty or malformed values, `ignoreId` forwarded, and `credentialEmailRules` carrying neither `lowercase` nor the availability call; `labeledRules` (field-named and parameterized copy, locale switching on an open form, pass-through for unknown rules).
+- `web/utils/_tests/` — `nameRules` (required, the 255/256 bound both sides, the labelled message it single-sources); `newPasswordRules` and `emailRules`, driven through a real Regle instance rather than asserting rule objects: validity per mode (`'set'`, `'change'`, the create/edit switch), the mode-appropriate field names in the copy (including across a runtime mode flip), both length bounds on both sides (7/8, 255/256), `lowercase`, the availability check invalidating a taken address and naming the field, failing open on a 500 and a 429, skipping empty or malformed values, `ignoreId` forwarded, and `credentialEmailRules` carrying neither `lowercase` nor the availability call; `labeledRules` (field-named and parameterized copy, locale switching on an open form, pass-through for unknown rules).
 - `web/_tests/regle-config.spec.ts` — the generic catalog fallbacks bare rules get, including the `requiredIf` key that would otherwise fall back to the library's hardcoded English.
 - `web/composables/_tests/` — `useDialogForm`: cancel, submit gated on validation and carrying a copy rather than the form ref, both reset timings each ignoring the other's trigger, and the extra state `onReset` clears. `useMutationDialog`: the close on success landing before the owner's own handler.
 - `web/components/users/_tests/` — the per-form schemas at component level, across `UserFormDialog`, `UserCard`, `UserDetailsDialog` and the three auth dialogs: the password rules switching with the mode, `sameAs` and the length bounds, a disabled confirmation refusing an incomplete form, and each form's factory adoption pinned by what distinguishes it — the length bound on the credential forms, the outgoing availability request on the account forms, and the `ignore_id` wherever a subject must be excluded.

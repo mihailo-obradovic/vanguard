@@ -89,7 +89,7 @@ export function useMutationDialog(
       key,
       useDialogMutation({
         // * A validation failure the dialog's own form could have caught belongs on its field, not in a toast.
-        errorHandling: { hideValidationToast: true },
+        errorHandling: { suppressToasts: 'validation' },
         onSuccess: (data: unknown) => {
           dialog.value = false;
 

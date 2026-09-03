@@ -36,6 +36,14 @@ Versions are minimums ("18+" = 18 or newer stable). New projects start on the ne
 
 Before adding any runtime dependency, framework, package pattern, build plugin, or test tool: check this file. Not allowed by the stack modules in use → get the user's explicit approval, then update `architecture.md` in the same change with the reason. Never add a dependency for one call site's convenience when stdlib or approved tools keep the code clear.
 
+### Approved Dependencies Beyond The Modules
+
+One row per package the adopted modules' Approved Libraries do not name. Started when Catalyst 1.11.0's wall-clock rule required it — it is not yet a complete audit of `package.json` and `composer.json` against the module lists, so an absent package means unrecorded, not disallowed.
+
+| Package             | Layer    | Why it is needed                                                                                                                                                                                                                                                                                                             | Approved by      |
+| ------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
+| `temporal-polyfill` | frontend | `conventions/code-style.md` bans `Date` outright and names `Temporal` as the replacement, which is not yet Baseline. Imported only inside `web/utils/formatDate.ts`, the one boundary that renders a server timestamp. Remove when `Temporal` reaches Baseline — the calling code is already written against the native API. | user, 2026-09-03 |
+
 ## Documentation Boundaries
 
 This file: technical structure and dependency choices. Workflow and the protected-areas rule: `prime-directive.md` (declarations may live in feature, decision, and folder documents). Feature behavior: `features/*.md`. Decision records: `decisions/*.md` (indexed by `project-summary.md`). Per-subsystem detail: folder docs. Background context — product vision, brand, and the like: the project's `context/` documents (`references/context-documents.md`). Operating procedures for live infrastructure: the project's `operations.md` (`references/operations-runbook.md`). Release notes for people who do not read this repo's history: `references/release-notes.md`. Cross-cutting convention annexes, when a project keeps them, are owned and indexed by this file (`references/convention-annexes.md`) — distinct from `conventions/`, which is Catalyst's own always-applied set (code annotations, editor setup), arrives with the bundle, and upgrades with it.

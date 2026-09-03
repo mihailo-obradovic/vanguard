@@ -3,5 +3,9 @@
   "plugins": ["oxc", "promise", "typescript", "unicorn", "vitest", "vue"],
   "categories": {
     "correctness": "error"
+  },
+  "rules": {
+    "curly": ["error", "all"],
+    "no-restricted-globals": ["error", "Date"]
   }
 }

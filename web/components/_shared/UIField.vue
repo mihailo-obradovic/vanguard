@@ -80,12 +80,24 @@ const describedBy = computed(() => (invalid.value ? errorId : undefined));
   opacity: 0.7;
 }
 
-/* * Always occupies one line so messages appearing/disappearing don't shift the layout. */
+/*
+ * * Always occupies its reserved height so a message appearing or disappearing does not shift the
+ * fields below it, or the submit button under the pointer that is about to press it.
+ *
+ * ! Two lines, not one. Server 422s arrive as full sentences and the catalogs are longer in
+ * sr-Cyrl than in English, so a one-line reservation is correct until the first message wraps
+ * inside a 400px card — and then it moves every field beneath it. The height is derived from this
+ * element's own line-height rather than written as a pixel constant, which
+ * `layout-stability.md` names as the non-fix: a constant is right at one width and wrong at the
+ * rest, and it silently stops matching the next time the type scale moves.
+ */
 .ui-field-error {
+  --error-line-height: 1.3;
+
   color: var(--color-danger);
   font-size: 14px;
-  line-height: 1.3;
-  min-height: 18px;
+  line-height: var(--error-line-height);
+  min-height: calc(2 * var(--error-line-height) * 1em);
   margin: 0;
 }
 </style>

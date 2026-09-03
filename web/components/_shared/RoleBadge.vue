@@ -1,6 +1,13 @@
 <template>
   <span class="role-badge" :class="[role, { large }]">
-    {{ $t(`users.roles.${role}`) }}
+    <!-- * The two roles are the whole set, so the badge reserves the wider of them itself. It sits in an auto-layout table cell, where a promotion or demotion re-widths the column and shifts every column beside it — and in sr-Cyrl the swing is Корисник to Администратор. -->
+    <UIReservedLabel
+      :variants="{
+        user: $t('users.roles.user'),
+        admin: $t('users.roles.admin')
+      }"
+      :active="role"
+    />
   </span>
 </template>
 

@@ -50,11 +50,14 @@
                 <td><RoleBadge :role="user.role" /></td>
                 <td>
                   <VerificationBadge :verified="!!user.email_verified_at">
-                    {{
-                      user.email_verified_at
-                        ? $t('users.verified.yes')
-                        : $t('users.verified.no')
-                    }}
+                    <!-- * The badge's wording is the caller's, so the caller reserves it — same auto-layout column as the role beside it. -->
+                    <UIReservedLabel
+                      :variants="{
+                        yes: $t('users.verified.yes'),
+                        no: $t('users.verified.no')
+                      }"
+                      :active="user.email_verified_at ? 'yes' : 'no'"
+                    />
                   </VerificationBadge>
                 </td>
                 <td class="created-date">{{ formatDate(user.created_at) }}</td>

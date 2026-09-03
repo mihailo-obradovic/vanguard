@@ -86,6 +86,9 @@ async function fillInANewPassword() {
   await fireEvent.update(field(/^Confirm new password$/), 'hunter2hunter2');
 }
 
+/** Ignore the reserved-label ghosts: they are a measuring device, not text a user is offered. */
+const SHOWN = { ignore: '[aria-hidden="true"]' };
+
 describe('UserCard', () => {
   beforeEach(() => {
     requests.reset();
@@ -317,14 +320,19 @@ describe('UserCard', () => {
 
     await renderCard();
 
-    expect(screen.getByText('Verified')).toBeTruthy();
-    expect(screen.queryByRole('button', { name: 'Resend email' })).toBeNull();
+    // * Both chip strings are always rendered — the inactive one is the ghost reserving the row's width — so this asserts the one that is not aria-hidden.
+    expect(screen.getByText('Verified', SHOWN)).toBeTruthy();
+
+    // ! The resend control stays mounted so the row keeps its height, and is made unofferable with `inert` rather than removed. happy-dom does not act on `inert`, so the attribute is what gets asserted here and the visual half is on the browser walk.
+    expect(button('Resend email')).toHaveProperty('inert', true);
   });
 
   it('offers an unverified user another confirmation email, and sends it', async () => {
     await renderCard();
 
-    expect(screen.getByText('Not Verified')).toBeTruthy();
+    expect(screen.getByText('Not Verified', SHOWN)).toBeTruthy();
+
+    expect(button('Resend email')).toHaveProperty('inert', false);
 
     await fireEvent.click(button('Resend email'));
 

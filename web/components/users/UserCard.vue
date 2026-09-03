@@ -81,18 +81,22 @@
                 variant="flat"
                 size="small"
               >
-                {{
-                  user?.email_verified_at
-                    ? $t('profile.info.verified')
-                    : $t('profile.info.notVerified')
-                }}
+                <ReservedLabel
+                  :variants="{
+                    verified: $t('profile.info.verified'),
+                    unverified: $t('profile.info.notVerified')
+                  }"
+                  :active="user?.email_verified_at ? 'verified' : 'unverified'"
+                />
               </v-chip>
 
+              <!-- * Stays in the row once the address is verified, reserved rather than removed: it is what gives this row its height, and dropping it pulls the fields below it up. `inert` keeps a control nobody can see out of the tab order and the accessibility tree. -->
               <v-btn
-                v-if="!user?.email_verified_at"
                 variant="text"
                 size="small"
                 color="primary"
+                :class="{ 'reserved-btn': Boolean(user?.email_verified_at) }"
+                :inert="Boolean(user?.email_verified_at)"
                 :loading="isResending"
                 @click="resendVerification()"
               >
@@ -268,6 +272,11 @@ onKeyStroke('Escape', () => {
 /* * `align-self` and `max-height` rather than stretching: the card keeps hugging its content, but
    may now shrink to the column instead of growing past it, which is what hands its own fields the
    overflow. */
+.reserved-btn {
+  /* * `visibility: hidden` still occupies the row; `display: none` would give its height back. */
+  visibility: hidden;
+}
+
 .user-card {
   min-height: 0;
   align-self: flex-start;

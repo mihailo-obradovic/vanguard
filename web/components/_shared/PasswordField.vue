@@ -15,6 +15,11 @@
         @click="visible = !visible"
       />
     </template>
+
+    <!-- * Everything else a caller wants to place inside the field — the details slot above all, which is where a reserved hint goes — passes straight through. -->
+    <template v-for="(_, name) in $slots" #[name]="slotProps">
+      <slot :name="name" v-bind="slotProps ?? {}" />
+    </template>
   </v-text-field>
 </template>
 

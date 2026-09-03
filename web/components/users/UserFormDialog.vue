@@ -37,10 +37,19 @@
           ? $t('common.fields.newPassword')
           : $t('common.fields.password')
       "
-      :hint="editMode ? $t('common.fields.newPasswordHint') : undefined"
-      :persistent-hint="editMode"
       :required="!editMode"
-    />
+    >
+      <!-- ! The hint mounts on edit mode, and the details slot it lands in is above the confirmation field: unreserved, switching mode pushes that field and the actions row down. Both states are stacked so the taller one holds the space, and the hint wraps to two lines at a narrow width, which is why no pixel height would have covered it. -->
+      <template #details>
+        <ReservedLabel
+          :variants="{
+            create: '',
+            edit: $t('common.fields.newPasswordHint')
+          }"
+          :active="editMode ? 'edit' : 'create'"
+        />
+      </template>
+    </PasswordField>
 
     <PasswordField
       v-model="form.password_confirmation"

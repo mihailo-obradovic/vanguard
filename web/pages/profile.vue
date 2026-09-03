@@ -46,18 +46,22 @@
                   }}
                 </VerificationBadge>
 
+                <!-- * Stays in the row once the address is verified, reserved rather than removed: it is the only thing giving this row its height, and dropping it pulls the whole info grid up — which is what the user sees on returning from the verification link. `inert` keeps a control nobody can see out of the tab order and the accessibility tree. -->
                 <button
-                  v-if="!user.email_verified_at"
                   type="button"
                   class="resend-btn"
+                  :class="{ reserved: Boolean(user.email_verified_at) }"
+                  :inert="Boolean(user.email_verified_at)"
                   :disabled="isResending"
                   @click="resendVerification()"
                 >
-                  {{
-                    isResending
-                      ? $t('profile.info.resending')
-                      : $t('profile.info.resend')
-                  }}
+                  <UIReservedLabel
+                    :variants="{
+                      idle: $t('profile.info.resend'),
+                      pending: $t('profile.info.resending')
+                    }"
+                    :active="isResending ? 'pending' : 'idle'"
+                  />
                 </button>
               </div>
             </div>
@@ -137,7 +141,7 @@ const {
   isLoading: isSubmittingProfile,
   error: updateProfileError
 } = useUpdateProfile({
-  errorHandling: { hideValidationToast: true },
+  errorHandling: { suppressToasts: 'validation' },
   onSuccess: () => {
     $toast(t('profile.toasts.updated'), 'success');
     closeEditForm();
@@ -147,7 +151,9 @@ const {
 const profileFormErrors = useValidationErrors(updateProfileError);
 
 function openEditForm() {
-  if (!user.value) return;
+  if (!user.value) {
+    return;
+  }
 
   showEditForm.value = true;
 }
@@ -254,6 +260,11 @@ onMounted(() => {
   font-weight: 600;
   cursor: pointer;
   transition: all var(--transition);
+}
+
+.resend-btn.reserved {
+  /* * `visibility: hidden` still occupies the row; `display: none` would give the height back. */
+  visibility: hidden;
 }
 
 .resend-btn:hover:not(:disabled) {

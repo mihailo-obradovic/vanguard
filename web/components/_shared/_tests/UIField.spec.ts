@@ -15,7 +15,9 @@ function controlLabelled(label: string) {
 function descriptionOf(control: HTMLElement) {
   const id = control.getAttribute('aria-describedby');
 
-  if (!id) return null;
+  if (!id) {
+    return null;
+  }
 
   return document.getElementById(id)?.textContent?.trim() ?? null;
 }

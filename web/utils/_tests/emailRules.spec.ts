@@ -37,10 +37,10 @@ async function setupForm(rules: () => Record<string, unknown>, initial = '') {
   return { form, validate, errors };
 }
 
-function respondWith(available: boolean) {
+function respondWith(verdict: 'available' | 'taken') {
   server.use(
     http.get(apiUrl('/api/email-availability'), () =>
-      HttpResponse.json({ available })
+      HttpResponse.json({ available: verdict === 'available' })
     )
   );
 }
@@ -52,7 +52,7 @@ describe('emailRules', () => {
 
   describe('accountEmailRules', () => {
     it('accepts a free, well-formed, lowercase address', async () => {
-      respondWith(true);
+      respondWith('available');
 
       const { validate } = await setupForm(
         () => accountEmailRules(),
@@ -63,7 +63,7 @@ describe('emailRules', () => {
     });
 
     it('rejects an address the server reports as taken', async () => {
-      respondWith(false);
+      respondWith('taken');
 
       const { validate } = await setupForm(
         () => accountEmailRules(),
@@ -74,7 +74,7 @@ describe('emailRules', () => {
     });
 
     it('names the field when the address is taken', async () => {
-      respondWith(false);
+      respondWith('taken');
 
       const { validate, errors } = await setupForm(
         () => accountEmailRules(),
@@ -120,7 +120,7 @@ describe('emailRules', () => {
     });
 
     it('mirrors the backend lowercase rule', async () => {
-      respondWith(true);
+      respondWith('available');
 
       const { validate, errors } = await setupForm(
         () => accountEmailRules(),
@@ -132,7 +132,7 @@ describe('emailRules', () => {
     });
 
     it('rejects an address over 255 characters', async () => {
-      respondWith(true);
+      respondWith('available');
 
       const { validate } = await setupForm(
         () => accountEmailRules(),
@@ -144,7 +144,7 @@ describe('emailRules', () => {
 
     // * No request for a value the server would only 422 on — `required` and `email` already report those, and asking anyway would spend a round-trip per keystroke on nothing.
     it('does not ask the server about an empty value', async () => {
-      respondWith(true);
+      respondWith('available');
 
       const { validate } = await setupForm(() => accountEmailRules(), '');
 
@@ -156,7 +156,7 @@ describe('emailRules', () => {
     });
 
     it('does not ask the server about a malformed address', async () => {
-      respondWith(true);
+      respondWith('available');
 
       const { validate } = await setupForm(
         () => accountEmailRules(),

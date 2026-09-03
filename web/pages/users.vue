@@ -28,59 +28,66 @@
       </div>
 
       <div class="table-container">
-        <table class="users-table">
-          <thead>
-            <tr>
-              <th>{{ $t('users.columns.id') }}</th>
-              <th>{{ $t('users.columns.name') }}</th>
-              <th>{{ $t('users.columns.email') }}</th>
-              <th>{{ $t('users.columns.role') }}</th>
-              <th>{{ $t('users.columns.emailVerified') }}</th>
-              <th>{{ $t('users.columns.createdAt') }}</th>
-              <th>{{ $t('users.columns.actions') }}</th>
-            </tr>
-          </thead>
+        <UIScrollArea class="table-scroll">
+          <table class="users-table">
+            <thead>
+              <tr>
+                <th>{{ $t('users.columns.id') }}</th>
+                <th>{{ $t('users.columns.name') }}</th>
+                <th>{{ $t('users.columns.email') }}</th>
+                <th>{{ $t('users.columns.role') }}</th>
+                <th>{{ $t('users.columns.emailVerified') }}</th>
+                <th>{{ $t('users.columns.createdAt') }}</th>
+                <th>{{ $t('users.columns.actions') }}</th>
+              </tr>
+            </thead>
 
-          <tbody>
-            <tr v-for="user in users" :key="user.id" class="user-row">
-              <td>{{ user.id }}</td>
-              <td class="user-name">{{ user.name }}</td>
-              <td class="user-email">{{ user.email }}</td>
-              <td><RoleBadge :role="user.role" /></td>
-              <td>
-                <VerificationBadge :verified="!!user.email_verified_at">
-                  {{
-                    user.email_verified_at
-                      ? $t('users.verified.yes')
-                      : $t('users.verified.no')
-                  }}
-                </VerificationBadge>
-              </td>
-              <td class="created-date">{{ formatDate(user.created_at) }}</td>
-              <td class="actions-cell">
-                <button
-                  class="edit-btn"
-                  :disabled="isDeletingUser === user.id"
-                  @click="openEditForm(user)"
-                >
-                  {{ $t('common.actions.edit') }}
-                </button>
+            <tbody>
+              <tr v-for="user in users" :key="user.id" class="user-row">
+                <td>{{ user.id }}</td>
+                <td class="user-name">{{ user.name }}</td>
+                <td class="user-email">{{ user.email }}</td>
+                <td><RoleBadge :role="user.role" /></td>
+                <td>
+                  <VerificationBadge :verified="!!user.email_verified_at">
+                    <!-- * The badge's wording is the caller's, so the caller reserves it — same auto-layout column as the role beside it. -->
+                    <UIReservedLabel
+                      :variants="{
+                        yes: $t('users.verified.yes'),
+                        no: $t('users.verified.no')
+                      }"
+                      :active="user.email_verified_at ? 'yes' : 'no'"
+                    />
+                  </VerificationBadge>
+                </td>
+                <td class="created-date">{{ formatDate(user.created_at) }}</td>
+                <td class="actions-cell">
+                  <button
+                    class="edit-btn"
+                    :disabled="isDeletingUser === user.id"
+                    @click="openEditForm(user)"
+                  >
+                    {{ $t('common.actions.edit') }}
+                  </button>
 
-                <button
-                  class="delete-btn"
-                  :disabled="isDeletingUser === user.id"
-                  @click="confirmDelete(user)"
-                >
-                  {{
-                    isDeletingUser === user.id
-                      ? $t('common.actions.deleting')
-                      : $t('common.actions.delete')
-                  }}
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                  <button
+                    class="delete-btn"
+                    :disabled="isDeletingUser === user.id"
+                    @click="confirmDelete(user)"
+                  >
+                    <UIReservedLabel
+                      :variants="{
+                        idle: $t('common.actions.delete'),
+                        pending: $t('common.actions.deleting')
+                      }"
+                      :active="isDeletingUser === user.id ? 'pending' : 'idle'"
+                    />
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </UIScrollArea>
       </div>
     </div>
 
@@ -122,11 +129,13 @@
           :disabled="isDeleting"
           @click="handleDelete"
         >
-          {{
-            isDeleting
-              ? $t('common.actions.deleting')
-              : $t('users.delete.submit')
-          }}
+          <UIReservedLabel
+            :variants="{
+              idle: $t('users.delete.submit'),
+              pending: $t('common.actions.deleting')
+            }"
+            :active="isDeleting ? 'pending' : 'idle'"
+          />
         </button>
       </UIDialogActions>
     </UIDialog>
@@ -160,7 +169,7 @@ const {
   isLoading: isCreatingUser,
   error: createUserError
 } = useCreateUser({
-  errorHandling: { hideValidationToast: true },
+  errorHandling: { suppressToasts: 'validation' },
   onSuccess: (newUser) => {
     $toast(t('users.toasts.created', { name: newUser.name }), 'success');
     closeUserForm();
@@ -172,7 +181,7 @@ const {
   isLoading: isUpdatingUser,
   error: updateUserError
 } = useUpdateUser({
-  errorHandling: { hideValidationToast: true },
+  errorHandling: { suppressToasts: 'validation' },
   onSuccess: (updatedUser) => {
     $toast(t('users.toasts.updated', { name: updatedUser.name }), 'success');
     closeUserForm();
@@ -220,7 +229,9 @@ function cancelDelete() {
 }
 
 function handleDelete() {
-  if (!userToDelete.value) return;
+  if (!userToDelete.value) {
+    return;
+  }
 
   deleteUser(userToDelete.value.id);
 }
@@ -331,14 +342,22 @@ function handleUpdateUser(id: number, userData: UpdateUserForm) {
   color: var(--color-brand);
 }
 
-/* ! `min-height: 0` is what makes this work: a flex child's default `min-height: auto` refuses to shrink below its content, so the table would grow the page instead of scrolling. Sticky `th`s then keep the column headers in place while the body moves. */
+/* * A static shell: it keeps the border and the radius so the scrolling element inside carries no structural edge of its own, which is the split `scroll-affordance.md` asks for. `overflow: hidden` clips the table's corners to the radius. */
 .table-container {
   background: var(--color-surface);
   border-radius: var(--radius);
   border: 1px solid var(--color-border);
-  overflow-y: auto;
-  min-height: 0;
   box-shadow: var(--shadow-subtle);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* ! `min-height: 0` is what makes this work: a flex child's default `min-height: auto` refuses to shrink below its content, so the table would grow the page instead of scrolling. Sticky `th`s then keep the column headers in place while the body moves — and, sitting inside this region, they cover its top edge rule, which is why only the bottom one is ever visible here. */
+.table-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .users-table {

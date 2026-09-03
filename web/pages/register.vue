@@ -67,7 +67,7 @@ const {
   isLoading: isRegistering,
   error: registerError
 } = useRegister({
-  errorHandling: { hideValidationToast: true },
+  errorHandling: { suppressToasts: 'validation' },
   onSuccess: () => navigateTo('/home')
 });
 

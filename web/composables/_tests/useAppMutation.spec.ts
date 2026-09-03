@@ -89,11 +89,11 @@ describe('useAppMutation', () => {
   it('passes the caller error-handling options to the handler', () => {
     mountMutation({
       mutation: () => Promise.resolve('done'),
-      errorHandling: { hideValidationToast: true }
+      errorHandling: { suppressToasts: 'validation' }
     });
 
     expect(setupQueryErrorHandling.mock.calls[0]?.[1]).toEqual({
-      hideValidationToast: true
+      suppressToasts: 'validation'
     });
   });
 

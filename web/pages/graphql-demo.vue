@@ -16,31 +16,33 @@
     </div>
 
     <div v-else class="table-container">
-      <table class="users-table">
-        <thead>
-          <tr>
-            <th>{{ $t('users.columns.id') }}</th>
-            <th>{{ $t('users.columns.name') }}</th>
-            <th>{{ $t('users.columns.email') }}</th>
-            <th>{{ $t('users.columns.role') }}</th>
-            <th>{{ $t('users.columns.actions') }}</th>
-          </tr>
-        </thead>
+      <UIScrollArea class="table-scroll">
+        <table class="users-table">
+          <thead>
+            <tr>
+              <th>{{ $t('users.columns.id') }}</th>
+              <th>{{ $t('users.columns.name') }}</th>
+              <th>{{ $t('users.columns.email') }}</th>
+              <th>{{ $t('users.columns.role') }}</th>
+              <th>{{ $t('users.columns.actions') }}</th>
+            </tr>
+          </thead>
 
-        <tbody>
-          <tr v-for="user in users" :key="user.id">
-            <td>{{ user.id }}</td>
-            <td>{{ user.name }}</td>
-            <td class="user-email">{{ user.email }}</td>
-            <td><RoleBadge :role="user.role" /></td>
-            <td>
-              <button class="edit-btn" @click="openEditForm(user)">
-                {{ $t('common.actions.edit') }}
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+          <tbody>
+            <tr v-for="user in users" :key="user.id">
+              <td>{{ user.id }}</td>
+              <td>{{ user.name }}</td>
+              <td class="user-email">{{ user.email }}</td>
+              <td><RoleBadge :role="user.role" /></td>
+              <td>
+                <button class="edit-btn" @click="openEditForm(user)">
+                  {{ $t('common.actions.edit') }}
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </UIScrollArea>
     </div>
 
     <UserGqlFormDialog
@@ -77,7 +79,7 @@ const {
   isLoading: isUpdating,
   error: updateError
 } = useUpdateUserGql({
-  errorHandling: { hideValidationToast: true },
+  errorHandling: { suppressToasts: 'validation' },
   onSuccess: (updatedUser) => {
     $toast(t('users.toasts.updated', { name: updatedUser.name }), 'success');
     closeEditForm();
@@ -139,14 +141,22 @@ function closeEditForm() {
   border-color: var(--color-danger-surface-border);
 }
 
-/* ! `min-height: 0` is what makes this work: a flex child's default `min-height: auto` refuses to shrink below its content, so the table would grow the page instead of scrolling. Sticky `th`s then keep the column headers in place while the body moves. */
+/* * A static shell: it keeps the border and the radius so the scrolling element inside carries no structural edge of its own, which is the split `scroll-affordance.md` asks for. `overflow: hidden` clips the table's corners to the radius. */
 .table-container {
   background: var(--color-surface);
   border-radius: var(--radius);
   border: 1px solid var(--color-border);
-  overflow-y: auto;
-  min-height: 0;
   box-shadow: var(--shadow-subtle);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* ! `min-height: 0` is what makes this work: a flex child's default `min-height: auto` refuses to shrink below its content, so the table would grow the page instead of scrolling. Sticky `th`s then keep the column headers in place while the body moves — and, sitting inside this region, they cover its top edge rule, which is why only the bottom one is ever visible here. */
+.table-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .users-table {

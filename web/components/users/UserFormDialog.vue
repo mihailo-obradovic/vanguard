@@ -68,13 +68,14 @@
           class="submit-btn"
           :disabled="submitting || r$.$invalid"
         >
-          {{
-            submitting
-              ? $t('common.actions.saving')
-              : isEdit
-                ? $t('users.form.submitUpdate')
-                : $t('users.form.submitCreate')
-          }}
+          <UIReservedLabel
+            :variants="{
+              create: $t('users.form.submitCreate'),
+              update: $t('users.form.submitUpdate'),
+              saving: $t('common.actions.saving')
+            }"
+            :active="submitting ? 'saving' : isEdit ? 'update' : 'create'"
+          />
         </button>
       </UIDialogActions>
     </form>
@@ -114,7 +115,7 @@ const { r$ } = useRegle(
     ...accountEmailRules(() => props.user?.id),
     ...newPasswordRules(
       () => form.value.password,
-      () => isEdit.value
+      () => (isEdit.value ? 'change' : 'set')
     )
   }),
   { externalErrors: useExternalErrors(() => props.serverErrors) }
@@ -148,7 +149,9 @@ function blankForm(): CreateUserForm {
 }
 
 function formFor(user: User | null): CreateUserForm {
-  if (!user) return blankForm();
+  if (!user) {
+    return blankForm();
+  }
 
   return {
     ...blankForm(),
@@ -167,7 +170,9 @@ function updatePayloadFrom(values: CreateUserForm): UpdateUserForm {
     role: values.role
   };
 
-  if (!values.password) return payload;
+  if (!values.password) {
+    return payload;
+  }
 
   return {
     ...payload,
@@ -179,7 +184,9 @@ function updatePayloadFrom(values: CreateUserForm): UpdateUserForm {
 async function handleSubmit() {
   const { valid } = await r$.$validate();
 
-  if (!valid) return;
+  if (!valid) {
+    return;
+  }
 
   if (!props.user) {
     emit('create', { ...form.value });
@@ -194,7 +201,9 @@ async function handleSubmit() {
 watch(
   () => props.open,
   (open) => {
-    if (!open) return;
+    if (!open) {
+      return;
+    }
 
     r$.$reset({ toState: formFor(props.user), clearExternalErrors: true });
   },

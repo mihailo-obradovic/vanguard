@@ -104,11 +104,11 @@ describe('useAppQuery', () => {
     mountQuery({
       key: ['things', 'options'],
       query: () => Promise.resolve('loaded'),
-      errorHandling: { hideValidationToast: true }
+      errorHandling: { suppressToasts: 'validation' }
     });
 
     expect(setupQueryErrorHandling.mock.calls[0]?.[1]).toEqual({
-      hideValidationToast: true
+      suppressToasts: 'validation'
     });
   });
 

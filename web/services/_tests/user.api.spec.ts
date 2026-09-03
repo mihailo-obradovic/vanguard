@@ -136,16 +136,16 @@ describe('user.api', () => {
   });
 
   describe('checkEmailAvailability', () => {
-    function respondWith(available: boolean) {
+    function respondWith(verdict: 'available' | 'taken') {
       server.use(
         http.get(apiUrl('/api/email-availability'), () =>
-          HttpResponse.json({ available })
+          HttpResponse.json({ available: verdict === 'available' })
         )
       );
     }
 
     it('reports a free address as available', async () => {
-      respondWith(true);
+      respondWith('available');
 
       await expect(checkEmailAvailability('free@example.com')).resolves.toBe(
         true
@@ -153,7 +153,7 @@ describe('user.api', () => {
     });
 
     it('reports a claimed address as unavailable', async () => {
-      respondWith(false);
+      respondWith('taken');
 
       await expect(checkEmailAvailability('taken@example.com')).resolves.toBe(
         false
@@ -161,7 +161,7 @@ describe('user.api', () => {
     });
 
     it('sends the address as a query parameter', async () => {
-      respondWith(true);
+      respondWith('available');
 
       await checkEmailAvailability('free@example.com');
 

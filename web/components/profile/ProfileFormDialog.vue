@@ -60,9 +60,13 @@
           class="submit-btn"
           :disabled="submitting || r$.$invalid"
         >
-          {{
-            submitting ? $t('common.actions.saving') : $t('profile.form.submit')
-          }}
+          <UIReservedLabel
+            :variants="{
+              idle: $t('profile.form.submit'),
+              saving: $t('common.actions.saving')
+            }"
+            :active="submitting ? 'saving' : 'idle'"
+          />
         </button>
       </UIDialogActions>
     </form>
@@ -101,7 +105,7 @@ const { r$ } = useRegle(
     current_password: labeledRules('validation.fieldNames.currentPassword', {
       requiredIf: requiredIf(() => !!form.value.password)
     }),
-    ...newPasswordRules(() => form.value.password, true)
+    ...newPasswordRules(() => form.value.password, 'change')
   }),
   { externalErrors: useExternalErrors(() => props.serverErrors) }
 );
@@ -122,7 +126,9 @@ function formFor(user: User) {
 function payloadFrom(values: ReturnType<typeof formFor>): ProfileForm {
   const payload: ProfileForm = { name: values.name, email: values.email };
 
-  if (!values.password) return payload;
+  if (!values.password) {
+    return payload;
+  }
 
   return {
     ...payload,
@@ -135,7 +141,9 @@ function payloadFrom(values: ReturnType<typeof formFor>): ProfileForm {
 async function handleSubmit() {
   const { valid } = await r$.$validate();
 
-  if (!valid) return;
+  if (!valid) {
+    return;
+  }
 
   emit('submit', payloadFrom(form.value));
 }
@@ -144,7 +152,9 @@ async function handleSubmit() {
 watch(
   () => props.open,
   (open) => {
-    if (!open) return;
+    if (!open) {
+      return;
+    }
 
     r$.$reset({ toState: formFor(props.user), clearExternalErrors: true });
   }

@@ -24,8 +24,8 @@ Put a backend validation error on the field that caused it. Without this the onl
 
 ## Outputs And Side Effects
 
-| Output / Side Effect        | Type | Description                                                                              |
-| --------------------------- | ---- | ---------------------------------------------------------------------------------------- |
+| Output / Side Effect        | Type | Description                                                                               |
+| --------------------------- | ---- | ----------------------------------------------------------------------------------------- |
 | Field-keyed error map       | data | `useValidationErrors` derives it from the mutation's `error` ref; `{}` when there is none |
 | Regle `externalErrors` ref  | data | `useExternalErrors` copies the map into a ref Regle owns and may clear                    |
 | Inline field errors         | UI   | the copied messages render under the field beside Regle's own                             |

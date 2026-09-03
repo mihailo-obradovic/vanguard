@@ -21,11 +21,11 @@ Authenticate the Nuxt SPA against the Laravel API with Sanctum's stateful cookie
 
 ## Outputs And Side Effects
 
-| Output / Side Effect             | Type         | Description                                                                                                      |
-| -------------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------ |
-| `204 No Content`                 | HTTP         | register, login, logout — no body; session rotation per Invariants                                               |
+| Output / Side Effect             | Type         | Description                                                                                                                      |
+| -------------------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| `204 No Content`                 | HTTP         | register, login, logout — no body; session rotation per Invariants                                                               |
 | `GET /api/user` → `UserResource` | JSON         | `{ "data": ... }` envelope — `id, name, email, role, email_verified_at, created_at, updated_at` (password/remember_token hidden) |
-| Queued mail                      | notification | registration fires `Registered` → queued `VerifyEmailNotification`; the round-trip belongs to feature 009        |
+| Queued mail                      | notification | registration fires `Registered` → queued `VerifyEmailNotification`; the round-trip belongs to feature 009                        |
 
 ## Scope And Non-Goals
 
@@ -48,7 +48,7 @@ Not role-specific — no auth endpoint is role-gated; registration cannot set a 
 ## Examples
 
 | Input                                               | Expected Output                      | Notes                                              |
-| --------------------------------------------------- | ------------------------------------ | ---------------------------------------------------- |
+| --------------------------------------------------- | ------------------------------------ | -------------------------------------------------- |
 | `POST /login` valid creds                           | 204, session regenerated             | SPA follows with `GET /api/user`                   |
 | `POST /login` wrong password ×6                     | 422 ×5 on `email`, then throttle 422 | limiter clears on success                          |
 | `GET /api/user` as guest (even without JSON Accept) | 401 JSON, never a redirect           | `redirectGuestsTo(null)` + forced JSON for `api/*` |

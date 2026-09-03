@@ -16,17 +16,17 @@ Give forms immediate, inline feedback that mirrors the backend's own constraints
 
 ## Inputs
 
-| Input           | Type       | Source                             | Constraints                                           |
-| --------------- | ---------- | ---------------------------------- | ----------------------------------------------------- |
-| Field values    | form state | login/register/profile/users forms | validated by Regle rules mirroring the backend        |
-| API response    | JSON       | `fetcher` → `parseResponse`        | validated by Zod (response-only, not form validation) |
+| Input        | Type       | Source                             | Constraints                                           |
+| ------------ | ---------- | ---------------------------------- | ----------------------------------------------------- |
+| Field values | form state | login/register/profile/users forms | validated by Regle rules mirroring the backend        |
+| API response | JSON       | `fetcher` → `parseResponse`        | validated by Zod (response-only, not form validation) |
 
 ## Outputs And Side Effects
 
-| Output / Side Effect        | Type | Description                                                                              |
-| --------------------------- | ---- | ---------------------------------------------------------------------------------------- |
-| Inline field messages | UI | localized, field-named copy rendered under the input as the user types or blurs |
-| Submit gating         | UX | an invalid form blocks submission client-side; a valid one calls its mutation   |
+| Output / Side Effect  | Type | Description                                                                     |
+| --------------------- | ---- | ------------------------------------------------------------------------------- |
+| Inline field messages | UI   | localized, field-named copy rendered under the input as the user types or blurs |
+| Submit gating         | UX   | an invalid form blocks submission client-side; a valid one calls its mutation   |
 
 ## Scope And Non-Goals
 
@@ -49,11 +49,11 @@ Not role-specific — validation UX applies to every form regardless of role.
 
 ## Examples
 
-| Input                             | Expected Output                           | Notes                                                 |
-| --------------------------------- | ----------------------------------------- | ----------------------------------------------------- |
-| Empty required field, blur        | inline "required" message                 | Regle, no network call                                |
-| Password mismatch on register     | inline error on confirmation              | Regle `sameAs`                                        |
-| Address typed in mixed case       | inline "must be lowercase" on an account form | the write path only; `/login` accepts it         |
+| Input                         | Expected Output                               | Notes                                    |
+| ----------------------------- | --------------------------------------------- | ---------------------------------------- |
+| Empty required field, blur    | inline "required" message                     | Regle, no network call                   |
+| Password mismatch on register | inline error on confirmation                  | Regle `sameAs`                           |
+| Address typed in mixed case   | inline "must be lowercase" on an account form | the write path only; `/login` accepts it |
 
 ## Business Rules
 

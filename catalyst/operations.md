@@ -169,6 +169,14 @@ Accepted surviving mutants — recheck when touching the code they live in:
 - **`const form = ref({…})` → `{}`** in `ForgotPasswordDialog` and `RegisterDialog` (variant) — the fields render an absent key and an empty string identically through `v-model`, and Regle's `required` refuses both. On `variant/vuetify` `LoginDialog` is the exception, its initial value being the development credentials the spec asserts; on `variant/nuxtui` it survives there too, because that branch's spec fills the fields itself rather than reading what they came with.
 - **Environment-bound template behaviours** (variant) — the not-observable list after the table (overflow borders, viewport `calc()` strings, `after-leave`); `UsersTable`'s five script mutants are all measurement machinery while its actual row policy is template-only and never mutated.
 
+### Browser walk on `variant/nuxtui`, 2026-09-03
+
+Measured in Chromium at 1100x460 against the real API, both faces.
+
+- **Per-edge rules behave in the profile card body.** `edge-bottom` at the top of the scroll, both edges in the middle, `edge-top` at the end, with both border widths 1px throughout so no edge toggle moves a row.
+- **Both faces resolve and paint.** Dark `#939fbf` on `#21222c`, light `#6272a4` on `#f8f8f2` — 5.39:1 and 4.41:1. The browser was in dark mode by default here, which is worth knowing when reading a walk that reports only one of them.
+- **The reserved row holds.** The verification badge's box equals its wider variant (`Није потврђена`) while showing the shorter `Потврђена`, the resend control's box equals `Пошаљи поново` against `Слање...`, and on a verified account that control reports `inert: true` with `visibility: hidden` — present for its height, unreachable and unannounced.
+
 ### Layout stability and scroll edges on `variant/nuxtui`
 
 This branch's own decisions; the tables above cover the other two branches' disjoint component sets.

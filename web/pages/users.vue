@@ -220,7 +220,9 @@ function cancelDelete() {
 }
 
 function handleDelete() {
-  if (!userToDelete.value) return;
+  if (!userToDelete.value) {
+    return;
+  }
 
   deleteUser(userToDelete.value.id);
 }

@@ -148,7 +148,9 @@ function blankForm(): CreateUserForm {
 }
 
 function formFor(user: User | null): CreateUserForm {
-  if (!user) return blankForm();
+  if (!user) {
+    return blankForm();
+  }
 
   return {
     ...blankForm(),
@@ -167,7 +169,9 @@ function updatePayloadFrom(values: CreateUserForm): UpdateUserForm {
     role: values.role
   };
 
-  if (!values.password) return payload;
+  if (!values.password) {
+    return payload;
+  }
 
   return {
     ...payload,
@@ -179,7 +183,9 @@ function updatePayloadFrom(values: CreateUserForm): UpdateUserForm {
 async function handleSubmit() {
   const { valid } = await r$.$validate();
 
-  if (!valid) return;
+  if (!valid) {
+    return;
+  }
 
   if (!props.user) {
     emit('create', { ...form.value });
@@ -194,7 +200,9 @@ async function handleSubmit() {
 watch(
   () => props.open,
   (open) => {
-    if (!open) return;
+    if (!open) {
+      return;
+    }
 
     r$.$reset({ toState: formFor(props.user), clearExternalErrors: true });
   },

@@ -147,7 +147,9 @@ const {
 const profileFormErrors = useValidationErrors(updateProfileError);
 
 function openEditForm() {
-  if (!user.value) return;
+  if (!user.value) {
+    return;
+  }
 
   showEditForm.value = true;
 }

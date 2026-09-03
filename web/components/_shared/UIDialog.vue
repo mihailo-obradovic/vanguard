@@ -71,7 +71,9 @@ function handleTab(event: KeyboardEvent) {
   const last = focusable.at(-1);
 
   // * A dialog with nothing focusable in it has no cycle to keep Tab inside; the panel itself holds focus and Tab is left to the browser.
-  if (!first || !last) return;
+  if (!first || !last) {
+    return;
+  }
 
   const active = document.activeElement;
 

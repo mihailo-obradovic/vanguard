@@ -108,7 +108,9 @@ function formFor(user: User | null) {
 async function handleSubmit() {
   const { valid } = await r$.$validate();
 
-  if (!valid || !props.user) return;
+  if (!valid || !props.user) {
+    return;
+  }
 
   // * Partial update: only the fields the admin actually changed go on the wire — omitted GraphQL variables never reach the resolver, so untouched fields keep their values.
   emit('update', {
@@ -121,7 +123,9 @@ async function handleSubmit() {
 watch(
   () => props.user,
   (user) => {
-    if (!user) return;
+    if (!user) {
+      return;
+    }
 
     r$.$reset({ toState: formFor(user), clearExternalErrors: true });
   }

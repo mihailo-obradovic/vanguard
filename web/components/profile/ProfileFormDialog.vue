@@ -122,7 +122,9 @@ function formFor(user: User) {
 function payloadFrom(values: ReturnType<typeof formFor>): ProfileForm {
   const payload: ProfileForm = { name: values.name, email: values.email };
 
-  if (!values.password) return payload;
+  if (!values.password) {
+    return payload;
+  }
 
   return {
     ...payload,
@@ -135,7 +137,9 @@ function payloadFrom(values: ReturnType<typeof formFor>): ProfileForm {
 async function handleSubmit() {
   const { valid } = await r$.$validate();
 
-  if (!valid) return;
+  if (!valid) {
+    return;
+  }
 
   emit('submit', payloadFrom(form.value));
 }
@@ -144,7 +148,9 @@ async function handleSubmit() {
 watch(
   () => props.open,
   (open) => {
-    if (!open) return;
+    if (!open) {
+      return;
+    }
 
     r$.$reset({ toState: formFor(props.user), clearExternalErrors: true });
   }

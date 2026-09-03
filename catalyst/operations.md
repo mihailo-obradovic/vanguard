@@ -165,6 +165,16 @@ Accepted surviving mutants — recheck when touching the code they live in:
 - **Every getter Regle reads a rule parameter through** (variant + the `emailRules` factory) — `ignoreId?.()` in `accountEmailRules`, and the `props.user?.id` / `user.value?.id` getters the dialogs and the profile card hand it. Regle swallows a throw inside that getter and sends the availability request with no `ignore_id`, so removing the optional chaining changes nothing any test at any level can see. Measured twice, not assumed: calling `ignoreId!()` outright leaves the factory's own spec green, and mutating both dialogs by hand leaves green the very cases written for the subject-less path. Those cases stay — they cover a real opening, just not this mutant.
 - **Environment-bound template behaviours** (variant) — the not-observable list after the table (overflow borders, viewport `calc()` strings, `after-leave`); `UsersTable`'s five script mutants are all measurement machinery while its actual row policy is template-only and never mutated.
 
+### Browser walk on `variant/vuetify`, 2026-09-03
+
+This branch's components are a different implementation, so master's walk says nothing about them. Measured in Chromium against the real API, in both themes.
+
+- **Per-edge rules behave in the table and in a dialog.** The users table reported `edge-bottom` at the top of its scroll, both edges in the middle, `edge-top` at the end — measured on Vuetify's own `.v-table__wrapper`, which the component reaches into because Vuetify owns that element. `FormCard` reported the same three states at a 1100x460 viewport, replacing the single always-both boolean it used to draw.
+- **Both themes paint, and both clear the floor.** Light resolved `#6272a4` on `#f8f8f2` (4.41:1), dark `#8189a3` on `#282a36` (4.10:1), switched with the app's own toggle rather than by editing a class — the first attempt at that hacked one element out of 214 and proved nothing.
+- **The full-bleed fix worked.** `UserCard`'s field scroller measures 534px inside a 534px card, so its rules span the card instead of sitting 16px inset; padding is 16px on the scroller itself.
+- **The reserved row holds.** The verification chip's box equals its wider variant while showing the shorter one, and the resend control reports `inert: true` with `visibility: hidden` on a verified account — present for its height, unreachable and unannounced.
+- **A dialog on a phone is fullscreen here**, so `FormCard`'s scroll does not arise at 393px and no false indicator is drawn: both borders transparent, both widths 1px. That is the reason this branch has no equivalent of master's unbounded-dialog bug.
+
 ### Layout stability on `variant/vuetify` — what is reserved, and what is not
 
 The variant's own decisions; master's table below covers its disjoint component set.

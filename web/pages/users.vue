@@ -72,11 +72,13 @@
                     :disabled="isDeletingUser === user.id"
                     @click="confirmDelete(user)"
                   >
-                    {{
-                      isDeletingUser === user.id
-                        ? $t('common.actions.deleting')
-                        : $t('common.actions.delete')
-                    }}
+                    <UIReservedLabel
+                      :variants="{
+                        idle: $t('common.actions.delete'),
+                        pending: $t('common.actions.deleting')
+                      }"
+                      :active="isDeletingUser === user.id ? 'pending' : 'idle'"
+                    />
                   </button>
                 </td>
               </tr>

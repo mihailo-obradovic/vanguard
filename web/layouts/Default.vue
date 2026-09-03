@@ -31,11 +31,13 @@
               :disabled="isLoggingOut"
               @click="logOut()"
             >
-              {{
-                isLoggingOut
-                  ? $t('common.nav.logoutPending')
-                  : $t('common.nav.logout')
-              }}
+              <UIReservedLabel
+                :variants="{
+                  idle: $t('common.nav.logout'),
+                  pending: $t('common.nav.logoutPending')
+                }"
+                :active="isLoggingOut ? 'pending' : 'idle'"
+              />
             </button>
           </template>
 

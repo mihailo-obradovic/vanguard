@@ -18,9 +18,9 @@
         </h2>
       </div>
 
-      <div class="ui-dialog-body">
+      <UIScrollArea class="ui-dialog-body">
         <slot />
-      </div>
+      </UIScrollArea>
     </div>
   </div>
 </template>
@@ -133,6 +133,14 @@ watch(
   width: 100%;
   max-width: 500px;
   box-shadow: var(--shadow-card);
+  /*
+   * ! Bounded, or a panel taller than the viewport is unreachable. The overlay is fixed and
+   * centred, and main.css pins html/body/#__nuxt to `overflow-y: hidden`, so there is no scroll
+   * anywhere to reach a submit button that has bled off the bottom. The body scrolls instead.
+   */
+  display: flex;
+  flex-direction: column;
+  max-height: 100%;
 }
 
 .ui-dialog.narrow {
@@ -159,7 +167,15 @@ watch(
   color: var(--color-danger);
 }
 
+.ui-dialog-header {
+  flex: 0 0 auto;
+}
+
 .ui-dialog-body {
+  /* * The scrolling element owns its padding, so the edge rules span the panel and content scrolls under them. */
   padding: 16px 24px 0 24px;
+  /* * min-height: 0 lets this shrink below its content so the header and the actions row inside it keep their space. */
+  flex: 1 1 auto;
+  min-height: 0;
 }
 </style>

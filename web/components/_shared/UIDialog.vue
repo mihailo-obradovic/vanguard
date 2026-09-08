@@ -10,7 +10,7 @@
       tabindex="-1"
       @click.stop
       @keydown.esc="emit('close')"
-      @keydown.tab="handleTab"
+      @keydown.tab="trapFocus"
     >
       <div class="ui-dialog-header">
         <h2 :id="titleId" class="ui-dialog-title" :class="{ danger }">
@@ -65,7 +65,7 @@ function focusableWithin() {
 
 // ! The trap is the whole point of owning a dialog rather than styling a div: without it Tab walks
 // ! out of the open dialog into the page behind it, which is still there and still clickable.
-function handleTab(event: KeyboardEvent) {
+function trapFocus(event: KeyboardEvent) {
   const focusable = focusableWithin();
   const first = focusable[0];
   const last = focusable.at(-1);

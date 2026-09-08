@@ -1,6 +1,6 @@
 # vanguard
 
-Catalyst version: 1.11.0
+Catalyst version: 1.13.3
 
 ## Project Purpose
 

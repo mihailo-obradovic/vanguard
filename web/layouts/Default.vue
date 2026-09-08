@@ -50,7 +50,7 @@
         :ui="{ content: 'max-w-64' }"
       >
         <template #body>
-          <SidebarNav @navigate="mobileDrawer = false" />
+          <SidebarNav @navigate="closeMobileDrawer" />
         </template>
       </u-slideover>
 
@@ -99,6 +99,11 @@ const isCompactHeader = breakpoints.smaller('sm');
 
 const desktopDrawer = ref(true);
 const mobileDrawer = ref(false);
+
+// * Navigating from the slideover closes it; the desktop drawer is persistent and stays as it is.
+function closeMobileDrawer() {
+  mobileDrawer.value = false;
+}
 
 function toggleDrawer() {
   if (isDesktop.value) {

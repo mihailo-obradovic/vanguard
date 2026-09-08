@@ -43,7 +43,7 @@
             variant="ghost"
             icon="i-lucide-pencil"
             :aria-label="$t('common.actions.edit')"
-            @click="editMode = true"
+            @click="startEditing"
           />
         </div>
       </div>
@@ -282,6 +282,10 @@ function formFor(user: User) {
     password: '',
     password_confirmation: ''
   };
+}
+
+function startEditing() {
+  editMode.value = true;
 }
 
 function resetForm() {

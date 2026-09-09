@@ -12,3 +12,6 @@ allowBuilds:
   # * service-worker script, which nothing here needs.
   msw: false
   unrs-resolver: true
+  # * reka-ui's transitive dependency; postinstall only detects the installed Vue
+  # * major version and writes the matching shim, no other side effect.
+  vue-demi: true

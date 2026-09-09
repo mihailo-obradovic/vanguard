@@ -37,6 +37,7 @@
     "clsx": "^2.1.1",
     "nuxt": "^4.5.2",
     "pinia": "^4.0.2",
+    "reka-ui": "^2.10.4",
     "tailwind-merge": "^3.6.0",
     "temporal-polyfill": "^1.0.3",
     "vue": "^3.5.41",

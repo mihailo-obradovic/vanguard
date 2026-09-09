@@ -38,6 +38,7 @@ One line per record: type, status, title, link.
 | 007 | infra       | Implemented | Serve GraphQL alongside REST (Lighthouse + a fetcher-based client)                                                         | [decisions/007_infra_graphql-alongside-rest.md](decisions/007_infra_graphql-alongside-rest.md)                   |
 | 012 | tooling     | Implemented | mattpocock-skills run inside Catalyst structures (Workflowy tracker, single ADR home, glossary as context doc)             | [decisions/012_tooling_mattpocock-skills-integration.md](decisions/012_tooling_mattpocock-skills-integration.md) |
 | 013 | process     | Implemented | Testing rulebook: strategy, quality doctrine, mutation and coverage stance in one record (supersedes 008/009/011, deleted) | [decisions/013_process_testing-rulebook.md](decisions/013_process_testing-rulebook.md)                           |
+| 014 | ui          | Accepted    | Dialog-based auth composition over pages (shadcn-vue variant, parity with vuetify)                                         | [decisions/014_ui_shadcn-dialog-auth-composition.md](decisions/014_ui_shadcn-dialog-auth-composition.md)         |
 
 ## Domain Decision Index
 

@@ -17,3 +17,5 @@ A **context document** (`references/context-documents.md`): the project's domain
 **Table height cap** — capping a data table's body at the space remaining below it in the viewport, so the table scrolls under a pinned header instead of growing the page. The canonical implementation is flexbox (`min-height: 0` chain + sticky header) on every branch; the older measured form (element-bounds watch feeding a `max-height`) is superseded. Avoid "height calculation" — the canonical form calculates nothing.
 
 **Variant** — a long-lived branch carrying the same product on an alternative `frontend/ui` module; synced from master, never merged back. Its UI-composition decisions are variant-only, ported only by deliberate decision, never by merge.
+
+**Dialog** — the canonical term for a modal overlay (`UIDialog`, `Dialog`, `useMutationDialog`). "Modal" is a deliberately avoided synonym — it appears only as the ARIA attribute `aria-modal`, never as a component, prop, or file name.

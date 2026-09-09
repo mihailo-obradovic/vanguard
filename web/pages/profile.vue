@@ -179,7 +179,7 @@ onMounted(() => {
   background: var(--color-surface);
   border-radius: var(--radius);
   box-shadow: var(--shadow-card);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-legacy);
   overflow: hidden;
 }
 
@@ -210,7 +210,7 @@ onMounted(() => {
   font-weight: 600;
   margin: 0 0 24px 0;
   padding-bottom: 8px;
-  border-bottom: 2px solid var(--color-border);
+  border-bottom: 2px solid var(--color-border-legacy);
 }
 
 .info-grid {
@@ -240,7 +240,7 @@ onMounted(() => {
   padding: 12px 16px;
   background-color: var(--color-surface-muted);
   border-radius: var(--radius);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-legacy);
 }
 
 .verification-value {
@@ -281,7 +281,7 @@ onMounted(() => {
   display: flex;
   justify-content: center;
   padding-top: 24px;
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid var(--color-border-legacy);
 }
 
 .edit-profile-btn {

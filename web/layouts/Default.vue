@@ -101,7 +101,7 @@ const { mutate: logOut, isLoading: isLoggingOut } = useLogOut();
 
 .nav-link:hover {
   color: var(--color-brand);
-  background-color: var(--color-border);
+  background-color: var(--color-border-legacy);
 }
 
 .nav-auth {
@@ -113,7 +113,7 @@ const { mutate: logOut, isLoading: isLoggingOut } = useLogOut();
 .user-name-link {
   text-decoration: none;
   color: var(--color-brand);
-  background-color: var(--color-border);
+  background-color: var(--color-border-legacy);
   padding: 8px 16px;
   /* * Transparent border matches .auth-link so the navbar height doesn't change between logged-in and logged-out states. */
   border: 1px solid transparent;

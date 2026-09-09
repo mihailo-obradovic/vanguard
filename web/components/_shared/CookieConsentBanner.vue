@@ -51,7 +51,7 @@ onMounted(() => {
   right: 0;
   z-index: 1000;
   background: var(--color-surface);
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid var(--color-border-legacy);
   box-shadow: var(--shadow-card-up);
 }
 
@@ -91,11 +91,11 @@ onMounted(() => {
 .cookie-btn--decline {
   background-color: transparent;
   color: var(--color-text);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-legacy);
 }
 
 .cookie-btn--decline:hover {
-  background-color: var(--color-border);
+  background-color: var(--color-border-legacy);
 }
 
 .cookie-btn--accept {

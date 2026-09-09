@@ -55,7 +55,7 @@ const emit = defineEmits<{ submit: [] }>();
   padding: 32px;
   width: 100%;
   max-width: 400px;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-legacy);
 }
 
 .auth-card-title {
@@ -110,7 +110,7 @@ const emit = defineEmits<{ submit: [] }>();
   text-align: center;
   margin-top: 24px;
   padding-top: 16px;
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid var(--color-border-legacy);
 }
 
 /* * Deep, because the footer's links are slot content and carry the caller's scope id. */

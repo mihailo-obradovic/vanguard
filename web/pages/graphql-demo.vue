@@ -110,7 +110,7 @@ function closeEditForm() {
 .demo-header {
   margin-bottom: 24px;
   padding-bottom: 16px;
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border-legacy);
   flex-shrink: 0;
 }
 
@@ -132,7 +132,7 @@ function closeEditForm() {
   padding: 32px;
   background: var(--color-surface);
   border-radius: var(--radius);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-legacy);
 }
 
 .error-panel {
@@ -145,7 +145,7 @@ function closeEditForm() {
 .table-container {
   background: var(--color-surface);
   border-radius: var(--radius);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-legacy);
   box-shadow: var(--shadow-subtle);
   overflow: hidden;
   display: flex;
@@ -178,7 +178,7 @@ function closeEditForm() {
 
 .users-table td {
   padding: 12px 16px;
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border-legacy);
   font-size: 14px;
 }
 

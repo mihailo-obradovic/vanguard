@@ -1,3 +1,5 @@
+import tailwindcss from '@tailwindcss/vite';
+
 export default defineNuxtConfig({
   devtools: {
     enabled: ['local', 'development'].includes(process.env.APP_ENV ?? '')
@@ -60,6 +62,8 @@ export default defineNuxtConfig({
   css: ['@/assets/styles/main.css'],
 
   vite: {
+    // ! variant/shadcn-vue: Tailwind v4 is a Vite plugin, not a PostCSS/tailwind.config step.
+    plugins: [tailwindcss()],
     optimizeDeps: {
       // ! @regle/nuxt resolves its own raw copy of @regle/core at runtime while the app gets the pre-bundled one; the differing injection symbols trigger a bogus "Regle Devtools are not available" warning — excluding both keeps a single instance in dev.
       exclude: ['@regle/core', '@regle/rules']

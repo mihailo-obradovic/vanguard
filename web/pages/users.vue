@@ -272,7 +272,7 @@ function handleUpdateUser(id: number, userData: UpdateUserForm) {
   align-items: center;
   margin-bottom: 24px;
   padding-bottom: 16px;
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border-legacy);
   flex-shrink: 0;
 }
 
@@ -310,7 +310,7 @@ function handleUpdateUser(id: number, userData: UpdateUserForm) {
   padding: 32px;
   background: var(--color-surface);
   border-radius: var(--radius);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-legacy);
 }
 
 .error-state {
@@ -346,7 +346,7 @@ function handleUpdateUser(id: number, userData: UpdateUserForm) {
 .table-container {
   background: var(--color-surface);
   border-radius: var(--radius);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-legacy);
   box-shadow: var(--shadow-subtle);
   overflow: hidden;
   display: flex;
@@ -379,7 +379,7 @@ function handleUpdateUser(id: number, userData: UpdateUserForm) {
 
 .users-table td {
   padding: 12px 16px;
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border-legacy);
   font-size: 14px;
 }
 

@@ -61,7 +61,7 @@ const describedBy = computed(() => (invalid.value ? errorId : undefined));
 /* * Deep, because a control passed through the slot is compiled in the caller's scope and carries the caller's scope id — the default input and a slotted `<select>` have to be reachable by the same rule. */
 .ui-field :deep(.ui-field-control) {
   padding: 8px 16px;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-legacy);
   border-radius: var(--radius);
   font-size: 16px;
   transition: all var(--transition);

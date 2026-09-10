@@ -33,14 +33,14 @@ Close the two mail-driven account-lifecycle loops that sit around the session ra
 
 ## Scope And Non-Goals
 
-In scope: the four endpoints above, the SPA's `forgot-password` and `password-reset/[token]` pages, and the profile page's resend button and `?verified=1` landing.
+In scope: the four endpoints above, the SPA's `ForgotPasswordDialog` (opened from `web/layouts/Default.vue`) and `password-reset` page, and the profile page's resend button and `?verified=1` landing.
 
 Non-goals: registration, login, logout, and session/CSRF mechanics (feature 001); stating the password policy (001 owns it — this flow defers); the profile email change that nulls verification (feature 003); any admin-side verification or reset affordance (none exists).
 
 ## User / System Behavior
 
-- Requesting a reset link posts the address; when the broker accepts it, a queued `ResetPasswordNotification` goes out and the SPA toasts the returned status, clears the field and resets validation. The mailed link targets the SPA directly (`FRONTEND_URL/password-reset/{token}?email=...`), built by `ResetPassword::createUrlUsing()` — never a backend page.
-- The reset page seeds `email` from the query string and posts it with the token and the new password; on success it toasts the status and navigates to `/login`.
+- Requesting a reset link posts the address; when the broker accepts it, a queued `ResetPasswordNotification` goes out and the dialog toasts the returned status, clears the field and resets validation. The mailed link targets the SPA directly (`FRONTEND_URL/password-reset?token=...&email=...`), built by `ResetPassword::createUrlUsing()` — never a backend page.
+- The reset page seeds `email` and `token` from the query string and posts them with the new password; on success it toasts the status and navigates to `/` — there is no dedicated `/login` route to navigate to (feature 001: login is a dialog opened from the layout).
 - Registration (feature 001) fires `Registered`, which queues the first verification mail. Opening the signed link hits the API under `auth`, marks the address verified on the first hit, and bounces to `/profile?verified=1`; the profile page refetches the user and toasts.
 - The profile page's resend button posts to `/email/verification-notification`; the server sends a fresh link, or answers `already-verified` when there is nothing to send.
 - Broker and token failures come back as a 422 on `email` and render inline under the email input, with the validation toast suppressed.
@@ -56,7 +56,7 @@ Not role-specific — no endpoint here is role-gated. Forgot/reset sit in the `g
 | `POST /forgot-password` known email                   | 200 `{status}`, reset mail queued                        | link resolves to the SPA reset page                       |
 | `POST /forgot-password` unknown email                 | 422 on `email`                                           | **leaks account existence** — recorded, not smoothed over |
 | `POST /forgot-password` twice in a row                | 422 on `email` (broker throttle)                         | the broker, not a route rate limiter                      |
-| `POST /reset-password` valid token                    | 200 `{status}`, password rewritten, SPA → `/login`       | `remember_token` rotated                                  |
+| `POST /reset-password` valid token                    | 200 `{status}`, password rewritten, SPA → `/`            | `remember_token` rotated                                  |
 | `POST /reset-password` invalid or expired token       | 422 on `email`                                           | surfaces under the email input                            |
 | `GET /verify-email/{id}/{bad-hash}`                   | 403, still unverified                                    | signature/hash mismatch                                   |
 | `GET /verify-email/{id}/{hash}` when already verified | 302 to `/profile?verified=1`, no second `Verified` event | idempotent                                                |
@@ -90,7 +90,7 @@ Not role-specific — no endpoint here is role-gated. Forgot/reset sit in the `g
 ## Entry Points
 
 - Backend: `routes/web.php` (forgot/reset in the `guest` group, verify/resend in the `auth` group), `app/Http/Controllers/Auth/{PasswordResetLinkController,NewPasswordController,VerifyEmailController,EmailVerificationNotificationController}.php`, `app/Notifications/{ResetPasswordNotification,VerifyEmailNotification}.php`, `app/Providers/AppServiceProvider.php` (the SPA reset-URL closure), `app/Models/User.php` (queued notification overrides).
-- SPA: `web/pages/forgot-password.vue`, `web/pages/password-reset/[token].vue`, the resend button and `?verified=1` handling in `web/pages/profile.vue`, `web/services/auth.api.ts` + `web/services/queries/useAuthQueries.ts`.
+- SPA: `web/components/users/ForgotPasswordDialog.vue` (opened from `web/layouts/Default.vue`), `web/pages/password-reset.vue`, the resend button and `?verified=1` handling in `web/pages/profile.vue`, `web/services/auth.api.ts` + `web/services/queries/useAuthQueries.ts`.
 
 ## Dependencies
 
@@ -106,7 +106,7 @@ Not role-specific — no endpoint here is role-gated. Forgot/reset sit in the `g
 - `tests/Feature/Auth/PasswordResetTest.php` — 12 tests: link requested and mail queued, required-field and overlong-email 422s on both endpoints, the unknown-email 422, the immediate-second-request throttle, the link resolving to the front-end page (which also exercises the `AppServiceProvider` closure), the reset round-trip, invalid token, below-minimum password, and confirmation mismatch. The length bounds are pinned at 7/8 and 256/255.
 - `tests/Feature/Auth/EmailVerificationTest.php` — 5 tests: registration queues the notification, the signed URL verifies and redirects to the front end, an invalid hash does not verify, a link can be resent, and resending for a verified user reports `already-verified`.
 - `web/services/_tests/auth.api.spec.ts` and `web/services/queries/_tests/useAuthQueries.spec.ts` cover the forgot/reset/resend service and query layers.
-- Known gaps: the verification-resend throttle is untested; `forgot-password.vue` and `password-reset/[token].vue` have no component tests. The unknown-email 422 test asserts the current enumeration-friendly behavior — hardening it is a product decision, not a test gap.
+- Known gaps: the verification-resend throttle is untested; `password-reset.vue` has no component test of its own (its shared shell, `components/_shared/AuthCard.vue`, does) — `ForgotPasswordDialog.vue` does have one (`web/components/users/_tests/ForgotPasswordDialog.spec.ts`). The unknown-email 422 test asserts the current enumeration-friendly behavior — hardening it is a product decision, not a test gap.
 
 ## Verification
 

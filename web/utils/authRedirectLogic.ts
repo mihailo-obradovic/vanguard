@@ -22,13 +22,9 @@ export function determineAuthRedirect(
     };
   }
 
-  // * Pages with dynamic segments, e.g. /password-reset/{token} — flattened to a single
-  // * /password-reset route reading ?token=&email= once Phase 3's next part lands.
-  const guestOnlyPrefixes = ['/password-reset/'];
+  const guestOnlyPages: string[] = ['/password-reset'];
   const sharedPages = ['/home'];
-  const isGuestOnlyPage = guestOnlyPrefixes.some((prefix) =>
-    pathWithoutQuery.startsWith(prefix)
-  );
+  const isGuestOnlyPage = guestOnlyPages.includes(pathWithoutQuery);
   const isProtectedPage =
     !isGuestOnlyPage && !sharedPages.includes(pathWithoutQuery);
 

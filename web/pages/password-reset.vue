@@ -64,7 +64,7 @@ const {
   errorHandling: { suppressToasts: 'validation' },
   onSuccess: (data) => {
     $toast(data.status, 'success');
-    navigateTo('/login');
+    navigateTo('/');
   }
 });
 
@@ -83,7 +83,7 @@ async function handleSubmit() {
 
   if (valid) {
     resetPassword({
-      token: String(route.params.token ?? ''),
+      token: String(route.query.token ?? ''),
       ...form.value
     });
   }

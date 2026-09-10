@@ -79,10 +79,8 @@ describe('the app shell', () => {
     expect(navigateTo).toHaveBeenCalledWith('/home', { replace: true });
   });
 
-  // * The token-carrying reset page is matched by prefix rather than by exact path, so it is the
-  // * one guest-only route whose classification the watcher could plausibly get wrong.
-  it('sends a user who signs in away from the password-reset link', async () => {
-    await signIn('/password-reset/reset-token', 'in');
+  it('sends a user who signs in away from a guest-only page', async () => {
+    await signIn('/password-reset', 'in');
 
     expect(navigateTo).toHaveBeenCalledWith('/home', { replace: true });
   });

@@ -68,7 +68,8 @@ test('an immediate second reset link request is throttled', function () {
     Notification::assertSentToTimes($user, ResetPasswordNotification::class, 1);
 });
 
-test('the reset link resolves to the front-end reset page', function () {
+// * This branch's reset page reads the token from the query string; master's reads it from the path segment.
+test('the reset link points at the front-end route with token and email in the query string', function () {
     Notification::fake();
 
     $user = User::factory()->create();
@@ -79,7 +80,7 @@ test('the reset link resolves to the front-end reset page', function () {
         $email = urlencode($user->email);
 
         expect($notification->toMail($user)->actionUrl)
-            ->toBe(config('app.frontend_url')."/password-reset/{$notification->token}?email={$email}");
+            ->toBe(config('app.frontend_url')."/password-reset?token={$notification->token}&email={$email}");
 
         return true;
     });

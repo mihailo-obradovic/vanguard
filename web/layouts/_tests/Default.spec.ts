@@ -38,10 +38,13 @@ describe('the default layout', () => {
     expect(main.getAttribute('tabindex')).toBe('-1');
   });
 
+  // ! Login/Register open dialogs now, not routes — they are buttons, not links, and
+  // ! `getAllByRole('link')` would silently stop seeing them if this regressed back to `<a>`.
   it('offers a guest the ways in, and nothing else', async () => {
     await renderSuspended(Default);
 
-    expect(linkNames()).toEqual(expect.arrayContaining(['Login', 'Register']));
+    expect(screen.getByRole('button', { name: 'Login' })).not.toBeNull();
+    expect(screen.getByRole('button', { name: 'Register' })).not.toBeNull();
     expect(screen.queryByRole('button', { name: 'Logout' })).toBeNull();
   });
 
@@ -52,7 +55,7 @@ describe('the default layout', () => {
 
     expect(linkNames()).toContain('Mihailo');
     expect(screen.getByRole('button', { name: 'Logout' })).not.toBeNull();
-    expect(linkNames()).not.toContain('Login');
+    expect(screen.queryByRole('button', { name: 'Login' })).toBeNull();
   });
 
   // ! The admin-only links are the security-adjacent part of this layout. They are a convenience,
@@ -89,5 +92,60 @@ describe('the default layout', () => {
     await fireEvent.click(screen.getByRole('button', { name: 'Logout' }));
 
     await waitFor(() => expect(requests.trace()).toContain('POST /logout'));
+  });
+
+  it('opens the login dialog from the nav', async () => {
+    await renderSuspended(Default);
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Login' }));
+
+    expect(
+      await screen.findByRole('dialog', { name: 'Welcome Back' })
+    ).not.toBeNull();
+  });
+
+  it('opens the register dialog from the nav', async () => {
+    await renderSuspended(Default);
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Register' }));
+
+    expect(
+      await screen.findByRole('dialog', { name: 'Create Account' })
+    ).not.toBeNull();
+  });
+
+  // ! The three dialogs are mutually exclusive and hand off by event, owned entirely by this
+  // ! layout (`useMutationDialog` per dialog + v-model + emit) — nothing about that wiring is
+  // ! covered by the dialogs' own specs, which mock the hand-off emits rather than each other.
+  it('hands off from login to forgot-password, closing one and opening the other', async () => {
+    await renderSuspended(Default);
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Login' }));
+    await screen.findByRole('dialog', { name: 'Welcome Back' });
+
+    await fireEvent.click(
+      screen.getByRole('button', { name: 'Forgot your password?' })
+    );
+
+    expect(
+      await screen.findByRole('dialog', { name: 'Forgot Password' })
+    ).not.toBeNull();
+    expect(screen.queryByRole('dialog', { name: 'Welcome Back' })).toBeNull();
+  });
+
+  it('hands off from login to register, closing one and opening the other', async () => {
+    await renderSuspended(Default);
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Login' }));
+    await screen.findByRole('dialog', { name: 'Welcome Back' });
+
+    await fireEvent.click(
+      screen.getByRole('button', { name: /Register here/ })
+    );
+
+    expect(
+      await screen.findByRole('dialog', { name: 'Create Account' })
+    ).not.toBeNull();
+    expect(screen.queryByRole('dialog', { name: 'Welcome Back' })).toBeNull();
   });
 });

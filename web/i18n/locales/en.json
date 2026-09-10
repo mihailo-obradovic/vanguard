@@ -1,5 +1,6 @@
 {
   "auth": {
+    "backToLogin": "Back to login?",
     "forgotPassword": {
       "hint": "Enter your email address and we'll send you a password reset link.",
       "submit": "Send Reset Link",
@@ -31,6 +32,7 @@
   "common": {
     "actions": {
       "cancel": "Cancel",
+      "confirm": "Confirm",
       "delete": "Delete",
       "deleting": "Deleting...",
       "edit": "Edit",

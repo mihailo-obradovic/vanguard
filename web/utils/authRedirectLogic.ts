@@ -1,17 +1,17 @@
-import type { LocationQuery } from 'vue-router';
-
 export type RedirectDecision = {
   shouldRedirect: boolean;
   redirectTo?: string;
   reason?: string;
 };
 
+// * The whole redirect policy, and genuinely pure: the session state arrives as an argument rather than out of the store, so the signature states everything the answer depends on and the callers — middleware and the login-state watcher — stay the only places that touch the framework (`catalyst/stacks/frontend/nuxt/routing.md`).
+export type SessionState = 'guest' | 'signed-in';
+
 export function determineAuthRedirect(
   path: string,
-  _query: LocationQuery // * For compatibility with more complex logic
+  session: SessionState
 ): RedirectDecision {
-  const { isLoggedIn } = storeToRefs(useAuthStore());
-
+  const isLoggedIn = session === 'signed-in';
   const pathWithoutQuery = path.split('?')[0] ?? path;
 
   if (pathWithoutQuery === '/') {
@@ -22,27 +22,29 @@ export function determineAuthRedirect(
     };
   }
 
-  const guestOnlyPages = ['/login', '/register', '/forgot-password'];
-  // * Pages with dynamic segments, e.g. /password-reset/{token}
+  // * Pages with dynamic segments, e.g. /password-reset/{token} — flattened to a single
+  // * /password-reset route reading ?token=&email= once Phase 3's next part lands.
   const guestOnlyPrefixes = ['/password-reset/'];
   const sharedPages = ['/home'];
-  const isGuestOnlyPage =
-    guestOnlyPages.includes(pathWithoutQuery) ||
-    guestOnlyPrefixes.some((prefix) => pathWithoutQuery.startsWith(prefix));
+  const isGuestOnlyPage = guestOnlyPrefixes.some((prefix) =>
+    pathWithoutQuery.startsWith(prefix)
+  );
   const isProtectedPage =
     !isGuestOnlyPage && !sharedPages.includes(pathWithoutQuery);
 
-  // * Redirect unauthenticated users away from protected pages
-  if (!isLoggedIn.value && isProtectedPage) {
+  // * Redirect unauthenticated users away from protected pages. There is no dedicated
+  // * guest-only auth route to send them to any more — login/register/forgot-password are
+  // * dialogs opened from the layout — so they land on /home instead.
+  if (!isLoggedIn && isProtectedPage) {
     return {
       shouldRedirect: true,
-      redirectTo: '/login',
+      redirectTo: '/home',
       reason: 'protected_page_without_auth'
     };
   }
 
   // * Redirect authenticated users away from guest-only pages
-  if (isLoggedIn.value && isGuestOnlyPage) {
+  if (isLoggedIn && isGuestOnlyPage) {
     return {
       shouldRedirect: true,
       redirectTo: '/home',

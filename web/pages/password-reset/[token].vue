@@ -37,7 +37,9 @@
     <template #footer>
       <p>
         {{ $t('auth.rememberedPassword') }}
-        <NuxtLink to="/login">{{ $t('auth.loginLink') }}</NuxtLink>
+        <!-- * There is no /login route to link to any more — login is a dialog opened from
+             the layout's nav — so this sends the user to the page that has it. -->
+        <NuxtLink to="/">{{ $t('auth.loginLink') }}</NuxtLink>
       </p>
     </template>
   </AuthCard>

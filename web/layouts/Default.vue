@@ -42,13 +42,13 @@
           </template>
 
           <template v-else>
-            <NuxtLink to="/login" class="auth-link">
+            <button type="button" class="auth-link" @click="openLogin">
               {{ $t('common.nav.login') }}
-            </NuxtLink>
+            </button>
 
-            <NuxtLink to="/register" class="auth-link">
+            <button type="button" class="auth-link" @click="openRegister">
               {{ $t('common.nav.register') }}
-            </NuxtLink>
+            </button>
           </template>
         </div>
       </div>
@@ -60,15 +60,84 @@
     </main>
 
     <TheFooter />
+
+    <!-- * The three are mutually exclusive, and each closes itself before emitting its hand-off — so a hand-off only has to raise the next one's flag. -->
+    <LoginDialog
+      v-model="loginDialog"
+      :loading="isLoggingIn"
+      :server-errors="loginErrors"
+      @confirm="handleLogin"
+      @forgot-password="openForgotPassword"
+      @register="openRegister"
+    />
+
+    <RegisterDialog
+      v-model="registerDialog"
+      :loading="isRegistering"
+      :server-errors="registerErrors"
+      @confirm="handleRegister"
+      @log-in="openLogin"
+    />
+
+    <ForgotPasswordDialog
+      v-model="forgotPasswordDialog"
+      :loading="isSendingResetEmail"
+      :server-errors="forgotPasswordErrors"
+      @confirm="handleForgotPassword"
+      @back-to-login="openLogin"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { useLogOut } from '@/services/queries/useAuthQueries';
+import {
+  useGeneratePasswordResetEmail,
+  useLogIn,
+  useLogOut,
+  useRegister
+} from '@/services/queries/useAuthQueries';
+import ForgotPasswordDialog from '@/components/users/ForgotPasswordDialog.vue';
+import LoginDialog from '@/components/users/LoginDialog.vue';
+import RegisterDialog from '@/components/users/RegisterDialog.vue';
 
 const { isLoggedIn, isAdmin, user } = storeToRefs(useAuthStore());
 
 const { mutate: logOut, isLoading: isLoggingOut } = useLogOut();
+
+const {
+  dialog: loginDialog,
+  submit: handleLogin,
+  loading: isLoggingIn,
+  errors: loginErrors
+} = useMutationDialog(useLogIn, () => navigateTo('/home'));
+
+const {
+  dialog: registerDialog,
+  submit: handleRegister,
+  loading: isRegistering,
+  errors: registerErrors
+} = useMutationDialog(useRegister, () => navigateTo('/home'));
+
+const {
+  dialog: forgotPasswordDialog,
+  submit: handleForgotPassword,
+  loading: isSendingResetEmail,
+  errors: forgotPasswordErrors
+} = useMutationDialog(useGeneratePasswordResetEmail, (data) =>
+  $toast(data.status, 'success')
+);
+
+function openLogin() {
+  loginDialog.value = true;
+}
+
+function openRegister() {
+  registerDialog.value = true;
+}
+
+function openForgotPassword() {
+  forgotPasswordDialog.value = true;
+}
 </script>
 
 <style scoped>
@@ -145,6 +214,10 @@ const { mutate: logOut, isLoading: isLoggingOut } = useLogOut();
 }
 
 .auth-link {
+  /* * Was a `<NuxtLink>`; now opens a dialog instead of navigating, so it is a `<button>` — these reset it back to link-like chrome. */
+  background: none;
+  font: inherit;
+  cursor: pointer;
   text-decoration: none;
   color: var(--color-on-brand);
   font-weight: 500;

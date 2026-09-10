@@ -1,5 +1,6 @@
 {
   "auth": {
+    "backToLogin": "Nazad na prijavu?",
     "forgotPassword": {
       "hint": "Unesite svoju e-adresu i poslaćemo vam link za resetovanje lozinke.",
       "submit": "Pošalji link",
@@ -31,6 +32,7 @@
   "common": {
     "actions": {
       "cancel": "Otkaži",
+      "confirm": "Potvrdi",
       "delete": "Obriši",
       "deleting": "Brisanje...",
       "edit": "Izmeni",

@@ -70,15 +70,11 @@ describe('the app shell', () => {
   // ! `middleware/auth.global.ts` never runs, and the user would sit on a page they can no longer
   // ! reach.
   // * `replace` is asserted rather than any-options: the page the session just made unreachable
-  // * must not stay one Back away.
+  // * must not stay one Back away. There is no dedicated guest-only auth route to send them to
+  // * any more — login/register/forgot-password are dialogs opened from the layout — so they
+  // * land on /home instead.
   it('sends a user who signs out away from a page they can no longer reach', async () => {
     await signIn('/users', 'out');
-
-    expect(navigateTo).toHaveBeenCalledWith('/login', { replace: true });
-  });
-
-  it('sends a user who signs in away from a guest-only page', async () => {
-    await signIn('/login', 'in');
 
     expect(navigateTo).toHaveBeenCalledWith('/home', { replace: true });
   });

@@ -42,7 +42,7 @@ Non-goals: admin user management (feature 002 — `PUT /api/users/{id}` keeps ro
 - When an authenticated user submits the profile form, the backend applies `changeEmail()` first, then fills only `name`/`password`, saves once, and re-sends verification only if the email changed.
 - When the email is unchanged (strict compare; `lowercase` rule normalizes input first), verification status is untouched and nothing is sent.
 - When a password change is requested without the correct `current_password`, the request 422s and no partial write occurs.
-- The profile page shows name, email, a role badge, and a verification badge with a resend button when unverified; an edit modal submits the update. On success the auth store is replaced wholesale (the verification badge flips immediately), a success toast fires, and the modal resets. Arriving with `?verified=1` refetches the user and toasts.
+- The profile page is a single card (`UserCard`) that toggles between read-only and inline edit — name and email fields switch from readonly to editable in place; there is no separate edit dialog. A verification badge with a resend button shows when unverified. On success the auth store is replaced wholesale (the verification badge flips immediately), a success toast fires, and the card leaves edit mode. Escape or the cancel control discards the edit and restores the signed-in user's values. Arriving with `?verified=1` refetches the user and toasts.
 - Server 422s render inline per field (Regle external errors via `useValidationErrors` → `useExternalErrors`), with the validation toast suppressed; non-422 errors still toast centrally.
 
 ## Roles And Access
@@ -95,7 +95,7 @@ Every account type gets the same profile page; admins additionally manage others
 - `routes/api.php` — `PUT /api/profile` (no name, no throttle, PUT only).
 - `app/Http/Controllers/ProfileController.php` / `app/Http/Requests/ProfileUpdateRequest.php` — the contract's server half.
 - `app/Models/User.php` — `changeEmail()` + overridden `sendEmailVerificationNotification()` (queued).
-- `web/pages/profile.vue` (the read-only view, resend, `?verified=1`) + `web/components/profile/ProfileFormDialog.vue` (the edit form, its rules and the payload it emits) + `web/services/queries/useAuthQueries.ts` (`useUpdateProfile`) + `web/services/auth.api.ts` (`updateProfile`) — the SPA half.
+- `web/pages/profile.vue` (the loading state and the `?verified=1` landing — a thin wrapper) + `web/components/users/UserCard.vue` (the whole inline-edit card: display, the edit/save/cancel toggle, its rules, the resend button, and the payload it sends) + `web/services/queries/useAuthQueries.ts` (`useUpdateProfile`) + `web/services/auth.api.ts` (`updateProfile`) — the SPA half.
 
 ## Dependencies
 
@@ -107,8 +107,8 @@ Every account type gets the same profile page; admins additionally manage others
 
 ## Tests
 
-- `tests/Feature/ProfileTest.php` — name update; password change happy / wrong / missing `current_password`; `confirmed`-mismatch, email-uniqueness, malformed-email and overlong-name/uppercase-email 422s; email change resets and resends; same-email no-op; role escalation blocked; guest 401. `tests/Unit/UserTest.php` covers `changeEmail()` and the role helpers; the response field set is pinned in `UserManagementTest.php` (same `UserResource`). `updateProfile` and `useUpdateProfile`, including the store update on success, are covered in `web/services/_tests/auth.api.spec.ts` and `web/services/queries/_tests/useAuthQueries.spec.ts`.
-- Known gaps: no test for the password min-length 422 or the empty-body no-op; `profile.vue` and its Regle schema have no component test.
+- `tests/Feature/ProfileTest.php` — name update; password change happy / wrong / missing `current_password`; `confirmed`-mismatch, email-uniqueness, malformed-email and overlong-name/uppercase-email 422s; email change resets and resends; same-email no-op; role escalation blocked; guest 401. `tests/Unit/UserTest.php` covers `changeEmail()` and the role helpers; the response field set is pinned in `UserManagementTest.php` (same `UserResource`). `updateProfile` and `useUpdateProfile`, including the store update on success, are covered in `web/services/_tests/auth.api.spec.ts` and `web/services/queries/_tests/useAuthQueries.spec.ts`. `web/components/users/_tests/UserCard.spec.ts` covers the inline edit toggle, Escape/Enter, the password-pair payload shaping, the email-availability check (excluding the signed-in user), and a rejected save staying open with the field it names.
+- Known gaps: no test for the password min-length 422 or the empty-body no-op; `profile.vue` itself has no component test (a thin wrapper around `UserCard`, which is tested).
 
 ## Verification
 

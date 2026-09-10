@@ -19,3 +19,5 @@ A **context document** (`references/context-documents.md`): the project's domain
 **Variant** — a long-lived branch carrying the same product on an alternative `frontend/ui` module; synced from master, never merged back. Its UI-composition decisions are variant-only, ported only by deliberate decision, never by merge.
 
 **Dialog** — the canonical term for a modal overlay (`UIDialog`, `Dialog`, `useMutationDialog`). "Modal" is a deliberately avoided synonym — it appears only as the ARIA attribute `aria-modal`, never as a component, prop, or file name.
+
+**Toast** — the transient status message raised when an action succeeds or fails, dismissing itself without the user acting on it. Distinct from a **Dialog**, which interrupts and must be dismissed before work continues. "Snackbar" is a UI framework's component name for the same thing, never the domain term — the standing `aria-modal` has under Dialog.

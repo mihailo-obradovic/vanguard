@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Implemented
 
 ## Type
 
@@ -40,4 +40,6 @@ None.
 
 ## Verification
 
-Per part: specs for `useMutationDialog`/`useDialogForm`/`useConfirmOnEnter`, dialog and `UserCard` component specs, plus a live browser walk (login, register, forgot-password, password-reset, inline profile edit) once each part lands.
+All five parts landed on separate commits, each green on `oxlint`, `oxfmt --check`, `nuxt typecheck`, `vitest run`, `validate.py`, and (backend-touching parts) `php artisan test`. Specs: the three ported composables, every new dialog plus `FormDialog` and the `Default.vue` wiring, and `UserCard` (22 cases — a net gain over the deleted `ProfileFormDialog.spec.ts`). `after-leave` is untestable in happy-dom (no CSS animation engine, same reason vuetify's `CardDialog.spec.ts` skips it) — covered live instead.
+
+Live browser walk (`composer run dev`, Chrome DevTools MCP): every dialog and hand-off open/close correctly with a toast on success; a real login reaches `/home` with the nav updated; the flattened `/password-reset?token=&email=` is guest-reachable and seeds from the query string; `UserCard` edits, saves, toasts, and updates the nav name live. No console errors, and no warnings beyond the known, accepted `DialogContent` a11y notice.

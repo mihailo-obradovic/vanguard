@@ -1,23 +1,9 @@
 <template>
-  <a href="#main-content" class="skip-link">{{ $t('common.skipToContent') }}</a>
+  <!-- * Off-screen until focused, so keyboard users can jump past the navbar. -->
+  <a
+    href="#main-content"
+    class="bg-popover text-primary focus:ring-ring sr-only rounded-md px-4 py-2 font-medium focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[2000] focus:ring-2"
+  >
+    {{ $t('common.skipToContent') }}
+  </a>
 </template>
-
-<style scoped>
-/* * Visually hidden until focused, so keyboard users can jump past the navbar. */
-.skip-link {
-  position: absolute;
-  left: -9999px;
-  z-index: 2000;
-  background-color: var(--color-surface);
-  color: var(--color-brand);
-  padding: 8px 16px;
-  border-radius: var(--radius);
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.skip-link:focus {
-  left: 16px;
-  top: 16px;
-}
-</style>

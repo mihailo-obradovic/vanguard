@@ -17,7 +17,12 @@ export const buttonVariants = cva(
           'bg-secondary text-secondary-foreground hover:bg-secondary/80',
         ghost:
           'hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50',
-        link: 'text-primary underline-offset-4 hover:underline'
+        link: 'text-primary underline-offset-4 hover:underline',
+        // * New variant — a control sitting ON a primary-filled surface (the navbar). `outline`
+        // * paints `bg-background` and `ghost` hovers to `bg-accent`; both read as a pale patch
+        // * on the fill. This one borrows the fill's own foreground for its border and text.
+        'on-primary':
+          'border border-primary-foreground/60 text-primary-foreground hover:bg-primary-foreground/10'
       },
       size: {
         default: 'h-9 px-4 py-2 has-[>svg]:px-3',

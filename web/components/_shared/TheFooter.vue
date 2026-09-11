@@ -1,5 +1,5 @@
 <template>
-  <footer class="footer">
+  <footer class="bg-primary text-primary-foreground p-2 text-center">
     {{ $t('common.footer.copyright', { year: currentYear }) }}
   </footer>
 </template>
@@ -9,13 +9,3 @@ import { Temporal } from 'temporal-polyfill';
 
 const currentYear = Temporal.Now.plainDateISO().year;
 </script>
-
-<style scoped>
-.footer {
-  padding: 8px;
-  text-align: center;
-  background-color: var(--color-brand);
-  border-top: 1px solid var(--color-rule);
-  color: var(--color-on-brand);
-}
-</style>

@@ -7,32 +7,66 @@
     :disabled="r$.$invalid"
     @submit="handleSubmit"
   >
-    <UIField
-      v-model="form.email"
-      :label="$t('common.fields.email')"
-      :errors="r$.email.$errors"
-      type="email"
-      required
-      :disabled="isResetting"
-    />
+    <Field :data-invalid="emailErrors.length > 0">
+      <FieldLabel :for="emailId">{{ $t('common.fields.email') }}</FieldLabel>
 
-    <UIField
-      v-model="form.password"
-      :label="$t('common.fields.password')"
-      :errors="r$.password.$errors"
-      type="password"
-      required
-      :disabled="isResetting"
-    />
+      <Input
+        :id="emailId"
+        v-model="form.email"
+        type="email"
+        required
+        :disabled="isResetting"
+        :aria-invalid="emailErrors.length > 0 || undefined"
+        :aria-describedby="
+          emailErrors.length > 0 ? `${emailId}-error` : undefined
+        "
+      />
 
-    <UIField
-      v-model="form.password_confirmation"
-      :label="$t('common.fields.passwordConfirmation')"
-      :errors="r$.password_confirmation.$errors"
-      type="password"
-      required
-      :disabled="isResetting"
-    />
+      <FieldError :id="`${emailId}-error`" :errors="emailErrors" />
+    </Field>
+
+    <Field :data-invalid="passwordErrors.length > 0">
+      <FieldLabel :for="passwordId">
+        {{ $t('common.fields.password') }}
+      </FieldLabel>
+
+      <Input
+        :id="passwordId"
+        v-model="form.password"
+        type="password"
+        required
+        :disabled="isResetting"
+        :aria-invalid="passwordErrors.length > 0 || undefined"
+        :aria-describedby="
+          passwordErrors.length > 0 ? `${passwordId}-error` : undefined
+        "
+      />
+
+      <FieldError :id="`${passwordId}-error`" :errors="passwordErrors" />
+    </Field>
+
+    <Field :data-invalid="confirmationErrors.length > 0">
+      <FieldLabel :for="confirmationId">
+        {{ $t('common.fields.passwordConfirmation') }}
+      </FieldLabel>
+
+      <Input
+        :id="confirmationId"
+        v-model="form.password_confirmation"
+        type="password"
+        required
+        :disabled="isResetting"
+        :aria-invalid="confirmationErrors.length > 0 || undefined"
+        :aria-describedby="
+          confirmationErrors.length > 0 ? `${confirmationId}-error` : undefined
+        "
+      />
+
+      <FieldError
+        :id="`${confirmationId}-error`"
+        :errors="confirmationErrors"
+      />
+    </Field>
 
     <template #footer>
       <p>
@@ -47,6 +81,14 @@
 
 <script setup lang="ts">
 import { useResetPassword } from '@/services/queries/useAuthQueries';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
+
+// * Generated rather than written, so no two forms on a page can collide on an `id` and the
+// * `for`/`id` pair cannot drift apart.
+const emailId = useId();
+const passwordId = useId();
+const confirmationId = useId();
 
 const route = useRoute();
 
@@ -77,6 +119,10 @@ const { r$ } = useRegle(
   },
   { externalErrors: useExternalErrors(useValidationErrors(resetError)) }
 );
+
+const emailErrors = computed(() => r$.email.$errors);
+const passwordErrors = computed(() => r$.password.$errors);
+const confirmationErrors = computed(() => r$.password_confirmation.$errors);
 
 async function handleSubmit() {
   const { valid } = await r$.$validate();

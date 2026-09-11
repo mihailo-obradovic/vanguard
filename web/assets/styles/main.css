@@ -75,37 +75,67 @@
     /* The same card depth, cast upward — for a bar pinned to the bottom of the viewport. */
     --shadow-card-up: 0 -4px 6px rgb(0 0 0 / 0.1);
     --transition: 0.25s ease;
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
+    /*
+     * The shadcn variable set, carrying Dracula. Sourced from the palette `variant/nuxtui` already
+     * derived and measured (its `decisions/014_ui_nuxtui-variant.md`), so all three variants paint
+     * the same product in the same colours — values as OKLCH per the registry's own scaffold, with
+     * Dracula's hex beside each. Contrast is measured, not assumed: every text pairing below clears
+     * WCAG AA 4.5:1 and every informational non-text one clears 3:1.
+     *
+     * ! The accents cannot keep Dracula's pastels on this face. A filled control takes white text,
+     * ! and every pastel lands under 4.5:1 against it, so the light face uses the darkest step of
+     * ! each hue that still clears the floor. The dark face gets the pastels themselves.
+     */
+    /* * Dracula's own light face: its foreground cream is the page canvas, its current-line grey is the text, and surfaces sit white ABOVE the canvas so cards and dialogs read as raised (`context/domain-glossary.md`, Page canvas). */
+    --background: oklch(
+        0.9775 0.0079 106.55
+    ); /* #f8f8f2 — Dracula foreground */
+    --foreground: oklch(
+        0.4028 0.0322 277.83
+    ); /* #44475a — Dracula current line · 8.59:1 on the canvas */
+    --card: oklch(1 0 0); /* #ffffff · foreground 9.15:1 */
+    --card-foreground: oklch(0.4028 0.0322 277.83);
     --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
-    --chart-1: oklch(0.646 0.222 41.116);
-    --chart-2: oklch(0.6 0.118 184.704);
-    --chart-3: oklch(0.398 0.07 227.392);
-    --chart-4: oklch(0.828 0.189 84.429);
-    --chart-5: oklch(0.769 0.188 70.08);
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
+    --popover-foreground: oklch(0.4028 0.0322 277.83);
+
+    --primary: oklch(
+        0.5266 0.1927 301.83
+    ); /* #8144c5 — Dracula purple, darkened · white 5.89:1 */
+    --primary-foreground: oklch(1 0 0);
+    /* * `--secondary`, `--muted` and `--accent` are shadcn's quiet SURFACES, not accent hues — a Dracula pastel here would repaint every secondary button and hover state. They take the grey ramp; the hues live on `--primary`, `--destructive` and the charts. */
+    --secondary: oklch(0.9355 0.0022 197.12); /* #e8eaea · foreground 7.58:1 */
+    --secondary-foreground: oklch(0.4028 0.0322 277.83);
+    --muted: oklch(0.9355 0.0022 197.12); /* #e8eaea */
+    --muted-foreground: oklch(
+        0.5057 0.0641 270.83
+    ); /* #57638a · 5.54:1 on canvas, 5.90:1 on card, 4.89:1 on muted */
+    --accent: oklch(0.8852 0.0072 268.54); /* #d7d9de · foreground 6.48:1 */
+    --accent-foreground: oklch(0.4028 0.0322 277.83);
+    --destructive: oklch(
+        0.5618 0.2275 24.53
+    ); /* #db0026 — Dracula red, darkened · white 5.20:1 */
+
+    /* * The decorative divider stays quiet at 1.32:1 — it separates, it does not inform. The scroll-edge rule is the token that carries information and answers to 3:1 (`stacks/frontend/_common/scroll-affordance.md`). */
+    --border: oklch(0.8852 0.0072 268.54); /* #d7d9de */
+    --input: oklch(0.8852 0.0072 268.54);
+    --ring: oklch(0.5266 0.1927 301.83); /* #8144c5 · 5.52:1 on the canvas */
+
+    /* * Dracula's six accents at their light-face steps. Nothing charts yet; they are here so the first chart has a palette instead of the scaffold's. */
+    --chart-1: oklch(0.5266 0.1927 301.83); /* #8144c5 purple */
+    --chart-2: oklch(0.5341 0.2255 346.79); /* #bf0086 pink */
+    --chart-3: oklch(0.5142 0.1493 147.87); /* #007d2f green */
+    --chart-4: oklch(0.5194 0.0905 212.09); /* #007687 cyan */
+    --chart-5: oklch(0.4987 0.1105 66.66); /* #8c5400 orange */
+
+    /* * No sidebar exists in this app; mapped anyway so a vendored sidebar would arrive themed rather than neutral. */
+    --sidebar: oklch(1 0 0);
+    --sidebar-foreground: oklch(0.4028 0.0322 277.83);
+    --sidebar-primary: oklch(0.5266 0.1927 301.83);
+    --sidebar-primary-foreground: oklch(1 0 0);
+    --sidebar-accent: oklch(0.9355 0.0022 197.12);
+    --sidebar-accent-foreground: oklch(0.4028 0.0322 277.83);
+    --sidebar-border: oklch(0.8852 0.0072 268.54);
+    --sidebar-ring: oklch(0.5266 0.1927 301.83);
 }
 
 html,
@@ -122,8 +152,9 @@ body {
 }
 
 ::selection {
-    color: var(--color-on-brand);
-    background-color: red;
+    /* * Default: `background-color: red` — a placeholder that shipped. Dracula purple with the card colour on top, matching what the other variants do with their own primary. */
+    color: var(--card);
+    background-color: var(--primary);
 }
 /*
  ---break---
@@ -170,37 +201,55 @@ body {
  ---break---
  */
 .dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.488 0.243 264.376);
-    --chart-2: oklch(0.696 0.17 162.48);
-    --chart-3: oklch(0.769 0.188 70.08);
-    --chart-4: oklch(0.627 0.265 303.9);
-    --chart-5: oklch(0.645 0.246 16.439);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
+    /* * The palette as Dracula draws it: background, current line, comment and foreground land on the tokens they were named for, and the accents keep their own pastels. */
+    --background: oklch(
+        0.2554 0.0188 280.49
+    ); /* #21222c — the darker ground Dracula's editor themes use behind gutters */
+    --foreground: oklch(
+        0.9775 0.0079 106.55
+    ); /* #f8f8f2 · 14.81:1 on the page */
+    --card: oklch(
+        0.2882 0.0221 277.51
+    ); /* #282a36 — Dracula background · foreground 13.36:1 */
+    --card-foreground: oklch(0.9775 0.0079 106.55);
+    --popover: oklch(0.2882 0.0221 277.51);
+    --popover-foreground: oklch(0.9775 0.0079 106.55);
+
+    --primary: oklch(
+        0.742 0.1485 301.88
+    ); /* #bd93f9 — Dracula purple · #282a36 text 5.90:1 */
+    --primary-foreground: oklch(0.2882 0.0221 277.51);
+    --secondary: oklch(
+        0.4028 0.0322 277.83
+    ); /* #44475a — Dracula current line · foreground 8.59:1 */
+    --secondary-foreground: oklch(0.9775 0.0079 106.55);
+    --muted: oklch(0.4028 0.0322 277.83); /* #44475a */
+    /* * Default (and `variant/nuxtui`'s muted text): #939fbf. A step lighter here because shadcn pairs muted text with the muted FILL as well as the page, and #939fbf manages only 3.47:1 on #44475a. #bac0d0 clears every pairing it actually has: 8.68:1 on the page, 7.82:1 on a card, 5.03:1 on the muted fill. */
+    --muted-foreground: oklch(0.808 0.0234 269.39); /* #bac0d0 */
+    --accent: oklch(0.4444 0.0486 273.77); /* #4b526f · foreground 7.20:1 */
+    --accent-foreground: oklch(0.9775 0.0079 106.55);
+    --destructive: oklch(
+        0.6822 0.2063 24.43
+    ); /* #ff5555 — Dracula red · #282a36 text 4.53:1 */
+
+    --border: oklch(0.4028 0.0322 277.83); /* #44475a */
+    --input: oklch(0.4028 0.0322 277.83);
+    --ring: oklch(0.742 0.1485 301.88); /* #bd93f9 · 6.55:1 on the page */
+
+    --chart-1: oklch(0.742 0.1485 301.88); /* #bd93f9 purple */
+    --chart-2: oklch(0.7546 0.1831 346.81); /* #ff79c6 pink */
+    --chart-3: oklch(0.871 0.2195 148.02); /* #50fa7b green */
+    --chart-4: oklch(0.8826 0.0934 212.85); /* #8be9fd cyan */
+    --chart-5: oklch(0.8339 0.1241 66.56); /* #ffb86c orange */
+
+    --sidebar: oklch(0.2882 0.0221 277.51);
+    --sidebar-foreground: oklch(0.9775 0.0079 106.55);
+    --sidebar-primary: oklch(0.742 0.1485 301.88);
+    --sidebar-primary-foreground: oklch(0.2882 0.0221 277.51);
+    --sidebar-accent: oklch(0.4444 0.0486 273.77);
+    --sidebar-accent-foreground: oklch(0.9775 0.0079 106.55);
+    --sidebar-border: oklch(0.4028 0.0322 277.83);
+    --sidebar-ring: oklch(0.742 0.1485 301.88);
 }
 /*
  ---break---
@@ -211,5 +260,17 @@ body {
     }
     body {
         @apply bg-background text-foreground;
+    }
+
+    /* ! Tailwind v4 dropped preflight's `cursor: pointer` on buttons, so every button reverts to the arrow without this. Links keep the pointer natively. Ported from `variant/nuxtui`, which needs the same restoration. */
+    button:not(:disabled):not([aria-disabled='true']),
+    [role='button']:not([aria-disabled='true']) {
+        cursor: pointer;
+    }
+
+    button:disabled,
+    button[aria-disabled='true'],
+    [role='button'][aria-disabled='true'] {
+        cursor: not-allowed;
     }
 }

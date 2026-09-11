@@ -115,6 +115,18 @@
         0.5618 0.2275 24.53
     ); /* #db0026 — Dracula red, darkened · white 5.20:1 */
 
+    /* * New tokens — shadcn names no success or warning role and this product has both: a verified
+     * or unverified address, and a role pill. Same Dracula hues as everything else, at the same
+     * light-face step: the darkest of each that clears the floor under white text. */
+    --success: oklch(
+        0.5142 0.1493 147.87
+    ); /* #007d2f — Dracula green, darkened · white 5.28:1 */
+    --success-foreground: oklch(1 0 0);
+    --warning: oklch(
+        0.4987 0.1105 66.66
+    ); /* #8c5400 — Dracula orange, darkened · white 6.21:1 */
+    --warning-foreground: oklch(1 0 0);
+
     /* * The decorative divider stays quiet at 1.32:1 — it separates, it does not inform. The scroll-edge rule is the token that carries information and answers to 3:1 (`stacks/frontend/_common/scroll-affordance.md`). */
     --border: oklch(0.8852 0.0072 268.54); /* #d7d9de */
     --input: oklch(0.8852 0.0072 268.54);
@@ -178,6 +190,10 @@ body {
     --color-input: var(--input);
     --color-border: var(--border);
     --color-destructive: var(--destructive);
+    --color-success: var(--success);
+    --color-success-foreground: var(--success-foreground);
+    --color-warning: var(--warning);
+    --color-warning-foreground: var(--warning-foreground);
     --color-accent-foreground: var(--accent-foreground);
     --color-accent: var(--accent);
     --color-muted-foreground: var(--muted-foreground);
@@ -231,6 +247,15 @@ body {
     --destructive: oklch(
         0.6822 0.2063 24.43
     ); /* #ff5555 — Dracula red · #282a36 text 4.53:1 */
+
+    --success: oklch(
+        0.871 0.2195 148.02
+    ); /* #50fa7b — Dracula green · #282a36 text 10.38:1 */
+    --success-foreground: oklch(0.2882 0.0221 277.51);
+    --warning: oklch(
+        0.8339 0.1241 66.56
+    ); /* #ffb86c — Dracula orange · #282a36 text 8.36:1 */
+    --warning-foreground: oklch(0.2882 0.0221 277.51);
 
     --border: oklch(0.4028 0.0322 277.83); /* #44475a */
     --input: oklch(0.4028 0.0322 277.83);

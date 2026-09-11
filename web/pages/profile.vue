@@ -1,7 +1,7 @@
 <template>
-  <div v-if="!user" class="loading-state">
-    <p>{{ $t('profile.loading') }}</p>
-  </div>
+  <p v-if="!user" class="text-muted-foreground px-8 py-16 text-center text-lg">
+    {{ $t('profile.loading') }}
+  </p>
 
   <UserCard v-else />
 </template>
@@ -31,16 +31,3 @@ onMounted(() => {
   }
 });
 </script>
-
-<style scoped>
-.loading-state {
-  text-align: center;
-  padding: 64px 32px;
-  color: var(--color-text-muted);
-}
-
-.loading-state p {
-  margin: 0;
-  font-size: 18px;
-}
-</style>

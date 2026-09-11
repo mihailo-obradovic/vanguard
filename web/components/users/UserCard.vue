@@ -1,45 +1,54 @@
 <template>
-  <div class="user-card" @keydown.enter="confirmFromEnter">
-    <div class="user-card-header">
-      <h2>{{ $t('profile.title') }}</h2>
+  <!-- * `min-h-0` hands the overflow to the fields below rather than growing the card past the
+       page — main.css pins the page to overflow-y: hidden, so an unbounded card is unreachable. -->
+  <Card
+    class="mx-auto flex max-h-full min-h-0 w-full max-w-[800px] flex-col gap-0 py-0"
+    @keydown.enter="confirmFromEnter"
+  >
+    <CardHeader
+      class="flex shrink-0 flex-row items-center justify-between gap-4 px-6 py-4"
+    >
+      <CardTitle as="h2" class="text-primary text-2xl font-semibold">
+        {{ $t('profile.title') }}
+      </CardTitle>
 
-      <div class="user-card-actions">
-        <button
+      <div class="flex gap-2">
+        <!-- * Cancel discards the edit rather than destroying anything, so it is the quiet one; save is the primary action and carries the weight. -->
+        <Button
           v-if="editMode"
-          type="button"
-          class="icon-btn icon-btn-danger"
+          variant="outline"
+          size="icon-sm"
           :aria-label="$t('common.actions.cancel')"
           @click="resetForm"
         >
           <X class="size-4" />
-        </button>
+        </Button>
 
-        <button
+        <Button
           v-if="!editMode"
-          type="button"
-          class="icon-btn icon-btn-primary"
+          variant="outline"
+          size="icon-sm"
           :aria-label="$t('common.actions.edit')"
           @click="startEditing"
         >
           <Pencil class="size-4" />
-        </button>
+        </Button>
 
-        <button
+        <Button
           v-else
-          type="button"
-          class="icon-btn icon-btn-success"
+          size="icon-sm"
           :aria-label="$t('common.actions.save')"
           :disabled="loading"
           @click="handleSubmit"
         >
           <Loader2 v-if="loading" class="size-4 animate-spin" />
           <Check v-else class="size-4" />
-        </button>
+        </Button>
       </div>
-    </div>
+    </CardHeader>
 
-    <UIScrollArea class="user-card-fields">
-      <div class="user-card-fields-inner">
+    <UIScrollArea class="min-h-0 px-6 pt-2 pb-6">
+      <FieldGroup class="gap-4">
         <Field :data-invalid="name.invalid">
           <FieldLabel :for="name.id">{{ $t('common.fields.name') }}</FieldLabel>
 
@@ -68,7 +77,7 @@
           <FieldError :id="email.errorId" :errors="email.errors" />
         </Field>
 
-        <div class="verification-row">
+        <div class="flex items-center gap-3">
           <VerificationBadge :verified="!!user?.email_verified_at">
             {{
               user?.email_verified_at
@@ -80,10 +89,10 @@
           <!-- * Stays in the row once the address is verified, reserved rather than removed: it is
                what gives this row its height, and dropping it pulls the fields below it up. `inert`
                keeps a control nobody can see out of the tab order and the accessibility tree. -->
-          <button
-            type="button"
-            class="resend-btn"
-            :class="{ reserved: Boolean(user?.email_verified_at) }"
+          <Button
+            variant="outline"
+            size="sm"
+            :class="user?.email_verified_at && 'invisible'"
             :inert="Boolean(user?.email_verified_at)"
             :disabled="isResending"
             @click="resendVerification()"
@@ -95,7 +104,7 @@
               }"
               :active="isResending ? 'pending' : 'idle'"
             />
-          </button>
+          </Button>
         </div>
 
         <template v-if="editMode">
@@ -150,15 +159,22 @@
             />
           </Field>
         </template>
-      </div>
+      </FieldGroup>
     </UIScrollArea>
-  </div>
+  </Card>
 </template>
 
 <script setup lang="ts">
 import { requiredIf } from '@regle/rules';
 import { Check, Loader2, Pencil, X } from '@lucide/vue';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel
+} from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 
 import {
@@ -272,114 +288,3 @@ onKeyStroke('Escape', () => {
   }
 });
 </script>
-
-<style scoped>
-.user-card {
-  background: var(--color-surface);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-card);
-  border: 1px solid var(--color-border-legacy);
-  max-width: 800px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  /* * min-height: 0 hands the overflow to the fields below rather than growing the card past the
-     page — main.css pins the page to overflow-y: hidden, so an unbounded card is unreachable. */
-  min-height: 0;
-  max-height: 100%;
-}
-
-.user-card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 24px;
-  flex: 0 0 auto;
-}
-
-.user-card-header h2 {
-  margin: 0;
-  color: var(--color-brand);
-  font-size: 24px;
-  font-weight: 600;
-}
-
-.user-card-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.icon-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border: none;
-  border-radius: var(--radius);
-  cursor: pointer;
-  color: var(--color-on-brand);
-  transition: opacity var(--transition);
-}
-
-.icon-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.icon-btn-primary {
-  background-color: var(--color-brand);
-}
-
-.icon-btn-success {
-  background-color: var(--color-success);
-}
-
-.icon-btn-danger {
-  background-color: var(--color-danger);
-}
-
-.user-card-fields {
-  min-height: 0;
-  padding: 10px 24px 24px 24px;
-}
-
-.user-card-fields-inner {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.verification-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.resend-btn {
-  background-color: transparent;
-  color: var(--color-brand);
-  border: 1px solid var(--color-brand);
-  padding: 6px 12px;
-  border-radius: var(--radius);
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all var(--transition);
-}
-
-.resend-btn.reserved {
-  /* * `visibility: hidden` still occupies the row; `display: none` would give the height back. */
-  visibility: hidden;
-}
-
-.resend-btn:hover:not(:disabled) {
-  background-color: var(--color-brand);
-  color: var(--color-on-brand);
-}
-
-.resend-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-</style>

@@ -1,5 +1,9 @@
 <template>
-  <NuxtLoadingIndicator />
+  <!-- * Default: a green-to-blue gradient hardcoded in Nuxt, off this palette entirely and visible on every route change. Tokens rather than literal colours, so the bar follows the colour mode the way everything else does. -->
+  <NuxtLoadingIndicator
+    color="var(--primary)"
+    error-color="var(--destructive)"
+  />
 
   <NuxtLayout>
     <NuxtPage />

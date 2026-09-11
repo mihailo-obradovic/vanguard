@@ -8,37 +8,56 @@
     @confirm="handleConfirm"
     @after-leave="handleAfterLeave"
   >
-    <UIField
-      v-model="form.name"
-      :label="$t('common.fields.name')"
-      :errors="r$.name.$errors"
-      type="text"
-      required
-    />
+    <Field :data-invalid="name.invalid">
+      <FieldLabel :for="name.id">{{ $t('common.fields.name') }}</FieldLabel>
 
-    <UIField
-      v-model="form.email"
-      :label="$t('common.fields.email')"
-      :errors="r$.email.$errors"
-      type="email"
-      required
-    />
+      <Input v-model="form.name" type="text" required v-bind="name.control" />
 
-    <UIField
-      v-model="form.password"
-      :label="$t('common.fields.password')"
-      :errors="r$.password.$errors"
-      type="password"
-      required
-    />
+      <FieldError :id="name.errorId" :errors="name.errors" />
+    </Field>
 
-    <UIField
-      v-model="form.password_confirmation"
-      :label="$t('common.fields.passwordConfirmation')"
-      :errors="r$.password_confirmation.$errors"
-      type="password"
-      required
-    />
+    <Field :data-invalid="email.invalid">
+      <FieldLabel :for="email.id">{{ $t('common.fields.email') }}</FieldLabel>
+
+      <Input
+        v-model="form.email"
+        type="email"
+        required
+        v-bind="email.control"
+      />
+
+      <FieldError :id="email.errorId" :errors="email.errors" />
+    </Field>
+
+    <Field :data-invalid="password.invalid">
+      <FieldLabel :for="password.id">{{
+        $t('common.fields.password')
+      }}</FieldLabel>
+
+      <Input
+        v-model="form.password"
+        type="password"
+        required
+        v-bind="password.control"
+      />
+
+      <FieldError :id="password.errorId" :errors="password.errors" />
+    </Field>
+
+    <Field :data-invalid="confirmation.invalid">
+      <FieldLabel :for="confirmation.id">{{
+        $t('common.fields.passwordConfirmation')
+      }}</FieldLabel>
+
+      <Input
+        v-model="form.password_confirmation"
+        type="password"
+        required
+        v-bind="confirmation.control"
+      />
+
+      <FieldError :id="confirmation.errorId" :errors="confirmation.errors" />
+    </Field>
 
     <Button
       type="button"
@@ -54,6 +73,8 @@
 
 <script setup lang="ts">
 import { Button } from '@/components/ui/button';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
 
 import type { RegistrationForm } from '@/types/auth';
 
@@ -95,6 +116,11 @@ const { r$ } = useRegle(
   },
   { externalErrors }
 );
+
+const name = useFieldAria(() => r$.name.$errors);
+const email = useFieldAria(() => r$.email.$errors);
+const password = useFieldAria(() => r$.password.$errors);
+const confirmation = useFieldAria(() => r$.password_confirmation.$errors);
 
 const { handleCancel, handleConfirm, handleAfterLeave } = useDialogForm(
   dialog,

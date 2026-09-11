@@ -40,21 +40,33 @@
 
     <UIScrollArea class="user-card-fields">
       <div class="user-card-fields-inner">
-        <UIField
-          v-model="form.name"
-          :label="$t('common.fields.name')"
-          :errors="r$.name.$errors"
-          type="text"
-          :readonly="!editMode"
-        />
+        <Field :data-invalid="name.invalid">
+          <FieldLabel :for="name.id">{{ $t('common.fields.name') }}</FieldLabel>
 
-        <UIField
-          v-model="form.email"
-          :label="$t('common.fields.email')"
-          :errors="r$.email.$errors"
-          type="email"
-          :readonly="!editMode"
-        />
+          <Input
+            v-model="form.name"
+            type="text"
+            :readonly="!editMode"
+            v-bind="name.control"
+          />
+
+          <FieldError :id="name.errorId" :errors="name.errors" />
+        </Field>
+
+        <Field :data-invalid="email.invalid">
+          <FieldLabel :for="email.id">{{
+            $t('common.fields.email')
+          }}</FieldLabel>
+
+          <Input
+            v-model="form.email"
+            type="email"
+            :readonly="!editMode"
+            v-bind="email.control"
+          />
+
+          <FieldError :id="email.errorId" :errors="email.errors" />
+        </Field>
 
         <div class="verification-row">
           <VerificationBadge :verified="!!user?.email_verified_at">
@@ -87,26 +99,56 @@
         </div>
 
         <template v-if="editMode">
-          <UIField
-            v-model="form.current_password"
-            :label="$t('profile.form.currentPassword')"
-            :errors="r$.current_password.$errors"
-            type="password"
-          />
+          <Field :data-invalid="currentPassword.invalid">
+            <FieldLabel :for="currentPassword.id">{{
+              $t('profile.form.currentPassword')
+            }}</FieldLabel>
 
-          <UIField
-            v-model="form.password"
-            :label="$t('profile.form.newPassword')"
-            :errors="r$.password.$errors"
-            type="password"
-          />
+            <Input
+              v-model="form.current_password"
+              type="password"
+              v-bind="currentPassword.control"
+            />
 
-          <UIField
-            v-model="form.password_confirmation"
-            :label="$t('profile.form.confirmNewPassword')"
-            :errors="r$.password_confirmation.$errors"
-            type="password"
-          />
+            <FieldError
+              :id="currentPassword.errorId"
+              :errors="currentPassword.errors"
+            />
+          </Field>
+
+          <Field :data-invalid="newPassword.invalid">
+            <FieldLabel :for="newPassword.id">{{
+              $t('profile.form.newPassword')
+            }}</FieldLabel>
+
+            <Input
+              v-model="form.password"
+              type="password"
+              v-bind="newPassword.control"
+            />
+
+            <FieldError
+              :id="newPassword.errorId"
+              :errors="newPassword.errors"
+            />
+          </Field>
+
+          <Field :data-invalid="confirmPassword.invalid">
+            <FieldLabel :for="confirmPassword.id">{{
+              $t('profile.form.confirmNewPassword')
+            }}</FieldLabel>
+
+            <Input
+              v-model="form.password_confirmation"
+              type="password"
+              v-bind="confirmPassword.control"
+            />
+
+            <FieldError
+              :id="confirmPassword.errorId"
+              :errors="confirmPassword.errors"
+            />
+          </Field>
         </template>
       </div>
     </UIScrollArea>
@@ -116,6 +158,8 @@
 <script setup lang="ts">
 import { requiredIf } from '@regle/rules';
 import { Check, Loader2, Pencil, X } from '@lucide/vue';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
 
 import {
   useResendEmailVerification,
@@ -180,6 +224,12 @@ const { r$ } = useRegle(
   }),
   { externalErrors }
 );
+
+const name = useFieldAria(() => r$.name.$errors);
+const email = useFieldAria(() => r$.email.$errors);
+const currentPassword = useFieldAria(() => r$.current_password.$errors);
+const newPassword = useFieldAria(() => r$.password.$errors);
+const confirmPassword = useFieldAria(() => r$.password_confirmation.$errors);
 
 function startEditing() {
   editMode.value = true;

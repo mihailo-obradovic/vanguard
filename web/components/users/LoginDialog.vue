@@ -8,21 +8,33 @@
     @confirm="handleConfirm"
     @after-leave="handleAfterLeave"
   >
-    <UIField
-      v-model="form.email"
-      :label="$t('common.fields.email')"
-      :errors="r$.email.$errors"
-      type="email"
-      required
-    />
+    <Field :data-invalid="email.invalid">
+      <FieldLabel :for="email.id">{{ $t('common.fields.email') }}</FieldLabel>
 
-    <UIField
-      v-model="form.password"
-      :label="$t('common.fields.password')"
-      :errors="r$.password.$errors"
-      type="password"
-      required
-    />
+      <Input
+        v-model="form.email"
+        type="email"
+        required
+        v-bind="email.control"
+      />
+
+      <FieldError :id="email.errorId" :errors="email.errors" />
+    </Field>
+
+    <Field :data-invalid="password.invalid">
+      <FieldLabel :for="password.id">{{
+        $t('common.fields.password')
+      }}</FieldLabel>
+
+      <Input
+        v-model="form.password"
+        type="password"
+        required
+        v-bind="password.control"
+      />
+
+      <FieldError :id="password.errorId" :errors="password.errors" />
+    </Field>
 
     <div class="flex flex-col gap-1">
       <Button
@@ -51,6 +63,8 @@
 <script setup lang="ts">
 import { required } from '@regle/rules';
 import { Button } from '@/components/ui/button';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
 
 import type { Credentials } from '@/types/auth';
 
@@ -92,6 +106,9 @@ const { r$ } = useRegle(
   },
   { externalErrors }
 );
+
+const email = useFieldAria(() => r$.email.$errors);
+const password = useFieldAria(() => r$.password.$errors);
 
 const { handleCancel, handleConfirm, handleAfterLeave } = useDialogForm(
   dialog,

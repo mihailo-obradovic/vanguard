@@ -12,13 +12,18 @@
       {{ $t('auth.forgotPassword.hint') }}
     </p>
 
-    <UIField
-      v-model="form.email"
-      :label="$t('common.fields.email')"
-      :errors="r$.email.$errors"
-      type="email"
-      required
-    />
+    <Field :data-invalid="email.invalid">
+      <FieldLabel :for="email.id">{{ $t('common.fields.email') }}</FieldLabel>
+
+      <Input
+        v-model="form.email"
+        type="email"
+        required
+        v-bind="email.control"
+      />
+
+      <FieldError :id="email.errorId" :errors="email.errors" />
+    </Field>
 
     <Button
       type="button"
@@ -34,6 +39,8 @@
 
 <script setup lang="ts">
 import { Button } from '@/components/ui/button';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
 
 // ! Stryker instruments this block with locally declared coverage helpers, and a compiler
 // ! macro is hoisted out of setup() — referencing them there is a compile error, not a
@@ -68,6 +75,8 @@ const { r$ } = useRegle(
   },
   { externalErrors }
 );
+
+const email = useFieldAria(() => r$.email.$errors);
 
 const { handleCancel, handleConfirm, handleAfterLeave } = useDialogForm(
   dialog,

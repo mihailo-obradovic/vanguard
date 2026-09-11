@@ -1,13 +1,16 @@
 // @vitest-environment nuxt
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { defineComponent, h, ref } from 'vue';
-import { renderSuspended } from '@nuxt/test-utils/runtime';
+import { mountSuspended } from '@nuxt/test-utils/runtime';
 import { http, HttpResponse } from 'msw';
 import { screen, fireEvent, cleanup, waitFor } from '@testing-library/vue';
 
 import { server } from '@/mocks/server';
 import { apiUrl } from '@/mocks/api';
 import { buildUser } from '@/mocks/fixtures';
+
+import FormDialog from '@/components/_shared/FormDialog.vue';
+import { Select } from '@/components/ui/select';
 
 import UserFormDialog from '../UserFormDialog.vue';
 
@@ -48,25 +51,60 @@ async function mountDialog(user: User | null = null) {
     }
   });
 
-  await renderSuspended(page);
+  // * `mountSuspended` rather than `renderSuspended` so the specs can reach the two controls that
+  // * are no longer plain DOM — see `submit` and `pickRole`. Testing Library's `screen` queries the
+  // * document either way, so every other query is unaffected.
+  const wrapper = await mountSuspended(page);
 
-  return { open, subject, serverErrors, emitted };
+  wrappers.push(wrapper);
+
+  return { open, subject, serverErrors, emitted, wrapper };
 }
+
+// ! Derived from `mountSuspended`, not from `mountDialog`: that function pushes into `wrappers`
+// ! below, so taking the type from it is circular and silently resolves to `any`.
+type Wrapper = Awaited<ReturnType<typeof mountSuspended>>;
+
+const wrappers: Wrapper[] = [];
 
 function field(label: string) {
   return screen.getByLabelText(label) as HTMLInputElement;
 }
 
 /**
- * Submit the form itself rather than clicking the button.
+ * Ask the dialog to confirm, rather than clicking the button.
  *
  * ! The submit button is disabled while `r$.$invalid`, and the debounced availability rule keeps a
  * ! freshly filled form invalid for 500ms — clicking would silently do nothing and the assertion
- * ! would read as a missing emit. Submitting exercises the handler's own guard, which awaits the
+ * ! would read as a missing emit. Confirming exercises the handler's own guard, which awaits the
  * ! async rules; the disabled button gets its own case.
+ *
+ * ! This used to fire `submit` on the `<form>`. `FormDialog` has no form element — its actions sit
+ * ! in the dialog footer, outside any — so the equivalent seam is the confirm the dialog emits,
+ * ! which is what Enter and the footer button both reach `handleSubmit` through.
  */
-function submit() {
-  return fireEvent.submit(document.querySelector('form') as HTMLFormElement);
+function submit(wrapper: Wrapper) {
+  wrapper.findComponent(FormDialog).vm.$emit('confirm');
+
+  return wrapper.vm.$nextTick();
+}
+
+/**
+ * Pick a role the way a user does — at the component seam.
+ *
+ * ! Reka UI's listbox cannot be opened in this environment: clicking the trigger renders no
+ * ! options at all, so a click-driven test would assert against an empty list and pass for the
+ * ! wrong reason. The rendered listbox is a live browser check (`catalyst/operations.md`).
+ */
+function pickRole(wrapper: Wrapper, role: 'user' | 'admin') {
+  wrapper.findComponent(Select).vm.$emit('update:modelValue', role);
+
+  return wrapper.vm.$nextTick();
+}
+
+/** What the role control shows — the trigger's label, not a native select's value. */
+function shownRole() {
+  return screen.getByLabelText('Role').textContent?.trim();
 }
 
 /**
@@ -76,8 +114,8 @@ function submit() {
  * ! rejects into an unhandled rejection that fails the whole run without failing a test (tracker
  * ! item: "Regle $validate rejects after unmount"). A spec that submits must wait for the outcome.
  */
-async function submitAndSettle(emitted: Emitted) {
-  await submit();
+async function submitAndSettle(wrapper: Wrapper, emitted: Emitted) {
+  await submit(wrapper);
 
   await waitFor(() =>
     expect(emitted.create.length + emitted.update.length).toBe(1)
@@ -106,6 +144,7 @@ describe('UserFormDialog', () => {
   });
 
   afterEach(() => {
+    wrappers.splice(0).forEach((wrapper) => wrapper.unmount());
     cleanup();
   });
 
@@ -124,9 +163,7 @@ describe('UserFormDialog', () => {
 
     expect(field('Name').value).toBe('Ada');
     expect(field('Email').value).toBe('ada@example.com');
-    expect((screen.getByLabelText('Role') as HTMLSelectElement).value).toBe(
-      'admin'
-    );
+    expect(shownRole()).toBe('Admin');
     expect(screen.getByRole('button', { name: 'Update User' })).toBeTruthy();
   });
 
@@ -149,11 +186,11 @@ describe('UserFormDialog', () => {
   });
 
   it('emits the whole form as a creation when there is no subject', async () => {
-    const { emitted } = await mountDialog();
+    const { emitted, wrapper } = await mountDialog();
 
     await fillValidCreation();
 
-    await submit();
+    await submit(wrapper);
 
     await waitFor(() => expect(emitted.create).toHaveLength(1));
     expect(emitted.create[0]).toEqual({
@@ -168,13 +205,13 @@ describe('UserFormDialog', () => {
   // ! The rule this pins is the backend's: a present password reads as a change request, and a
   // ! present-but-empty one is rejected outright. An untouched pair must not travel.
   it('leaves the password pair out of an update that did not set one', async () => {
-    const { emitted } = await mountDialog(
+    const { emitted, wrapper } = await mountDialog(
       buildUser({ id: 7, name: 'Ada', email: 'ada@example.com' })
     );
 
     await fireEvent.update(field('Name'), 'Ada Lovelace');
 
-    await submit();
+    await submit(wrapper);
 
     await waitFor(() => expect(emitted.update).toHaveLength(1));
     expect(emitted.update[0]).toEqual([
@@ -184,7 +221,7 @@ describe('UserFormDialog', () => {
   });
 
   it('sends the password pair on an update that set one', async () => {
-    const { emitted } = await mountDialog(
+    const { emitted, wrapper } = await mountDialog(
       buildUser({ id: 7, name: 'Ada', email: 'ada@example.com' })
     );
 
@@ -197,7 +234,7 @@ describe('UserFormDialog', () => {
       'gmaz1234'
     );
 
-    await submit();
+    await submit(wrapper);
 
     await waitFor(() => expect(emitted.update).toHaveLength(1));
     expect(emitted.update[0]?.[1]).toEqual({
@@ -212,35 +249,35 @@ describe('UserFormDialog', () => {
   // ! The role is the one field with privilege attached: an admin created as a user (or the other
   // ! way round) is a silent authorization bug, not a cosmetic one.
   it('creates the role that was picked', async () => {
-    const { emitted } = await mountDialog();
+    const { emitted, wrapper } = await mountDialog();
 
     await fillValidCreation();
-    await fireEvent.update(screen.getByLabelText('Role'), 'admin');
+    await pickRole(wrapper, 'admin');
 
-    await submitAndSettle(emitted);
+    await submitAndSettle(wrapper, emitted);
 
     expect(emitted.create[0]?.role).toBe('admin');
   });
 
   it('carries a changed role on an update', async () => {
-    const { emitted } = await mountDialog(
+    const { emitted, wrapper } = await mountDialog(
       buildUser({ id: 7, name: 'Ada', email: 'ada@example.com', role: 'user' })
     );
 
-    await fireEvent.update(screen.getByLabelText('Role'), 'admin');
+    await pickRole(wrapper, 'admin');
 
-    await submitAndSettle(emitted);
+    await submitAndSettle(wrapper, emitted);
 
     expect(emitted.update[0]?.[1].role).toBe('admin');
   });
 
   it('does not emit anything for a form the rules reject', async () => {
-    const { emitted } = await mountDialog();
+    const { emitted, wrapper } = await mountDialog();
 
     await fireEvent.update(field('Name'), 'Ada');
     await fireEvent.update(field('Email'), 'not-an-email');
 
-    await submit();
+    await submit(wrapper);
 
     await waitFor(() =>
       expect(
@@ -257,11 +294,11 @@ describe('UserFormDialog', () => {
   });
 
   it('names the field when the name is left empty', async () => {
-    const { emitted } = await mountDialog();
+    const { emitted, wrapper } = await mountDialog();
 
     await fireEvent.update(field('Email'), 'ada@example.com');
 
-    await submit();
+    await submit(wrapper);
 
     await waitFor(() =>
       expect(screen.getByText('The name field is required.')).toBeTruthy()
@@ -307,10 +344,10 @@ describe('UserFormDialog', () => {
   });
 
   it('renders the server verdict on the field it names', async () => {
-    const { serverErrors, emitted } = await mountDialog();
+    const { serverErrors, emitted, wrapper } = await mountDialog();
 
     await fillValidCreation();
-    await submitAndSettle(emitted);
+    await submitAndSettle(wrapper, emitted);
 
     serverErrors.value = { email: ['The email has already been taken.'] };
 
@@ -322,10 +359,10 @@ describe('UserFormDialog', () => {
   // ! Reopening has to clear the last attempt's server errors too, or a fresh form opens already
   // ! carrying a verdict about a value that is no longer in it.
   it('clears a server error when it is reopened', async () => {
-    const { open, serverErrors, emitted } = await mountDialog();
+    const { open, serverErrors, emitted, wrapper } = await mountDialog();
 
     await fillValidCreation();
-    await submitAndSettle(emitted);
+    await submitAndSettle(wrapper, emitted);
 
     serverErrors.value = { email: ['The email has already been taken.'] };
     await waitFor(() =>
@@ -363,10 +400,10 @@ describe('UserFormDialog', () => {
   // ! verdict, because Regle keeps errors off a pristine field. Left in the ref, it comes back the
   // ! moment the next submit dirties that field again — a verdict about a value nobody typed.
   it("does not bring the last attempt's verdict back on the next submit", async () => {
-    const { open, serverErrors, emitted } = await mountDialog();
+    const { open, serverErrors, emitted, wrapper } = await mountDialog();
 
     await fillValidCreation();
-    await submitAndSettle(emitted);
+    await submitAndSettle(wrapper, emitted);
 
     serverErrors.value = { email: ['The email has already been taken.'] };
     await waitFor(() =>
@@ -379,14 +416,14 @@ describe('UserFormDialog', () => {
     await waitFor(() => expect(field('Name')).toBeTruthy());
 
     await fillValidCreation();
-    await submit();
+    await submit(wrapper);
     await settleValidation();
 
     expect(screen.queryByText('The email has already been taken.')).toBeNull();
   });
 
   it('asks to close when Cancel is pressed', async () => {
-    const { emitted } = await mountDialog();
+    const { emitted, wrapper } = await mountDialog();
 
     await fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 

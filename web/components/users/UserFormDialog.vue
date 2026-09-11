@@ -1,88 +1,127 @@
 <template>
-  <UIDialog :open="open" :title="title" @close="emit('close')">
-    <form class="user-form" novalidate @submit.prevent="handleSubmit">
-      <UIField
+  <FormDialog
+    :model-value="open"
+    :title="title"
+    :confirm-disabled="r$.$invalid"
+    :loading="submitting"
+    @update:model-value="handleOpenChange"
+    @cancel="emit('close')"
+    @confirm="handleSubmit"
+  >
+    <Field :data-invalid="name.invalid">
+      <FieldLabel :for="name.id">{{ $t('common.fields.name') }}</FieldLabel>
+
+      <Input
         v-model="form.name"
-        :label="$t('common.fields.name')"
-        :errors="r$.name.$errors"
         type="text"
         required
         :disabled="submitting"
+        v-bind="name.control"
       />
 
-      <UIField
+      <FieldError :id="name.errorId" :errors="name.errors" />
+    </Field>
+
+    <Field :data-invalid="email.invalid">
+      <FieldLabel :for="email.id">{{ $t('common.fields.email') }}</FieldLabel>
+
+      <Input
         v-model="form.email"
-        :label="$t('common.fields.email')"
-        :errors="r$.email.$errors"
         type="email"
         required
         :disabled="submitting"
+        v-bind="email.control"
       />
 
-      <UIField
+      <FieldError :id="email.errorId" :errors="email.errors" />
+    </Field>
+
+    <Field :data-invalid="password.invalid">
+      <FieldLabel :for="password.id">{{ passwordLabel }}</FieldLabel>
+
+      <Input
         v-model="form.password"
-        :label="passwordLabel"
-        :errors="r$.password.$errors"
         type="password"
         :required="!isEdit"
         :disabled="submitting"
+        v-bind="password.control"
       />
 
-      <UIField
+      <FieldError :id="password.errorId" :errors="password.errors" />
+    </Field>
+
+    <Field :data-invalid="confirmation.invalid">
+      <FieldLabel :for="confirmation.id">
+        {{ passwordConfirmationLabel }}
+      </FieldLabel>
+
+      <Input
         v-model="form.password_confirmation"
-        :label="passwordConfirmationLabel"
-        :errors="r$.password_confirmation.$errors"
         type="password"
         :required="!isEdit || !!form.password"
         :disabled="submitting"
+        v-bind="confirmation.control"
       />
 
-      <UIField :label="$t('common.fields.role')">
-        <template #default="{ controlId }">
-          <select
-            :id="controlId"
-            v-model="form.role"
-            class="ui-field-control"
-            required
-            :disabled="submitting"
-          >
-            <option value="user">{{ $t('users.roles.user') }}</option>
+      <FieldError :id="confirmation.errorId" :errors="confirmation.errors" />
+    </Field>
 
-            <option value="admin">{{ $t('users.roles.admin') }}</option>
-          </select>
-        </template>
-      </UIField>
+    <Field>
+      <FieldLabel :for="roleId">{{ $t('common.fields.role') }}</FieldLabel>
 
-      <UIDialogActions>
-        <button
-          type="button"
-          class="cancel-btn"
-          :disabled="submitting"
-          @click="emit('close')"
-        >
-          {{ $t('common.actions.cancel') }}
-        </button>
+      <Select v-model="form.role" :disabled="submitting">
+        <SelectTrigger :id="roleId" class="w-full">
+          <SelectValue>{{ roleLabel }}</SelectValue>
+        </SelectTrigger>
 
-        <button
-          type="submit"
-          class="submit-btn"
-          :disabled="submitting || r$.$invalid"
-        >
-          <UIReservedLabel
-            :variants="{
-              create: $t('users.form.submitCreate'),
-              update: $t('users.form.submitUpdate'),
-              saving: $t('common.actions.saving')
-            }"
-            :active="submitting ? 'saving' : isEdit ? 'update' : 'create'"
-          />
-        </button>
-      </UIDialogActions>
-    </form>
-  </UIDialog>
+        <SelectContent>
+          <SelectItem value="user">{{ $t('users.roles.user') }}</SelectItem>
+
+          <SelectItem value="admin">{{ $t('users.roles.admin') }}</SelectItem>
+        </SelectContent>
+      </Select>
+    </Field>
+
+    <template #actions>
+      <Button
+        variant="outline"
+        class="flex-1"
+        :disabled="submitting"
+        @click="emit('close')"
+      >
+        {{ $t('common.actions.cancel') }}
+      </Button>
+
+      <Button
+        class="flex-1"
+        :disabled="submitting || r$.$invalid"
+        @click="handleSubmit"
+      >
+        <UIReservedLabel
+          :variants="{
+            create: $t('users.form.submitCreate'),
+            update: $t('users.form.submitUpdate'),
+            saving: $t('common.actions.saving')
+          }"
+          :active="submitting ? 'saving' : isEdit ? 'update' : 'create'"
+        />
+      </Button>
+    </template>
+  </FormDialog>
 </template>
 
 <script setup lang="ts">
+import { Button } from '@/components/ui/button';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
+
 import type { User } from '@/types/auth';
 import type { CreateUserForm, UpdateUserForm } from '@/types/user';
 
@@ -119,6 +158,19 @@ const { r$ } = useRegle(
     )
   }),
   { externalErrors: useExternalErrors(() => props.serverErrors) }
+);
+
+const name = useFieldAria(() => r$.name.$errors);
+const email = useFieldAria(() => r$.email.$errors);
+const password = useFieldAria(() => r$.password.$errors);
+const confirmation = useFieldAria(() => r$.password_confirmation.$errors);
+
+// * The role field carries no rules of its own, so it needs an id for the label pairing and nothing else.
+const roleId = useId();
+
+// * Passed explicitly rather than left to `SelectValue`'s own lookup, which resolves through the items and reads empty until the list has been opened once.
+const roleLabel = computed(() =>
+  form.value.role === 'admin' ? t('users.roles.admin') : t('users.roles.user')
 );
 
 const title = computed(() =>
@@ -181,6 +233,13 @@ function updatePayloadFrom(values: CreateUserForm): UpdateUserForm {
   };
 }
 
+// * The dialog owns its own dismissal (Escape, the overlay, Cancel); all of them arrive here.
+function handleOpenChange(open: boolean) {
+  if (!open) {
+    emit('close');
+  }
+}
+
 async function handleSubmit() {
   const { valid } = await r$.$validate();
 
@@ -211,47 +270,3 @@ watch(
   { immediate: true }
 );
 </script>
-
-<style scoped>
-.user-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.cancel-btn {
-  background-color: var(--color-secondary);
-  color: var(--color-on-brand);
-  border: none;
-  padding: 8px 16px;
-  border-radius: var(--radius);
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color var(--transition);
-}
-
-.cancel-btn:hover {
-  background-color: var(--color-secondary-hover);
-}
-
-.submit-btn {
-  background-color: var(--color-brand);
-  color: var(--color-on-brand);
-  border: none;
-  padding: 8px 16px;
-  border-radius: var(--radius);
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color var(--transition);
-}
-
-.submit-btn:hover:not(:disabled) {
-  background-color: var(--color-brand-hover);
-}
-
-.submit-btn:disabled,
-.cancel-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-</style>

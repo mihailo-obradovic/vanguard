@@ -15,7 +15,7 @@ Paths below are relative to the repo root. The `catalyst/` documents are normati
 - `mocks/` — test-only: the MSW server, its lifecycle setup file, the request recorder, schema-parsed fixtures, and per-resource handlers. Never imported by shipped code.
 - `middleware/auth.global.ts` — the only route middleware; a thin wrapper over the pure, unit-tested `utils/authRedirectLogic.ts`.
 - `pages/` — file-based routes: `index`, `home`, `profile`, `users`, `graphql-demo`, plus the one remaining auth page, `password-reset` (reads `?token=&email=`; login/register/forgot-password are dialogs now, not routes — `components/users/`).
-- `plugins/` — `auth-loader.ts` (restores the session before first render), `vue-toastification.ts`.
+- `plugins/` — `auth-loader.ts` (restores the session before first render). Toasts need no plugin: `app.vue` mounts the vendored `components/ui/sonner` `<Toaster />` once, and `utils/toast.ts` is the seam in front of it.
 - `regle-config.ts` — the `@regle/nuxt` setup file: localized messages for the built-in validation rules.
 - `services/` — one `<resource>.api.ts` per resource (auto-imported via `imports.dirs`); `services/queries/` holds the `use<Resource>Queries.ts` composables. Two-layer rule: every resource has both files. A resource served over GraphQL instead uses `<resource>.gql.ts` + `use<Resource>GqlQueries.ts` — the same two layers, the same wrappers, only the transport differs.
 - `stores/useAuthStore.ts` — the only Pinia store.
@@ -32,7 +32,7 @@ Tests live in a `_tests/` subdirectory of the directory holding the code under t
 - Forms and validation (Regle + Zod, 422s inline) → `catalyst/stacks/frontend/nuxt/validation.md`
 - Client state (`stores/`) → `catalyst/stacks/frontend/nuxt/client-state.md`
 - Routing and middleware (`pages/`, `middleware/`) → `catalyst/stacks/frontend/nuxt/routing.md`
-- UI posture (no component library; project-owned primitives) → `catalyst/stacks/frontend/nuxt/ui/headless.md`
+- UI posture → `catalyst/stacks/frontend/nuxt/ui/shadcn-vue/shadcn-vue.md` (+ `setup.md`, `components.md`) for converted code; `catalyst/stacks/frontend/nuxt/ui/headless.md` still governs what Phase 4 has not reached yet
 - Message catalogs and user-facing text (`i18n/`) → `catalyst/stacks/frontend/nuxt/addons/i18n.md` (+ `addons/i18n/catalog-hygiene.md`)
 - Types and TS conventions (`types/`) → `catalyst/stacks/_lang/typescript/typescript-types.md`
 

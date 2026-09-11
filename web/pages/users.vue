@@ -1,54 +1,59 @@
 <template>
   <!-- * A column filling `main`, so the table below can take the space that is left rather than growing the page. -->
-  <div class="users-container">
-    <div class="users-header">
-      <h1 class="users-title">{{ $t('users.title') }}</h1>
+  <div class="mx-auto flex min-h-0 w-full max-w-[1200px] flex-1 flex-col">
+    <div class="mb-6 flex shrink-0 items-center justify-between border-b pb-4">
+      <h1 class="text-primary text-3xl font-semibold">
+        {{ $t('users.title') }}
+      </h1>
 
-      <div class="actions-bar">
-        <button class="create-btn" @click="openCreateForm">
-          {{ $t('users.create') }}
-        </button>
-      </div>
+      <Button @click="openCreateForm">{{ $t('users.create') }}</Button>
     </div>
 
-    <div v-if="isPending" class="loading-state">
-      <p>{{ $t('users.loading') }}</p>
-    </div>
+    <p v-if="isPending" class="bg-card rounded-md border p-8 text-center">
+      {{ $t('users.loading') }}
+    </p>
 
-    <div v-else-if="error" class="error-state">
-      <p>{{ $t('errors.usersLoad', { message: getErrorMessage(error) }) }}</p>
-    </div>
+    <p
+      v-else-if="error"
+      class="text-destructive border-destructive/40 bg-destructive/10 rounded-md border p-8 text-center"
+    >
+      {{ $t('errors.usersLoad', { message: getErrorMessage(error) }) }}
+    </p>
 
-    <div v-else class="users-content">
-      <div class="users-stats">
-        <p>
-          {{ $t('users.total') }}
-          <span class="stats-number">{{ users.length }}</span>
-        </p>
-      </div>
+    <div v-else class="flex min-h-0 flex-1 flex-col">
+      <p class="text-muted-foreground mb-4 shrink-0">
+        {{ $t('users.total') }}
+        <span class="text-primary font-semibold">{{ users.length }}</span>
+      </p>
 
-      <div class="table-container">
-        <UIScrollArea class="table-scroll">
-          <table class="users-table">
-            <thead>
-              <tr>
-                <th>{{ $t('users.columns.id') }}</th>
-                <th>{{ $t('users.columns.name') }}</th>
-                <th>{{ $t('users.columns.email') }}</th>
-                <th>{{ $t('users.columns.role') }}</th>
-                <th>{{ $t('users.columns.emailVerified') }}</th>
-                <th>{{ $t('users.columns.createdAt') }}</th>
-                <th>{{ $t('users.columns.actions') }}</th>
-              </tr>
-            </thead>
+      <!-- * A static shell: it keeps the border and the radius so the scrolling element inside carries no structural edge of its own, which is the split `scroll-affordance.md` asks for. `overflow-hidden` clips the table's corners to the radius. -->
+      <div
+        class="bg-card flex min-h-0 flex-col overflow-hidden rounded-md border shadow-xs"
+      >
+        <!-- ! `min-h-0` is what makes this work: a flex child's default `min-height: auto` refuses to shrink below its content, so the table would grow the page instead of scrolling. The sticky header then keeps the column names in place while the body moves — and, sitting inside this region, it covers the top edge rule, which is why only the bottom one is ever visible here. -->
+        <UIScrollArea class="min-h-0 flex-1">
+          <Table>
+            <TableHeader>
+              <TableRow class="hover:bg-primary">
+                <TableHead
+                  v-for="column in COLUMNS"
+                  :key="column"
+                  :class="HEAD"
+                >
+                  {{ $t(`users.columns.${column}`) }}
+                </TableHead>
+              </TableRow>
+            </TableHeader>
 
-            <tbody>
-              <tr v-for="user in users" :key="user.id" class="user-row">
-                <td>{{ user.id }}</td>
-                <td class="user-name">{{ user.name }}</td>
-                <td class="user-email">{{ user.email }}</td>
-                <td><RoleBadge :role="user.role" /></td>
-                <td>
+            <TableBody>
+              <TableRow v-for="user in users" :key="user.id">
+                <TableCell>{{ user.id }}</TableCell>
+                <TableCell class="font-medium">{{ user.name }}</TableCell>
+                <TableCell class="text-muted-foreground">
+                  {{ user.email }}
+                </TableCell>
+                <TableCell><RoleBadge :role="user.role" /></TableCell>
+                <TableCell>
                   <VerificationBadge :verified="!!user.email_verified_at">
                     <!-- * The badge's wording is the caller's, so the caller reserves it — same auto-layout column as the role beside it. -->
                     <UIReservedLabel
@@ -59,34 +64,42 @@
                       :active="user.email_verified_at ? 'yes' : 'no'"
                     />
                   </VerificationBadge>
-                </td>
-                <td class="created-date">{{ formatDate(user.created_at) }}</td>
-                <td class="actions-cell">
-                  <button
-                    class="edit-btn"
-                    :disabled="isDeletingUser === user.id"
-                    @click="openEditForm(user)"
-                  >
-                    {{ $t('common.actions.edit') }}
-                  </button>
+                </TableCell>
+                <TableCell class="text-muted-foreground">
+                  {{ formatDate(user.created_at) }}
+                </TableCell>
+                <TableCell>
+                  <div class="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      :disabled="isDeletingUser === user.id"
+                      @click="openEditForm(user)"
+                    >
+                      {{ $t('common.actions.edit') }}
+                    </Button>
 
-                  <button
-                    class="delete-btn"
-                    :disabled="isDeletingUser === user.id"
-                    @click="confirmDelete(user)"
-                  >
-                    <UIReservedLabel
-                      :variants="{
-                        idle: $t('common.actions.delete'),
-                        pending: $t('common.actions.deleting')
-                      }"
-                      :active="isDeletingUser === user.id ? 'pending' : 'idle'"
-                    />
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      :disabled="isDeletingUser === user.id"
+                      @click="confirmDelete(user)"
+                    >
+                      <UIReservedLabel
+                        :variants="{
+                          idle: $t('common.actions.delete'),
+                          pending: $t('common.actions.deleting')
+                        }"
+                        :active="
+                          isDeletingUser === user.id ? 'pending' : 'idle'
+                        "
+                      />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
         </UIScrollArea>
       </div>
     </div>
@@ -101,49 +114,71 @@
       @close="closeUserForm"
     />
 
-    <UIDialog
-      :open="!!userToDelete"
-      :title="$t('users.delete.title')"
-      narrow
-      danger
-      @close="cancelDelete"
-    >
-      <div class="delete-confirmation">
-        <!-- * `scope="global"`: the Translation component resolves against its PARENT's scope by default, and its parent here is UIDialog (slot content), which enables no scope of its own. Without this it warns and falls back to global anyway — this says so out loud. -->
-        <i18n-t keypath="users.delete.confirm" tag="p" scope="global">
-          <template #name>
-            <strong>"{{ userToDelete?.name }}"</strong>
-          </template>
-        </i18n-t>
+    <!-- * An AlertDialog rather than a Dialog: deleting a user is a destructive confirmation, and this one carries the role and focus defaults that go with it. -->
+    <AlertDialog :open="!!userToDelete" @update:open="handleDeleteDialogToggle">
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{{ $t('users.delete.title') }}</AlertDialogTitle>
 
-        <p class="warning-text">{{ $t('users.delete.warning') }}</p>
-      </div>
+          <AlertDialogDescription>
+            <!-- * `scope="global"`: the Translation component resolves against its PARENT's scope by default, and its parent here is AlertDialogDescription, which enables no scope of its own. Without this it warns and falls back to global anyway — this says so out loud. -->
+            <i18n-t keypath="users.delete.confirm" tag="span" scope="global">
+              <template #name>
+                <strong>"{{ userToDelete?.name }}"</strong>
+              </template>
+            </i18n-t>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
 
-      <UIDialogActions>
-        <button class="cancel-btn" :disabled="isDeleting" @click="cancelDelete">
-          {{ $t('common.actions.cancel') }}
-        </button>
+        <p class="text-destructive text-sm italic">
+          {{ $t('users.delete.warning') }}
+        </p>
 
-        <button
-          class="confirm-delete-btn"
-          :disabled="isDeleting"
-          @click="handleDelete"
-        >
-          <UIReservedLabel
-            :variants="{
-              idle: $t('users.delete.submit'),
-              pending: $t('common.actions.deleting')
-            }"
-            :active="isDeleting ? 'pending' : 'idle'"
-          />
-        </button>
-      </UIDialogActions>
-    </UIDialog>
+        <AlertDialogFooter>
+          <AlertDialogCancel :disabled="isDeleting" @click="cancelDelete">
+            {{ $t('common.actions.cancel') }}
+          </AlertDialogCancel>
+
+          <AlertDialogAction
+            :class="buttonVariants({ variant: 'destructive' })"
+            :disabled="isDeleting"
+            @click="handleDelete"
+          >
+            <UIReservedLabel
+              :variants="{
+                idle: $t('users.delete.submit'),
+                pending: $t('common.actions.deleting')
+              }"
+              :active="isDeleting ? 'pending' : 'idle'"
+            />
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import UserFormDialog from '@/components/users/UserFormDialog.vue';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from '@/components/ui/alert-dialog';
+import { Button, buttonVariants } from '@/components/ui/button';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table';
 
 import {
   useFetchUsers,
@@ -153,6 +188,20 @@ import {
 } from '@/services/queries/useUserQueries';
 import type { User } from '@/types/auth';
 import type { UpdateUserForm } from '@/types/user';
+
+// * The column set, so the seven headers are one loop rather than seven near-identical rows.
+const COLUMNS = [
+  'id',
+  'name',
+  'email',
+  'role',
+  'emailVerified',
+  'createdAt',
+  'actions'
+] as const;
+
+// * The header is brand-filled and sticks to the scrolling region's top, so it needs an opaque fill of its own to cover the rows passing under it.
+const HEAD = 'bg-primary text-primary-foreground sticky top-0 z-10';
 
 const { t } = useI18n();
 
@@ -228,6 +277,13 @@ function cancelDelete() {
   userToDelete.value = null;
 }
 
+// * Reka closes on Escape and on the overlay as well as on Cancel; all of them arrive here.
+function handleDeleteDialogToggle(open: boolean) {
+  if (!open) {
+    cancelDelete();
+  }
+}
+
 function handleDelete() {
   if (!userToDelete.value) {
     return;
@@ -255,243 +311,3 @@ function handleUpdateUser(id: number, userData: UpdateUserForm) {
   updateUser({ id, userData });
 }
 </script>
-
-<style scoped>
-.users-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-}
-
-.users-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--color-border-legacy);
-  flex-shrink: 0;
-}
-
-.users-title {
-  color: var(--color-brand);
-  margin: 0;
-  font-size: 32px;
-  font-weight: 600;
-}
-
-.actions-bar {
-  display: flex;
-  gap: 16px;
-}
-
-.create-btn {
-  background-color: var(--color-brand);
-  color: var(--color-on-brand);
-  border: none;
-  padding: 8px 16px;
-  border-radius: var(--radius);
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color var(--transition);
-  font-size: 14px;
-}
-
-.create-btn:hover {
-  background-color: var(--color-brand-hover);
-}
-
-.loading-state,
-.error-state {
-  text-align: center;
-  padding: 32px;
-  background: var(--color-surface);
-  border-radius: var(--radius);
-  border: 1px solid var(--color-border-legacy);
-}
-
-.error-state {
-  color: var(--color-danger);
-  background-color: var(--color-danger-surface);
-  border-color: var(--color-danger-surface-border);
-}
-
-.users-content {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-}
-
-.users-stats {
-  margin-bottom: 16px;
-  flex-shrink: 0;
-}
-
-.users-stats p {
-  color: var(--color-text);
-  margin: 0;
-  font-size: 16px;
-}
-
-.stats-number {
-  font-weight: 600;
-  color: var(--color-brand);
-}
-
-/* * A static shell: it keeps the border and the radius so the scrolling element inside carries no structural edge of its own, which is the split `scroll-affordance.md` asks for. `overflow: hidden` clips the table's corners to the radius. */
-.table-container {
-  background: var(--color-surface);
-  border-radius: var(--radius);
-  border: 1px solid var(--color-border-legacy);
-  box-shadow: var(--shadow-subtle);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-
-/* ! `min-height: 0` is what makes this work: a flex child's default `min-height: auto` refuses to shrink below its content, so the table would grow the page instead of scrolling. Sticky `th`s then keep the column headers in place while the body moves — and, sitting inside this region, they cover its top edge rule, which is why only the bottom one is ever visible here. */
-.table-scroll {
-  flex: 1 1 auto;
-  min-height: 0;
-}
-
-.users-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.users-table th {
-  background-color: var(--color-brand);
-  color: var(--color-on-brand);
-  padding: 12px 16px;
-  text-align: left;
-  font-weight: 600;
-  font-size: 14px;
-  position: sticky;
-  top: 0;
-  z-index: 1;
-}
-
-.users-table td {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--color-border-legacy);
-  font-size: 14px;
-}
-
-.user-row:hover {
-  background-color: var(--color-surface-muted);
-}
-
-.user-name {
-  font-weight: 500;
-  color: var(--color-text);
-}
-
-.user-email {
-  color: var(--color-text-muted);
-}
-
-.created-date {
-  color: var(--color-text-muted);
-  font-size: 13px;
-}
-
-.actions-cell {
-  display: flex;
-  gap: 8px;
-}
-
-.edit-btn {
-  background-color: var(--color-brand);
-  color: var(--color-on-brand);
-  border: none;
-  padding: 6px 12px;
-  border-radius: var(--radius);
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 500;
-  transition: background-color var(--transition);
-}
-
-.edit-btn:hover:not(:disabled) {
-  background-color: var(--color-brand-hover);
-}
-
-.edit-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.delete-btn {
-  background-color: var(--color-danger);
-  color: var(--color-on-brand);
-  border: none;
-  padding: 6px 12px;
-  border-radius: var(--radius);
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 500;
-  transition: background-color var(--transition);
-}
-
-.delete-btn:hover:not(:disabled) {
-  background-color: var(--color-danger-hover);
-}
-
-.delete-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.delete-confirmation p {
-  margin: 0 0 8px 0;
-  color: var(--color-text);
-}
-
-.warning-text {
-  color: var(--color-danger);
-  font-size: 14px;
-  font-style: italic;
-}
-
-.cancel-btn {
-  background-color: var(--color-secondary);
-  color: var(--color-on-brand);
-  border: none;
-  padding: 8px 16px;
-  border-radius: var(--radius);
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color var(--transition);
-}
-
-.cancel-btn:hover {
-  background-color: var(--color-secondary-hover);
-}
-
-.confirm-delete-btn {
-  background-color: var(--color-danger);
-  color: var(--color-on-brand);
-  border: none;
-  padding: 8px 16px;
-  border-radius: var(--radius);
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color var(--transition);
-}
-
-.confirm-delete-btn:hover:not(:disabled) {
-  background-color: var(--color-danger-hover);
-}
-
-.cancel-btn:disabled,
-.confirm-delete-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-</style>

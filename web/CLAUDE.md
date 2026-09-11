@@ -14,6 +14,7 @@ Paths below are relative to the repo root. The `catalyst/` documents are normati
 - `i18n/` — message catalogs and the Vue I18n config; has its own `CLAUDE.md`.
 - `mocks/` — test-only: the MSW server, its lifecycle setup file, the request recorder, schema-parsed fixtures, and per-resource handlers. Never imported by shipped code.
 - `middleware/auth.global.ts` — the only route middleware; a thin wrapper over the pure, unit-tested `utils/authRedirectLogic.ts`.
+- `pages/users.vue` composes the vendored `Table` inside `UIScrollArea`: the shell around it carries the border and radius, the scrolling region carries none, and the sticky header needs its own opaque fill to cover the rows passing under it (`catalyst/stacks/frontend/_common/scroll-affordance.md`). Deleting a user is an `AlertDialog`, not a `Dialog` — a destructive confirmation, with the role and the cancel-focused default that go with it.
 - `pages/` — file-based routes: `index`, `home`, `profile`, `users`, `graphql-demo`, plus the one remaining auth page, `password-reset` (reads `?token=&email=`; login/register/forgot-password are dialogs now, not routes — `components/users/`).
 - `plugins/` — `auth-loader.ts` (restores the session before first render). Toasts need no plugin: `app.vue` mounts the vendored `components/ui/sonner` `<Toaster />` once, and `utils/toast.ts` is the seam in front of it.
 - `regle-config.ts` — the `@regle/nuxt` setup file: localized messages for the built-in validation rules.

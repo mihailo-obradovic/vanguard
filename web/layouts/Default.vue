@@ -5,17 +5,82 @@
     <nav
       class="bg-primary text-primary-foreground flex shrink-0 items-center justify-between gap-4 px-4 py-2"
     >
-      <div class="flex items-center gap-2">
-        <NuxtLink to="/home" :class="NAV_LINK">
-          {{ $t('common.nav.home') }}
-        </NuxtLink>
+      <!-- * Below `lg` the links and the auth controls move into a drawer. Signed in as an admin, the inline bar needs 732px in English and 779px in Serbian Cyrillic, so `md` (768px) would still overflow. -->
+      <Sheet v-model:open="drawer">
+        <SheetTrigger as-child>
+          <Button
+            variant="on-primary"
+            size="icon"
+            class="lg:hidden"
+            :aria-label="$t('common.nav.menu')"
+          >
+            <Menu />
+          </Button>
+        </SheetTrigger>
 
-        <NuxtLink v-if="isAdmin" to="/users" :class="NAV_LINK">
-          {{ $t('common.nav.users') }}
-        </NuxtLink>
+        <SheetContent side="left">
+          <SheetHeader>
+            <SheetTitle>{{ $t('common.nav.menu') }}</SheetTitle>
+          </SheetHeader>
 
-        <NuxtLink v-if="isAdmin" to="/graphql-demo" :class="NAV_LINK">
-          {{ $t('common.nav.graphqlDemo') }}
+          <nav class="flex flex-col gap-1 px-4">
+            <Button
+              v-for="link in links"
+              :key="link.to"
+              variant="ghost"
+              class="justify-start"
+              as-child
+            >
+              <NuxtLink :to="link.to">
+                {{ $t(link.label) }}
+              </NuxtLink>
+            </Button>
+          </nav>
+
+          <Separator />
+
+          <div v-if="isLoggedIn" class="flex flex-col gap-2 px-4">
+            <Button variant="ghost" class="justify-start" as-child>
+              <NuxtLink to="/profile">
+                {{ user?.name }}
+              </NuxtLink>
+            </Button>
+
+            <Button
+              variant="destructive"
+              :disabled="isLoggingOut"
+              @click="logOutFromDrawer"
+            >
+              <UIReservedLabel
+                :variants="{
+                  idle: $t('common.nav.logout'),
+                  pending: $t('common.nav.logoutPending')
+                }"
+                :active="isLoggingOut ? 'pending' : 'idle'"
+              />
+            </Button>
+          </div>
+
+          <div v-else class="flex flex-col gap-2 px-4">
+            <Button @click="openLoginFromDrawer">
+              {{ $t('common.nav.login') }}
+            </Button>
+
+            <Button variant="outline" @click="openRegisterFromDrawer">
+              {{ $t('common.nav.register') }}
+            </Button>
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      <div class="hidden items-center gap-2 lg:flex">
+        <NuxtLink
+          v-for="link in links"
+          :key="link.to"
+          :to="link.to"
+          :class="NAV_LINK"
+        >
+          {{ $t(link.label) }}
         </NuxtLink>
       </div>
 
@@ -24,7 +89,7 @@
 
         <LocaleSwitcher />
 
-        <template v-if="isLoggedIn">
+        <div v-if="isLoggedIn" class="hidden items-center gap-3 lg:flex">
           <!-- * Same height as the buttons beside it, so the bar does not resize between the signed-in and guest states. -->
           <!-- ! Any tint of the bar's foreground pulls the text towards its own colour: 5% rest and 10% hover hold 5.33:1 and 4.82:1 in the light face, where 15% and 25% fell to 4.36:1 and 3.56:1. -->
           <NuxtLink
@@ -49,9 +114,9 @@
               :active="isLoggingOut ? 'pending' : 'idle'"
             />
           </Button>
-        </template>
+        </div>
 
-        <template v-else>
+        <div v-else class="hidden items-center gap-3 lg:flex">
           <Button variant="on-primary" @click="openLogin">
             {{ $t('common.nav.login') }}
           </Button>
@@ -59,7 +124,7 @@
           <Button variant="on-primary" @click="openRegister">
             {{ $t('common.nav.register') }}
           </Button>
-        </template>
+        </div>
       </div>
     </nav>
 
@@ -103,6 +168,8 @@
 </template>
 
 <script setup lang="ts">
+import { Menu } from '@lucide/vue';
+
 import {
   useGeneratePasswordResetEmail,
   useLogIn,
@@ -110,12 +177,22 @@ import {
   useRegister
 } from '@/services/queries/useAuthQueries';
 import { Button } from '@/components/ui/button';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger
+} from '@/components/ui/sheet';
+import { Separator } from '@/components/ui/separator';
 import ForgotPasswordDialog from '@/components/users/ForgotPasswordDialog.vue';
 import LoginDialog from '@/components/users/LoginDialog.vue';
 import RegisterDialog from '@/components/users/RegisterDialog.vue';
 
 const NAV_LINK =
   'hover:bg-primary-foreground/10 inline-flex h-9 items-center rounded-md px-4 text-sm font-medium transition-colors';
+
+const route = useRoute();
 
 const { isLoggedIn, isAdmin, user } = storeToRefs(useAuthStore());
 
@@ -144,6 +221,17 @@ const {
   $toast(data.status, 'success')
 );
 
+// * One list for both renderings — inline at `lg`, in the drawer below it — so the two cannot drift apart.
+const links = computed(() => [
+  { to: '/home', label: 'common.nav.home' },
+  ...(isAdmin.value
+    ? [
+        { to: '/users', label: 'common.nav.users' },
+        { to: '/graphql-demo', label: 'common.nav.graphqlDemo' }
+      ]
+    : [])
+]);
+
 function openLogin() {
   loginDialog.value = true;
 }
@@ -155,4 +243,30 @@ function openRegister() {
 function openForgotPassword() {
   forgotPasswordDialog.value = true;
 }
+
+const drawer = ref(false);
+
+// * Each action closes the drawer before it starts, so the drawer never sits open behind the dialog it handed off to, or over a session that just ended.
+function openLoginFromDrawer() {
+  drawer.value = false;
+  openLogin();
+}
+
+function openRegisterFromDrawer() {
+  drawer.value = false;
+  openRegister();
+}
+
+function logOutFromDrawer() {
+  drawer.value = false;
+  logOut();
+}
+
+// * Covers every link in the drawer, and a redirect the drawer did not start (a session expiring mid-visit).
+watch(
+  () => route.fullPath,
+  () => {
+    drawer.value = false;
+  }
+);
 </script>

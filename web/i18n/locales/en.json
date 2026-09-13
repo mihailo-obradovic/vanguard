@@ -32,6 +32,7 @@
   "common": {
     "actions": {
       "cancel": "Cancel",
+      "close": "Close",
       "confirm": "Confirm",
       "delete": "Delete",
       "deleting": "Deleting...",
@@ -65,6 +66,7 @@
       "login": "Login",
       "logout": "Logout",
       "logoutPending": "Logging out...",
+      "menu": "Menu",
       "register": "Register",
       "users": "Users"
     },

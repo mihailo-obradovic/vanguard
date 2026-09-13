@@ -32,6 +32,7 @@
   "common": {
     "actions": {
       "cancel": "Otkaži",
+      "close": "Zatvori",
       "confirm": "Potvrdi",
       "delete": "Obriši",
       "deleting": "Brisanje...",
@@ -65,6 +66,7 @@
       "login": "Prijava",
       "logout": "Odjava",
       "logoutPending": "Odjavljivanje...",
+      "menu": "Meni",
       "register": "Registracija",
       "users": "Korisnici"
     },

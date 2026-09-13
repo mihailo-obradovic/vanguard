@@ -1,7 +1,13 @@
 // @vitest-environment nuxt
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { renderSuspended } from '@nuxt/test-utils/runtime';
-import { screen, fireEvent, cleanup, waitFor } from '@testing-library/vue';
+import {
+  screen,
+  fireEvent,
+  cleanup,
+  waitFor,
+  within
+} from '@testing-library/vue';
 
 import { server } from '@/mocks/server';
 import { authHandlers } from '@/mocks/handlers/auth';
@@ -147,5 +153,92 @@ describe('the default layout', () => {
       await screen.findByRole('dialog', { name: 'Create Account' })
     ).not.toBeNull();
     expect(screen.queryByRole('dialog', { name: 'Welcome Back' })).toBeNull();
+  });
+
+  // * The drawer below `lg`. Which rendering is visible is Tailwind's call, which happy-dom does not load, so these open the drawer explicitly; the width switch itself is a live browser check.
+  describe('the phone-width drawer', () => {
+    async function openDrawer() {
+      await fireEvent.click(screen.getByRole('button', { name: 'Menu' }));
+
+      return screen.findByRole('dialog', { name: 'Menu' });
+    }
+
+    it('offers an admin the same destinations as the bar', async () => {
+      useAuthStore().setUser(buildUser({ role: 'admin', name: 'Mihailo' }));
+
+      await renderSuspended(Default);
+
+      const drawer = within(await openDrawer());
+
+      expect(
+        drawer.getAllByRole('link').map((link) => link.textContent?.trim())
+      ).toEqual(['Home', 'Users', 'GraphQL Demo', 'Mihailo']);
+      expect(drawer.getByRole('button', { name: 'Logout' })).not.toBeNull();
+    });
+
+    it('keeps the admin sections out of an ordinary user’s drawer', async () => {
+      useAuthStore().setUser(buildUser({ role: 'user' }));
+
+      await renderSuspended(Default);
+
+      const drawer = within(await openDrawer());
+
+      expect(drawer.queryByRole('link', { name: 'Users' })).toBeNull();
+      expect(drawer.queryByRole('link', { name: 'GraphQL Demo' })).toBeNull();
+    });
+
+    it('closes before handing a guest to the login dialog', async () => {
+      await renderSuspended(Default);
+
+      const drawer = within(await openDrawer());
+
+      await fireEvent.click(drawer.getByRole('button', { name: 'Login' }));
+
+      expect(
+        await screen.findByRole('dialog', { name: 'Welcome Back' })
+      ).not.toBeNull();
+      // ! Counted with `hidden: true`, not queried by name: the opened dialog marks everything else aria-hidden, and a drawer left open behind it then loses its accessible name too — a named query misses it and passes for the wrong reason.
+      expect(screen.getAllByRole('dialog', { hidden: true })).toHaveLength(1);
+    });
+
+    it('closes before handing a guest to the register dialog', async () => {
+      await renderSuspended(Default);
+
+      const drawer = within(await openDrawer());
+
+      await fireEvent.click(drawer.getByRole('button', { name: 'Register' }));
+
+      expect(
+        await screen.findByRole('dialog', { name: 'Create Account' })
+      ).not.toBeNull();
+      // ! Counted with `hidden: true`, not queried by name: the opened dialog marks everything else aria-hidden, and a drawer left open behind it then loses its accessible name too — a named query misses it and passes for the wrong reason.
+      expect(screen.getAllByRole('dialog', { hidden: true })).toHaveLength(1);
+    });
+
+    it('closes and logs the user out', async () => {
+      useAuthStore().setUser(buildUser());
+
+      await renderSuspended(Default);
+
+      const drawer = within(await openDrawer());
+
+      await fireEvent.click(drawer.getByRole('button', { name: 'Logout' }));
+
+      await waitFor(() => expect(requests.trace()).toContain('POST /logout'));
+      expect(screen.queryByRole('dialog', { name: 'Menu' })).toBeNull();
+    });
+
+    it('closes when the route changes under it', async () => {
+      useAuthStore().setUser(buildUser({ role: 'admin' }));
+
+      await renderSuspended(Default);
+      await openDrawer();
+
+      await useRouter().push('/profile');
+
+      await waitFor(() =>
+        expect(screen.queryByRole('dialog', { name: 'Menu' })).toBeNull()
+      );
+    });
   });
 });

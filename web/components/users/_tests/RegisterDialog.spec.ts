@@ -106,6 +106,13 @@ function confirmButton() {
   return screen.getByRole('button', { name: 'Confirm' }) as HTMLButtonElement;
 }
 
+/** The message a control is described by — what a screen reader announces with it. */
+function describedBy(control: HTMLElement) {
+  const id = control.getAttribute('aria-describedby');
+
+  return id ? document.getElementById(id)?.textContent?.trim() : undefined;
+}
+
 describe('RegisterDialog', () => {
   beforeEach(() => {
     Object.assign(owner, { open: false, serverErrors: {} });
@@ -193,6 +200,26 @@ describe('RegisterDialog', () => {
     await flushPromises();
 
     expect(confirmButton().disabled).toBe(true);
+  });
+
+  it('describes each field that holds the registration back by its message', async () => {
+    await renderOwner();
+    await open();
+
+    await fireEvent.update(field(/^Name$/), 'a'.repeat(256));
+    await fireEvent.update(field(/^Password$/), 'hunter2');
+    await fireEvent.update(field(/^Password confirmation$/), 'hunter3');
+    await flushPromises();
+
+    expect(describedBy(field(/^Name$/))).toBe(
+      'The name field must be at most 255 characters.'
+    );
+    expect(describedBy(field(/^Password$/))).toBe(
+      'The password field must be at least 8 characters.'
+    );
+    expect(describedBy(field(/^Password confirmation$/))).toBe(
+      'The password confirmation field does not match.'
+    );
   });
 
   // ! 255 is the column width the backend enforces; the client mirrors it so the user is not told

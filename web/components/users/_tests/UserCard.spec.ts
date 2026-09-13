@@ -1,6 +1,6 @@
 // @vitest-environment nuxt
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { renderSuspended } from '@nuxt/test-utils/runtime';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { mockNuxtImport, renderSuspended } from '@nuxt/test-utils/runtime';
 import { screen, fireEvent, cleanup, waitFor } from '@testing-library/vue';
 import { flushPromises } from '@vue/test-utils';
 
@@ -14,6 +14,13 @@ import { buildUser } from '@/mocks/fixtures';
 import { useAuthStore } from '@/stores/useAuthStore';
 
 import UserCard from '../UserCard.vue';
+
+const { toast } = vi.hoisted(() => ({
+  toast: vi.fn<(message: string, type?: string) => void>()
+}));
+
+// * The card's feedback is a toast; observed at the seam rather than through a toast host this spec does not mount.
+mockNuxtImport('$toast', () => toast);
 
 const requests = recordRequests();
 
@@ -86,9 +93,17 @@ async function fillInANewPassword() {
 /** Ignore the reserved-label ghosts: they are a measuring device, not text a user is offered. */
 const SHOWN = { ignore: '[aria-hidden="true"]' };
 
+/** The message a control is described by — what a screen reader announces with it. */
+function describedBy(control: HTMLElement) {
+  const id = control.getAttribute('aria-describedby');
+
+  return id ? document.getElementById(id)?.textContent?.trim() : undefined;
+}
+
 describe('UserCard', () => {
   beforeEach(() => {
     requests.reset();
+    toast.mockReset();
     // * The email rules ask whether the address is free the moment one is typed.
     server.use(
       ...authHandlers(),
@@ -233,12 +248,36 @@ describe('UserCard', () => {
 
     await waitFor(() => expect(button('Edit')).toBeTruthy());
 
+    expect(toast).toHaveBeenCalledWith(
+      'Profile updated successfully',
+      'success'
+    );
     expect(screen.queryByLabelText(CURRENT_PASSWORD)).toBeNull();
 
     await startEditing();
 
     expect(field(CURRENT_PASSWORD).value).toBe('');
     expect(field(NEW_PASSWORD).value).toBe('');
+  });
+
+  it('describes a new password it refuses by its messages', async () => {
+    await renderCard();
+    await startEditing();
+
+    await fireEvent.update(field(CURRENT_PASSWORD), 'oldpassword');
+    await fireEvent.update(field(NEW_PASSWORD), 'short');
+    await fireEvent.update(field(CONFIRM_NEW_PASSWORD), 'different');
+    await fireEvent.click(button('Save'));
+
+    await waitFor(() =>
+      expect(describedBy(field(NEW_PASSWORD))).toBe(
+        'The new password field must be at least 8 characters.'
+      )
+    );
+    expect(describedBy(field(CONFIRM_NEW_PASSWORD))).toBe(
+      'The confirm new password field does not match.'
+    );
+    expect(await settledTrace()).not.toContain(PROFILE_UPDATE);
   });
 
   it('keeps an invalid form to itself', async () => {
@@ -274,6 +313,8 @@ describe('UserCard', () => {
     // ! A rejected save must not reset: the user needs the form as they left it to correct it.
     expect(button('Save')).toBeTruthy();
     expect(field(/^Email$/).value).toBe('taken@example.com');
+    // * The field already says it; a toast repeating it would be noise.
+    expect(toast).not.toHaveBeenCalled();
   });
 
   // ! The signed-in user already owns their address, so the check has to exclude them — otherwise
@@ -337,6 +378,12 @@ describe('UserCard', () => {
     await waitFor(() =>
       expect(requests.trace()).toContain(
         'POST /email/verification-notification'
+      )
+    );
+    await waitFor(() =>
+      expect(toast).toHaveBeenCalledWith(
+        'Verification email sent. Check your inbox.',
+        'success'
       )
     );
   });

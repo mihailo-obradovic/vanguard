@@ -134,6 +134,13 @@ async function fillValidCreation() {
   await fireEvent.update(field('Password confirmation'), 'gmaz1234');
 }
 
+/** The message a control is described by — what a screen reader announces with it. */
+function describedBy(control: HTMLElement) {
+  const id = control.getAttribute('aria-describedby');
+
+  return id ? document.getElementById(id)?.textContent?.trim() : undefined;
+}
+
 describe('UserFormDialog', () => {
   beforeEach(() => {
     server.use(
@@ -307,6 +314,43 @@ describe('UserFormDialog', () => {
     await settleValidation();
 
     expect(emitted.create).toHaveLength(0);
+  });
+
+  it('describes a missing password pair by its messages', async () => {
+    const { emitted, wrapper } = await mountDialog();
+
+    await fireEvent.update(field('Name'), 'Ada');
+    await fireEvent.update(field('Email'), 'ada@example.com');
+
+    await submit(wrapper);
+
+    await waitFor(() =>
+      expect(describedBy(field('Password'))).toBe(
+        'The password field is required.'
+      )
+    );
+    expect(describedBy(field('Password confirmation'))).toBe(
+      'The password confirmation field is required.'
+    );
+
+    await settleValidation();
+
+    expect(emitted.create).toHaveLength(0);
+  });
+
+  it('shows an ordinary user’s role on the picker', async () => {
+    await mountDialog(buildUser({ id: 7, role: 'user' }));
+
+    expect(shownRole()).toBe('User');
+  });
+
+  // * Escape is the dialog primitive's, but the page only hears about it because this dialog forwards it.
+  it("forwards the dialog's own close request", async () => {
+    const { emitted } = await mountDialog();
+
+    await fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
+
+    expect(emitted.close).toHaveLength(1);
   });
 
   // ! Without the id, editing a user and keeping their own address reads as "already taken".

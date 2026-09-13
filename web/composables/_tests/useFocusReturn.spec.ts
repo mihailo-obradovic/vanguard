@@ -89,6 +89,15 @@ describe('useFocusReturn', () => {
     expect(document.activeElement).toBe(main);
   });
 
+  it('leaves focus alone when there is nowhere to send it', () => {
+    const opener = button('Delete');
+
+    const event = openAndClose(opener, null, () => opener.remove());
+
+    expect(event.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(document.body);
+  });
+
   // ! The opener is read when the dialog opens, not when it closes: by close time focus is inside the dialog, and reading it then would always look connected.
   it('remembers the element focused when the dialog opened', () => {
     const opener = button('Register here');

@@ -2,7 +2,13 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { defineComponent, h, ref } from 'vue';
 import { mountSuspended } from '@nuxt/test-utils/runtime';
-import { screen, fireEvent, cleanup, within } from '@testing-library/vue';
+import {
+  screen,
+  fireEvent,
+  cleanup,
+  waitFor,
+  within
+} from '@testing-library/vue';
 
 import { buildUser } from '@/mocks/fixtures';
 
@@ -101,5 +107,89 @@ describe('UserDeleteDialog', () => {
 
     expect(emitted.close).toBe(0);
     expect(screen.getByRole('alertdialog')).not.toBeNull();
+  });
+
+  // * The opener survives a cancel, so focus goes back to it — the fallback is only for a row the delete removed. Focus-then-click is how a keyboard user opens it; a bare click never moves focus.
+  it('returns focus to the row button it was opened from when cancelled', async () => {
+    const subject = ref<User | null>(null);
+
+    const page = defineComponent({
+      setup() {
+        return () => [
+          h(
+            'button',
+            { onClick: () => (subject.value = buildUser({ id: 7 })) },
+            'Delete Ada'
+          ),
+          h(UserDeleteDialog, {
+            user: subject.value,
+            deleting: false,
+            onClose: () => (subject.value = null)
+          })
+        ];
+      }
+    });
+
+    // ! Attached: the opener is page content, not teleported, and focus only moves inside a document.
+    await mountSuspended(page, { attachTo: document.body });
+
+    const opener = screen.getByRole('button', { name: 'Delete Ada' });
+
+    opener.focus();
+    await fireEvent.click(opener);
+    await fireEvent.click(
+      confirmation().getByRole('button', { name: 'Cancel' })
+    );
+
+    await waitFor(() =>
+      expect(screen.queryByRole('alertdialog', { hidden: true })).toBeNull()
+    );
+    await waitFor(() => expect(document.activeElement).toBe(opener));
+  });
+
+  // * A confirmed delete removes the row the dialog was opened from, so there is nothing to return to; the page's main landmark takes focus instead of <body>.
+  it('sends focus to the main landmark once the deleted row is gone', async () => {
+    const subject = ref<User | null>(null);
+    const rowPresent = ref(true);
+
+    const page = defineComponent({
+      setup() {
+        return () =>
+          h('main', { id: 'main-content', tabindex: -1 }, [
+            rowPresent.value
+              ? h(
+                  'button',
+                  { onClick: () => (subject.value = buildUser({ id: 7 })) },
+                  'Delete Ada'
+                )
+              : null,
+            h(UserDeleteDialog, {
+              user: subject.value,
+              deleting: false,
+              onConfirm: () => {
+                rowPresent.value = false;
+                subject.value = null;
+              }
+            })
+          ]);
+      }
+    });
+
+    await mountSuspended(page, { attachTo: document.body });
+
+    const opener = screen.getByRole('button', { name: 'Delete Ada' });
+
+    opener.focus();
+    await fireEvent.click(opener);
+    await fireEvent.click(
+      confirmation().getByRole('button', { name: 'Delete User' })
+    );
+
+    await waitFor(() =>
+      expect(screen.queryByRole('alertdialog', { hidden: true })).toBeNull()
+    );
+    await waitFor(() =>
+      expect(document.activeElement).toBe(screen.getByRole('main'))
+    );
   });
 });

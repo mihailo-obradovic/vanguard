@@ -71,6 +71,13 @@ function confirmButton() {
   return screen.getByRole('button', { name: 'Confirm' }) as HTMLButtonElement;
 }
 
+/** The message a control is described by — what a screen reader announces with it. */
+function describedBy(control: HTMLElement) {
+  const id = control.getAttribute('aria-describedby');
+
+  return id ? document.getElementById(id)?.textContent?.trim() : undefined;
+}
+
 describe('LoginDialog', () => {
   beforeEach(() => {
     Object.assign(owner, { open: false, serverErrors: {} });
@@ -148,6 +155,9 @@ describe('LoginDialog', () => {
 
     expect(confirmButton().disabled).toBe(true);
     expect(confirmed).toHaveLength(0);
+    expect(describedBy(field(/^Password$/))).toBe(
+      'The password field is required.'
+    );
   });
 
   // ! The 422 only reaches the field once the submit has marked it dirty — Regle keeps `$errors`

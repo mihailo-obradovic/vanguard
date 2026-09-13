@@ -97,6 +97,11 @@ function settleValidation() {
   return new Promise((resolve) => setTimeout(resolve, 300));
 }
 
+/** What the role control shows — the trigger's label, not a native select's value. */
+function shownRole() {
+  return screen.getByLabelText('Role').textContent?.trim();
+}
+
 describe('UserGqlFormDialog', () => {
   afterEach(() => {
     wrappers.splice(0).forEach((wrapper) => wrapper.unmount());
@@ -144,6 +149,16 @@ describe('UserGqlFormDialog', () => {
 
     await waitFor(() => expect(updates).toHaveLength(1));
     expect(updates[0]).toEqual({ id: 7 });
+  });
+
+  it('shows the role on the picker, as held and as picked', async () => {
+    const { wrapper } = await mountDialog(buildUser({ id: 7, role: 'user' }));
+
+    expect(shownRole()).toBe('User');
+
+    await pickRole(wrapper, 'admin');
+
+    expect(shownRole()).toBe('Admin');
   });
 
   it('sends a changed role', async () => {

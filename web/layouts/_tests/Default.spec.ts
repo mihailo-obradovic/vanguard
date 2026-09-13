@@ -1,6 +1,6 @@
 // @vitest-environment nuxt
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { renderSuspended } from '@nuxt/test-utils/runtime';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { mockNuxtImport, renderSuspended } from '@nuxt/test-utils/runtime';
 import {
   screen,
   fireEvent,
@@ -9,13 +9,25 @@ import {
   within
 } from '@testing-library/vue';
 
+import { http, HttpResponse } from 'msw';
+
 import { server } from '@/mocks/server';
+import { apiUrl } from '@/mocks/api';
 import { authHandlers } from '@/mocks/handlers/auth';
 import { recordRequests } from '@/mocks/requests';
 import { buildUser } from '@/mocks/fixtures';
 import { useAuthStore } from '@/stores/useAuthStore';
 
 import Default from '../Default.vue';
+
+const { navigateTo, toast } = vi.hoisted(() => ({
+  navigateTo: vi.fn<(to: string) => void>(),
+  toast: vi.fn<(message: string, type?: string) => void>()
+}));
+
+// * Where a finished dialog leads is this layout's call, so both exits are observed at the seam rather than through a router and a toast host this spec does not mount.
+mockNuxtImport('navigateTo', () => navigateTo);
+mockNuxtImport('$toast', () => toast);
 
 const requests = recordRequests();
 
@@ -26,6 +38,8 @@ function linkNames() {
 describe('the default layout', () => {
   beforeEach(() => {
     requests.reset();
+    navigateTo.mockReset();
+    toast.mockReset();
     server.use(...authHandlers());
     useAuthStore().resetUser();
   });
@@ -155,6 +169,85 @@ describe('the default layout', () => {
     expect(screen.queryByRole('dialog', { name: 'Welcome Back' })).toBeNull();
   });
 
+  describe('where a finished dialog leads', () => {
+    function dialog(name: string) {
+      return within(screen.getByRole('dialog', { name }));
+    }
+
+    it('sends a guest who signs in to the home page', async () => {
+      await renderSuspended(Default);
+
+      await fireEvent.click(screen.getByRole('button', { name: 'Login' }));
+      await screen.findByRole('dialog', { name: 'Welcome Back' });
+      await fireEvent.click(
+        dialog('Welcome Back').getByRole('button', { name: 'Confirm' })
+      );
+
+      await waitFor(() => expect(navigateTo).toHaveBeenCalledWith('/home'));
+    });
+
+    it('sends a guest who registers to the home page', async () => {
+      server.use(
+        http.get(apiUrl('/api/email-availability'), () =>
+          HttpResponse.json({ available: true })
+        )
+      );
+
+      await renderSuspended(Default);
+
+      await fireEvent.click(screen.getByRole('button', { name: 'Register' }));
+      await screen.findByRole('dialog', { name: 'Create Account' });
+
+      const form = dialog('Create Account');
+
+      await fireEvent.update(form.getByLabelText(/^Name$/), 'Ana');
+      await fireEvent.update(form.getByLabelText(/^Email$/), 'ana@example.com');
+      await fireEvent.update(
+        form.getByLabelText(/^Password$/),
+        'hunter2hunter2'
+      );
+      await fireEvent.update(
+        form.getByLabelText(/^Password confirmation$/),
+        'hunter2hunter2'
+      );
+
+      const confirm = form.getByRole('button', {
+        name: 'Confirm'
+      }) as HTMLButtonElement;
+
+      await waitFor(() => expect(confirm.disabled).toBe(false), {
+        timeout: 3000
+      });
+      await fireEvent.click(confirm);
+
+      await waitFor(() => expect(navigateTo).toHaveBeenCalledWith('/home'));
+    });
+
+    // * The confirmation copy is the server's, already localized — the layout shows it as received.
+    it('tells a guest who asked for a reset link what the server said', async () => {
+      await renderSuspended(Default);
+
+      await fireEvent.click(screen.getByRole('button', { name: 'Login' }));
+      await screen.findByRole('dialog', { name: 'Welcome Back' });
+      await fireEvent.click(
+        screen.getByRole('button', { name: 'Forgot your password?' })
+      );
+      await screen.findByRole('dialog', { name: 'Forgot Password' });
+
+      const form = dialog('Forgot Password');
+
+      await fireEvent.update(form.getByLabelText(/^Email$/), 'ana@example.com');
+      await fireEvent.click(form.getByRole('button', { name: 'Confirm' }));
+
+      await waitFor(() =>
+        expect(toast).toHaveBeenCalledWith(
+          'We have emailed your password reset link.',
+          'success'
+        )
+      );
+    });
+  });
+
   // ! Reka restores focus to whatever was focused when a dialog opened. After a hand-off that element was inside the previous dialog, and after the drawer it was inside the drawer — both unmounted by the time this dialog closes, so without the layout naming the chain's origin, focus fell to <body>. Focus-then-click is how a keyboard user opens these; a bare click never moves focus and would fake the result.
   describe('focus after a dialog closes', () => {
     async function activate(element: HTMLElement) {
@@ -185,22 +278,28 @@ describe('the default layout', () => {
       await waitFor(() => expect(document.activeElement).toBe(login));
     });
 
-    it('returns to the menu button when a dialog opened from the drawer closes', async () => {
-      await renderSuspended(Default);
+    it.each([
+      ['Login', 'Welcome Back'],
+      ['Register', 'Create Account']
+    ])(
+      'returns to the menu button when %s, opened from the drawer, closes',
+      async (control, title) => {
+        await renderSuspended(Default);
 
-      const menu = screen.getByRole('button', { name: 'Menu' });
+        const menu = screen.getByRole('button', { name: 'Menu' });
 
-      await activate(menu);
-      const drawer = within(
-        await screen.findByRole('dialog', { name: 'Menu' })
-      );
-      await activate(drawer.getByRole('button', { name: 'Login' }));
-      await screen.findByRole('dialog', { name: 'Welcome Back' });
-      await activate(screen.getByRole('button', { name: 'Cancel' }));
-      await allDialogsClosed();
+        await activate(menu);
+        const drawer = within(
+          await screen.findByRole('dialog', { name: 'Menu' })
+        );
+        await activate(drawer.getByRole('button', { name: control }));
+        await screen.findByRole('dialog', { name: title });
+        await activate(screen.getByRole('button', { name: 'Cancel' }));
+        await allDialogsClosed();
 
-      await waitFor(() => expect(document.activeElement).toBe(menu));
-    });
+        await waitFor(() => expect(document.activeElement).toBe(menu));
+      }
+    );
   });
 
   // * The drawer below `lg`. Which rendering is visible is Tailwind's call, which happy-dom does not load, so these open the drawer explicitly; the width switch itself is a live browser check.

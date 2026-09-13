@@ -48,13 +48,19 @@ describe('ColorModeToggle', () => {
   });
 
   // * Persistence is the module's job, but the key is the contract the head script reads before first paint — a toggle that changed only the in-memory value would reset on every reload.
-  it('persists the choice where the head script reads it on the next load', async () => {
+  it('persists each choice where the head script reads it on the next load', async () => {
     await renderSuspended(ColorModeToggle);
 
     await fireEvent.click(toggle());
 
     await waitFor(() =>
       expect(localStorage.getItem('nuxt-color-mode')).toBe('dark')
+    );
+
+    await fireEvent.click(toggle());
+
+    await waitFor(() =>
+      expect(localStorage.getItem('nuxt-color-mode')).toBe('light')
     );
   });
 });

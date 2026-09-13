@@ -103,6 +103,30 @@ describe('FormDialog', () => {
     expect(emitted().confirm).toHaveLength(1);
   });
 
+  // * The button is disabled in both states, but Enter reaches the dialog without the button — the guard has to refuse it too.
+  it('does not confirm on Enter while confirmation is disabled or loading', async () => {
+    const disabled = await renderDialog(
+      { confirmDisabled: true },
+      { default: '<input />' }
+    );
+
+    await fireEvent.keyDown(screen.getByRole('textbox'), { key: 'Enter' });
+
+    expect(disabled.emitted().confirm).toBeUndefined();
+
+    cleanup();
+    document.body.innerHTML = '';
+
+    const loading = await renderDialog(
+      { loading: true },
+      { default: '<input />' }
+    );
+
+    await fireEvent.keyDown(screen.getByRole('textbox'), { key: 'Enter' });
+
+    expect(loading.emitted().confirm).toBeUndefined();
+  });
+
   // ! Cancelling does not close the dialog by itself — the owner holds the model. This is the
   // ! arrangement every call site uses, and the reason the base leaves closing to the owner.
   it('leaves the screen once its owner clears the model', async () => {

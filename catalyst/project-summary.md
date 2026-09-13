@@ -40,6 +40,7 @@ One line per record: type, status, title, link.
 | 012 | tooling     | Implemented | mattpocock-skills run inside Catalyst structures (Workflowy tracker, single ADR home, glossary as context doc)             | [decisions/012_tooling_mattpocock-skills-integration.md](decisions/012_tooling_mattpocock-skills-integration.md) |
 | 013 | process     | Implemented | Testing rulebook: strategy, quality doctrine, mutation and coverage stance in one record (supersedes 008/009/011, deleted) | [decisions/013_process_testing-rulebook.md](decisions/013_process_testing-rulebook.md)                           |
 | 014 | ui          | Implemented | Dialog-based auth composition over pages (shadcn-vue variant, parity with vuetify)                                         | [decisions/014_ui_shadcn-dialog-auth-composition.md](decisions/014_ui_shadcn-dialog-auth-composition.md)         |
+| 015 | ui          | Implemented | shadcn-vue as this branch's UI layer (vendored registry source on Reka UI, Tailwind 4, Lucide)                             | [decisions/015_ui_shadcn-vue-variant.md](decisions/015_ui_shadcn-vue-variant.md)                                 |
 
 ## Domain Decision Index
 
@@ -73,11 +74,11 @@ Every layer the project has and the module chosen for it (from Catalyst's `stack
 | backend/auth    | sanctum-session |
 | database        | mysql           |
 | frontend        | nuxt            |
-| frontend/ui     | headless        |
+| frontend/ui     | shadcn-vue      |
 | frontend/addons | i18n            |
 | maintenance     | renovate        |
 
-Assembled at brownfield adoption — swaps from the default set and non-adopted default layers are recorded in `decisions/001_init-design_vanguard-stack.md`.
+Assembled at brownfield adoption — swaps from the default set and non-adopted default layers are recorded in `decisions/001_init-design_vanguard-stack.md`. On this branch `frontend/ui` is `shadcn-vue`, a module this bundle carries ahead of the Catalyst template (`decisions/015_ui_shadcn-vue-variant.md`).
 
 **i18n locale set:** `en` (source, authored first) · `sr-Latn` · `sr-Cyrl`. Serbian is authored in Latin and transliterated to Cyrillic; plain `sr` / `sr-RS` resolve to `sr-Latn`. Adopted in `decisions/006_infra_i18n-adoption.md`.
 

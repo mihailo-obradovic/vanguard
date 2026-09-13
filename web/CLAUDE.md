@@ -33,7 +33,7 @@ Tests live in a `_tests/` subdirectory of the directory holding the code under t
 - Forms and validation (Regle + Zod, 422s inline) → `catalyst/stacks/frontend/nuxt/validation.md`
 - Client state (`stores/`) → `catalyst/stacks/frontend/nuxt/client-state.md`
 - Routing and middleware (`pages/`, `middleware/`) → `catalyst/stacks/frontend/nuxt/routing.md`
-- UI posture → `catalyst/stacks/frontend/nuxt/ui/shadcn-vue/shadcn-vue.md` (+ `setup.md`, `components.md`). `catalyst/stacks/frontend/nuxt/ui/headless.md` no longer governs anything on this branch; it stays only until Phase 6 flips the Technical Stack row that still links it.
+- UI posture → `catalyst/stacks/frontend/nuxt/ui/shadcn-vue/shadcn-vue.md` (+ `setup.md`, `components.md`). Why this branch runs it, and what it deviates from upstream: `catalyst/decisions/015_ui_shadcn-vue-variant.md`.
 - Message catalogs and user-facing text (`i18n/`) → `catalyst/stacks/frontend/nuxt/addons/i18n.md` (+ `addons/i18n/catalog-hygiene.md`)
 - Types and TS conventions (`types/`) → `catalyst/stacks/_lang/typescript/typescript-types.md`
 

@@ -164,6 +164,27 @@ Accepted surviving mutants — recheck when touching the code they live in:
 - **`regle-config.ts`, all 16, in the 2026-09-13 run only** (`variant/shadcn-vue`) — reported survived with its own spec attributed zero coverage, where the run an hour earlier on the same code killed all 16; breaking the required, maxLength and sameAs messages by hand turns `regle-config.spec.ts` red. The config is read once per app boot, so which spec Stryker credits with covering it varies by worker. Re-run before believing a drop here.
 - **Survivors in files identical to master's** (`variant/shadcn-vue`: `emailRules.ts` 8, `scrollEdges.ts` 4, `newPasswordRules.ts`'s default `'set'`) — a test added only here is dropped by the next sync (master wins `web/utils/`), so their triage is master's audit, tracked in Workflowy ("master mutation audit: emailRules + scrollEdges survivors"). The `scrollEdges` four are killable — the exact 1px tolerance boundary is untested — and so, likely, are two of `emailRules`'.
 
+### Vendored shadcn-vue components
+
+`variant/shadcn-vue` only. Renovate sees `reka-ui` and the other packages behind `web/components/ui/`, never the vendored files themselves, so upstream changes to those reach this project only through a deliberate check. Run it when Renovate raises a `reka-ui` bump, and before adding a component to a folder that is already vendored.
+
+```bash
+git status --short                                           # must be clean: the check overwrites files
+pnpm dlx shadcn-vue@latest add <component…> --overwrite --yes  # every vendored folder under web/components/ui/
+pnpm exec oxfmt web/components/ui                            # drops the registry's formatting from the diff
+git diff -- web/components/ui                                # read it
+git checkout -- web/components/ui                            # then restore, and re-apply only what is worth taking
+```
+
+Every hunk left after the format pass is one of two things: a deviation this project made, which must carry its `Default:`/`Changes:` annotation (an unannotated one is a bug to fix, not a hunk to shrug at), or an upstream change to take by hand. Measured 2026-09-13 on `field` (pulling `label` and `separator`): the only hunks left were `FieldError`'s annotated reserved height and the braces the lint requires.
+
+**Not `shadcn-vue diff`.** In 2.8.2 it reports `No updates found` for every component here, including `FieldError`, which is known to differ. The cause is in its `diffComponent`: the registry lists each file as `ui/<component>/<File>.vue` and the CLI joins that onto the resolved `ui` alias, `web/components/ui`, so it looks for `web/components/ui/ui/…`, finds nothing, and skips every file silently. Re-check on a CLI upgrade before trusting it again.
+
+Two CLI traps, both on any `add`:
+
+- **`main.css`'s comment is rewritten.** Every `add` re-serializes the CSS entry and turns the literal `<style scoped>` in its comment into `\3c style scoped>`. Repair that one hunk after the last `add`; never `git checkout` the whole file, which also throws away whatever the `add` was meant to write there. It did not fire for `sheet`, `collapsible` or the check above — read the diff anyway.
+- **`--yes` does not answer the overwrite prompt.** It skips only the confirmation; an `add` that meets an existing file still stops and asks. Pass `--overwrite` to take upstream's file, or pipe `yes n |` to keep yours.
+
 ### Browser walk, 2026-09-03 — the scroll and layout rules
 
 The half that cannot be unit-tested, measured in Chromium at 393x760 DPR 2.625 and 760x393 landscape, against the real API. Redo this walk when either rule's implementation changes.

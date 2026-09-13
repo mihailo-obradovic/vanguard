@@ -39,7 +39,7 @@ A vendored file is project source with an upstream ancestor. Both halves matter:
 - **Edit it freely** — that is the point of the registry.
 - **Annotate every deviation** per `conventions/code-annotations.md`: `// * Default: <original>` above a changed value, `// * Changes: <what/why>` above a changed block, `// * New …` for additions, and a note where something was removed rather than a silent deletion.
 
-The payoff is `pnpm dlx shadcn-vue@latest diff`, run periodically (recorded in the project's operations notes): it reports upstream changes to components you vendored. Annotated deviations read as deliberate; unannotated ones are indistinguishable from bugs, and the check degenerates into noise nobody reads.
+The payoff is a periodic upstream check (the procedure is in the project's operations notes): it reports upstream changes to components you vendored. `shadcn-vue diff` is the CLI's own answer, but in 2.8.2 it reports nothing for a project like this one — the runbook has the cause and the `add --overwrite` check used instead. Annotated deviations read as deliberate; unannotated ones are indistinguishable from bugs, and the check degenerates into noise nobody reads.
 
 ## Icons
 

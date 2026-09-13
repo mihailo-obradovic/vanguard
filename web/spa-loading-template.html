@@ -14,7 +14,7 @@
     background: #f8f8f2;
   }
 
-  /* ! Inert on this branch: nothing puts `dark` on <html> yet, so these never match. Kept in step with main.css's own .dark block, which is real and equally unreachable, so the splash is already right when a colour-mode mechanism lands rather than being the one thing left blue. */
+  /* ! Kept in step with main.css's own .dark block by hand — this template loads before any stylesheet, so it cannot read the tokens. @nuxtjs/color-mode's head script stamps `dark` on <html> before the splash paints, so a dark visitor never sees a light flash. */
   :root.dark #boot-splash {
     background: #21222c;
   }

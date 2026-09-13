@@ -20,6 +20,7 @@ export default defineNuxtConfig({
     '@nuxt/fonts',
     '@nuxt/image',
     '@nuxt/test-utils/module',
+    '@nuxtjs/color-mode',
     '@nuxtjs/i18n',
     '@pinia/nuxt',
     '@pinia/colada-nuxt',
@@ -29,6 +30,11 @@ export default defineNuxtConfig({
 
   regle: {
     setupFile: '@/regle-config.ts'
+  },
+
+  colorMode: {
+    // * Default: 'system'. Light until the visitor picks otherwise — the toggle flips light/dark and offers no way back to following the OS.
+    preference: 'light'
   },
 
   i18n: {

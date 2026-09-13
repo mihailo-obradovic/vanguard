@@ -6,9 +6,23 @@
   </NuxtLayout>
 
   <CookieConsentBanner />
+
+  <!-- * Mounted once, here; `utils/toast.ts` is the seam every call site goes through. The four variables point vue-sonner's own palette at this theme's tokens, so a toast reads like the rest of the UI. -->
+  <toaster
+    :style="{
+      '--normal-bg': 'var(--color-surface)',
+      '--normal-text': 'var(--color-text-strong)',
+      '--normal-border': 'var(--color-border)',
+      '--border-radius': 'var(--radius)'
+    }"
+  />
 </template>
 
 <script setup lang="ts">
+import 'vue-sonner/style.css';
+
+import { Toaster } from 'vue-sonner';
+
 useHead({
   title: 'Vanguard',
 

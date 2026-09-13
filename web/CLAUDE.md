@@ -15,7 +15,7 @@ Paths below are relative to the repo root. The `catalyst/` documents are normati
 - `mocks/` — test-only: the MSW server, its lifecycle setup file, the request recorder, schema-parsed fixtures, and per-resource handlers. Never imported by shipped code.
 - `middleware/auth.global.ts` — the only route middleware; a thin wrapper over the pure, unit-tested `utils/authRedirectLogic.ts`.
 - `pages/` — file-based routes: `index`, `home`, `profile`, `users`, `graphql-demo`, plus the auth pages (`login`, `register`, `forgot-password`, `password-reset/[token]`).
-- `plugins/` — `auth-loader.ts` (restores the session before first render), `vue-toastification.ts`.
+- `plugins/` — `auth-loader.ts` (restores the session before first render). Toasts need no plugin: `app.vue` mounts vue-sonner's `<toaster>` once, themed onto the tokens, and `utils/toast.ts` is the seam in front of it.
 - `regle-config.ts` — the `@regle/nuxt` setup file: localized messages for the built-in validation rules.
 - `services/` — one `<resource>.api.ts` per resource (auto-imported via `imports.dirs`); `services/queries/` holds the `use<Resource>Queries.ts` composables. Two-layer rule: every resource has both files. A resource served over GraphQL instead uses `<resource>.gql.ts` + `use<Resource>GqlQueries.ts` — the same two layers, the same wrappers, only the transport differs.
 - `stores/useAuthStore.ts` — the only Pinia store.

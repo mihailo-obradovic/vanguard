@@ -18,12 +18,14 @@ const { navigateTo, route } = vi.hoisted(() => ({
 mockNuxtImport('navigateTo', () => navigateTo);
 mockNuxtImport('useRoute', () => () => route);
 
-// * The shell renders the router and the consent banner; neither is what this spec is about.
+// * The shell renders the router, the consent banner and the toast host; none is what this spec
+// * is about.
 const stubs = {
   NuxtLoadingIndicator: true,
   NuxtLayout: true,
   NuxtPage: true,
-  CookieConsentBanner: true
+  CookieConsentBanner: true,
+  Toaster: true
 };
 
 /**

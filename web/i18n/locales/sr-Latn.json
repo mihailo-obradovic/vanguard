@@ -45,6 +45,7 @@
       "label": "Saglasnost za kolačiće",
       "message": "Koristimo kolačiće da bismo poboljšali vaše iskustvo. Možete prihvatiti ili odbiti kolačiće koji nisu neophodni."
     },
+    "darkMode": "Tamni režim",
     "fields": {
       "currentPassword": "Trenutna lozinka",
       "email": "E-pošta",

@@ -45,6 +45,7 @@
       "label": "Cookie consent",
       "message": "We use cookies to enhance your experience. You can accept or decline non-essential cookies."
     },
+    "darkMode": "Dark mode",
     "fields": {
       "currentPassword": "Current password",
       "email": "Email",

@@ -33,6 +33,7 @@
               as-child
             >
               <NuxtLink :to="link.to">
+                <component :is="link.icon" />
                 {{ $t(link.label) }}
               </NuxtLink>
             </Button>
@@ -43,31 +44,33 @@
           <div v-if="isLoggedIn" class="flex flex-col gap-2 px-4">
             <Button variant="ghost" class="justify-start" as-child>
               <NuxtLink to="/profile">
+                <User />
                 {{ user?.name }}
               </NuxtLink>
             </Button>
 
             <Button
               variant="destructive"
+              :aria-busy="isLoggingOut"
               :disabled="isLoggingOut"
               @click="logOutFromDrawer"
             >
-              <UIReservedLabel
-                :variants="{
-                  idle: $t('common.nav.logout'),
-                  pending: $t('common.nav.logoutPending')
-                }"
-                :active="isLoggingOut ? 'pending' : 'idle'"
-              />
+              <Loader2 v-if="isLoggingOut" class="animate-spin" />
+
+              <LogOut v-else />
+
+              {{ $t('common.nav.logout') }}
             </Button>
           </div>
 
           <div v-else class="flex flex-col gap-2 px-4">
             <Button @click="openLoginFromDrawer">
+              <LogIn />
               {{ $t('common.nav.login') }}
             </Button>
 
             <Button variant="outline" @click="openRegisterFromDrawer">
+              <UserPlus />
               {{ $t('common.nav.register') }}
             </Button>
           </div>
@@ -95,8 +98,9 @@
           <!-- ! Any tint of the bar's foreground pulls the text towards its own colour: 5% rest and 10% hover hold 5.33:1 and 4.82:1 in the light face, where 15% and 25% fell to 4.36:1 and 3.56:1. -->
           <NuxtLink
             to="/profile"
-            class="bg-primary-foreground/5 hover:bg-primary-foreground/10 inline-flex h-9 items-center rounded-md px-4 text-sm font-medium transition-colors"
+            class="bg-primary-foreground/5 hover:bg-primary-foreground/10 inline-flex h-9 items-center gap-2 rounded-md px-3 text-sm font-medium transition-colors"
           >
+            <User class="size-4" />
             {{ user?.name }}
           </NuxtLink>
 
@@ -104,25 +108,27 @@
           <Button
             variant="destructive"
             class="dark:bg-destructive dark:text-primary-foreground dark:hover:bg-destructive/90"
+            :aria-busy="isLoggingOut"
             :disabled="isLoggingOut"
             @click="logOut()"
           >
-            <UIReservedLabel
-              :variants="{
-                idle: $t('common.nav.logout'),
-                pending: $t('common.nav.logoutPending')
-              }"
-              :active="isLoggingOut ? 'pending' : 'idle'"
-            />
+            <!-- * The pending state swaps the icon for a same-size spinner and keeps the label, so the button never resizes — reserving the longer "Logging out..." text instead left the icon stranded beside a centred "Logout". -->
+            <Loader2 v-if="isLoggingOut" class="animate-spin" />
+
+            <LogOut v-else />
+
+            {{ $t('common.nav.logout') }}
           </Button>
         </div>
 
         <div v-else class="hidden items-center gap-3 lg:flex">
           <Button variant="on-primary" @click="startLogin">
+            <LogIn />
             {{ $t('common.nav.login') }}
           </Button>
 
           <Button variant="on-primary" @click="startRegister">
+            <UserPlus />
             {{ $t('common.nav.register') }}
           </Button>
         </div>
@@ -174,7 +180,17 @@
 </template>
 
 <script setup lang="ts">
-import { Menu } from '@lucide/vue';
+import {
+  Braces,
+  House,
+  Loader2,
+  LogIn,
+  LogOut,
+  Menu,
+  User,
+  UserPlus,
+  Users
+} from '@lucide/vue';
 
 import {
   useGeneratePasswordResetEmail,
@@ -232,12 +248,13 @@ const {
 );
 
 // * One list for both renderings — inline at `lg`, in the drawer below it — so the two cannot drift apart.
+// * `icon` is read by the drawer only; the desktop bar's links stay text, as on the other variants.
 const links = computed(() => [
-  { to: '/home', label: 'common.nav.home' },
+  { to: '/home', label: 'common.nav.home', icon: House },
   ...(isAdmin.value
     ? [
-        { to: '/users', label: 'common.nav.users' },
-        { to: '/graphql-demo', label: 'common.nav.graphqlDemo' }
+        { to: '/users', label: 'common.nav.users', icon: Users },
+        { to: '/graphql-demo', label: 'common.nav.graphqlDemo', icon: Braces }
       ]
     : [])
 ]);

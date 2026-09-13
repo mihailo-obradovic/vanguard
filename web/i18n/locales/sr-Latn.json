@@ -75,6 +75,15 @@
   },
   "errors": {
     "generic": "Nešto je pošlo naopako. Pokušajte ponovo.",
+    "page": {
+      "goHome": "Na početnu",
+      "notFoundMessage": "Stranica koju tražite ne postoji ili je premeštena.",
+      "notFoundTitle": "Stranica nije pronađena",
+      "refresh": "Osveži",
+      "technicalDetails": "Tehnički detalji",
+      "unexpectedMessage": "Došlo je do neočekivane greške. Pokušajte ponovo.",
+      "unexpectedTitle": "Nešto je pošlo naopako"
+    },
     "unexpectedResponse": "Neočekivan odgovor servera.",
     "usersLoad": "Greška pri učitavanju korisnika: {message}"
   },

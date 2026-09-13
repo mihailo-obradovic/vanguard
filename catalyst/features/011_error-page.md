@@ -2,7 +2,7 @@
 
 ## Status
 
-Approved
+Active
 
 ## Task Weight
 
@@ -14,13 +14,10 @@ When Nuxt renders its error state — a signed-in user opening a URL no route ma
 
 ## Inputs
 
-| Input          | Type        | Source                                   | Constraints                                                                       |
-| -------------- | ----------- | ---------------------------------------- | --------------------------------------------------------------------------------- |
-| `error`        | `NuxtError` | Nuxt, as the `error.vue` prop            | `statusCode` (Nuxt defaults it to 500), `statusMessage?`, `message?`              |
-| Go home click  | user event  | the page's primary button                | —                                                                                 |
-| Refresh click  | user event  | the page's secondary button              | —                                                                                 |
-| Details toggle | user event  | the technical-details disclosure trigger | collapsed on first render                                                         |
-| Active locale  | string      | `@nuxtjs/i18n`                           | `en` / `sr-Latn` / `sr-Cyrl`; all copy comes from `errors.page.*` in the catalogs |
+| Input         | Type        | Source                        | Constraints                                                          |
+| ------------- | ----------- | ----------------------------- | -------------------------------------------------------------------- |
+| `error`       | `NuxtError` | Nuxt, as the `error.vue` prop | `statusCode` (Nuxt defaults it to 500), `statusMessage?`, `message?` |
+| Active locale | string      | `@nuxtjs/i18n`                | `en` / `sr-Latn` / `sr-Cyrl`                                         |
 
 ## Outputs And Side Effects
 
@@ -110,6 +107,9 @@ No protected area — this feature owns no backend contract.
 - Live browser walk, both faces, at 320px and desktop width: the 404 path signed in, the disclosure opening and closing, Go home, Refresh, and one locale switch before triggering the error.
 
 ## Verification
+
+- `web/_tests/error.spec.ts`: 5 pass; four deliberate breakages (developer message shown, `data` in the details, Go home to `/`, titles swapped) each fail one. Suite 443 passed; typecheck and lint clean.
+- Walk, signed in on `/no-such-page`: at 320×640 no navbar, no horizontal overflow, buttons on one row in `en` and `sr-Cyrl`, no text below AA in either face; details show exactly three fields, and a 2,240-character message scrolls inside a 190px block with the edge rules. At 640×320 the layout scrolls the open card into reach. At 1280×800 Refresh fully reloaded the URL and Go home landed on `/home` in-app; console clean.
 
 ## Agent Change Rules
 

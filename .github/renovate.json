@@ -55,6 +55,27 @@
       "assignees": ["mihailo-obradovic"]
     },
     {
+      "description": "Re-enable shadcn-vue's branch-specific front-end deps on variant/shadcn-vue (not present on master). Its vendored components under web/components/ui are source, not dependencies, so Renovate cannot see them — they update through `pnpm dlx shadcn-vue@latest diff`.",
+      "matchManagers": ["npm"],
+      "matchBaseBranches": ["variant/shadcn-vue"],
+      "matchPackageNames": [
+        "@lucide/vue",
+        "@nuxtjs/color-mode",
+        "@tailwindcss/vite",
+        "class-variance-authority",
+        "clsx",
+        "reka-ui",
+        "tailwind-merge",
+        "tailwindcss",
+        "tw-animate-css"
+      ],
+      "enabled": true,
+      "addLabels": ["front-end", "shadcn-vue"],
+      "semanticCommitType": "Dependency",
+      "semanticCommitScope": "FE - ShadCN",
+      "assignees": ["mihailo-obradovic"]
+    },
+    {
       "description": "Only raise PRs for major/minor (x.y) releases; skip patch/hotfix (x.y.z) updates. Security patches still come through via vulnerabilityAlerts/osvVulnerabilityAlerts.",
       "matchUpdateTypes": ["patch"],
       "enabled": false

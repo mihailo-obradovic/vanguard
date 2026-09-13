@@ -26,7 +26,8 @@
       class="bg-card flex min-h-0 flex-col overflow-hidden rounded-md border shadow-xs"
     >
       <!-- ! `min-h-0` is what makes this work: a flex child's default `min-height: auto` refuses to shrink below its content, so the table would grow the page instead of scrolling. -->
-      <UIScrollArea class="min-h-0 flex-1">
+      <!-- * `both`: the table is about 600px wide, so on a phone the vertical default clipped the Edit column out of reach; the left and right edge rules say which way the rest lies. -->
+      <UIScrollArea axis="both" class="min-h-0 flex-1">
         <Table>
           <TableHeader>
             <TableRow class="hover:bg-primary">

@@ -1,32 +1,33 @@
 <template>
-  <Transition name="cookie-slide">
+  <!-- * Slides up from the bottom edge on first mount and back down once decided — the enter and leave states are the same offset, so one pair of classes describes both. -->
+  <Transition
+    enter-active-class="transition duration-250 ease-out"
+    leave-active-class="transition duration-250 ease-in"
+    enter-from-class="translate-y-full opacity-0"
+    leave-to-class="translate-y-full opacity-0"
+  >
     <div
       v-if="isMounted && !isDecided"
-      class="cookie-banner"
+      class="bg-card fixed inset-x-0 bottom-0 z-[1000] border-t shadow-[0_-4px_6px_rgb(0_0_0/0.1)]"
       role="region"
       :aria-label="$t('common.cookieConsent.label')"
     >
-      <div class="cookie-content">
-        <p class="cookie-message">
+      <div
+        class="mx-auto flex max-w-[1200px] items-center justify-between gap-4 p-4 max-sm:flex-col max-sm:items-stretch"
+      >
+        <p class="text-sm">
           {{ $t('common.cookieConsent.message') }}
         </p>
 
-        <div class="cookie-actions">
-          <button
-            type="button"
-            class="cookie-btn cookie-btn--decline"
-            @click="decline"
-          >
+        <!-- * Decline carries the same weight of control as Accept, one step quieter — a banner that makes refusing harder than agreeing is the dark pattern this component exists to avoid. -->
+        <div class="flex shrink-0 items-center gap-2 max-sm:justify-end">
+          <Button variant="outline" @click="decline">
             {{ $t('common.cookieConsent.decline') }}
-          </button>
+          </Button>
 
-          <button
-            type="button"
-            class="cookie-btn cookie-btn--accept"
-            @click="accept"
-          >
+          <Button @click="accept">
             {{ $t('common.cookieConsent.accept') }}
-          </button>
+          </Button>
         </div>
       </div>
     </div>
@@ -34,6 +35,8 @@
 </template>
 
 <script setup lang="ts">
+import { Button } from '@/components/ui/button';
+
 const { isDecided, accept, decline } = useCookieConsent();
 
 const isMounted = ref(false);
@@ -42,93 +45,3 @@ onMounted(() => {
   isMounted.value = true;
 });
 </script>
-
-<style scoped>
-.cookie-banner {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  background: var(--color-surface);
-  border-top: 1px solid var(--color-border-legacy);
-  box-shadow: var(--shadow-card-up);
-}
-
-.cookie-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.cookie-message {
-  margin: 0;
-  color: var(--color-text);
-  font-size: 14px;
-}
-
-.cookie-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-.cookie-btn {
-  font-family: 'Lexend', sans-serif;
-  padding: 8px 16px;
-  border-radius: var(--radius);
-  font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all var(--transition);
-}
-
-.cookie-btn--decline {
-  background-color: transparent;
-  color: var(--color-text);
-  border: 1px solid var(--color-border-legacy);
-}
-
-.cookie-btn--decline:hover {
-  background-color: var(--color-border-legacy);
-}
-
-.cookie-btn--accept {
-  background-color: var(--color-brand);
-  color: var(--color-on-brand);
-  border: 1px solid var(--color-brand);
-}
-
-.cookie-btn--accept:hover {
-  background-color: var(--color-brand-hover);
-}
-
-.cookie-slide-enter-active,
-.cookie-slide-leave-active {
-  transition:
-    transform var(--transition),
-    opacity var(--transition);
-}
-
-.cookie-slide-enter-from,
-.cookie-slide-leave-to {
-  transform: translateY(100%);
-  opacity: 0;
-}
-
-@media (max-width: 640px) {
-  .cookie-content {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .cookie-actions {
-    justify-content: flex-end;
-  }
-}
-</style>

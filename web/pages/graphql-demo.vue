@@ -20,14 +20,14 @@
       {{ $t('errors.usersLoad', { message: getErrorMessage(error) }) }}
     </p>
 
-    <!-- * A static shell: it keeps the border and the radius so the scrolling element inside carries no structural edge of its own, which is the split `scroll-affordance.md` asks for. `overflow-hidden` clips the table's corners to the radius. -->
+    <!-- * A static shell carrying the border and the radius; `overflow-hidden` clips the table's corners to the radius. -->
     <div
       v-else
       class="bg-card flex min-h-0 flex-col overflow-hidden rounded-md border shadow-xs"
     >
       <!-- ! `min-h-0` is what makes this work: a flex child's default `min-height: auto` refuses to shrink below its content, so the table would grow the page instead of scrolling. -->
-      <!-- * `both`: the table is about 600px wide, so on a phone the vertical default clipped the Edit column out of reach; the left and right edge rules say which way the rest lies. -->
-      <UIScrollArea axis="both" class="min-h-0 flex-1">
+      <!-- * Both axes: the table is about 600px wide, so on a phone the Edit column sits off to the right. A plain overflow region rather than `UIScrollArea` — the shell's border and the header band already mark the clipped edges (see `users.vue`). -->
+      <div class="min-h-0 flex-1 overflow-auto">
         <Table>
           <TableHeader>
             <TableRow class="hover:bg-primary">
@@ -53,7 +53,7 @@
             </TableRow>
           </TableBody>
         </Table>
-      </UIScrollArea>
+      </div>
     </div>
 
     <UserGqlFormDialog

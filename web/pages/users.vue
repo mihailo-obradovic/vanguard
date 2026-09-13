@@ -26,13 +26,13 @@
         <span class="text-primary font-semibold">{{ users.length }}</span>
       </p>
 
-      <!-- * A static shell: it keeps the border and the radius so the scrolling element inside carries no structural edge of its own, which is the split `scroll-affordance.md` asks for. `overflow-hidden` clips the table's corners to the radius. -->
+      <!-- * A static shell carrying the border and the radius; `overflow-hidden` clips the table's corners to the radius. -->
       <div
         class="bg-card flex min-h-0 flex-col overflow-hidden rounded-md border shadow-xs"
       >
-        <!-- ! `min-h-0` is what makes this work: a flex child's default `min-height: auto` refuses to shrink below its content, so the table would grow the page instead of scrolling. The sticky header then keeps the column names in place while the body moves — and, sitting inside this region, it covers the top edge rule, which is why only the bottom one is ever visible here. -->
-        <!-- * `both`: seven columns are about 935px wide, and a phone gives the region a third of that — with the vertical default the overflow was clipped, taking Edit and Delete out of reach. The left and right edge rules say which way the rest of the table lies. -->
-        <UIScrollArea axis="both" class="min-h-0 flex-1">
+        <!-- ! `min-h-0` is what makes this work: a flex child's default `min-height: auto` refuses to shrink below its content, so the table would grow the page instead of scrolling. The sticky header then keeps the column names in place while the body moves. -->
+        <!-- * Both axes: seven columns are about 935px wide, so on a phone Edit and Delete sit off to the right. A plain overflow region, not `UIScrollArea`: the shell's border and the filled header band already mark where the table is clipped — the adjacent-chrome exemption in `scroll-affordance.md` — so edge rules would only draw a second line along them. -->
+        <div class="min-h-0 flex-1 overflow-auto">
           <Table>
             <TableHeader>
               <TableRow class="hover:bg-primary">
@@ -101,7 +101,7 @@
               </TableRow>
             </TableBody>
           </Table>
-        </UIScrollArea>
+        </div>
       </div>
     </div>
 

@@ -129,10 +129,11 @@
       </div>
     </nav>
 
-    <!-- * `tabindex="-1"` makes the landmark programmatically focusable: it is where SkipLink jumps. It does not move focus without it — a fragment link alone only sets the browser's tab-navigation start point. -->
+    <!-- * `tabindex="-1"` makes the landmark programmatically focusable: it is where SkipLink jumps, and where `useFocusReturn` sends focus when a dialog's opener is gone. It does not move focus without it — a fragment link alone only sets the browser's tab-navigation start point. -->
+    <!-- * `outline-none`: nothing can Tab to this element, so it is not a control whose focus a keyboard user needs to find, and the browser's ring otherwise draws a frame around the whole page content. The next Tab still starts from here. -->
     <main
       id="main-content"
-      class="mx-auto flex w-full max-w-[1200px] flex-1 flex-col overflow-y-auto p-4"
+      class="mx-auto flex w-full max-w-[1200px] flex-1 flex-col overflow-y-auto p-4 outline-none"
       tabindex="-1"
     >
       <slot />

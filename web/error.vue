@@ -24,10 +24,12 @@
 
         <div class="flex gap-2">
           <Button variant="outline" class="flex-1" @click="refresh">
+            <RotateCw />
             {{ $t('errors.page.refresh') }}
           </Button>
 
           <Button class="flex-1" @click="goHome">
+            <House />
             {{ $t('errors.page.goHome') }}
           </Button>
         </div>
@@ -57,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-import { ChevronDown } from '@lucide/vue';
+import { ChevronDown, House, RotateCw } from '@lucide/vue';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

@@ -6,7 +6,10 @@
         {{ $t('users.title') }}
       </h1>
 
-      <Button @click="openCreateForm">{{ $t('users.create') }}</Button>
+      <Button @click="openCreateForm">
+        <Plus />
+        {{ $t('users.create') }}
+      </Button>
     </div>
 
     <p v-if="isPending" class="bg-card rounded-md border p-8 text-center">
@@ -132,7 +135,7 @@
 </template>
 
 <script setup lang="ts">
-import { Loader2, Pencil, Trash2 } from '@lucide/vue';
+import { Loader2, Pencil, Plus, Trash2 } from '@lucide/vue';
 
 import UserFormDialog from '@/components/users/UserFormDialog.vue';
 import UserDeleteDialog from '@/components/users/UserDeleteDialog.vue';

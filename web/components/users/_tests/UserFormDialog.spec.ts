@@ -423,7 +423,7 @@ describe('UserFormDialog', () => {
   });
 
   it('asks to close when Cancel is pressed', async () => {
-    const { emitted, wrapper } = await mountDialog();
+    const { emitted } = await mountDialog();
 
     await fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 

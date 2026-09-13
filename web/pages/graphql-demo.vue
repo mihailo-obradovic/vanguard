@@ -1,47 +1,57 @@
 <template>
   <!-- * A column filling `main`, so the table below can take the space that is left rather than growing the page. -->
-  <div class="demo-container">
-    <header class="demo-header">
-      <h1 class="demo-title">{{ $t('graphqlDemo.title') }}</h1>
+  <div class="mx-auto flex min-h-0 w-full max-w-[1000px] flex-1 flex-col">
+    <header class="mb-6 shrink-0 border-b pb-4">
+      <h1 class="text-primary text-3xl font-semibold">
+        {{ $t('graphqlDemo.title') }}
+      </h1>
 
-      <p class="demo-intro">{{ $t('graphqlDemo.intro') }}</p>
+      <p class="text-muted-foreground mt-2">{{ $t('graphqlDemo.intro') }}</p>
     </header>
 
-    <div v-if="isPending" class="state-panel">
-      <p>{{ $t('users.loading') }}</p>
-    </div>
+    <p v-if="isPending" class="bg-card rounded-md border p-8 text-center">
+      {{ $t('users.loading') }}
+    </p>
 
-    <div v-else-if="error" class="state-panel error-panel">
-      <p>{{ $t('errors.usersLoad', { message: getErrorMessage(error) }) }}</p>
-    </div>
+    <p
+      v-else-if="error"
+      class="text-destructive border-destructive/40 bg-destructive/10 rounded-md border p-8 text-center"
+    >
+      {{ $t('errors.usersLoad', { message: getErrorMessage(error) }) }}
+    </p>
 
-    <div v-else class="table-container">
-      <UIScrollArea class="table-scroll">
-        <table class="users-table">
-          <thead>
-            <tr>
-              <th>{{ $t('users.columns.id') }}</th>
-              <th>{{ $t('users.columns.name') }}</th>
-              <th>{{ $t('users.columns.email') }}</th>
-              <th>{{ $t('users.columns.role') }}</th>
-              <th>{{ $t('users.columns.actions') }}</th>
-            </tr>
-          </thead>
+    <!-- * A static shell: it keeps the border and the radius so the scrolling element inside carries no structural edge of its own, which is the split `scroll-affordance.md` asks for. `overflow-hidden` clips the table's corners to the radius. -->
+    <div
+      v-else
+      class="bg-card flex min-h-0 flex-col overflow-hidden rounded-md border shadow-xs"
+    >
+      <!-- ! `min-h-0` is what makes this work: a flex child's default `min-height: auto` refuses to shrink below its content, so the table would grow the page instead of scrolling. -->
+      <UIScrollArea class="min-h-0 flex-1">
+        <Table>
+          <TableHeader>
+            <TableRow class="hover:bg-primary">
+              <TableHead v-for="column in COLUMNS" :key="column" :class="HEAD">
+                {{ $t(`users.columns.${column}`) }}
+              </TableHead>
+            </TableRow>
+          </TableHeader>
 
-          <tbody>
-            <tr v-for="user in users" :key="user.id">
-              <td>{{ user.id }}</td>
-              <td>{{ user.name }}</td>
-              <td class="user-email">{{ user.email }}</td>
-              <td><RoleBadge :role="user.role" /></td>
-              <td>
-                <button class="edit-btn" @click="openEditForm(user)">
+          <TableBody>
+            <TableRow v-for="user in users" :key="user.id">
+              <TableCell>{{ user.id }}</TableCell>
+              <TableCell class="font-medium">{{ user.name }}</TableCell>
+              <TableCell class="text-muted-foreground">
+                {{ user.email }}
+              </TableCell>
+              <TableCell><RoleBadge :role="user.role" /></TableCell>
+              <TableCell>
+                <Button variant="outline" size="sm" @click="openEditForm(user)">
                   {{ $t('common.actions.edit') }}
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                </Button>
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
       </UIScrollArea>
     </div>
 
@@ -57,6 +67,15 @@
 
 <script setup lang="ts">
 import UserGqlFormDialog from '@/components/users/UserGqlFormDialog.vue';
+import { Button } from '@/components/ui/button';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table';
 
 import {
   useFetchUsersGql,
@@ -67,6 +86,12 @@ import type { User } from '@/types/auth';
 // * Worked example for catalyst/features/007_graphql-api.md: this page is written exactly the
 // * way the REST pages are — query composables, no loading refs, no try/catch, inline 422s.
 // * The only difference from users.vue is which composables it imports.
+
+// * The column set, so the headers are one loop rather than five near-identical rows.
+const COLUMNS = ['id', 'name', 'email', 'role', 'actions'] as const;
+
+// * The header is brand-filled and sticks to the scrolling region's top, so it needs an opaque fill of its own to cover the rows passing under it.
+const HEAD = 'bg-primary text-primary-foreground sticky top-0 z-10';
 
 const { t } = useI18n();
 
@@ -96,109 +121,3 @@ function closeEditForm() {
   editingUser.value = null;
 }
 </script>
-
-<style scoped>
-.demo-container {
-  max-width: 1000px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-}
-
-.demo-header {
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--color-border-legacy);
-  flex-shrink: 0;
-}
-
-.demo-title {
-  color: var(--color-brand);
-  margin: 0;
-  font-size: 32px;
-  font-weight: 600;
-}
-
-.demo-intro {
-  color: var(--color-text-muted);
-  margin: 8px 0 0 0;
-  font-size: 14px;
-}
-
-.state-panel {
-  text-align: center;
-  padding: 32px;
-  background: var(--color-surface);
-  border-radius: var(--radius);
-  border: 1px solid var(--color-border-legacy);
-}
-
-.error-panel {
-  color: var(--color-danger);
-  background-color: var(--color-danger-surface);
-  border-color: var(--color-danger-surface-border);
-}
-
-/* * A static shell: it keeps the border and the radius so the scrolling element inside carries no structural edge of its own, which is the split `scroll-affordance.md` asks for. `overflow: hidden` clips the table's corners to the radius. */
-.table-container {
-  background: var(--color-surface);
-  border-radius: var(--radius);
-  border: 1px solid var(--color-border-legacy);
-  box-shadow: var(--shadow-subtle);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-
-/* ! `min-height: 0` is what makes this work: a flex child's default `min-height: auto` refuses to shrink below its content, so the table would grow the page instead of scrolling. Sticky `th`s then keep the column headers in place while the body moves — and, sitting inside this region, they cover its top edge rule, which is why only the bottom one is ever visible here. */
-.table-scroll {
-  flex: 1 1 auto;
-  min-height: 0;
-}
-
-.users-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.users-table th {
-  background-color: var(--color-brand);
-  color: var(--color-on-brand);
-  padding: 12px 16px;
-  text-align: left;
-  font-weight: 600;
-  font-size: 14px;
-  position: sticky;
-  top: 0;
-  z-index: 1;
-}
-
-.users-table td {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--color-border-legacy);
-  font-size: 14px;
-}
-
-.user-email {
-  color: var(--color-text-muted);
-}
-
-.edit-btn {
-  background-color: var(--color-brand);
-  color: var(--color-on-brand);
-  border: none;
-  padding: 6px 12px;
-  border-radius: var(--radius);
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 500;
-  transition: background-color var(--transition);
-}
-
-.edit-btn:hover:not(:disabled) {
-  background-color: var(--color-brand-hover);
-}
-</style>

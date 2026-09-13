@@ -1,71 +1,94 @@
 <template>
-  <UIDialog
-    :open="user !== null"
+  <FormDialog
+    :model-value="user !== null"
     :title="$t('graphqlDemo.editTitle', { name: user?.name ?? '' })"
-    @close="emit('close')"
+    :confirm-disabled="r$.$invalid"
+    :loading="submitting"
+    @update:model-value="handleOpenChange"
+    @cancel="emit('close')"
+    @confirm="handleSubmit"
   >
-    <form class="user-form" novalidate @submit.prevent="handleSubmit">
-      <UIField
+    <Field :data-invalid="name.invalid">
+      <FieldLabel :for="name.id">{{ $t('common.fields.name') }}</FieldLabel>
+
+      <Input
         v-model="form.name"
-        :label="$t('common.fields.name')"
-        :errors="r$.name.$errors"
         type="text"
         :disabled="submitting"
+        v-bind="name.control"
       />
 
-      <UIField
+      <FieldError :id="name.errorId" :errors="name.errors" />
+    </Field>
+
+    <Field :data-invalid="email.invalid">
+      <FieldLabel :for="email.id">{{ $t('common.fields.email') }}</FieldLabel>
+
+      <Input
         v-model="form.email"
-        :label="$t('common.fields.email')"
-        :errors="r$.email.$errors"
         type="email"
         :disabled="submitting"
+        v-bind="email.control"
       />
 
-      <UIField :label="$t('common.fields.role')">
-        <template #default="{ controlId }">
-          <select
-            :id="controlId"
-            v-model="form.role"
-            class="ui-field-control"
-            :disabled="submitting"
-          >
-            <option value="user">{{ $t('users.roles.user') }}</option>
+      <FieldError :id="email.errorId" :errors="email.errors" />
+    </Field>
 
-            <option value="admin">{{ $t('users.roles.admin') }}</option>
-          </select>
-        </template>
-      </UIField>
+    <Field>
+      <FieldLabel :for="roleId">{{ $t('common.fields.role') }}</FieldLabel>
 
-      <UIDialogActions>
-        <button
-          type="button"
-          class="cancel-btn"
-          :disabled="submitting"
-          @click="emit('close')"
-        >
-          {{ $t('common.actions.cancel') }}
-        </button>
+      <Select v-model="form.role" :disabled="submitting">
+        <SelectTrigger :id="roleId" class="w-full">
+          <SelectValue>{{ roleLabel }}</SelectValue>
+        </SelectTrigger>
 
-        <button
-          type="submit"
-          class="submit-btn"
-          :disabled="submitting || r$.$invalid"
-        >
-          <UIReservedLabel
-            :variants="{
-              idle: $t('users.form.submitUpdate'),
-              saving: $t('common.actions.saving')
-            }"
-            :active="submitting ? 'saving' : 'idle'"
-          />
-        </button>
-      </UIDialogActions>
-    </form>
-  </UIDialog>
+        <SelectContent>
+          <SelectItem value="user">{{ $t('users.roles.user') }}</SelectItem>
+
+          <SelectItem value="admin">{{ $t('users.roles.admin') }}</SelectItem>
+        </SelectContent>
+      </Select>
+    </Field>
+
+    <template #actions>
+      <Button
+        variant="outline"
+        class="flex-1"
+        :disabled="submitting"
+        @click="emit('close')"
+      >
+        {{ $t('common.actions.cancel') }}
+      </Button>
+
+      <Button
+        class="flex-1"
+        :disabled="submitting || r$.$invalid"
+        @click="handleSubmit"
+      >
+        <UIReservedLabel
+          :variants="{
+            idle: $t('users.form.submitUpdate'),
+            saving: $t('common.actions.saving')
+          }"
+          :active="submitting ? 'saving' : 'idle'"
+        />
+      </Button>
+    </template>
+  </FormDialog>
 </template>
 
 <script setup lang="ts">
-import { email, maxLength, required } from '@regle/rules';
+import { email as emailRule, maxLength, required } from '@regle/rules';
+import { Button } from '@/components/ui/button';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
 
 import type { User } from '@/types/auth';
 import type { UpdateUserGqlInput } from '@/types/user';
@@ -92,12 +115,32 @@ const { r$ } = useRegle(
     ...nameRules(),
     email: labeledRules('validation.fieldNames.email', {
       required,
-      email,
+      email: emailRule,
       maxLength: maxLength(255)
     })
   },
   { externalErrors: useExternalErrors(() => props.serverErrors) }
 );
+
+const { t } = useI18n();
+
+const name = useFieldAria(() => r$.name.$errors);
+const email = useFieldAria(() => r$.email.$errors);
+
+// * The role field carries no rules of its own, so it needs an id for the label pairing and nothing else.
+const roleId = useId();
+
+// * Passed explicitly rather than left to `SelectValue`'s own lookup, which resolves through the items and reads empty until the list has been opened once.
+const roleLabel = computed(() =>
+  form.value.role === 'admin' ? t('users.roles.admin') : t('users.roles.user')
+);
+
+// * The dialog owns its own dismissal (Escape, the overlay, Cancel); all of them arrive here.
+function handleOpenChange(open: boolean) {
+  if (!open) {
+    emit('close');
+  }
+}
 
 function formFor(user: User | null) {
   return {
@@ -133,47 +176,3 @@ watch(
   }
 );
 </script>
-
-<style scoped>
-.user-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.cancel-btn {
-  background-color: var(--color-secondary);
-  color: var(--color-on-brand);
-  border: none;
-  padding: 8px 16px;
-  border-radius: var(--radius);
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color var(--transition);
-}
-
-.cancel-btn:hover {
-  background-color: var(--color-secondary-hover);
-}
-
-.submit-btn {
-  background-color: var(--color-brand);
-  color: var(--color-on-brand);
-  border: none;
-  padding: 8px 16px;
-  border-radius: var(--radius);
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color var(--transition);
-}
-
-.submit-btn:hover:not(:disabled) {
-  background-color: var(--color-brand-hover);
-}
-
-.submit-btn:disabled,
-.cancel-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-</style>

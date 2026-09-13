@@ -1,10 +1,13 @@
 // @vitest-environment nuxt
 import { describe, it, expect, afterEach } from 'vitest';
 import { defineComponent, h, ref } from 'vue';
-import { renderSuspended } from '@nuxt/test-utils/runtime';
+import { mountSuspended } from '@nuxt/test-utils/runtime';
 import { screen, fireEvent, cleanup, waitFor } from '@testing-library/vue';
 
 import { buildUser } from '@/mocks/fixtures';
+
+import FormDialog from '@/components/_shared/FormDialog.vue';
+import { Select } from '@/components/ui/select';
 
 import UserGqlFormDialog from '../UserGqlFormDialog.vue';
 
@@ -36,17 +39,51 @@ async function mountDialog(user: User | null) {
     }
   });
 
-  await renderSuspended(page);
+  // * `mountSuspended` rather than `renderSuspended` so the specs can reach the two controls that
+  // * are no longer plain DOM — see `submit` and `pickRole`. Testing Library's `screen` queries the
+  // * document either way, so every other query is unaffected.
+  const wrapper = await mountSuspended(page);
 
-  return { subject, serverErrors, updates, closes };
+  wrappers.push(wrapper);
+
+  return { subject, serverErrors, updates, closes, wrapper };
 }
+
+// ! Derived from `mountSuspended`, not from `mountDialog`: that function pushes into `wrappers`
+// ! below, so taking the type from it is circular and silently resolves to `any`.
+type Wrapper = Awaited<ReturnType<typeof mountSuspended>>;
+
+const wrappers: Wrapper[] = [];
 
 function field(label: string) {
   return screen.getByLabelText(label) as HTMLInputElement;
 }
 
-function submit() {
-  return fireEvent.submit(document.querySelector('form') as HTMLFormElement);
+/**
+ * Ask the dialog to confirm, rather than clicking the button.
+ *
+ * ! `FormDialog` has no form element — its actions sit in the dialog footer, outside any — so the
+ * ! equivalent seam is the confirm it emits, which is what Enter and the footer button both reach
+ * ! `handleSubmit` through. Confirming also exercises the handler's own guard rather than only the
+ * ! button's disabled state.
+ */
+function submit(wrapper: Wrapper) {
+  wrapper.findComponent(FormDialog).vm.$emit('confirm');
+
+  return wrapper.vm.$nextTick();
+}
+
+/**
+ * Pick a role the way a user does — at the component seam.
+ *
+ * ! Reka UI's listbox cannot be opened in this environment: clicking the trigger renders no
+ * ! options at all, so a click-driven test would assert against an empty list and pass for the
+ * ! wrong reason. The rendered listbox is a live browser check (`catalyst/operations.md`).
+ */
+function pickRole(wrapper: Wrapper, role: 'user' | 'admin') {
+  wrapper.findComponent(Select).vm.$emit('update:modelValue', role);
+
+  return wrapper.vm.$nextTick();
 }
 
 /**
@@ -62,6 +99,7 @@ function settleValidation() {
 
 describe('UserGqlFormDialog', () => {
   afterEach(() => {
+    wrappers.splice(0).forEach((wrapper) => wrapper.unmount());
     cleanup();
   });
 
@@ -85,35 +123,37 @@ describe('UserGqlFormDialog', () => {
   // ! The partial-update contract: an omitted GraphQL variable never reaches the resolver, so
   // ! sending only the diff is what stops two editors overwriting each other with stale snapshots.
   it('sends only the fields that actually changed', async () => {
-    const { updates } = await mountDialog(
+    const { updates, wrapper } = await mountDialog(
       buildUser({ id: 7, name: 'Ada', email: 'ada@example.com', role: 'user' })
     );
 
     await fireEvent.update(field('Name'), 'Ada Lovelace');
 
-    await submit();
+    await submit(wrapper);
 
     await waitFor(() => expect(updates).toHaveLength(1));
     expect(updates[0]).toEqual({ id: 7, name: 'Ada Lovelace' });
   });
 
   it('sends the id alone when nothing was touched', async () => {
-    const { updates } = await mountDialog(buildUser({ id: 7, name: 'Ada' }));
+    const { updates, wrapper } = await mountDialog(
+      buildUser({ id: 7, name: 'Ada' })
+    );
 
-    await submit();
+    await submit(wrapper);
 
     await waitFor(() => expect(updates).toHaveLength(1));
     expect(updates[0]).toEqual({ id: 7 });
   });
 
   it('sends a changed role', async () => {
-    const { updates } = await mountDialog(
+    const { updates, wrapper } = await mountDialog(
       buildUser({ id: 7, name: 'Ada', role: 'user' })
     );
 
-    await fireEvent.update(screen.getByLabelText('Role'), 'admin');
+    await pickRole(wrapper, 'admin');
 
-    await submit();
+    await submit(wrapper);
 
     await waitFor(() => expect(updates).toHaveLength(1));
     expect(updates[0]).toEqual({ id: 7, role: 'admin' });
@@ -136,11 +176,13 @@ describe('UserGqlFormDialog', () => {
   });
 
   it('does not emit an update the rules reject', async () => {
-    const { updates } = await mountDialog(buildUser({ id: 7, name: 'Ada' }));
+    const { updates, wrapper } = await mountDialog(
+      buildUser({ id: 7, name: 'Ada' })
+    );
 
     await fireEvent.update(field('Email'), 'not-an-email');
 
-    await submit();
+    await submit(wrapper);
 
     await waitFor(() =>
       expect(
@@ -154,11 +196,13 @@ describe('UserGqlFormDialog', () => {
   });
 
   it('names the field when the name is emptied', async () => {
-    const { updates } = await mountDialog(buildUser({ id: 7, name: 'Ada' }));
+    const { updates, wrapper } = await mountDialog(
+      buildUser({ id: 7, name: 'Ada' })
+    );
 
     await fireEvent.update(field('Name'), '');
 
-    await submit();
+    await submit(wrapper);
 
     await waitFor(() =>
       expect(screen.getByText('The name field is required.')).toBeTruthy()
@@ -170,11 +214,11 @@ describe('UserGqlFormDialog', () => {
   });
 
   it('renders the server verdict on the field it names', async () => {
-    const { serverErrors, updates } = await mountDialog(
+    const { serverErrors, updates, wrapper } = await mountDialog(
       buildUser({ id: 7, name: 'Ada' })
     );
 
-    await submit();
+    await submit(wrapper);
     await waitFor(() => expect(updates).toHaveLength(1));
 
     serverErrors.value = { email: ['The email has already been taken.'] };
@@ -184,7 +228,7 @@ describe('UserGqlFormDialog', () => {
     );
   });
 
-  // * Escape is UIDialog's, but the page only hears about it because this dialog forwards it.
+  // * Escape is the dialog primitive's, but the page only hears about it because this dialog forwards it.
   it("forwards the dialog's own close request", async () => {
     const { closes } = await mountDialog(buildUser({ id: 7 }));
 

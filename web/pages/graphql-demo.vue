@@ -46,8 +46,13 @@
               </TableCell>
               <TableCell><RoleBadge :role="user.role" /></TableCell>
               <TableCell>
-                <Button variant="outline" size="sm" @click="openEditForm(user)">
-                  {{ $t('common.actions.edit') }}
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  :aria-label="$t('users.actions.edit', { name: user.name })"
+                  @click="openEditForm(user)"
+                >
+                  <Pencil />
                 </Button>
               </TableCell>
             </TableRow>
@@ -67,6 +72,8 @@
 </template>
 
 <script setup lang="ts">
+import { Pencil } from '@lucide/vue';
+
 import UserGqlFormDialog from '@/components/users/UserGqlFormDialog.vue';
 import { Button } from '@/components/ui/button';
 import {

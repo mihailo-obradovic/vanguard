@@ -34,7 +34,6 @@
       "cancel": "Otkaži",
       "close": "Zatvori",
       "confirm": "Potvrdi",
-      "delete": "Obriši",
       "deleting": "Brisanje...",
       "edit": "Izmeni",
       "save": "Sačuvaj",
@@ -119,6 +118,10 @@
     }
   },
   "users": {
+    "actions": {
+      "delete": "Obriši {name}",
+      "edit": "Izmeni {name}"
+    },
     "columns": {
       "actions": "Radnje",
       "createdAt": "Datum kreiranja",

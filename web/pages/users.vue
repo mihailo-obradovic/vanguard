@@ -70,31 +70,38 @@
                   {{ formatDate(user.created_at) }}
                 </TableCell>
                 <TableCell>
-                  <div class="flex gap-2">
+                  <!-- * Icon-only, as on the other variants: the accessible name carries the user's name, so a screen reader hears which row the action is for rather than twenty identical "Edit"s. -->
+                  <div class="flex gap-1">
                     <Button
-                      variant="outline"
-                      size="sm"
+                      variant="ghost"
+                      size="icon-sm"
+                      :aria-label="
+                        $t('users.actions.edit', { name: user.name })
+                      "
                       :disabled="isDeletingUser === user.id"
                       @click="openEditForm(user)"
                     >
-                      {{ $t('common.actions.edit') }}
+                      <Pencil />
                     </Button>
 
+                    <!-- * The spinner takes the icon's place at the same size, so the row does not resize while its delete is in flight. -->
                     <Button
-                      variant="destructive"
-                      size="sm"
+                      variant="ghost"
+                      size="icon-sm"
+                      class="text-destructive hover:text-destructive"
+                      :aria-label="
+                        $t('users.actions.delete', { name: user.name })
+                      "
+                      :aria-busy="isDeletingUser === user.id"
                       :disabled="isDeletingUser === user.id"
                       @click="confirmDelete(user)"
                     >
-                      <UIReservedLabel
-                        :variants="{
-                          idle: $t('common.actions.delete'),
-                          pending: $t('common.actions.deleting')
-                        }"
-                        :active="
-                          isDeletingUser === user.id ? 'pending' : 'idle'
-                        "
+                      <Loader2
+                        v-if="isDeletingUser === user.id"
+                        class="animate-spin"
                       />
+
+                      <Trash2 v-else />
                     </Button>
                   </div>
                 </TableCell>
@@ -125,6 +132,8 @@
 </template>
 
 <script setup lang="ts">
+import { Loader2, Pencil, Trash2 } from '@lucide/vue';
+
 import UserFormDialog from '@/components/users/UserFormDialog.vue';
 import UserDeleteDialog from '@/components/users/UserDeleteDialog.vue';
 import { Button } from '@/components/ui/button';

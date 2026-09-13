@@ -5,6 +5,7 @@
       :show-close-button="false"
       @keydown.enter="confirmFromEnter"
       @after-leave="emit('afterLeave')"
+      @close-auto-focus="restoreFocus"
     >
       <DialogHeader class="p-6 pb-2">
         <DialogTitle>
@@ -59,11 +60,14 @@ const props = withDefaults(
     confirmDisabled?: boolean;
     loading?: boolean;
     confirmOnEnter?: boolean;
+    // * Where focus returns if the control that opened this dialog is gone by the time it closes — the owner's record of what started a hand-off chain (`useFocusReturn`).
+    returnFocusTo?: HTMLElement | null;
   }>(),
   {
     confirmDisabled: false,
     loading: false,
-    confirmOnEnter: true
+    confirmOnEnter: true,
+    returnFocusTo: null
   }
 );
 
@@ -77,6 +81,8 @@ const emit = defineEmits<{
   afterLeave: [];
 }>();
 // Stryker restore all
+
+const { restoreFocus } = useFocusReturn(dialog, () => props.returnFocusTo);
 
 const confirmFromEnter = useConfirmOnEnter(
   () => emit('confirm'),

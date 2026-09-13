@@ -9,6 +9,7 @@
       <Sheet v-model:open="drawer">
         <SheetTrigger as-child>
           <Button
+            ref="menuButton"
             variant="on-primary"
             size="icon"
             class="lg:hidden"
@@ -117,11 +118,11 @@
         </div>
 
         <div v-else class="hidden items-center gap-3 lg:flex">
-          <Button variant="on-primary" @click="openLogin">
+          <Button variant="on-primary" @click="startLogin">
             {{ $t('common.nav.login') }}
           </Button>
 
-          <Button variant="on-primary" @click="openRegister">
+          <Button variant="on-primary" @click="startRegister">
             {{ $t('common.nav.register') }}
           </Button>
         </div>
@@ -139,8 +140,10 @@
 
     <TheFooter />
 
+    <!-- * `return-focus-to` falls through to each dialog's FormDialog: the control that started the chain, so a hand-off or a drawer that has since closed does not leave focus on <body>. -->
     <!-- * The three are mutually exclusive, and each closes itself before emitting its hand-off — so a hand-off only has to raise the next one's flag. -->
     <LoginDialog
+      :return-focus-to="focusOrigin"
       v-model="loginDialog"
       :loading="isLoggingIn"
       :server-errors="loginErrors"
@@ -150,6 +153,7 @@
     />
 
     <RegisterDialog
+      :return-focus-to="focusOrigin"
       v-model="registerDialog"
       :loading="isRegistering"
       :server-errors="registerErrors"
@@ -158,6 +162,7 @@
     />
 
     <ForgotPasswordDialog
+      :return-focus-to="focusOrigin"
       v-model="forgotPasswordDialog"
       :loading="isSendingResetEmail"
       :server-errors="forgotPasswordErrors"
@@ -189,8 +194,12 @@ import ForgotPasswordDialog from '@/components/users/ForgotPasswordDialog.vue';
 import LoginDialog from '@/components/users/LoginDialog.vue';
 import RegisterDialog from '@/components/users/RegisterDialog.vue';
 
+import type { ComponentPublicInstance } from 'vue';
+
 const NAV_LINK =
   'hover:bg-primary-foreground/10 inline-flex h-9 items-center rounded-md px-4 text-sm font-medium transition-colors';
+
+const menuButton = useTemplateRef<ComponentPublicInstance>('menuButton');
 
 const route = useRoute();
 
@@ -232,6 +241,19 @@ const links = computed(() => [
     : [])
 ]);
 
+// * The control that opened the current chain of auth dialogs. A hand-off keeps it; only a fresh start from the bar or the drawer replaces it.
+const focusOrigin = shallowRef<HTMLElement | null>(null);
+
+function startLogin(event: MouseEvent) {
+  focusOrigin.value = event.currentTarget as HTMLElement;
+  openLogin();
+}
+
+function startRegister(event: MouseEvent) {
+  focusOrigin.value = event.currentTarget as HTMLElement;
+  openRegister();
+}
+
 function openLogin() {
   loginDialog.value = true;
 }
@@ -249,11 +271,13 @@ const drawer = ref(false);
 // * Each action closes the drawer before it starts, so the drawer never sits open behind the dialog it handed off to, or over a session that just ended.
 function openLoginFromDrawer() {
   drawer.value = false;
+  focusOrigin.value = menuButton.value?.$el ?? null;
   openLogin();
 }
 
 function openRegisterFromDrawer() {
   drawer.value = false;
+  focusOrigin.value = menuButton.value?.$el ?? null;
   openRegister();
 }
 

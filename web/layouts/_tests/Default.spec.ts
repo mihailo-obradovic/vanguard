@@ -155,6 +155,54 @@ describe('the default layout', () => {
     expect(screen.queryByRole('dialog', { name: 'Welcome Back' })).toBeNull();
   });
 
+  // ! Reka restores focus to whatever was focused when a dialog opened. After a hand-off that element was inside the previous dialog, and after the drawer it was inside the drawer — both unmounted by the time this dialog closes, so without the layout naming the chain's origin, focus fell to <body>. Focus-then-click is how a keyboard user opens these; a bare click never moves focus and would fake the result.
+  describe('focus after a dialog closes', () => {
+    async function activate(element: HTMLElement) {
+      element.focus();
+      await fireEvent.click(element);
+    }
+
+    async function allDialogsClosed() {
+      await waitFor(() =>
+        expect(screen.queryAllByRole('dialog', { hidden: true })).toHaveLength(
+          0
+        )
+      );
+    }
+
+    it('returns to the bar button that started a hand-off', async () => {
+      await renderSuspended(Default);
+
+      const login = screen.getByRole('button', { name: 'Login' });
+
+      await activate(login);
+      await screen.findByRole('dialog', { name: 'Welcome Back' });
+      await activate(screen.getByRole('button', { name: /Register here/ }));
+      await screen.findByRole('dialog', { name: 'Create Account' });
+      await activate(screen.getByRole('button', { name: 'Cancel' }));
+      await allDialogsClosed();
+
+      await waitFor(() => expect(document.activeElement).toBe(login));
+    });
+
+    it('returns to the menu button when a dialog opened from the drawer closes', async () => {
+      await renderSuspended(Default);
+
+      const menu = screen.getByRole('button', { name: 'Menu' });
+
+      await activate(menu);
+      const drawer = within(
+        await screen.findByRole('dialog', { name: 'Menu' })
+      );
+      await activate(drawer.getByRole('button', { name: 'Login' }));
+      await screen.findByRole('dialog', { name: 'Welcome Back' });
+      await activate(screen.getByRole('button', { name: 'Cancel' }));
+      await allDialogsClosed();
+
+      await waitFor(() => expect(document.activeElement).toBe(menu));
+    });
+  });
+
   // * The drawer below `lg`. Which rendering is visible is Tailwind's call, which happy-dom does not load, so these open the drawer explicitly; the width switch itself is a live browser check.
   describe('the phone-width drawer', () => {
     async function openDrawer() {

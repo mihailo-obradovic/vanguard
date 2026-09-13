@@ -14,9 +14,14 @@
 <script setup lang="ts">
 import type { ScrollAxis } from '@/utils/scrollEdges';
 
+// ! Stryker instruments this block with locally declared coverage helpers, and a compiler
+// ! macro is hoisted out of setup() — referencing them there is a compile error, not a
+// ! warning. The default inside goes unmutated as a result (`catalyst/operations.md`).
+// Stryker disable all
 const props = withDefaults(defineProps<{ axis?: ScrollAxis }>(), {
   axis: 'vertical'
 });
+// Stryker restore all
 
 const region = useTemplateRef<HTMLElement>('region');
 const content = useTemplateRef<HTMLElement>('content');

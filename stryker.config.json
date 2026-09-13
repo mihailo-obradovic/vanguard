@@ -17,6 +17,7 @@
     "web/components/**/*.vue",
     "web/layouts/**/*.vue",
     "web/app.vue",
+    "!web/components/ui/**",
     "!web/**/_tests/**"
   ],
   "ignorePatterns": ["!.nuxt"],

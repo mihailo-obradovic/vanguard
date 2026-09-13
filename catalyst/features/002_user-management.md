@@ -97,7 +97,7 @@ Walkthroughs — Admin: full table and all actions, including their own row (see
 ## Entry Points
 
 - `routes/api.php` (`apiResource` behind `['auth:sanctum','admin']`), `app/Http/Controllers/UserController.php`, `app/Http/Requests/UserRequest.php`, `app/Http/Middleware/EnsureUserIsAdmin.php`, `app/Enums/Role.php`, `app/Http/Resources/UserResource.php`.
-- SPA: `web/pages/users.vue` (table, delete confirmation, mutations), `web/components/users/UserFormDialog.vue` (the create/edit form, its rules and the payload it emits), `web/services/user.api.ts`, `web/services/queries/useUserQueries.ts`, `web/layouts/Default.vue` (nav gating).
+- SPA: `web/pages/users.vue` (table, mutations), `web/components/users/UserFormDialog.vue` (the create/edit form, its rules and the payload it emits), `web/components/users/UserDeleteDialog.vue` (the delete confirmation, open until the owner settles the delete), `web/services/user.api.ts`, `web/services/queries/useUserQueries.ts`, `web/layouts/Default.vue` (nav gating).
 
 ## Dependencies
 
@@ -110,7 +110,7 @@ Walkthroughs — Admin: full table and all actions, including their own row (see
 ## Tests
 
 - `tests/Feature/UserManagementTest.php` — the gates (guest 401, non-admin 403), each verb's happy path (list newest-first with `total`, show, create admin, create default role, partial update with role promotion, hard delete), the self-delete 403, the exact response field set as a field-leakage guard, the full `UserRequest` validation matrix incl. the two uniqueness cases, and the email-change verification pair (reset + link on an email change, untouched on a name-only edit). `tests/Unit/UserPolicyTest.php` covers all four policy arms.
-- Known gaps: 404s and non-GET 401/403; self-demotion & last-admin scenarios; `latest()` ordering unasserted; PATCH unexercised; post-delete orphan cleanup; no component test for `users.vue`. The frontend data layer behind it is covered (`web/services/_tests/user.api.spec.ts`, `web/services/queries/_tests/useUserQueries.spec.ts`).
+- Known gaps: 404s and non-GET 401/403; self-demotion & last-admin scenarios; `latest()` ordering unasserted; PATCH unexercised; post-delete orphan cleanup; no component test for `users.vue` (its delete confirmation: `web/components/users/_tests/UserDeleteDialog.spec.ts`). The frontend data layer behind it is covered (`web/services/_tests/user.api.spec.ts`, `web/services/queries/_tests/useUserQueries.spec.ts`).
 
 ## Verification
 

@@ -114,63 +114,19 @@
       @close="closeUserForm"
     />
 
-    <!-- * An AlertDialog rather than a Dialog: deleting a user is a destructive confirmation, and this one carries the role and focus defaults that go with it. -->
-    <AlertDialog :open="!!userToDelete" @update:open="handleDeleteDialogToggle">
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>{{ $t('users.delete.title') }}</AlertDialogTitle>
-
-          <AlertDialogDescription>
-            <!-- * `scope="global"`: the Translation component resolves against its PARENT's scope by default, and its parent here is AlertDialogDescription, which enables no scope of its own. Without this it warns and falls back to global anyway — this says so out loud. -->
-            <i18n-t keypath="users.delete.confirm" tag="span" scope="global">
-              <template #name>
-                <strong>"{{ userToDelete?.name }}"</strong>
-              </template>
-            </i18n-t>
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-
-        <p class="text-destructive text-sm italic">
-          {{ $t('users.delete.warning') }}
-        </p>
-
-        <AlertDialogFooter>
-          <AlertDialogCancel :disabled="isDeleting" @click="cancelDelete">
-            {{ $t('common.actions.cancel') }}
-          </AlertDialogCancel>
-
-          <AlertDialogAction
-            :class="buttonVariants({ variant: 'destructive' })"
-            :disabled="isDeleting"
-            @click="handleDelete"
-          >
-            <UIReservedLabel
-              :variants="{
-                idle: $t('users.delete.submit'),
-                pending: $t('common.actions.deleting')
-              }"
-              :active="isDeleting ? 'pending' : 'idle'"
-            />
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <UserDeleteDialog
+      :user="userToDelete"
+      :deleting="isDeleting"
+      @confirm="deleteUser"
+      @close="cancelDelete"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import UserFormDialog from '@/components/users/UserFormDialog.vue';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle
-} from '@/components/ui/alert-dialog';
-import { Button, buttonVariants } from '@/components/ui/button';
+import UserDeleteDialog from '@/components/users/UserDeleteDialog.vue';
+import { Button } from '@/components/ui/button';
 import {
   Table,
   TableBody,
@@ -275,21 +231,6 @@ function confirmDelete(user: User) {
 
 function cancelDelete() {
   userToDelete.value = null;
-}
-
-// * Reka closes on Escape and on the overlay as well as on Cancel; all of them arrive here.
-function handleDeleteDialogToggle(open: boolean) {
-  if (!open) {
-    cancelDelete();
-  }
-}
-
-function handleDelete() {
-  if (!userToDelete.value) {
-    return;
-  }
-
-  deleteUser(userToDelete.value.id);
 }
 
 // * Create/Edit form functions

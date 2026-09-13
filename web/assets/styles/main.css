@@ -11,6 +11,9 @@
  * (`bg-card`, `text-muted-foreground`), never through a literal colour.
  */
 :root {
+    /* * New — tells the browser which face its own widgets belong to (scrollbars, autofill, native pickers), which no token reaches. .dark flips it. */
+    color-scheme: light;
+
     /* * Shared by every vendored component: the @theme inline radius scale below derives rounded-sm through rounded-xl from it. */
     --radius: 0.625rem;
 
@@ -158,6 +161,8 @@ body {
  ---break---
  */
 .dark {
+    color-scheme: dark; /* * New — see :root */
+
     /* * The palette as Dracula draws it: background, current line, comment and foreground land on the tokens they were named for, and the accents keep their own pastels. */
     --background: oklch(
         0.2554 0.0188 280.49

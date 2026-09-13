@@ -35,8 +35,9 @@ const forwardedProps = useForwardProps(delegatedProps);
          * chevron rule above is `[&_svg:not([class*='text-'])]`, which outranks a plain
          * `[&_svg]` override on specificity, so the icon kept its muted colour — 1.03:1 on that
          * fill, invisible rather than quiet. Declared here, `cn` merges the two into one. */
+        /* * The `dark:` pair overrides the base's `dark:bg-input/30` and `dark:hover:bg-input/50`, which lay the input's grey over the dark face's lavender bar at 4.13:1 resting and 3.18:1 hovered — transparent holds 5.90:1 and the bar's own 10% tint 5.08:1. */
         variant === 'on-primary' &&
-          `border-primary-foreground/60 text-primary-foreground hover:bg-primary-foreground/10 [&_svg:not([class*='text-'])]:text-primary-foreground`,
+          `border-primary-foreground/60 text-primary-foreground hover:bg-primary-foreground/10 dark:bg-transparent dark:hover:bg-primary-foreground/10 [&_svg:not([class*='text-'])]:text-primary-foreground`,
         props.class
       )
     "

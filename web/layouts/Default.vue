@@ -26,15 +26,18 @@
 
         <template v-if="isLoggedIn">
           <!-- * Same height as the buttons beside it, so the bar does not resize between the signed-in and guest states. -->
+          <!-- ! Any tint of the bar's foreground pulls the text towards its own colour: 5% rest and 10% hover hold 5.33:1 and 4.82:1 in the light face, where 15% and 25% fell to 4.36:1 and 3.56:1. -->
           <NuxtLink
             to="/profile"
-            class="bg-primary-foreground/15 hover:bg-primary-foreground/25 inline-flex h-9 items-center rounded-md px-4 text-sm font-medium transition-colors"
+            class="bg-primary-foreground/5 hover:bg-primary-foreground/10 inline-flex h-9 items-center rounded-md px-4 text-sm font-medium transition-colors"
           >
             {{ user?.name }}
           </NuxtLink>
 
+          <!-- ! The vendored destructive button pairs white with a 60% fill in the dark face, which is measured against the dark page. Over this lavender bar it falls to 3.01:1, so here it takes the full fill and the bar's dark text: 4.53:1, 4.54:1 on hover. -->
           <Button
             variant="destructive"
+            class="dark:bg-destructive dark:text-primary-foreground dark:hover:bg-destructive/90"
             :disabled="isLoggingOut"
             @click="logOut()"
           >

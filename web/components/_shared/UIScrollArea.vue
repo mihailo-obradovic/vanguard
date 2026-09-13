@@ -75,18 +75,18 @@ onMounted(measure);
 }
 
 .edge-top {
-  border-top-color: var(--color-scroll-edge);
+  border-top-color: var(--scroll-edge);
 }
 
 .edge-bottom {
-  border-bottom-color: var(--color-scroll-edge);
+  border-bottom-color: var(--scroll-edge);
 }
 
 .edge-left {
-  border-left-color: var(--color-scroll-edge);
+  border-left-color: var(--scroll-edge);
 }
 
 .edge-right {
-  border-right-color: var(--color-scroll-edge);
+  border-right-color: var(--scroll-edge);
 }
 </style>

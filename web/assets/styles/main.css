@@ -11,70 +11,14 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * ! variant/shadcn-vue transition: Tailwind sits beside the headless module's tokens rather than
- * ! replacing them, so unconverted pages keep rendering while pages move to shadcn one at a time
- * ! (Phase 3/4). This block — and the headless UI module it implements
- * ! (catalyst/stacks/frontend/nuxt/ui/headless.md) — is deleted once the last consumer converts.
- *
- * The design tokens every component's `<style scoped>` builds on: nothing global except these
- * definitions and the few base-element rules below.
- *
- * Tokens are named for the ROLE, not the value — two roles may share a value (a muted label and a
- * secondary button are both #6c757d) and still change independently later.
+ * The design tokens: shadcn's semantic variable set carrying Dracula, plus the few roles this
+ * product has that shadcn names none of. Components reach them through Tailwind utilities
+ * (`bg-card`, `text-muted-foreground`), never through a literal colour.
  */
 :root {
-    /* Brand */
-    --color-brand: rgb(0 102 255);
-    /* Hover on a brand-filled surface (buttons). */
-    --color-brand-hover: rgb(0 102 255 / 0.9);
-    /* Hover on brand-coloured text (links). */
-    --color-brand-hover-text: rgb(0 102 255 / 0.8);
-    /* The focus ring an input grows when it takes focus. */
-    --color-brand-ring: rgb(0 102 255 / 0.1);
-
-    /* Surfaces and lines */
-    --color-surface: #ffffff;
-    --color-surface-muted: #f8f9fa;
-    --color-border-legacy: #e9ecef;
-    /* The hard separator under the nav bar and over the footer. */
-    --color-rule: #000000;
-    /*
-     * The 1px rule marking an edge a scroll region is currently hiding content past. It carries
-     * information rather than decorating, so it answers to WCAG 1.4.11 at 3:1 against the surface
-     * behind it — 3.32:1 on --color-surface, 3.15:1 on --color-surface-muted. --color-border-legacy is the
-     * decorative divider and stays quiet at 1.19:1; it cannot do this job.
-     */
-    --color-scroll-edge: #868e96;
-    --color-overlay: rgb(0 0 0 / 0.5);
-
-    /* Text */
-    --color-text: #495057;
-    --color-text-strong: #212529;
-    --color-text-muted: #6c757d;
-    /* Text on a brand- or status-filled surface. */
-    --color-on-brand: #ffffff;
-    /* Text on the warning fill, which is too light for white. */
-    --color-on-warning: #000000;
-
-    /* Status */
-    --color-danger: #dc3545;
-    --color-danger-hover: #c82333;
-    --color-danger-surface: #f8d7da;
-    --color-danger-surface-border: #f5c6cb;
-    --color-success: #28a745;
-    --color-warning: #ffc107;
-
-    /* Secondary action (cancel, dismiss) */
-    --color-secondary: #6c757d;
-    --color-secondary-hover: #5a6268;
-
-    /* Shape, depth and motion */
+    /* * Shared by every vendored component: the @theme inline radius scale below derives rounded-sm through rounded-xl from it. */
     --radius: 0.625rem;
-    --shadow-card: 0 4px 6px rgb(0 0 0 / 0.1);
-    --shadow-subtle: 0 2px 4px rgb(0 0 0 / 0.05);
-    /* The same card depth, cast upward — for a bar pinned to the bottom of the viewport. */
-    --shadow-card-up: 0 -4px 6px rgb(0 0 0 / 0.1);
-    --transition: 0.25s ease;
+
     /*
      * The shadcn variable set, carrying Dracula. Sourced from the palette `variant/nuxtui` already
      * derived and measured (its `decisions/014_ui_nuxtui-variant.md`), so all three variants paint
@@ -129,6 +73,8 @@
 
     /* * The decorative divider stays quiet at 1.32:1 — it separates, it does not inform. The scroll-edge rule is the token that carries information and answers to 3:1 (`stacks/frontend/_common/scroll-affordance.md`). */
     --border: oklch(0.8852 0.0072 268.54); /* #d7d9de */
+    /* * New token — the 1px rule `UIScrollArea` draws on an edge that is currently hiding content (`catalyst/stacks/frontend/_common/scroll-affordance.md`). It carries information where --border only separates, so it answers to WCAG 1.4.11's 3:1 against the surfaces it sits on: 4.41:1 on the canvas, 4.71:1 on a card. --border manages 1.32:1 and cannot do this job. */
+    --scroll-edge: oklch(0.5598 0.0803 270.09); /* #6272a4 — Dracula comment */
     --input: oklch(0.8852 0.0072 268.54);
     --ring: oklch(0.5266 0.1927 301.83); /* #8144c5 · 5.52:1 on the canvas */
 
@@ -258,6 +204,9 @@ body {
     --warning-foreground: oklch(0.2882 0.0221 277.51);
 
     --border: oklch(0.4028 0.0322 277.83); /* #44475a */
+    --scroll-edge: oklch(
+        0.704 0.0489 268.97
+    ); /* #939fbf · 5.98:1 on the page, 5.39:1 on a card */
     --input: oklch(0.4028 0.0322 277.83);
     --ring: oklch(0.742 0.1485 301.88); /* #bd93f9 · 6.55:1 on the page */
 

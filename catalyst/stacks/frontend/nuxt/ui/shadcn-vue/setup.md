@@ -22,7 +22,7 @@ There is no `tailwind.config.js` and no PostCSS step: `@tailwindcss/vite` is reg
 
 **Contrast is measured, not eyeballed.** Every text pairing clears WCAG AA 4.5:1 and every informational non-text one (the focus ring, the scroll-edge rule) clears 3:1; the ratios sit in comments beside the values. Dracula's pastels cannot survive the light face — a filled control takes white text and every pastel falls short — so that face uses the darkest step of each hue that clears the floor, and the dark face keeps the pastels. Re-measure when a value changes rather than assuming a neighbouring step behaves the same.
 
-**During the conversion** the file also carries the headless module's own token block, flagged with a `// !` marker and deleted only when the last consumer converts. Two token systems coexisting is a transition state with an end date, not a pattern to copy.
+**Roles shadcn does not name get their own token** rather than a literal in a component: `--success` and `--warning` for the badges, `--scroll-edge` for `UIScrollArea`'s affordance. Each is declared in both faces with its contrast measured, and mapped in `@theme inline` when a utility needs it. (The headless module's token block sat beside this one through the conversion and was deleted once nothing read it — two token systems coexisting was a transition state, not a pattern to copy.)
 
 ## Adding a component
 
